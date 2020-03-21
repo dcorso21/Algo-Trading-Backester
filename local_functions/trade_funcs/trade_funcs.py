@@ -105,7 +105,7 @@ def get_current_positions(positions):
         columns = ['ticker','exe_time','send_time','buy_or_sell','cash','qty','exe_price']
         df = positions[columns]
         
-        current = pull_json('temp_assets/current_ohlcvs.json')
+        # current = pull_json('temp_assets/current_ohlcvs.json')
         
         buys = df[df['buy_or_sell'] == 'BUY']
         sells = df[df['buy_or_sell'] == 'SELL']

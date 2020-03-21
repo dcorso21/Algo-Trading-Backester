@@ -4,6 +4,10 @@ def temp_files():
     import json
     import logging
 
+    import sys
+
+    sys.dont_write_bytecode = True
+
     # PL JSON:
     # managed here
     pls = {
