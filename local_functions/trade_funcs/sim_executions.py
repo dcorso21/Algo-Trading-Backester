@@ -15,10 +15,10 @@ def run_trade_sim(new_orders, current):
 
     cancel_second = 10
 
-    price_offset = .03
+    price_offset = 0.0
 
     # min number of seconds to fill (assuming the price and volume fit too... )
-    lag = 2
+    lag = 1
 
     open_orders = get_open_orders()
 
@@ -52,19 +52,19 @@ def run_trade_sim(new_orders, current):
     ###################################################
     # BYPASS VOLUME CHECK #####
 
-    filled_orders = potential_fills
+    # filled_orders = potential_fills
     # if len(filled_orders) != 0:
     #     columns = ['ticker', 'send_time','buy_or_sell', 'cash', 'qty', 'exe_price']
     #     filled_orders = filled_orders[columns]
     #     filled_orders['exe_time'] = [str(create_timestamp(current['minute'], current['second']))]
 
-    fill_indexes = filled_orders.index.to_list()
+    # fill_indexes = filled_orders.index.to_list()
     # open_orders.drop(index=fill_indexes)
 
     ###################################################
 
     if len(potential_fills) != 0:
-        # fill_indexes, open_orders = vol_check(current, potential_fills, open_orders)
+        fill_indexes, open_orders = vol_check(current, potential_fills, open_orders)
 
         if fill_indexes != 0:
 
