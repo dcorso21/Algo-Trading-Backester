@@ -39,7 +39,7 @@ def exe_orders(orders, current, feedback):
         filled_orders.to_csv('temp_assets/all_orders/filled_orders.csv')
 
     # log amount of orders awaiting fills. 
-    logging.info('orders still awaiting fill: {}'.format(len(open_orders)))
+    # logging.info('orders still awaiting fill: {}'.format(len(open_orders)))
     
     return open_orders
 

@@ -110,7 +110,6 @@ def update_momentum(current_frame):
             dfz['volatility'] = common.get_volatility(dfz.high.astype(float), dfz.low.astype(float))
             dfz = dfz.reset_index()
             dfz.to_csv('temp_assets/analysis/daily_eval.csv')
-            logging.info('daily saved')
             
 #     return dfz
 
