@@ -13,12 +13,12 @@ Purpose of this module:
 
 def run_trade_sim(new_orders, current):
 
-    cancel_second = 10
+    cancel_second = 5
 
     price_offset = 0.0
 
     # min number of seconds to fill (assuming the price and volume fit too... )
-    lag = 1
+    lag = 2
 
     open_orders = get_open_orders()
 
@@ -29,6 +29,7 @@ def run_trade_sim(new_orders, current):
     if len(open_orders) != 0:
 
         open_orders['wait_duration'] = open_orders['wait_duration']+1
+
         # CANCEL OVERDUE ORDERS...
         if len(open_orders[open_orders.wait_duration > cancel_second]):
             open_orders = open_orders[open_orders.wait_duration <=
@@ -110,9 +111,10 @@ def get_open_orders():
 
 
 def update_open_orders(current, open_orders, lag, price_offset):
-
     # UPDATE PRICE CHECK VALUE
     for price, buyorsell, index in zip(open_orders.exe_price, open_orders.buy_or_sell, open_orders.index):
+
+        logging.info('TF/SE: price check = {}'.format(open_orders.at[index, 'price_check']))
 
         if (buyorsell == 'BUY') and (current['close'] <= (price - price_offset)):
             open_orders.at[index, 'price_check'] += 1
@@ -131,7 +133,6 @@ def update_open_orders(current, open_orders, lag, price_offset):
             open_orders.at[index, 'vol_start'] = current['volume']
 
     return open_orders
-
 
 def vol_check(current, potential_fills, open_orders):
     fill_indexes = []
