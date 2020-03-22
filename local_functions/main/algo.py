@@ -32,7 +32,7 @@ def main_algo():
         prices, volumes, ticker, minute = hist.create_second_data(df,row,mode = 'momentum')
         logging.info('  {}'.format(minute))
 
-        sys.stdout.write('\r current minute : {}'.format(minute))
+        sys.stdout.write('\rcurrent minute : {}'.format(minute))
         sys.stdout.flush()
 
         # each second, update current candle and assess patterns, consider trading. 
@@ -68,4 +68,4 @@ def main_algo():
         if minute == '11:05:00': 
             break
 
-    print('done')
+    print('\ndone')
