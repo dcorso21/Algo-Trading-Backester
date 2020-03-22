@@ -7,9 +7,9 @@ import json
 '''
 Purpose of this sheet:
 
-1. Managing open orders
+1. Update Fills
 
-2. Managing Fills
+2. Update Real PL
 
 '''
 
@@ -43,6 +43,22 @@ def exe_orders(orders, current, feedback):
     
     return open_orders
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def get_filled_orders():
     filled_orders = pd.read_csv('temp_assets/all_orders/filled_orders.csv')
     if len(filled_orders) != 0:
@@ -66,7 +82,7 @@ def get_real_pl(orders):
     
     # recalculate current positions with new fills to calculate new PLs
     current_positions = current_positions.append(orders[orders['buy_or_sell']=='SELL'], sort = False)
-    current_positions = get_current_positions(current_positions)
+    current_positions, realized = get_current_positions(current_positions)
     
     # add some columns for return and PL
     current_positions = append_return_and_pl(current, current_positions)
@@ -78,9 +94,8 @@ def get_real_pl(orders):
         unreal = 0
     
     pls = pull_json('temp_assets/pl_open_closed.json')
-    old_unreal = pls['pl_unreal']
     real = pls['pl_real']
-    real += old_unreal - unreal
+    real += realized
     return real, unreal
             
 def update_pl(real, unreal):
@@ -98,7 +113,10 @@ def update_pl(real, unreal):
     
 
 def get_current_positions(positions):
-    
+    '''
+    Takes a DF of filled orders and filters out the orders no longer active (current) by looking at the sells. 
+
+    '''
     if len(positions) == 0:
         return pd.DataFrame()
     else: 
@@ -109,25 +127,36 @@ def get_current_positions(positions):
         
         buys = df[df['buy_or_sell'] == 'BUY']
         sells = df[df['buy_or_sell'] == 'SELL']
+        realized = 0
 
-        for x in sells.qty:
-            remainder = x
+        for qty, price in zip(sells.qty, sells.exe_price):
+            remainder = qty
             while remainder > 0:
 
-                # if there are more shares sold than the one row
-                if (buys.iloc[0:1,5].iloc[0] - remainder) <= 0:
-                    remainder = int(remainder - buys.iloc[0:1,5])
-                    #drop first row
-                    buys = buys.drop(buys.index.tolist()[0])
+                first_row = buys.index.tolist()[0]
 
-                # if the shares sold are not greater than the row
-                elif (buys.iloc[0:1,5].iloc[0] - remainder) > 0:
-                    buys.iloc[0:1,5] = buys.iloc[0:1,5] - remainder
+                # open_orders.reset_index()
+
+                # if there are more shares sold than the one row
+                # calculate the remainder and drop the first row...
+                if (buys.at[first_row, 'qty'] - remainder) <= 0:
+                    realized += (buys.at[first_row, 'exe_price'] - price) * buys.at[first_row, 'qty']
+                    diff = int(remainder - buys.at[first_row, 'qty'])
+                    buys = buys.drop(first_row)
+                    # I use this workaround because the loop is based on this value
+                    # If the value happens to be zero, the loop will break. 
+                    remainder = diff
+
+                # if the shares sold are not greater than the row's qty
+                # calculate the new row's value, stop the loop... 
+                elif (buys.at[first_row, 'qty'] - remainder) > 0:
+                    realized += (buys.at[first_row, 'exe_price'] - price) * remainder
+                    buys.at[first_row, 'qty'] = buys.at[first_row, 'qty'] - remainder
                     remainder = 0
 
         buys.to_csv('temp_assets/all_orders/current_positions.csv')
         #logging.info('PA: refreshed current_positions')
-        return buys
+        return buys, realized
 
 def pull_json(filename):
 
