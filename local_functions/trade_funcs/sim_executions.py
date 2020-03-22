@@ -76,6 +76,8 @@ def run_trade_sim(new_orders, current):
             filled_orders['exe_time'] = [create_timestamp(
                 current['minute'], current['second'])]
 
+            filled_orders = filled_orders.dropna()
+
             open_orders = open_orders.drop(index=fill_indexes)
 
         else:
