@@ -12,7 +12,7 @@ from local_functions.reset_temp_files import reset_temp_files as reset
 import random
 import pandas as pd
 import logging
-
+import sys
 
 def main_algo():
 
@@ -31,6 +31,9 @@ def main_algo():
         # first, get second data for fake 'real-time' pricing.
         prices, volumes, ticker, minute = hist.create_second_data(df,row,mode = 'momentum')
         logging.info('  {}'.format(minute))
+
+        sys.stdout.write('\r current minute : {}'.format(minute))
+        sys.stdout.flush()
 
         # each second, update current candle and assess patterns, consider trading. 
         for price, volume, second in zip(prices, volumes, range(0,60)):
@@ -60,7 +63,6 @@ def main_algo():
         daily_df = gather.add_new_minute(current, ticker, minute, daily_df)
         daily_df.to_csv('temp_assets/charts/daily.csv')
 
-        print(minute+' complete')
         logging.info('minute complete\n')
 
         if minute == '11:05:00': 
