@@ -140,7 +140,7 @@ def get_current_positions(positions):
                 # if there are more shares sold than the one row
                 # calculate the remainder and drop the first row...
                 if (buys.at[first_row, 'qty'] - remainder) <= 0:
-                    realized += (buys.at[first_row, 'exe_price'] - price) * buys.at[first_row, 'qty']
+                    realized += (price - buys.at[first_row, 'exe_price']) * buys.at[first_row, 'qty']
                     diff = int(remainder - buys.at[first_row, 'qty'])
                     buys = buys.drop(first_row)
                     # I use this workaround because the loop is based on this value
@@ -150,7 +150,7 @@ def get_current_positions(positions):
                 # if the shares sold are not greater than the row's qty
                 # calculate the new row's value, stop the loop... 
                 elif (buys.at[first_row, 'qty'] - remainder) > 0:
-                    realized += (buys.at[first_row, 'exe_price'] - price) * remainder
+                    realized += (price - buys.at[first_row, 'exe_price']) * remainder
                     buys.at[first_row, 'qty'] = buys.at[first_row, 'qty'] - remainder
                     remainder = 0
 
