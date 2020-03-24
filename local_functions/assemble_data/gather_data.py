@@ -1,20 +1,20 @@
-#import analyse as ana
+from local_functions.main import global_vars as gl
+from local_functions.analysis.ana_indicators import common
 import pandas as pd
 import json
 
 
-def update_candle(price,volume, ticker, minute, second, daily_df):
+def update_candle(price, volume, ticker, minute, second):
     '''Inputs--
     prices: list of prices simulating real time updates from the historical_funcs: create_second_data.'''
-    
+
     if second == 0:
-        o,h,l,c = price,price,price,price
+        o, h, l, c = price, price, price, price
     else:
-        json_file = open('temp_assets/current_ohlcvs.json')
-        prev = json.load(json_file)
-        
-        o,h,l,c = prev['open'], prev['high'], prev['low'], prev['close']
-        
+        prev = gl.current
+
+        o, h, l, c = prev['open'], prev['high'], prev['low'], prev['close']
+
         if price > h:
             h = price
         if price < l:
@@ -22,37 +22,30 @@ def update_candle(price,volume, ticker, minute, second, daily_df):
     c = price
     v = volume
 
-    current = {'open':o,
-               'high':h,
-               'low':l,
-               'close':c,
-               'volume':v,
-               'second':second,
-               'minute': minute}
-    
-    
-    json_file = json.dumps(current)
-    f = open('temp_assets/current_ohlcvs.json','w')
-    f.write(json_file)
-    f.close()
+    current = {'open': o,
+               'high': h,
+               'low': l,
+               'close': c,
+               'volume': v,
+               'second': second,
+               'minute': minute,
+               'ticker': ticker}
 
-    current_frame = add_new_minute(current, ticker, minute, daily_df)
-    #current_frame.to_csv('temp_assets/current_frame.csv')
-                
-    return current, current_frame
+    common.save_dict_to_csv(current, r'temp_assets\current.csv')
+
+    add_new_minute(current)
 
 
-def add_new_minute(current, ticker, minute, daily_df):
-    
-    new_minute = {'time': [minute],
-                  'ticker':[ticker],
-                 'open':[current['open']],
-                 'high':[current['high']],
-                 'low':[current['low']],
-                 'close':[current['close']],
-                 'volume':[current['volume']]
-                 }
+def add_new_minute(current):
+
+    new_minute = {'time': [current['minute']],
+                  'ticker': [current['ticker']],
+                  'open': [current['open']],
+                  'high': [current['high']],
+                  'low': [current['low']],
+                  'close': [current['close']],
+                  'volume': [current['volume']]
+                  }
     dfx = pd.DataFrame(new_minute)
-
-    return daily_df.append(dfx, sort = False)
-
+    current_frame = gl.current_frame.append(dfx, sort=False)
+    current_frame.to_csv(r'temp_assets/charts/current_frame.csv')

@@ -19,7 +19,7 @@ def create_sells(qty, current, current_frame):
     return df
 
 
-def create_buys(cash_value, current, current_frame, offset, exe_price):
+def create_buys(cash_value, current, current_frame, exe_price):
 
     ticker = current_frame.at[0, 'ticker']
     timestamp = common.get_timestamp(
@@ -29,7 +29,23 @@ def create_buys(cash_value, current, current_frame, offset, exe_price):
     cash_value = round(qty * exe_price, 2)
 
     columns = {'ticker': [ticker], 'send_time': [timestamp], 'buy_or_sell': [
-        'BUY'], 'cash': [cash_value], 'qty': [qty], 'exe_price': [exe_price]}
+        'BUY'], 'cash': [cash_value], 'qty': [qty], 'exe_price': [exe_price], 'cancel_cond':}
 
     df = pd.DataFrame(columns)
     return df
+
+
+def size_in():
+    '''
+    Looks at exposure and chart to decide how much to put in for a trade. 
+
+    '''
+    pass
+    # return cash_value
+
+
+def get_available_capital():
+
+    available_capital = 30000
+
+    return available_capital

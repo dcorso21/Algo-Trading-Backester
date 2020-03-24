@@ -1,11 +1,12 @@
 from local_functions.analysis.ana_indicators import daily_ana, position_ana, yearly_ana
+from local_functions.main import global_vars as gl
 
 import pandas as pd
 
 # One of the main functions
 
 
-def analyse(current, current_frame, update, open_orders):
+def analyse(update):
     '''
     ####################################################    
     IN PROGRESS:
@@ -13,11 +14,10 @@ def analyse(current, current_frame, update, open_orders):
 
     # yearly_ana.run_yearly(current_frame,yearly_df)
 
-    response = daily_ana.run_daily(current, current_frame)
+    daily_ana.run_daily()
 
-    if len(current_frame) > 2:
-        orders, feedback = position_ana.build_orders(
-            response, current, current_frame, update, open_orders)
+    if len(gl.current_frame) > 2:
+        orders, feedback = position_ana.build_orders(response, update)
     else:
         orders = pd.DataFrame()
         feedback = True

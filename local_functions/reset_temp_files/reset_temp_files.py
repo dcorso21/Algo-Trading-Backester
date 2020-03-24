@@ -11,52 +11,65 @@ def temp_files():
     # PL JSON:
     # managed here
     pls = {
-        'pl_unreal': 0,
-        'pl_real': 0,
+        'unreal': 0,
+        'real': 0,
         'last_ex': 0,
         'max_ex': 0
-           }
-    json_file = json.dumps(pls)
-    f = open('temp_assets/pl_open_closed.json', 'w')
-    f.write(json_file)
-    f.close()
+    }
+
+    pl_frame = pd.DataFrame(pls, index=['value']).T
+    pl_frame = pl_frame.reset_index().rename(columns={'index': 'type'})
+    pl_frame.to_csv(r'temp_assets\pl_and_ex.csv')
+
+    # current
+    current = {
+        'open': 'nan',
+        'high': 'nan',
+        'low': 'nan',
+        'close': 'nan',
+        'volume': 'nan',
+        'second': 'nan',
+        'minute': 'nan'
+    }
+
+    c_frame = pd.DataFrame(current, index=['value']).T
+    c_frame = c_frame.reset_index().rename(columns={'index': 'type'})
+    c_frame.to_csv(r'temp_assets\current.csv')
+
+    # d_vol_json
+    # managed here
+    volas = {
+        'current': 'nan',
+        'three_min': 'nan',
+        'five_min': 'nan',
+        'ten_min': 'nan',
+        'mean': 'nan'
+    }
+
+    volas_frame = pd.DataFrame(volas, index=['value']).T
+    volas_frame = volas_frame.reset_index().rename(columns={'index': 'type'})
+    volas_frame.to_csv(r'temp_assets\analysis\volas.csv')
 
     # daily_ana
     # managed in the daily_eval file
     daily_eval = pd.DataFrame()
     daily_eval.to_csv('temp_assets/analysis/daily_eval.csv')
 
-    # d_vol_json
-    # managed here
-    volas = {
-        'current': 'nan', 
-        'three_min': 'nan',
-        'five_min': 'nan',
-        'ten_min': 'nan',
-        'mean': 'nan'
-             }
-
-    json_file = json.dumps(volas)
-    f = open('temp_assets/analysis/volas.json', 'w')
-    f.write(json_file)
-    f.close()
-
     # yearly_ana
     # managed in the yearly_eval file
     yearly_eval = pd.DataFrame()
     yearly_eval.to_csv('temp_assets/analysis/yearly_eval.csv')
 
-    # daily
-    # in the main outline
-    daily = pd.DataFrame()
-    daily.to_csv('temp_assets/charts/daily.csv')
+    # current_frame
+    current_frame = pd.DataFrame()
+    current_frame.to_csv(r'temp_assets/charts/current_frame.csv')
 
-    # positions
+    # filled_orders
     # managed in the positions_ana file
     filled_orders = pd.DataFrame()
     filled_orders.to_csv('temp_assets/all_orders/filled_orders.csv')
 
-    # positions
+    # open_orders
     # managed in the positions_ana file
     open_orders = pd.DataFrame()
     open_orders.to_csv('temp_assets/all_orders/open_orders.csv')

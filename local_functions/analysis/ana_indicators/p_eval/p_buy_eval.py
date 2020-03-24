@@ -1,5 +1,4 @@
 from local_functions.analysis.ana_indicators.p_eval import common_eval_funcs as common
-from local_functions.analysis.ana_indicators.p_eval import order_tools as o_tools
 # from local_functions.analysis.ana_indicators.p_eval import order_creators as create
 
 from local_functions.analysis.ana_indicators.p_eval.conditions import buy_conditions as b_cond
@@ -22,12 +21,12 @@ def buy_eval(current_positions, current, current_frame, open_orders):
 
         while (trade == False) or (loop == True):
 
-            # IF NO CURRENT POSITIONS, GO AHEAD
+            # STARTING POSITION
             if len(current_positions) == 0:
-                trade = True
-                # buys = o_tools.create_buys()
 
-            # OTHERWISE, MORE CONDITIONS ARE NEEDED.
+                trade, buys = b_cond.starting_position(current, current_frame)
+
+            # ADDING TO EXISTING POSITIONS
             else:
 
                 # Retrieve useful variables
@@ -44,7 +43,7 @@ def buy_eval(current_positions, current, current_frame, open_orders):
                 '''
 
                 # 1. returns True if the current price is below average by a certain percentage.
-                trade = b_cond.drop_below_average(current, avg, max_vola)
+                trade, buys = b_cond.drop_below_average(current, avg, max_vola)
 
             loop = False
 

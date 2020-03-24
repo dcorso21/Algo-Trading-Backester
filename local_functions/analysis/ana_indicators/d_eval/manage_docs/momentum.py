@@ -1,18 +1,20 @@
 from local_functions.analysis.ana_indicators import common
+from local_functions.main import global_vars as gl
+
 
 import pandas as pd
 import json
 import logging
 
 
-def update_momentum(current_frame):
+def update_momentum():
 
     # ideally, these are the increments for aggregation.
     ideal_list = [5, 10, 15, 20, 25, 30]
 
     # we have to reset the index so that the index isn't all zeros.
     # this is necessary because we need to use indexes later on
-    df = current_frame.reset_index()
+    df = gl.current_frame.reset_index()
 
     # dfz is the momentum dataframe
     dfz = pd.DataFrame()
@@ -29,7 +31,7 @@ def update_momentum(current_frame):
         fresh = True
         if len(df) > 15:
 
-            mom_df = pd.read_csv('temp_assets/analysis/daily_eval.csv')
+            mom_df = gl.mom_frame
             offset = mom_df.index.to_list()[-2]
             mom_df = mom_df.iloc[:offset]
             fresh = False
