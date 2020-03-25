@@ -1,10 +1,4 @@
-from local_functions.analysis.ana_indicators import common
 from local_functions.main import global_vars as gl
-
-
-import pandas as pd
-import json
-import logging
 
 
 def update_supports_resistances():
@@ -15,7 +9,7 @@ def update_supports_resistances():
     df = gl.mom_frame
     cf = gl.current_frame
 
-    dfx = pd.DataFrame()
+    dfx = gl.pd.DataFrame()
 
     resistances = refine_resistances(resistances, dfx, df, cf)
 
@@ -23,7 +17,7 @@ def update_supports_resistances():
 
     dfz = resistances.append(supports, sort=False)
 
-    dfz.to_csv('temp_assets/analysis/supports_resistances.csv')
+    dfz.to_csv(gl.filepath['sup_res_frame'])
 
 
 def refine_resistances(resistances, dfx, df, cf):
@@ -59,7 +53,7 @@ def refine_resistances(resistances, dfx, df, cf):
             add = True
 
         if add == True:
-            row = pd.DataFrame(row)
+            row = gl.pd.DataFrame(row)
             dfx = dfx.append(row, sort=False)
 
     if len(dfx) != 0:
@@ -101,7 +95,7 @@ def refine_supports(supports, dfx, df, cf):
             add = True
 
         if add == True:
-            row = pd.DataFrame(row)
+            row = gl.pd.DataFrame(row)
             dfx = dfx.append(row, sort=False)
 
     if len(dfx) != 0:
@@ -113,7 +107,7 @@ def get_resistances(current, cent_range=10):
 
     # volas = pull_json('temp_assets/analysis/volas.json')
 
-    df = pd.read_csv('temp_assets/analysis/daily_eval.csv')
+    df = gl.mom_frame()
 
     highs = df[df.high >= current['close']].high.to_list()
 
@@ -164,7 +158,7 @@ def get_supports(current, cent_range=6):
 
     # volas = pull_json('temp_assets/analysis/volas.json')
 
-    df = pd.read_csv('temp_assets/analysis/daily_eval.csv')
+    df = gl.mom_frame()
 
     lows = df[df.low <= current['close']].low.to_list()
 

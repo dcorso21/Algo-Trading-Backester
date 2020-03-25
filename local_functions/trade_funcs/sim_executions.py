@@ -1,6 +1,4 @@
-import pandas as pd
-import logging
-import json
+from local_functions.main import global_vars as gl
 
 '''
 Purpose of this module:
@@ -11,7 +9,7 @@ Purpose of this module:
 '''
 
 
-def run_trade_sim(new_orders, current):
+def run_trade_sim(new_orders):
 
     cancel_second = 5
 
@@ -20,11 +18,11 @@ def run_trade_sim(new_orders, current):
     # min number of seconds to fill (assuming the price and volume fit too... )
     lag = 2
 
-    open_orders = get_open_orders()
+    open_orders = gl.open_orders()
 
-    new_orders['price_check'] = pd.Series(0)
-    new_orders['vol_start'] = pd.Series(0)
-    new_orders['wait_duration'] = pd.Series(0)
+    new_orders['price_check'] = gl.pd.Series(0)
+    new_orders['vol_start'] = gl.pd.Series(0)
+    new_orders['wait_duration'] = gl.pd.Series(0)
 
     if len(open_orders) != 0:
 
@@ -34,7 +32,7 @@ def run_trade_sim(new_orders, current):
         if len(open_orders[open_orders.wait_duration > cancel_second]):
             open_orders = open_orders[open_orders.wait_duration <=
                                       cancel_second]
-            logging.info('order cancelled')
+            gl.logging.info('order cancelled')
 
     open_orders = open_orders.append(new_orders, sort=False)
 
@@ -45,64 +43,49 @@ def run_trade_sim(new_orders, current):
     open_orders = open_orders[columns].dropna()
 
     # UPDATE THE OPEN ORDERS...
-    open_orders = update_open_orders(current, open_orders, lag, price_offset)
+    open_orders = sim_progress_open_orders(open_orders, lag, price_offset)
 
     # there is potential for these orders to be filled.
     potential_fills = open_orders[open_orders['price_check'] >= lag]
 
-    if len(potential_fills) != 0:
-        fill_indexes, open_orders = vol_check(current, potential_fills, open_orders)
+    # if there are no potential fills,
+    # update the open_orders and return - dont bother checking volume...
+    if len(potential_fills) == 0:
+        filled_orders = gl.pd.DataFrame()
+        open_orders.to_csv(gl.filepath['open_orders'])
+        return filled_orders
 
-        if fill_indexes != 0:
+    fill_indexes, open_orders = vol_check(potential_fills, open_orders)
 
-            filled_orders = open_orders.iloc[fill_indexes, :]
-            columns = ['ticker', 'send_time',
-                       'buy_or_sell', 'cash', 'qty', 'exe_price']
-            filled_orders = filled_orders[columns]
-            filled_orders['exe_time'] = [create_timestamp(
-                current['minute'], current['second'])]
+    if len(fill_indexes) == 0:
+        filled_orders = gl.pd.DataFrame()
+        open_orders.to_csv(gl.filepath['open_orders'])
+        return filled_orders
 
-            filled_orders = filled_orders.dropna()
+    current = gl.current()
 
-            open_orders = open_orders.drop(index=fill_indexes)
+    filled_orders = open_orders.iloc[fill_indexes, :]
+    columns = ['ticker', 'send_time',
+               'buy_or_sell', 'cash', 'qty', 'exe_price']
+    filled_orders = filled_orders[columns]
+    filled_orders['exe_time'] = gl.pd.Series(gl.common_ana.get_timestamp(
+        current['minute'], current['second']))
+    filled_orders = filled_orders.dropna()
+    open_orders = open_orders.drop(index=fill_indexes)
+    open_orders.to_csv(gl.filepath['open_orders'])
 
-        else:
-            filled_orders = pd.DataFrame()
-    else:
-        filled_orders = pd.DataFrame()
-
-    ###################################################
-
-    open_orders.to_csv('temp_assets/all_orders/open_orders.csv')
-
-    return filled_orders, open_orders
-
-
-def create_timestamp(minute, second):
-
-    from datetime import datetime, timedelta
-    time = datetime.strptime(minute, '%H:%M:%S')
-    time = time+timedelta(seconds=second)
-    return time.strftime('%H:%M:%S')
+    return filled_orders
 
 
-def get_open_orders():
-
-    open_orders = pd.read_csv('temp_assets/all_orders/open_orders.csv')
-
-    if len(open_orders) != 0:
-        columns = ['ticker', 'send_time', 'buy_or_sell', 'cash', 'qty',
-                   'exe_price', 'price_check', 'vol_start', 'wait_duration']
-        open_orders = open_orders[columns]
-
-    return open_orders
-
-
-def update_open_orders(current, open_orders, lag, price_offset):
+def sim_progress_open_orders(open_orders, lag, price_offset):
     # UPDATE PRICE CHECK VALUE
+
+    current = gl.current()
+
     for price, buyorsell, index in zip(open_orders.exe_price, open_orders.buy_or_sell, open_orders.index):
 
-        logging.info('TF/SE: price check = {}'.format(open_orders.at[index, 'price_check']))
+        gl.logging.info(
+            'TF/SE: price check = {}'.format(open_orders.at[index, 'price_check']))
 
         if (buyorsell == 'BUY') and (current['close'] <= (price - price_offset)):
             open_orders.at[index, 'price_check'] += 1
@@ -122,10 +105,12 @@ def update_open_orders(current, open_orders, lag, price_offset):
 
     return open_orders
 
-def vol_check(current, potential_fills, open_orders):
+
+def vol_check(potential_fills, open_orders):
     fill_indexes = []
     for index, vol_start, qty in zip(potential_fills.index, potential_fills.vol_start, potential_fills.qty):
 
+        current = gl.current()
         # if the volume has increased since last time, but is in the same minute
         # also, if the change is bigger than qty, then add the index for fill.
         if (current['volume'] > vol_start) & ((current['volume'] - vol_start) > qty):

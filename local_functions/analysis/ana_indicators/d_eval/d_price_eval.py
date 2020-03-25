@@ -8,7 +8,7 @@ import json
 
 def pricing_eval():
     binary = False
-    if red_green(gl.current_frame)[-1] == 'red':
+    if red_green()[-1] == 'red':
         binary = True
 
     return binary
@@ -127,7 +127,8 @@ def find_downtrends():
 
 def red_green():
     r_g = []
-    for o, c in zip(gl.current_frame.open, gl.current_frame.close):
+    current_frame = gl.current_frame()
+    for o, c in zip(current_frame.open, current_frame.close):
 
         val = 0
         if o < c:

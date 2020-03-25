@@ -1,17 +1,12 @@
-from local_functions.analysis.ana_indicators import common
 from local_functions.main import global_vars as gl
-
-import pandas as pd
-import json
-import logging
 
 
 def update_volas():
 
-    cf = gl.current_frame
+    cf = gl.current_frame()
 
     # make volatility column
-    cf['vola'] = common.get_volatility(
+    cf['vola'] = gl.common_ana.get_volatility(
         cf['high'], cf['low'])
 
     # calculate volatilities for different time increments
@@ -27,4 +22,4 @@ def update_volas():
     }
 
     # save json file
-    common.save_dict_to_csv(volas, r'temp_assets/analysis/volas.json')
+    gl.save_dict_to_csv(volas, gl.filepath['volas'])

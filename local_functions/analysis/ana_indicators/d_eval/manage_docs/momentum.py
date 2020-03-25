@@ -1,4 +1,3 @@
-from local_functions.analysis.ana_indicators import common
 from local_functions.main import global_vars as gl
 
 
@@ -14,7 +13,7 @@ def update_momentum():
 
     # we have to reset the index so that the index isn't all zeros.
     # this is necessary because we need to use indexes later on
-    df = gl.current_frame.reset_index()
+    df = gl.current_frame().reset_index()
 
     # dfz is the momentum dataframe
     dfz = pd.DataFrame()
@@ -114,14 +113,14 @@ def update_momentum():
 
         if len(dfz) != 0:
 
-            dfz['volatility'] = common.get_volatility(
+            dfz['volatility'] = gl.common_ana.get_volatility(
                 dfz.high.astype(float), dfz.low.astype(float))
 
             if fresh == False:
                 dfz = mom_df.append(dfz, sort=False)
 
             dfz = dfz.reset_index().drop(columns=['index'])
-            dfz.to_csv('temp_assets/analysis/daily_eval.csv')
+            dfz.to_csv(gl.filepath['mom_frame'])
 
 
 def many_lengths(agg_list, offset, yin, yang, df):

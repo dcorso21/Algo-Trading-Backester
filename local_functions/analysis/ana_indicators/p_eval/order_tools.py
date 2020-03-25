@@ -1,38 +1,48 @@
-from local_functions.analysis.ana_indicators.p_eval import common_eval_funcs as common
-
-import pandas as pd
-import logging
+from local_functions.main import global_vars as gl
 
 
-def create_sells(qty, current, current_frame):
+def create_sells(qty, exe_price):
 
-    ticker = current_frame.ticker.tolist()[-1]
-    timestamp = common.get_timestamp(
-        current_frame.time.tolist()[-1], current['second'])
+    current = gl.current()
+
+    ticker = current['ticker']
+    timestamp = gl.common_ana.get_timestamp(
+        current['minute'], current['second'])
     exe_price = round(current['close'], 3)
     cash_value = round(qty * exe_price, 2)
 
-    columns = {'ticker': [ticker], 'send_time': [timestamp], 'buy_or_sell': [
-        'SELL'], 'cash': [cash_value], 'qty': [qty], 'exe_price': [exe_price]}
+    columns = {'ticker': [ticker],
+               'send_time': [timestamp],
+               'buy_or_sell': ['SELL'],
+               'cash': [cash_value],
+               'qty': [qty],
+               'exe_price': [exe_price]}
 
-    df = pd.DataFrame(columns)
-    return df
+    sells = gl.pd.DataFrame(columns)
+    return sells
 
 
-def create_buys(cash_value, current, current_frame, exe_price):
+def create_buys(cash_value, exe_price):
 
-    ticker = current_frame.at[0, 'ticker']
-    timestamp = common.get_timestamp(
-        current_frame.time.tolist()[-1], current['second'])
+    current = gl.current()
 
-    qty = common.cash_to_shares(cash_value, exe_price)
+    ticker = current['ticker']
+    timestamp = gl.common_ana.get_timestamp(
+        current['minute'], current['second'])
+
+    qty = gl.common_ana.cash_to_shares(cash_value, exe_price)
     cash_value = round(qty * exe_price, 2)
 
-    columns = {'ticker': [ticker], 'send_time': [timestamp], 'buy_or_sell': [
-        'BUY'], 'cash': [cash_value], 'qty': [qty], 'exe_price': [exe_price], 'cancel_cond':}
+    columns = {'ticker': [ticker],
+               'send_time': [timestamp],
+               'buy_or_sell': ['BUY'],
+               'cash': [cash_value],
+               'qty': [qty],
+               'exe_price': [exe_price]
+               }
 
-    df = pd.DataFrame(columns)
-    return df
+    buys = gl.pd.DataFrame(columns)
+    return buys
 
 
 def size_in():
@@ -42,10 +52,3 @@ def size_in():
     '''
     pass
     # return cash_value
-
-
-def get_available_capital():
-
-    available_capital = 30000
-
-    return available_capital
