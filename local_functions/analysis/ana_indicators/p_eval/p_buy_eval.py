@@ -12,7 +12,7 @@ def buy_eval():
         return buys
 
     # STARTING POSITION
-    if len(gl.current_positions()) == 0:
+    if len(gl.current_positions) == 0:
         return gl.b_conds.starting_position()
 
     loop = True
@@ -33,10 +33,7 @@ def bad_buy_conditions():
     cond1 = (gl.chart_response == False)
     # AND!
     # 2. if NOT already in ...
-    cond2 = (len(gl.current_positions()) != 0)
-    # OR
-    # if there are orders still awaiting fill.
-    cond3 = (len(gl.open_orders()) != 0)
+    cond2 = (len(gl.current_positions) != 0)
 
     # Returns true or false...
-    return ((cond1 and cond2) or cond3)
+    return (cond1 and cond2)

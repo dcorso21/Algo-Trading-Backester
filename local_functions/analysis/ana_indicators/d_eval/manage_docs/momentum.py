@@ -13,7 +13,7 @@ def update_momentum():
 
     # we have to reset the index so that the index isn't all zeros.
     # this is necessary because we need to use indexes later on
-    df = gl.current_frame().reset_index()
+    df = gl.current_frame.reset_index()
 
     # dfz is the momentum dataframe
     dfz = pd.DataFrame()
@@ -25,24 +25,35 @@ def update_momentum():
         yin = 'start'
         yang = 'start'
 
-        # specifies a starting index.
-        offset = 0
-        fresh = True
-        if len(df) > 15:
-
-            mom_df = gl.mom_frame
-            offset = mom_df.index.to_list()[-2]
-            mom_df = mom_df.iloc[:offset]
-            fresh = False
-
-        last_offset = offset
-
         # circular dictionary :
         # each time the momentum swings, the yin and yang switch.
         mom_dict = {
             'hi': 'li',
             'li': 'hi'
         }
+
+        # specifies a starting index.
+        offset = 0
+        fresh = True
+        mom_df = gl.mom_frame
+        if (len(df) > 15) and len(mom_df) > 3:
+
+            pick_up_index = mom_df.index.to_list()[-3]
+            pick_up_time = mom_df.at[pick_up_index, 'end_time']
+            trend = mom_df.at[pick_up_index, 'trend']
+            mom_df = mom_df.iloc[:pick_up_index+1]
+            if trend == 'uptrend':
+                yin = 'li'
+            else:
+                yin = 'hi'
+
+            yang = mom_dict[yin]
+
+            offset = df[df.time == pick_up_time].index.to_list()[0]
+
+            fresh = False
+
+        last_offset = offset
 
         loop = True
         while loop:
@@ -120,7 +131,7 @@ def update_momentum():
                 dfz = mom_df.append(dfz, sort=False)
 
             dfz = dfz.reset_index().drop(columns=['index'])
-            dfz.to_csv(gl.filepath['mom_frame'])
+            gl.mom_frame = dfz
 
 
 def many_lengths(agg_list, offset, yin, yang, df):

@@ -1,3 +1,14 @@
+# Modules
+import pyqtgraph as pg
+from pyqtgraph import QtCore, QtGui
+
+
+import datetime
+import pandas as pd
+import logging
+import random
+import sys
+
 # Imports - list follows folders
 from local_functions.account_info import account_info as account
 from local_functions.analysis import analyse as ana
@@ -27,12 +38,51 @@ from local_functions.reset_temp_files import reset_temp_files as reset
 from local_functions.trade_funcs import sim_executions as sim_exe
 from local_functions.trade_funcs import trade_funcs
 
-# Other
-import datetime
-import pandas as pd
-import logging
-import random
-import sys
+from local_functions.live_graph import candles as candles
+
+
+
+pos_update = False
+loop_feedback = True
+chart_response = False
+
+
+# Sim Data
+# only need to reference this once.
+sim_df = hist.get_mkt_data(r'example.csv')
+
+# All assets start as blank.
+
+
+current_frame = pd.DataFrame()
+daily_ohlc = pd.DataFrame()
+open_orders = pd.DataFrame()
+current_positions = pd.DataFrame()
+filled_orders = pd.DataFrame()
+mom_frame = pd.DataFrame()
+sup_res_frame = pd.DataFrame()
+
+current = {}
+pl_ex = {}
+volas = {}
+
+
+def csv_to_dict(file_path):
+    df = pd.read_csv(file_path)
+    df = df.set_index('type')
+    df = df[['value']]
+    dictionary = df.to_dict()['value']
+    return dictionary
+
+
+def save_dict_to_csv(dictionary, file_name):
+    df = pd.DataFrame(dictionary, index=['value']).T
+    df = df.reset_index().rename(columns={'index': 'type'})
+    save_frame(df, file_name)
+
+
+def save_frame(dataframe, file_name):
+    dataframe.to_csv(filepath[file_name])
 
 
 filepath = {
@@ -51,112 +101,25 @@ filepath = {
 }
 
 
-# Loop Variables
+def save_all():
 
-pos_update = False
+    files = {
 
-loop_feedback = True
+        'current': current,
+        'pl_ex': pl_ex,
+        'current_frame': current_frame,
+        'daily_ohlc': daily_ohlc,
+        'mom_frame': mom_frame,
+        'sup_res_frame': sup_res_frame,
+        'volas': volas,
+        'current_positions': current_positions,
+        'filled_orders': filled_orders,
+        'open_orders': open_orders
 
-chart_response = False
+    }
 
-
-# Sim Data
-# only need to reference this once.
-sim_df = hist.get_mkt_data(r'example.csv')
-
-# Referenced CSVs
-
-
-def current_frame():
-    return pd.read_csv(filepath['current_frame'])
-
-
-def daily_ohlc():
-    return pd.read_csv(filepath['daily_ohlc'])
-
-
-# Orders
-
-def open_orders():
-
-    open_orders = pd.read_csv(filepath['open_orders'])
-    if len(open_orders) != 0:
-        columns = ['ticker', 'send_time', 'buy_or_sell', 'cash', 'qty',
-                   'exe_price', 'price_check', 'vol_start', 'wait_duration']
-        open_orders = open_orders[columns]
-
-    return open_orders
-
-
-def current_positions():
-    current_positions = pd.read_csv(filepath['current_positions'])
-    if len(current_positions) != 0:
-        columns = ['ticker', 'exe_time', 'send_time',
-                   'buy_or_sell', 'cash', 'qty', 'exe_price']
-        current_positions = current_positions[columns]
-    return current_positions
-
-
-def filled_orders():
-    filled_orders = pd.read_csv(filepath['filled_orders'])
-    if len(filled_orders) != 0:
-        columns = ['ticker', 'exe_time', 'send_time',
-                   'buy_or_sell', 'cash', 'qty', 'exe_price']
-        filled_orders = filled_orders[columns]
-    return filled_orders
-
-
-# Analysis
-def mom_frame():
-    return pd.read_csv(filepath['mom_frame'])
-
-
-def sup_res_frame():
-    return pd.read_csv(filepath['sup_res_frame'])
-
-
-# def yearly_frame():
-#     return pd.read_csv(r'temp_assets\analysis\yearly_eval.csv')
-
-
-# Dictionaries
-
-
-def csv_to_dict(file_path):
-    df = pd.read_csv(file_path)
-    df = df.set_index('type')
-    df = df[['value']]
-    dictionary = df.to_dict()['value']
-    return dictionary
-
-
-def save_dict_to_csv(dictionary, file_path):
-    df = pd.DataFrame(dictionary, index=['value']).T
-    df = df.reset_index().rename(columns={'index': 'type'})
-    df.to_csv(file_path)
-
-
-def current():
-    current = csv_to_dict(filepath['current'])
-    current['open'] = float(current['open'])
-    current['high'] = float(current['high'])
-    current['low'] = float(current['low'])
-    current['close'] = float(current['close'])
-    current['volume'] = int(float(current['volume']))
-    current['second'] = int(float(current['second']))
-
-    return current
-
-
-def pl_ex():
-    pl_ex = csv_to_dict(filepath['pl_ex'])
-    for x in pl_ex.keys():
-        pl_ex[x] = float(pl_ex[x])
-    return pl_ex
-
-
-def volas():
-    volas = csv_to_dict(filepath['volas'])
-    for x in volas.keys():
-        volas[x] = float(volas[x])
-    return volas
+    for file_name, file in zip(files.keys(), files.values()):
+        if type(file) == dict:
+            save_dict_to_csv(file, file_name)
+        else:
+            save_frame(file, file_name)

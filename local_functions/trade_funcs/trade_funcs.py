@@ -13,20 +13,17 @@ Purpose of this sheet:
 def exe_orders(orders):
 
     # SIMULATE EXECUTIONS
-    # right now its just simulated.
     new_fills = gl.sim_exe.run_trade_sim(orders)
 
     if len(new_fills) != 0:
-
         update_filled_orders(new_fills)
-
         update_current_positions(new_fills)
 
 
 def update_filled_orders(new_fills):
-    filled_orders = gl.filled_orders()
+    filled_orders = gl.filled_orders
     filled_orders = filled_orders.append(new_fills, sort=False)
-    filled_orders.to_csv(gl.filepath['filled_orders'])
+    gl.filled_orders = filled_orders
 
 
 def update_current_positions(new_fills):
@@ -36,7 +33,11 @@ def update_current_positions(new_fills):
     '''
 
     df = new_fills
-    df = gl.current_positions().append(df, sort=False)
+    df = gl.current_positions.append(df, sort=False)
+    df = df.reset_index()
+    columns = ['ticker', 'send_time', 'buy_or_sell',
+               'cash', 'qty', 'exe_price', 'exe_time']
+    df = df[columns]
 
     buys = df[df['buy_or_sell'] == 'BUY']
     sells = df[df['buy_or_sell'] == 'SELL']
@@ -48,9 +49,6 @@ def update_current_positions(new_fills):
             while remainder > 0:
 
                 first_row = buys.index.tolist()[0]
-
-                # open_orders.reset_index()
-
                 # if there are more shares sold than the one row
                 # calculate the remainder and drop the first row...
                 if (buys.at[first_row, 'qty'] - remainder) <= 0:
@@ -61,7 +59,6 @@ def update_current_positions(new_fills):
                     # I use this workaround because the loop is based on this value
                     # If the value happens to be zero, the loop will break.
                     remainder = diff
-
                 # if the shares sold are not greater than the row's qty
                 # calculate the new row's value, stop the loop...
                 elif (buys.at[first_row, 'qty'] - remainder) > 0:
@@ -72,6 +69,7 @@ def update_current_positions(new_fills):
                     remainder = 0
 
     current_positions = buys
-    current_positions.to_csv(gl.filepath['current_positions'])
-
-    gl.common_ana.update_pl(realized, 'skip')
+    gl.current_positions = current_positions
+    if realized != 0:
+        gl.common_ana.update_pl(realized, 'skip')
+    gl.common_ana.update_ex()

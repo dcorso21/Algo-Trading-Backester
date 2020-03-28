@@ -29,9 +29,9 @@ def red_green():
     return r_g
 
 
-def open_to_price(current_frame, price):
-    open_price = list(current_frame[current_frame.time == '09:31:00'].open)[0]
-    return get_volatility([open_price], [price])
+# def open_to_price(current_frame, price):
+#     open_price = list(current_frame[current_frame.time == '09:31:00'].open)[0]
+#     return get_volatility([open_price], [price])
 
 
 def cash_to_shares(cash, price):
@@ -49,17 +49,9 @@ def get_timestamp(minute, second):
 
 def get_average():
 
-    df = gl.current_positions()
+    df = gl.current_positions
     avg = df.cash.sum() / df.qty.sum()
     return avg
-
-
-def get_exposure():
-
-    df = gl.current_positions()
-    ex = df.cash.sum()
-
-    return ex
 
 
 def get_max_vola(volas, current):
@@ -74,9 +66,8 @@ def get_max_vola(volas, current):
         max_vola = False
 
     if max_vola == False:
-        current_vola = (
-            (current['high'] - current['low'])/current['low'])
-        max_vola = current_vola
+
+        max_vola = 4
 
     return max_vola
 
@@ -90,18 +81,24 @@ def get_inverse_perc(percentage_drop):
 
 def update_pl(real, unreal):
 
-    pl_ex = gl.pl_ex()
+    pl_ex = gl.pl_ex
 
     if real != 'skip':
         pl_ex['real'] += real
+        gl.logging.info(
+            'CA: realized PL updated: {} unreal : {}'.format(pl_ex['real'], pl_ex['unreal']))
 
     if unreal != 'skip':
-        pl_ex['unreal'] += unreal
+        pl_ex['unreal'] = unreal
 
-    real = pl_ex['real']
-    unreal = pl_ex['unreal']
+    gl.pl_ex = pl_ex
 
-    gl.save_dict_to_csv(pl_ex, gl.filepath['pl_ex'])
 
-    gl.logging.info(
-        'TF: realized PL updated: {} unreal : {}'.format(real, unreal))
+def update_ex():
+    ex = gl.current_positions.qty.sum()
+    pl_ex = gl.pl_ex
+    pl_ex['last_ex'] = ex
+    if ex > pl_ex['max_ex']:
+        pl_ex['max_ex'] = ex
+
+    gl.pl_ex = pl_ex

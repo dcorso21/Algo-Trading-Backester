@@ -7,11 +7,23 @@ import json
 
 
 def pricing_eval():
-    binary = False
-    if red_green()[-1] == 'red':
-        binary = True
+
+    binary = volatile_downtrend()
 
     return binary
+
+
+def volatile_downtrend():
+    mom_frame = gl.mom_frame
+    if len(mom_frame) == 0:
+        return False
+    last_index = mom_frame.index.to_list()[-1]
+    trend = mom_frame.at[last_index, 'trend']
+    vola = mom_frame.at[last_index, 'volatility']
+    if (trend == 'downtrend') and (vola > gl.volas['mean']):
+        return True
+    else:
+        return False
 
 
 def find_uptrends():
@@ -19,6 +31,7 @@ def find_uptrends():
     df = gl.current_frame
     dfx = pd.DataFrame()
     count = 0
+    last_min = {}
 
     for o, h, l, c, m in zip(df.open.astype(float), df.high.astype(float), df.low.astype(float), df.close.astype(float), df.time):
 
@@ -75,6 +88,7 @@ def find_downtrends():
     df = gl.current_frame
     dfx = pd.DataFrame()
     count = 0
+    last_min = {}
 
     for o, h, l, c, m in zip(df.open.astype(float), df.high.astype(float), df.low.astype(float), df.close.astype(float), df.time):
         # if red candle:
@@ -127,7 +141,7 @@ def find_downtrends():
 
 def red_green():
     r_g = []
-    current_frame = gl.current_frame()
+    current_frame = gl.current_frame
     for o, c in zip(current_frame.open, current_frame.close):
 
         val = 0

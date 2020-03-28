@@ -5,8 +5,8 @@ def analyse():
 
     # If feedback is false, dont run the function, return the blank df...
     if gl.loop_feedback == False:
-        orders = gl.pd.DataFrame()
-        return orders
+        # gl.logging.info('build orders skip')
+        return gl.pd.DataFrame()
 
     # Analyse Daily Movement
     gl.daily_ana.run_daily()

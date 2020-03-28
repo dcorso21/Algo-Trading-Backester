@@ -13,9 +13,7 @@ def temp_files():
         'max_ex': 0
     }
 
-    pl_frame = gl.pd.DataFrame(pl_ex, index=['value']).T
-    pl_frame = pl_frame.reset_index().rename(columns={'index': 'type'})
-    pl_frame.to_csv(gl.filepath['pl_ex'])
+    gl.pl_ex = pl_ex
 
     # current
     current = {
@@ -29,9 +27,7 @@ def temp_files():
         'ticker': 'nan'
     }
 
-    c_frame = gl.pd.DataFrame(current, index=['value']).T
-    c_frame = c_frame.reset_index().rename(columns={'index': 'type'})
-    c_frame.to_csv(gl.filepath['current'])
+    gl.current = current
 
     # volas
     volas = {
@@ -42,37 +38,9 @@ def temp_files():
         'mean': 'nan'
     }
 
-    volas_frame = gl.pd.DataFrame(volas, index=['value']).T
-    volas_frame = volas_frame.reset_index().rename(columns={'index': 'type'})
-    volas_frame.to_csv(gl.filepath['volas'])
+    gl.volas = volas
 
     # mom_frame
-    mom_frame = gl.pd.DataFrame()
-    mom_frame.to_csv(gl.filepath['mom_frame'])
-
-    # # yearly_ana
-    # # managed in the yearly_eval file
-    # yearly_eval = gl.pd.DataFrame()
-    # yearly_eval.to_csv('temp_assets/analysis/yearly_eval.csv')
-
-    # current_frame
-    current_frame = gl.pd.DataFrame()
-    current_frame.to_csv(gl.filepath['current_frame'])
-
-    # filled_orders
-    # managed in the positions_ana file
-    filled_orders = gl.pd.DataFrame()
-    filled_orders.to_csv(gl.filepath['filled_orders'])
-
-    # open_orders
-    # managed in the positions_ana file
-    open_orders = gl.pd.DataFrame()
-    open_orders.to_csv(gl.filepath['open_orders'])
-
-    # current_positions
-    # managed in the positions_ana file
-    current_positions = gl.pd.DataFrame()
-    current_positions.to_csv(gl.filepath['current_positions'])
 
     # Logging Notes
     with open('temp_assets/algo.log', 'w'):

@@ -3,7 +3,7 @@ from local_functions.main import global_vars as gl
 
 def update_volas():
 
-    cf = gl.current_frame()
+    cf = gl.current_frame
 
     # make volatility column
     cf['vola'] = gl.common_ana.get_volatility(
@@ -22,4 +22,4 @@ def update_volas():
     }
 
     # save json file
-    gl.save_dict_to_csv(volas, gl.filepath['volas'])
+    gl.volas = volas

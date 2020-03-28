@@ -17,7 +17,7 @@ def update_supports_resistances():
 
     dfz = resistances.append(supports, sort=False)
 
-    dfz.to_csv(gl.filepath['sup_res_frame'])
+    gl.sup_res_frame = dfz
 
 
 def refine_resistances(resistances, dfx, df, cf):
@@ -103,13 +103,11 @@ def refine_supports(supports, dfx, df, cf):
     return dfx
 
 
-def get_resistances(current, cent_range=10):
+def get_resistances(cent_range=10):
 
-    # volas = pull_json('temp_assets/analysis/volas.json')
+    df = gl.mom_frame
 
-    df = gl.mom_frame()
-
-    highs = df[df.high >= current['close']].high.to_list()
+    highs = df[df.high >= gl.current['close']].high.to_list()
 
     highs = list(dict.fromkeys(highs))
 
@@ -154,13 +152,13 @@ def eval_resistance(high, resistance, resistance_set, cent_range):
     return added
 
 
-def get_supports(current, cent_range=6):
+def get_supports(cent_range=6):
 
     # volas = pull_json('temp_assets/analysis/volas.json')
 
-    df = gl.mom_frame()
+    df = gl.mom_frame
 
-    lows = df[df.low <= current['close']].low.to_list()
+    lows = df[df.low <= gl.current['close']].low.to_list()
 
     lows = list(dict.fromkeys(lows))
 

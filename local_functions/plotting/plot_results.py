@@ -967,7 +967,7 @@ def get_trading_charts(orders,mkt_data,date,height,table = False, yearly = False
 
 def plot_momentum():
 
-    dfz = pd.read_csv('temp_assets/analysis/daily_eval.csv')
+    dfz = pd.read_csv('temp_assets/analysis/mom_frame.csv')
     df = hist.get_mkt_data('example.csv')
 
     fig = go.Figure()

@@ -3,7 +3,7 @@ from local_functions.main import global_vars as gl
 
 def create_sells(qty, exe_price):
 
-    current = gl.current()
+    current = gl.current
 
     ticker = current['ticker']
     timestamp = gl.common_ana.get_timestamp(
@@ -24,7 +24,7 @@ def create_sells(qty, exe_price):
 
 def create_buys(cash_value, exe_price):
 
-    current = gl.current()
+    current = gl.current
 
     ticker = current['ticker']
     timestamp = gl.common_ana.get_timestamp(

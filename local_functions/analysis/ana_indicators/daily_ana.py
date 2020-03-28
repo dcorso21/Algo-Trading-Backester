@@ -3,12 +3,12 @@ from local_functions.main import global_vars as gl
 
 def run_daily():
 
+    gl.d_update_docs.update_files()
+
     p_eval = gl.d_price_eval.pricing_eval()
 
-    if len(gl.current_frame()) >= 5:
+    if len(gl.current_frame) >= 5:
         v_eval = volume_eval()
-
-    gl.d_update_docs.update_files()
 
     # If both true, return True for the go ahead to buy.
     if p_eval:  # and v_eval:
@@ -22,7 +22,7 @@ def volume_eval():
 
 
 def volume_min_check(mins_back, minimum_volume):
-    current_frame = gl.current_frame()
+    current_frame = gl.current_frame
 
     if len(current_frame) < mins_back:
         mins_back = len(current_frame)
