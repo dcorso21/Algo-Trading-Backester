@@ -2,6 +2,24 @@ from local_functions.main import global_vars as gl
 
 
 def run_daily():
+    '''
+    # Run Daily Analysis
+    Updates files and looks for patterns in the daily chart. 
+
+    Updates Global chart_response boolean. 
+
+    ## Process:
+
+    ### 1) Runs update_files function
+    Updates momentum, supports, resistances and volatility analysis. 
+
+    ### 2) Evaluates current price info with the pricing_eval function. 
+
+    ### 3) Evaluates current volume info with the volume_eval function. 
+
+    ### 4) Based on these assessments, set the global variable chart_response as True or False. 
+
+    '''
 
     gl.d_update_docs.update_files()
 

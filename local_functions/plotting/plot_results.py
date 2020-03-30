@@ -202,8 +202,7 @@ def update_orders(orders):
                 elif x == 'TO CLOSE':
                     # Due to how the rows are appended from the fills df, the index may have numbers with all zeros. 
                     # This corrects that. 
-                    buys = buys.reset_index()
-                    buys = buys.drop('index', axis = 1)
+                    buys = buys.reset_index(drop = True)
                     
                     # This var is not named that well because it isnt actually an average. 
                     # It refers to the amount of dollars that were sold. 

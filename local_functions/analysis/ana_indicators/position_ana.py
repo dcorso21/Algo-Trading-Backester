@@ -106,9 +106,12 @@ def log_sent_orders(orders, buy_or_sell):
 
     of the amount of shares and cash being bought/sold
 
-    Parameters:{
-    orders: df of new prospective orders.
+    ## Parameters:{
+
+    orders: df of new prospective orders,
+
     buy_or_sell: order type - string 'buy' or 'sell'
+
     }
     '''
     if len(orders) != 0:

@@ -52,10 +52,7 @@ def run_trade_sim(new_orders):
         new_orders['wait_duration'] = gl.pd.Series(0)
         open_orders = open_orders.append(new_orders, sort=False)
         # Re - Index
-        open_orders = open_orders.reset_index()
-        columns = ['ticker', 'send_time', 'buy_or_sell', 'cash', 'qty',
-                   'exe_price', 'price_check', 'vol_start', 'wait_duration']
-        open_orders = open_orders[columns].dropna()
+        open_orders = open_orders.reset_index(drop=True)
 
     if len(open_orders) == 0:
         gl.open_orders = open_orders

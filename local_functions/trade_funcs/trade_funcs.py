@@ -47,10 +47,7 @@ def update_current_positions(new_fills):
 
     df = new_fills
     df = gl.current_positions.append(df, sort=False)
-    df = df.reset_index()
-    columns = ['ticker', 'send_time', 'buy_or_sell',
-               'cash', 'qty', 'exe_price', 'exe_time']
-    df = df[columns]
+    df = df.reset_index(drop=True)
 
     buys = df[df['buy_or_sell'] == 'BUY']
     sells = df[df['buy_or_sell'] == 'SELL']

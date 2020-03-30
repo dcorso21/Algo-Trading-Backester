@@ -2,6 +2,17 @@ from local_functions.main import global_vars as gl
 
 
 def create_sells(qty, exe_price):
+    '''
+    # Create Sells
+    Creates A one-row DataFrame sell order
+
+    Returns the Sell Order DF. 
+
+    ## Parameters: {
+    qty: amount of shares to sell. 
+    exe_price: price to sell at. 
+    }
+    '''
 
     current = gl.current
 
@@ -23,6 +34,20 @@ def create_sells(qty, exe_price):
 
 
 def create_buys(cash_value, exe_price):
+    '''
+    # Create Sells
+    Creates A one-row DataFrame buy order
+
+    Returns the Buy Order DF. 
+
+    ## Parameters: {
+
+    cash_value: buy amount (will be converted to shares with round down). 
+
+    exe_price: price to buy at. 
+
+    }
+    '''
 
     current = gl.current
 

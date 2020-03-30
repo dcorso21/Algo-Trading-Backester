@@ -25,7 +25,7 @@ def main_algo():
 
         # the candle is added to the rest once the minute is complete.
         gl.gather.clone_current_frame()
-        gl.candles.chart_candles()
+        # gl.candles.chart_candles()
 
         # gl.gather.add_new_minute(gl.current, 'daily_ohlc')
         gl.logging.info(f'{len(gl.current_frame)}')
