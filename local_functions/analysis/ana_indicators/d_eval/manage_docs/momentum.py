@@ -162,7 +162,14 @@ def append_mom_row(yin, offset, last_offset, df, dfz):
 def pick_up_from_index(df, mom_df, mom_dict):
     '''
     ## Pick up from Index
-    Chooses a starting point 
+    Chooses a starting point three trends back to start from. 
+
+    Returns the starting offset index, the trend type (yin and yang) and the mom_df that it will add to.   
+
+    ### Process:
+    #### 1) Retreives starting index from 3 trends ago. 
+    #### 2) Defines starting trend based on last trend. 
+    #### 3) Returns Key Variables.  
     '''
 
     pick_up_index = mom_df.index.to_list()[-3]
