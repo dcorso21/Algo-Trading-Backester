@@ -13,22 +13,22 @@ def main_algo():
         prices, volumes, ticker, minute = gl.hist.create_second_data(gl.sim_df,
                                                                      row, mode='momentum')
 
-        gl.logging.info('  {}'.format(minute))
-        gl.sys.stdout.write('\rcurrent minute : {}'.format(minute))
+        gl.logging.info(f'  {minute}')
+        gl.sys.stdout.write(f'\rcurrent minute : {minute}')
         gl.sys.stdout.flush()
 
         # each second, update current candle and assess patterns, consider trading.
         for price, volume, second in zip(prices, volumes, range(0, 60)):
             gl.gather.update_candle(price, volume, ticker, minute, second)
-
-            # orders = gl.ana.analyse()
-            # gl.trade_funcs.exe_orders(orders)
-
-        gl.candles.chart_candles()
+            orders = gl.ana.analyse()
+            gl.trade_funcs.exe_orders(orders)
 
         # the candle is added to the rest once the minute is complete.
-        gl.gather.add_new_minute(gl.current, 'daily_ohlc')
+        gl.gather.clone_current_frame()
+        gl.candles.chart_candles()
 
+        # gl.gather.add_new_minute(gl.current, 'daily_ohlc')
+        gl.logging.info(f'{len(gl.current_frame)}')
         gl.logging.info('minute complete\n')
 
         if minute == '11:05:00':

@@ -7,11 +7,17 @@ def sell_eval():
     if len(gl.current_positions) == 0:
         return gl.pd.DataFrame()
     loop = True
-    while loop:
-        sells, loop = gl.s_conds.eleven_oclock_exit()
-        sells, loop = gl.s_conds.three_perc_gain()
-        sells, loop = gl.s_conds.target_unreal(50)
-        sells, loop = gl.s_conds.exposure_over_account_limit()
 
-        loop = False
+    sell_conds = [
+        gl.s_conds.eleven_oclock_exit,
+        gl.s_conds.three_perc_gain,
+        gl.s_conds.target_unreal,
+        gl.s_conds.exposure_over_account_limit
+    ]
+
+    for func in sell_conds:
+        sells = func()
+        if len(sells) != 0:
+            break
+
     return sells

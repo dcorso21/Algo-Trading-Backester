@@ -10,6 +10,31 @@ Purpose of this module:
 
 
 def run_trade_sim(new_orders):
+    '''
+    # Run Trade Simulation
+
+    Simulates the lag and execution conditions that would prevent an order from being filled instantly. 
+    While these orders are awaiting fill they are kept in the gl.open_orders variable. 
+
+    Returns 'Filled Orders' DF. 
+
+    ## Process
+    ### 1) Cancel Orders
+    Drops open_orders that have been standing or 'open' for over a certain amount of seconds.
+
+    ### 2) Add New Orders to Open_Orders
+    Makes new columns used for fill simulation. 
+
+    ### 3) Check Price Requirement and Lag
+    Checks to see if price is at or above (for sell) or below (for buy) bid price
+    for the amount of lag seconds -  minimum. 
+
+    ### 4) Check Volume Requirement
+    Sees if quantity asked has filled (transpired) during the wait duration of the time the order has been open. 
+
+    ### 5) Return Filled Orders and Updates Remaining Current_frame var. 
+
+    '''
 
     price_offset = 0.0
     # min number of seconds to fill (assuming the price and volume fit too... )
@@ -17,8 +42,10 @@ def run_trade_sim(new_orders):
 
     open_orders = gl.open_orders
 
+    # 1) Cancel Orders
     open_orders = cancel_at_wait_duration(open_orders, cancel_second=5)
 
+    # 2) Add New Orders to Open
     if len(new_orders) != 0:
         new_orders['price_check'] = gl.pd.Series(0)
         new_orders['vol_start'] = gl.pd.Series(0)
@@ -31,15 +58,12 @@ def run_trade_sim(new_orders):
         open_orders = open_orders[columns].dropna()
 
     if len(open_orders) == 0:
-        filled_orders = gl.pd.DataFrame()
         gl.open_orders = open_orders
-        return filled_orders
+        return gl.pd.DataFrame()
 
-    # UPDATE THE OPEN ORDERS...
-    open_orders = sim_progress_open_orders(open_orders, lag, price_offset)
-
-    # there is potential for these orders to be filled.
-    potential_fills = open_orders[open_orders['price_check'] >= lag]
+    # 3) Check Price Requirement
+    open_orders, potential_fills = sim_progress_open_orders(
+        open_orders, lag, price_offset)
 
     # if there are no potential fills,
     # update the open_orders and return - dont bother checking volume...
@@ -48,6 +72,7 @@ def run_trade_sim(new_orders):
         gl.open_orders = open_orders
         return filled_orders
 
+    # 4) Check Volume Requirement
     fill_indexes, open_orders = vol_check(potential_fills, open_orders)
 
     if len(fill_indexes) == 0:
@@ -55,6 +80,7 @@ def run_trade_sim(new_orders):
         gl.open_orders = open_orders
         return filled_orders
 
+    # 5) Return Filled Orders and Update Remaining Current_frame var.
     current = gl.current
 
     filled_orders = open_orders.iloc[fill_indexes, :]
@@ -65,8 +91,10 @@ def run_trade_sim(new_orders):
         current['minute'], current['second']))
     filled_orders = filled_orders.dropna()
     open_orders = open_orders.drop(index=fill_indexes)
-
     gl.open_orders = open_orders
+
+    gl.logging.info(
+        f'new_fills: {len(filled_orders)}, open: {len(open_orders)}')
 
     return filled_orders
 
@@ -98,7 +126,10 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
         if price_check == 1:
             open_orders.at[index, 'vol_start'] = current['volume']
 
-    return open_orders
+    # there is potential for these orders to be filled.
+    potential_fills = open_orders[open_orders['price_check'] >= lag]
+
+    return open_orders, potential_fills
 
 
 def vol_check(potential_fills, open_orders):
@@ -130,7 +161,8 @@ def cancel_at_wait_duration(open_orders, cancel_second=5):
                                   cancel_second]
         new_len = len(open_orders)
         if old_len != new_len:
-            gl.logging.info('TF/SE 21.136 order cancelled')
+            line = '21.136'
+            gl.logging.info(f'TF/SE {line} order cancelled')
 
         # gl.logging.info(len(open_orders))
 

@@ -8,24 +8,25 @@ def three_perc_gain():
         # sell all
         everything = gl.current_positions.qty.sum()
         sells = gl.o_tools.create_sells(everything, gl.current['close'])
-        loop = False
-    else:
-        sells = gl.pd.DataFrame()
-        loop = True
-    return sells, loop
+        gl.logging.info('----> over 3 perc gain triggered. ')
+        return sells
+    sells = gl.pd.DataFrame()
+    return sells
 
 
-def target_unreal(target_int):
-    if gl.pl_ex['unreal'] > target_int:
+def target_unreal():
+    target_int = 20
+    unreal = gl.pl_ex['unreal']
+    if unreal > target_int:
         # sell all
         everything = gl.current_positions.qty.sum()
         exe_price = gl.current['close']
         sells = gl.o_tools.create_sells(everything, exe_price)
-        loop = False
-    else:
-        sells = gl.pd.DataFrame()
-        loop = True
-    return sells, loop
+        gl.logging.info(f'----> unreal hits trigger: {unreal}')
+        return sells
+
+    sells = gl.pd.DataFrame()
+    return sells
 
 
 # if exposure is over 30K... sell half
@@ -36,11 +37,10 @@ def exposure_over_account_limit():
         half = int(gl.current_positions.qty.sum()/2)
         exe_price = gl.current['close']
         sells = gl.o_tools.create_sells(half, exe_price)
-        loop = False
+        gl.logging.info('----> over-exposed sell half.')
     else:
         sells = gl.pd.DataFrame()
-        loop = True
-    return sells, loop
+    return sells
 
 
 def eleven_oclock_exit():
@@ -52,8 +52,6 @@ def eleven_oclock_exit():
         sells = gl.o_tools.create_sells(everything, exe_price)
         gl.logging.info('PS: Sell to Stop...')
         gl.loop_feedback = False
-        loop = False
     else:
         sells = gl.pd.DataFrame()
-        loop = True
-    return sells, loop
+    return sells

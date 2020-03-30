@@ -41,7 +41,6 @@ from local_functions.trade_funcs import trade_funcs
 from local_functions.live_graph import candles as candles
 
 
-
 pos_update = False
 loop_feedback = True
 chart_response = False

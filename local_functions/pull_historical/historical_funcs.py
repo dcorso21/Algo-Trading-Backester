@@ -33,10 +33,18 @@ def get_mkt_data(name):
                5: 'open',
                6: 'volume'}
     m = m.rename(columns=columns)
-
     m.drop(m.tail(1).index, inplace=True)
+    m = complete_data(m)
 
-    return complete_data(m)
+    m['open'] = m.open.astype(float)
+    m['high'] = m.high.astype(float)
+    m['low'] = m.low.astype(float)
+    m['close'] = m.close.astype(float)
+    m['volume'] = m.volume.astype(float).astype(int)
+
+    m = m[['ticker', 'time', 'open', 'high', 'low', 'close', 'volume']]
+
+    return m
 
 
 def complete_data(df):
@@ -135,13 +143,13 @@ def create_second_data(sim_df, index, mode='mixed'):
 
     row = list(sim_df.iloc[index])
 
-    o = float(row[5])
-    h = float(row[3])
-    l = float(row[4])
-    c = float(row[2])
-    v = round(float(row[6]), 1)
     ticker = row[0]
     minute = row[1]
+    o = float(row[2])
+    h = float(row[3])
+    l = float(row[4])
+    c = float(row[5])
+    v = round(float(row[6]), 1)
 
     prices, volumes = create_second_data_2(o, h, l, c, v, mode)
     return prices, volumes, ticker, minute
@@ -163,12 +171,12 @@ def create_second_data_2(o, h, l, c, v, mode):
     elif mode == 'random':
         prices = random_second_data(o, h, l, c, v)
     elif mode == 'momentum':
-        prices = momentum_second_data(o, h, l, c, v)
+        prices = momentum_second_data(o, h, l, c)
 
     return prices, volumes
 
 
-def momentum_second_data(o, h, l, c, v):
+def momentum_second_data(o, h, l, c):
     prices = []
     prices.append(o)
 

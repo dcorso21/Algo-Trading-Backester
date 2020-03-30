@@ -28,10 +28,8 @@ def update_candle(price, volume, ticker, minute, second):
                'minute': minute,
                'ticker': ticker}
 
-    # gl.save_dict_to_csv(current, 'current')
     gl.current = current
     add_new_minute(current, 'current_frame')
-    # print('candle_updated')
 
 
 def add_new_minute(current, file_name):
@@ -46,8 +44,14 @@ def add_new_minute(current, file_name):
                   }
 
     new_minute = gl.pd.DataFrame(new_minute)
-    updated_frame = gl.daily_ohlc.append(new_minute, sort=False)
-    if file_name == 'current_frame':
-        gl.current_frame = updated_frame
-    elif file_name == 'daily_ohlc':
-        gl.daily_ohlc = updated_frame
+
+    df = gl.sim_df
+    ind = df[df.time == current['minute']].index.tolist()[0]
+    df = df[:ind]
+    gl.current_frame = df.append(new_minute, sort=False)
+
+
+def clone_current_frame():
+    df = gl.sim_df
+    ind = df[df.time == gl.current['minute']].index.tolist()[0]
+    gl.current_frame = df[:ind+1]

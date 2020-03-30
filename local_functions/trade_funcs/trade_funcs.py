@@ -11,6 +11,13 @@ Purpose of this sheet:
 
 
 def exe_orders(orders):
+    '''
+    # Main Function: Executing Orders
+    ## 1) Takes suggested orders and puts them through a simluation 
+       to see whether or not they would be filled.
+
+    ## 2) If there are new fills, update the 'filled_orders' and 'current_positions' vars.  
+    '''
 
     # SIMULATE EXECUTIONS
     new_fills = gl.sim_exe.run_trade_sim(orders)
@@ -21,6 +28,11 @@ def exe_orders(orders):
 
 
 def update_filled_orders(new_fills):
+    '''
+    # Update Filled Orders
+    Simple function to append new fills to existing 'filled_orders' global variable. 
+
+    '''
     filled_orders = gl.filled_orders
     filled_orders = filled_orders.append(new_fills, sort=False)
     gl.filled_orders = filled_orders
@@ -28,8 +40,9 @@ def update_filled_orders(new_fills):
 
 def update_current_positions(new_fills):
     '''
-    Takes a DF of filled orders and filters out the orders no longer active (current) by looking at the sells. 
-
+    # Update Current Positions
+    Takes current positions and adds new fills. Function then calculates which positions are still active. 
+    e.g.: if you have two positions open, then sell one half, this will sort out the remaining position. 
     '''
 
     df = new_fills

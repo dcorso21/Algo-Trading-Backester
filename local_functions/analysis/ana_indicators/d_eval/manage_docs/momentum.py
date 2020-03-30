@@ -7,131 +7,124 @@ import logging
 
 
 def update_momentum():
-
+    df = gl.current_frame.reset_index()
+    # don't do anything unless the df is at least 5 rows long.
+    if len(df) <= 5:
+        return
     # ideally, these are the increments for aggregation.
     ideal_list = [5, 10, 15, 20, 25, 30]
-
-    # we have to reset the index so that the index isn't all zeros.
-    # this is necessary because we need to use indexes later on
-    df = gl.current_frame.reset_index()
-
-    # dfz is the momentum dataframe
     dfz = pd.DataFrame()
+    # momentum swings from up to down, so I name this push and pull yin and yang.
+    yin = 'start'
+    yang = 'start'
+    # circular dictionary :
+    # each time the momentum swings, the yin and yang switch.
+    mom_dict = {
+        'hi': 'li',
+        'li': 'hi'
+    }
+    # specifies a starting index.
+    offset = 0
+    fresh = True
+    mom_df = gl.mom_frame
 
-    # don't do anything unless the df is at least 5 rows long.
-    if len(df) > ideal_list[0]:
+    if (len(df) > 15) and len(mom_df) > 3:
+        offset, yin, yang, mom_df = pick_up_from_index(df, mom_df, mom_dict)
+        fresh = False
 
-        # momentum swings from up to down, so I name this push and pull yin and yang.
-        yin = 'start'
-        yang = 'start'
+    last_offset = offset
+    loop = True
+    while loop:
 
-        # circular dictionary :
-        # each time the momentum swings, the yin and yang switch.
-        mom_dict = {
-            'hi': 'li',
-            'li': 'hi'
-        }
+        agg_list = []
 
-        # specifies a starting index.
-        offset = 0
-        fresh = True
-        mom_df = gl.mom_frame
-        if (len(df) > 15) and len(mom_df) > 3:
+        # this process looks at how many rows are left and adds to the list those which will fit in the remainder
+        for x in ideal_list:
+            if int((len(df)-last_offset) / x) != 0:
+                agg_list.append(x)
 
-            pick_up_index = mom_df.index.to_list()[-3]
-            pick_up_time = mom_df.at[pick_up_index, 'end_time']
-            trend = mom_df.at[pick_up_index, 'trend']
-            mom_df = mom_df.iloc[:pick_up_index+1]
-            if trend == 'uptrend':
-                yin = 'li'
-            else:
-                yin = 'hi'
+        # if the length of the agg_list is 0,
+        # break the loop..
+        if len(agg_list) == 0:
+            break
 
-            yang = mom_dict[yin]
+        # main part of loop -  get the agg periods in a df
+        dfx, yin, yang = many_lengths(agg_list, offset, yin, yang, df)
 
-            offset = df[df.time == pick_up_time].index.to_list()[0]
+        if len(dfx) == 0:
+            loop = False
 
-            fresh = False
+        # Make sure that a new high or low isnt passed while looking for the opposite.
+        dfx = dfx[dfx[yang] == dfx[yang].tolist()[0]]
+
+        yins = dfx[yin].tolist()
+        last_yin = yins[0]
+
+        # goes through high/low indexer and picks the one that is greatest
+        # and stays the greatest
+        for x in yins:
+            if x > (last_yin + 4):
+                break
+            last_yin = x
+
+        offset = last_yin
+
+        # just making sure it doesn't get stuck in the same minute...
+        if offset == last_offset:
+            offset = offset + 1
+
+        trends = {'hi': 'uptrend', 'li': 'downtrend'}
+
+        duration = (offset - last_offset)
+
+        start_time = df[df.index == last_offset].time.to_list()[0]
+        end_time = df[df.index == offset].time.to_list()[0]
+        trend = trends[yin]
+
+        if trend == 'uptrend':
+            high = df[df.time == end_time].high.to_list()[0]
+            low = df[df.time == start_time].low.to_list()[0]
+            color = '#fcba03'
+        else:
+            high = df[df.time == start_time].high.to_list()[0]
+            low = df[df.time == end_time].low.to_list()[0]
+            color = '#e336a4'
+
+        row = pd.DataFrame({'start_time': [start_time], 'end_time': [end_time], 'duration': [duration],
+                            'trend': [trend], 'high': [high], 'low': [low], 'color': [color]})
 
         last_offset = offset
+        yin = mom_dict[yin]
+        yang = mom_dict[yang]
+        dfz = dfz.append(row, sort=False)
 
-        loop = True
-        while loop:
+    if len(dfz) != 0:
 
-            agg_list = []
+        dfz['volatility'] = gl.common_ana.get_volatility(
+            dfz.high.astype(float), dfz.low.astype(float))
 
-            # this process looks at how many rows are left and adds to the list those which will fit in the remainder
-            for x in ideal_list:
-                if int((len(df)-last_offset) / x) != 0:
-                    agg_list.append(x)
+        if fresh == False:
+            dfz = mom_df.append(dfz, sort=False)
 
-            # if the length of the agg_list is 0,
-            # break the loop..
-            if len(agg_list) == 0:
-                break
+        dfz = dfz.reset_index().drop(columns=['index'])
+        gl.logging.info('updating mom_frame')
+        gl.mom_frame = dfz
 
-            # if there are still lengths in the list -  go ahead.
-            elif len(agg_list) != 0:
 
-                # main part of loop -  get the agg periods in a df
-                dfx, yin, yang = many_lengths(agg_list, offset, yin, yang, df)
+def pick_up_from_index(df, mom_df, mom_dict):
 
-                if len(dfx) == 0:
-                    loop = False
+    pick_up_index = mom_df.index.to_list()[-3]
+    pick_up_time = mom_df.at[pick_up_index, 'end_time']
+    trend = mom_df.at[pick_up_index, 'trend']
+    mom_df = mom_df.iloc[:pick_up_index+1]
+    if trend == 'uptrend':
+        yin = 'li'
+    else:
+        yin = 'hi'
+    yang = mom_dict[yin]
+    offset = df[df.time == pick_up_time].index.to_list()[0]
 
-                # Make sure that a new high or low isnt passed while looking for the opposite.
-                dfx = dfx[dfx[yang] == dfx[yang].tolist()[0]]
-
-                yins = dfx[yin].tolist()
-                last_yin = yins[0]
-
-                # goes through high/low indexer and picks the one that is greatest
-                # and stays the greatest
-                for x in yins:
-                    if x > (last_yin + 4):
-                        break
-                    last_yin = x
-
-                offset = last_yin
-
-                if offset == last_offset:
-                    offset = offset + 1
-
-                trends = {'hi': 'uptrend', 'li': 'downtrend'}
-
-                duration = (offset - last_offset)
-
-                start_time = df[df.index == last_offset].time.to_list()[0]
-                end_time = df[df.index == offset].time.to_list()[0]
-                trend = trends[yin]
-
-                if trend == 'uptrend':
-                    high = df[df.time == end_time].high.to_list()[0]
-                    low = df[df.time == start_time].low.to_list()[0]
-                    color = '#fcba03'
-                else:
-                    high = df[df.time == start_time].high.to_list()[0]
-                    low = df[df.time == end_time].low.to_list()[0]
-                    color = '#e336a4'
-
-                row = pd.DataFrame({'start_time': [start_time], 'end_time': [end_time], 'duration': [duration],
-                                    'trend': [trend], 'high': [high], 'low': [low], 'color': [color]})
-
-                last_offset = offset
-                yin = mom_dict[yin]
-                yang = mom_dict[yang]
-                dfz = dfz.append(row, sort=False)
-
-        if len(dfz) != 0:
-
-            dfz['volatility'] = gl.common_ana.get_volatility(
-                dfz.high.astype(float), dfz.low.astype(float))
-
-            if fresh == False:
-                dfz = mom_df.append(dfz, sort=False)
-
-            dfz = dfz.reset_index().drop(columns=['index'])
-            gl.mom_frame = dfz
+    return offset, yin, yang, mom_df
 
 
 def many_lengths(agg_list, offset, yin, yang, df):

@@ -15,13 +15,16 @@ def buy_eval():
     if len(gl.current_positions) == 0:
         return gl.b_conds.starting_position()
 
-    loop = True
-    while loop:
+    buy_conds = [
+        gl.b_conds.drop_below_average
+    ]
 
-        # 1. returns True if the current price is below average by a certain percentage.
-        buys, loop = gl.b_conds.drop_below_average()
+    for func in buy_conds:
+        buys = func()
+        if len(buys) != 0:
+            break
 
-        loop = False
+    return buys
 
     return buys
 

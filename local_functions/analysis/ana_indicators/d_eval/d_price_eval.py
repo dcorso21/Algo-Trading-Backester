@@ -7,10 +7,26 @@ import json
 
 
 def pricing_eval():
+    if len(gl.current_frame) < 5:
+        return ana_first_mins()
 
-    binary = volatile_downtrend()
+    return volatile_downtrend()
 
-    return binary
+
+def ana_first_mins():
+    df = gl.current_frame
+    day_open = df.open.to_list()[0]
+    low = df.low.min()
+    c_price = df.close.to_list()[-1]
+
+    # If the price is less than current price...
+    if c_price < day_open:
+        # If the price is closer to the low than the high price.
+        if (day_open - c_price) > (c_price - low):
+            # gl.logging.info('chart looks good via ana_first_mins')
+            return True
+
+    return False
 
 
 def volatile_downtrend():
@@ -21,9 +37,9 @@ def volatile_downtrend():
     trend = mom_frame.at[last_index, 'trend']
     vola = mom_frame.at[last_index, 'volatility']
     if (trend == 'downtrend') and (vola > gl.volas['mean']):
+        # gl.logging.info('chart looks good via vola_downtrend')
         return True
-    else:
-        return False
+    return False
 
 
 def find_uptrends():

@@ -49,26 +49,23 @@ class CandlestickItem(gl.pg.GraphicsObject):
 
 
 def chart_candles():
+    import time
+    while len(gl.current_frame) == 0:
+        time.sleep(.1)
 
     df = gl.current_frame
-
-    # if len(df) == 0:
-    #     return
-
     item = CandlestickItem(df)
 
-    win = gl.pg.GraphicsWindow(title="Plot auto-range examples")
-    win.resize(800, 600)
-    # win.setWindowTitle('pyqtgraph example: PlotAutoRange')
-    p2 = win.addPlot(title="Auto Pan Only")
-    p2.setAutoPan(y=True)
-    plt = p2.plot(item)
-    # plt.addItem(item)
-    plt.setWindowTitle('pyqtgraph example: customGraphicsItem')
-    # plt.enableAutoRange('y', 0.95)
+    plt = gl.pg.plot()
+    plt.addItem(item)
+    plt.setWindowTitle('Algo Charts')
 
-    # Start Qt event loop unless running in interactive mode or using pyside.
-    # if __name__ == '__main__':
-    # import sys
-    # if (sys.flags.interactive != 1) or not hasattr(gl.QtCore, 'PYQT_VERSION'):
+    vb = plt.getViewBox()
+    vb.setYRange(df.low.min(), df.high.max(), padding=.05)
+
     gl.QtGui.QApplication.instance().exec_()
+    return
+
+
+if __name__ == "__main__":
+    chart_candles()

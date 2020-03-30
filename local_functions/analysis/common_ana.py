@@ -54,20 +54,14 @@ def get_average():
     return avg
 
 
-def get_max_vola(volas, current):
+def get_max_vola(volas, min_vola):
 
     volas_list = list(volas.values())
     # get rid of nan values to use max func...
     volas_cleaned = [x for x in volas_list if str(x) != 'nan']
-
-    if len(volas_cleaned) != 0:
-        max_vola = max(list(map(int, volas_cleaned)))
-    else:
-        max_vola = False
-
-    if max_vola == False:
-
-        max_vola = 4
+    volas_cleaned = list(map(int, volas_cleaned))
+    volas_cleaned.append(min_vola)
+    max_vola = max(volas_cleaned)
 
     return max_vola
 

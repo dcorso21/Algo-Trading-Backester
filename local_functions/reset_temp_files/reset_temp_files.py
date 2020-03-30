@@ -3,6 +3,14 @@ from local_functions.main import global_vars as gl
 
 def temp_files():
 
+    gl.current_frame = gl.pd.DataFrame()
+    gl.daily_ohlc = gl.pd.DataFrame()
+    gl.open_orders = gl.pd.DataFrame()
+    gl.current_positions = gl.pd.DataFrame()
+    gl.filled_orders = gl.pd.DataFrame()
+    gl.mom_frame = gl.pd.DataFrame()
+    gl.sup_res_frame = gl.pd.DataFrame()
+
     # PL and Exposure
     gl.sys.dont_write_bytecode = True
 
