@@ -4,8 +4,7 @@ from local_functions.main import global_vars as gl
 
 def main_algo():
 
-    gl.reset.temp_files()
-
+    gl.reset.reset_variables()
     # each minute in df
     for row in range(len(gl.sim_df)):
 
@@ -19,16 +18,14 @@ def main_algo():
 
         # each second, update current candle and assess patterns, consider trading.
         for price, volume, second in zip(prices, volumes, range(0, 60)):
+
             gl.gather.update_candle(price, volume, ticker, minute, second)
             orders = gl.ana.analyse()
             gl.trade_funcs.exe_orders(orders)
 
-        # the candle is added to the rest once the minute is complete.
+        # End of Minute
         gl.gather.clone_current_frame()
         # gl.candles.chart_candles()
-
-        # gl.gather.add_new_minute(gl.current, 'daily_ohlc')
-        gl.logging.info(f'{len(gl.current_frame)}')
         gl.logging.info('minute complete\n')
 
         if minute == '11:05:00':

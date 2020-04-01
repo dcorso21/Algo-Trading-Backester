@@ -1,7 +1,16 @@
 from local_functions.main import global_vars as gl
 
 
-def temp_files():
+def reset_variables():
+    '''
+    ## Reset Variables
+    There are many global variables that are used throughout the algorithm, 
+    and this file resets them so you can easily run the algo back to back. 
+    '''
+
+    gl.pos_update = False
+    gl.loop_feedback = True
+    gl.chart_response = False
 
     gl.current_frame = gl.pd.DataFrame()
     gl.daily_ohlc = gl.pd.DataFrame()
@@ -59,4 +68,4 @@ def temp_files():
     gl.logging.info('Started\n')
     # mylib.do_something()
 
-    print('files reset')
+    print('variables reset')

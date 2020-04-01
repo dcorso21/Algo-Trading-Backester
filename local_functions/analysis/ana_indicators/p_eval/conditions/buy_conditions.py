@@ -14,8 +14,9 @@ def starting_position():
     Returns buys DataFrame. 
     '''
     cash = gl.account.get_available_capital() * .01
+    cancel_spec = gl.o_tools.cancel_specs['standard']
     buys = gl.o_tools.create_buys(
-        cash, gl.current['close'])
+        cash, gl.current['close'], cancel_spec)
     return buys
 
 ##################################################
@@ -32,7 +33,7 @@ def drop_below_average():
     Returns buys DataFrame
 
     ### Details:
-    The drop amount is taken from the volas module with the function: get_max_vola()
+    The drop amount is taken from the volas module with the function: `get_max_vola()`
     '''
 
     current = gl.current
@@ -43,7 +44,9 @@ def drop_below_average():
     if current['close'] < (avg * drop_perc):
         cash = gl.pl_ex['last_ex']
         exe_price = current['close']
-        buys = gl.o_tools.create_buys(cash, exe_price)
+        cancel_spec = gl.o_tools.cancel_specs['standard']
+        buys = gl.o_tools.create_buys(
+            cash, exe_price, cancel_spec)
         return buys
 
     return gl.pd.DataFrame()

@@ -35,15 +35,11 @@ def run_trade_sim(new_orders):
     ### 5) Return Filled Orders and Updates Remaining Current_frame var. 
 
     '''
-
-    price_offset = 0.0
-    # min number of seconds to fill (assuming the price and volume fit too... )
-    lag = 2
-
     open_orders = gl.open_orders
 
     # 1) Cancel Orders
-    open_orders = cancel_at_wait_duration(open_orders, cancel_second=5)
+    open_orders = check_cancel(open_orders)
+    # open_orders = cancel_at_wait_duration(open_orders, cancel_second=5)
 
     # 2) Add New Orders to Open
     if len(new_orders) != 0:
@@ -60,7 +56,7 @@ def run_trade_sim(new_orders):
 
     # 3) Check Price Requirement
     open_orders, potential_fills = sim_progress_open_orders(
-        open_orders, lag, price_offset)
+        open_orders, lag=2, price_offset=0.0)
 
     # if there are no potential fills,
     # update the open_orders and return - dont bother checking volume...
@@ -148,19 +144,54 @@ def vol_check(potential_fills, open_orders):
     return fill_indexes, open_orders
 
 
-def cancel_at_wait_duration(open_orders, cancel_second=5):
+def check_cancel(open_orders):
+    '''
+    # Check Cancellation Requirements
+    Each buy or sell order has a `cancel_spec` column, specifying when to cancel if necessary. 
 
-    if len(open_orders) != 0:
-        open_orders['wait_duration'] = open_orders['wait_duration']+1
-        # CANCEL OVERDUE ORDERS...
-        old_len = len(open_orders)
-        open_orders = open_orders[open_orders.wait_duration <=
-                                  cancel_second]
-        new_len = len(open_orders)
-        if old_len != new_len:
-            line = '21.136'
-            gl.logging.info(f'TF/SE {line} order cancelled')
+    Returns updated `open_orders` frame without cancelled orders. 
 
-        # gl.logging.info(len(open_orders))
+    ## Process: 
 
-    return open_orders
+    - #### Skip Clause:
+    If there are no open orders, then return without doing anything. 
+
+    ### 1) Reset the index so we can keep track of index values.
+
+    ### 2) Loop over each open order and check to see if the Cancel Conditions are met. 
+    - defines cancellation specifications. 
+    - checks time cancellation spec
+    - checks price cancellation spec
+
+    ### 3) If the row meets either condition, add it to a list of indexes. 
+
+    ### 4) Return `open_orders` without the indexes that meet cancellation requirements.  
+    '''
+    if len(open_orders) == 0:
+        return open_orders
+
+    # 1) Reset the index so we can keep track of index values.
+    df = open_orders.reset_index(drop=True)
+    drop_indexes = []
+    for cancel_spec, exe_price, duration, index in zip(df.cancel_spec,
+                                                       df.exe_price,
+                                                       df.wait_duration,
+                                                       df.index):
+        # Example cancel_spec : r'p:%1,t:5'
+        xptype = cancel_spec.split(',')[0].split(':')[1][0]
+        xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
+        xtime = int(cancel_spec.split(',')[1].split(':')[1])
+
+        if duration >= xtime:
+            drop_indexes.append(index)
+
+        elif ((100 + xp)*exe_price) < gl.current['close']:
+            drop_indexes.append(index)
+
+        elif ((100 - xp)*exe_price) < gl.current['close']:
+            drop_indexes.append(index)
+
+    if len(drop_indexes) != 0:
+        gl.logging.info(f'TF/SE: order(s) cancelled')
+
+    return open_orders.drop(index=drop_indexes)

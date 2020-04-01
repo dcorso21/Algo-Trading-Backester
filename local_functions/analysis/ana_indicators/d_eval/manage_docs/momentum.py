@@ -9,29 +9,36 @@ import pandas as pd
 def update_momentum():
     '''
     # Update Momentum
-    Updates the global variable 'mom_frame'
+    Updates the global variable `mom_frame`
+
+    ### Details:
+    The momentum frame analyses trends on the daily chart. 
+
+    From this frame, we can update supports and resistances (`sup_res_frame` variable). 
+    from another sheet.    
 
     ## Process:
     #### Skip Clause:
-    If there are less than 5 minutes in the current_frame, ---> return without doing anything.  
+    If there are less than 5 minutes in the `current_frame`, ---> return without doing anything.  
 
     ### 1) Define Starting Variables. 
     ### 2) Under certain conditions, pick up where last left off with global mom_frame. 
     There have to have been at least 15 minutes elapsed and 3 momentum shifts to use the previous version of the mom_frame. 
     ### 3) Loop through each trend on chart and add the trend to the mom_frame. Below is the loop procedure:
 
-    3.1) Create list of aggregation values based on how many rows are left in the current_frame. 
-            # If there are no aggregation periods to attempt, BREAK LOOP. 
+    - (3.1) Create list of aggregation values based on how many rows are left in the current_frame. 
 
-    3.2) Scan each length in aggregation list to find duration of each trend
+     If there are no aggregation periods to attempt, BREAK LOOP. 
 
-    3.3) Retreive index from the end of the new trend.
+    - (3.2) Scan each length in aggregation list to find duration of each trend
 
-    3.4) Append new row with trend to the mom_frame
+    - (3.3) Retreive index from the end of the new trend.
 
-    3.5) Update values for next cycle in loop. 
+    - (3.4) Append new row with trend to the `mom_frame`
 
-    ### 4) Replace global mom_frame variable with newly made DataFrame. 
+    - (3.5) Update values for next cycle in loop. 
+
+    ### 4) Replace global `mom_frame` variable with newly made DataFrame. 
 
     '''
     # 1) Define Starting Variables. #####################################################
@@ -39,8 +46,7 @@ def update_momentum():
     # don't do anything unless the df is at least 5 rows long.
     if len(df) < 5:
         return
-    # ideally, these are the increments for aggregation.
-    ideal_list = [5, 10, 15, 20, 25, 30]
+
     dfz = pd.DataFrame()
     # momentum swings from up to down, so I name this push and pull yin and yang.
     yin = 'start'
@@ -66,7 +72,7 @@ def update_momentum():
     # 3) Loop through each trend on chart and add the trend to the mom_frame.
     while loop:
         # 3.1) Create list of aggregation values based on how many rows are left in the current_frame.
-        agg_list = new_agg_list(ideal_list, df, last_offset)
+        agg_list = new_agg_list(df, last_offset)
 
         if len(agg_list) == 0:
             break
@@ -99,8 +105,22 @@ def update_momentum():
         gl.mom_frame = dfz
 
 
-def new_agg_list(ideal_list, df, last_offset):
+def new_agg_list(df, last_offset):
+    '''
+    ## New Aggregation List
 
+    Returns List of Aggregation times to look for trend with. 
+
+    ### Process:
+    #### 1) Takes the index from the end of the last trend and calculates the remaining rows in the current_frame.
+
+    #### 2) takes an ideal list of aggregation lengths and makes a new list 
+
+    - only including the values that would fit in the remainder.  
+    '''
+
+    # ideally, these are the increments for aggregation.
+    ideal_list = [5, 10, 15, 20, 25, 30]
     agg_list = []
 
     # this process looks at how many rows are left and adds to the list those which will fit in the remainder
@@ -112,11 +132,28 @@ def new_agg_list(ideal_list, df, last_offset):
 
 
 def get_new_offset(yin, last_offset, dfx):
+    '''
+    # Get New Offset
 
+    Takes the end of the new trend and sets that 
+    index as the new `offset`  - or beginning - of the next trend. 
+
+    ---> returns the new offset index value.  
+
+    ## Process:
+    ### 1) Make a list of the `yins` index values. 
+    - depending on the current trend, we could be looking for the high indexes or low indexes. The `yin` variable makes this flexible. 
+
+    ### 2) Loop through each `yin` index value to find which one is highest. 
+    - If a value is the highest for a certain amount of minutes without being superceded, BREAK LOOP. 
+
+    ### 3) Once the new trend is found ---> return the end index as the next trend's `offset` 
+    '''
+    # 1) Make a list of the 'yins' index values.
     yins = dfx[yin].tolist()
     last_yin = yins[0]
-    # goes through high/low indexer
-    # and picks the one that is greatest and stays the greatest
+
+    # 2) Loop through each 'yin' index value to find which one is highest.
     for y in yins:
         if y > (last_yin + 4):
             break
@@ -129,11 +166,31 @@ def get_new_offset(yin, last_offset, dfx):
     if offset == last_offset:
         offset += 1
 
+    # 3) Once the new trend is found ---> return the end index as the next trend's 'offset'
     return offset
 
 
 def append_mom_row(yin, offset, last_offset, df, dfz):
+    '''
+    # Append Momentum Row
+    Appends latest trend to momentum frame currently being assembled.  
 
+    returns the `dfz` DataFrame with a new trend appended. 
+
+    ## Parameters:{
+
+    - `yin`: str of trend type - either `hi` for high index or `li` for low index. 
+
+    - `offset`: integer value - to be used for the END of the trend duration. 
+
+    - `last_offset`: integer value - to be used for the START of the trend duration. 
+
+    - `df`: DF of Current_frame
+
+    - `dfz`: mom_frame to be appended to. 
+
+    }
+    '''
     trends = {'hi': 'uptrend', 'li': 'downtrend'}
 
     duration = (offset - last_offset)
@@ -166,6 +223,16 @@ def pick_up_from_index(df, mom_df, mom_dict):
 
     Returns the starting offset index, the trend type (yin and yang) and the mom_df that it will add to.   
 
+    ### Parameters:{
+
+    `df`: current frame DF.
+
+    `mom_df`: mom_frame 
+
+    `mom_dict`: circular dictionary for defining trend type. 
+
+    ### }
+
     ### Process:
     #### 1) Retreives starting index from 3 trends ago. 
     #### 2) Defines starting trend based on last trend. 
@@ -187,11 +254,31 @@ def pick_up_from_index(df, mom_df, mom_dict):
 
 
 def many_lengths(agg_list, offset, yin, yang, df):
+    '''
+    # Many Lengths
+    Returns a DataFrame (dfx) of different aggregation periods with index ranges. 
 
-    # this if statement is to start the momentum tracking.
-    # you send in variable yin and yang as 'start
-    # momentum is based on first open and close.
+    ## Process:
 
+    ### Start Clause:
+    If the `yin` variable passed equals 'start', it means that we are beginning 
+    in the first minute and need to see which way the momentum starts. 
+
+    The function bases the direction of the first momentum swing on whether the candle is red or green. 
+
+    ### 1) Loops through each value in aggregation list 
+    Passing the start and end indexes through the `simplify_candles()` function. This returns 
+    a one-row df each loop.   
+
+    ### 2) Each Row is added to a `dfx`, which is then returned.
+
+    ### 3) Once the next index is found, make sure that the `yang` Value is not superceded in the same period. 
+    - For example, if tracking an uptrend, We want to make sure that the price hasn't swung down before going to a new high.
+    If such a thing were to happen, this would constitute 2 quick momentum shifts instead of 1.
+
+    '''
+
+    # Start Clause:
     if yin == 'start':
         o = df.open.to_list()[0]
         c = df.close.to_list()[0]
@@ -206,24 +293,32 @@ def many_lengths(agg_list, offset, yin, yang, df):
             yang = 'hi'
 
     dfx = pd.DataFrame()
-
+    # 1) Loops through each value in aggregation list
     for x in agg_list:
 
         y = x + offset
         if len(df) >= y:
 
             row = simplify_candles(df, offset, y)
+            # 2) Each Row is added to a dfx, which is then returned.
             dfx = dfx.append(row, sort=False)
 
         else:
             break
 
-    # Make sure that a new high or low isnt passed while looking for the opposite.
+    # 3) Once the next index is found, make sure that the 'Yang' Value is not superceded in the same period.
     dfx = dfx[dfx[yang] == dfx[yang].tolist()[0]]
     return dfx, yin, yang
 
 
 def simplify_candles(df, start_index, end_index):
+    '''
+    ### Simplify Candles
+    Aggregates Candles based on the start and end index values of the DataFrame 
+
+    ---> Returns a one-row DataFrame with the ohlc values for the given range, 
+    as well as the indexes for the high and low values.  
+    '''
 
     df_slice = df.iloc[int(start_index):int(end_index+1), :]
 

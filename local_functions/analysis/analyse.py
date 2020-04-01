@@ -8,6 +8,8 @@ def analyse():
     Looks at daily (and eventually yearly chart) and decides whether its a good time to trade. 
     Then uses that info, plus info on current positions to create new orders (if any).
 
+    Returns Orders DataFrame.
+
     ## Process:
 
     #### Skip Clause:

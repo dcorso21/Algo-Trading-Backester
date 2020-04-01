@@ -101,7 +101,10 @@ filepath = {
 
 
 def save_all():
-
+    '''
+    ### Save All Files
+    Once trading is done, save all global variables as csv files. 
+    '''
     files = {
 
         'current': current,
@@ -118,6 +121,7 @@ def save_all():
     }
 
     for file_name, file in zip(files.keys(), files.values()):
+
         if type(file) == dict:
             save_dict_to_csv(file, file_name)
         else:

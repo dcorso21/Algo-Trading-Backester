@@ -12,7 +12,7 @@ Purpose of this sheet:
 
 def exe_orders(orders):
     '''
-    # Main Function: Executing Orders
+    # Core Function: Executing Orders
     ## 1) Takes suggested orders and puts them through a simluation 
        to see whether or not they would be filled.
 

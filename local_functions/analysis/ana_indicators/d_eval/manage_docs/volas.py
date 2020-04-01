@@ -2,6 +2,10 @@ from local_functions.main import global_vars as gl
 
 
 def update_volas():
+    '''
+    # Update Volatility Variable
+    Updates the global variable `volas`
+    '''
 
     cf = gl.current_frame
 

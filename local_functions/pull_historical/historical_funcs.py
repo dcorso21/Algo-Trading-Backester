@@ -9,13 +9,16 @@ import datetime
 
 
 def get_mkt_data(name):
-    '''Function:
+    '''
+    # Get Market Data
     Retrieves info from quantopian csv data. Selectively chooses which rows to use and formats.
 
-    Inputs:
-    {
-    date: a string in the "yyyy-mm-dd" format. Date must be of a day with available market info
-    in the "quantopian_data" folder.
+    Returns DataFrame
+
+    ## Parameters:{
+
+    `name`: filename of csv in main folder. This file should be made from the 'traded tickers' sheet in quantopian. 
+
     }'''
 
     #filename = 'quantopian_data/'+str(date)+'-QuantData.csv'
@@ -48,16 +51,20 @@ def get_mkt_data(name):
 
 
 def complete_data(df):
-    '''Function:
+    '''
+    # Complete Data
     This looks at each minute of each stock in a market data df
     and ensures it accounts for each minute the market is open. 
 
-    Inputs:
-    {
-    df: a dataframe of market data with one or more stocks present. 
+    Returns updated market data DataFrame. 
+
+    ## Parameters: {
+
+    - df: a dataframe of market data with one or more stocks present. 
+
     }
 
-    How it works:
+    ## How it works:
     If a minute is missing, the row is created by using the last known minute's close value
     Volume is left at 0 to make sure you can see that the minute was constructed artifically.  
     '''
@@ -104,8 +111,8 @@ def complete_data(df):
                     # append the values for that minute.
                     tickers.append(x)
                     t.append(minute)
-                    o.append(lclose)
-                    h.append(lclose)
+                    o.append(float(lclose) + .01)
+                    h.append(float(lclose) + .01)
                     l.append(lclose)
                     cl.append(lclose)
                     v.append(0)
@@ -132,15 +139,16 @@ def complete_data(df):
         dfx['close'] = cl
         dfx['volume'] = v
 
-        # When this appends, it doesn't reorder the info by time,
-        # that will be done by other functions used in conjunction with this function.
+        # Put everything in order...
         df = df.append(dfx, sort=False)
         df = df.sort_values(by='time')
     return df
 
 
 def create_second_data(sim_df, index, mode='mixed'):
+    '''
 
+    '''
     row = list(sim_df.iloc[index])
 
     ticker = row[0]
