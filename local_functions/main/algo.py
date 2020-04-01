@@ -1,4 +1,4 @@
-# LOCAL FUNCTIONS ###############
+# LOCAL FUNCTIONS #############
 from local_functions.main import global_vars as gl
 
 
