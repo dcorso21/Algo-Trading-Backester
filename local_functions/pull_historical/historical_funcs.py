@@ -50,99 +50,53 @@ def get_mkt_data(name):
     return m
 
 
-def complete_data(df):
-    '''
-    # Complete Data
-    This looks at each minute of each stock in a market data df
-    and ensures it accounts for each minute the market is open. 
+def make_new_minute(ticker, new_min, close_price):
+    new_row = {'ticker': [ticker],
+               'time': [new_min],
+               'open': [close_price],
+               'high': [close_price],
+               'low': [close_price],
+               'close': [close_price],
+               'volume': [0]
+               }
+    new_row = pd.DataFrame(new_row)
+    return new_row
 
-    Returns updated market data DataFrame. 
 
-    ## Parameters: {
+def complete_data(mkt_data):
+    m = mkt_data
+    ticker = m.at[0, 'ticker']
 
-    - df: a dataframe of market data with one or more stocks present. 
+    # If the last value is NOT @ 4pm... , make that row.
+    if m.time.to_list()[-1] != '16:00:00':
+        price = m.close.to_list()[-1]
+        last_row = make_new_minute(ticker, '16:00:00', price)
+        m = m.append(last_row, sort=False)
 
-    }
+    last_min = pd.to_datetime('09:30:00')
+    m['time'] = m.time.apply(lambda x: pd.to_datetime(x))
 
-    ## How it works:
-    If a minute is missing, the row is created by using the last known minute's close value
-    Volume is left at 0 to make sure you can see that the minute was constructed artifically.  
-    '''
+    added_df = pd.DataFrame()
+    for minute, close_price in zip(m.time, m.close):
+        duration = int((minute - last_min).seconds / 60)
 
-    # creates a list of stocks without repeats.
-    stocklist = df.ticker
-    stocklist = list(dict.fromkeys(stocklist))
+        if duration == 1:
+            last_min = minute
+            continue
 
-    # Goes stock by stock.
-    for x in stocklist:
-        m = df[df.ticker == x]
-        m = m.sort_values(by='time')
-        dfx = pd.DataFrame()
-        tickers = []
-        t = []
-        o = []
-        h = []
-        l = []
-        cl = []
-        v = []
+        for delta in range(1, duration):
+            new_min = (last_min +
+                       datetime.timedelta(minutes=delta))  #
+            new_row = make_new_minute(ticker, new_min, close_price)
+            added_df = added_df.append(new_row, sort=False)
 
-        # Sets a default value for minute - being the minute before the beginning.
-        minute = pd.to_datetime('09:30:00')
+        last_min = minute
 
-        # Sets a default value for last close — only to be used if the first minutes are missing.
-        lclose = m.close.astype(float).mean()
-
-        # Determines if a gap occurs.
-        for a, b in zip(m.time, m.close):
-            a = pd.to_datetime(a)
-            if a != minute + datetime.timedelta(minutes=1):
-                # If there is a gap, determine how long it is.
-                # Then define the var reps as a range with the length of missing minutes to be filled.
-                for y in range(1, 390):
-                    if a == minute + datetime.timedelta(minutes=y):
-                        break
-                reps = [range(0, y)]
-                for z in reps:
-
-                    # redefine the minute to the next minute.
-                    minute = pd.to_datetime(
-                        (minute + datetime.timedelta(minutes=1))).time().strftime('%H:%M:%S')
-
-                    # append the values for that minute.
-                    tickers.append(x)
-                    t.append(minute)
-                    o.append(float(lclose) + .01)
-                    h.append(float(lclose) + .01)
-                    l.append(lclose)
-                    cl.append(lclose)
-                    v.append(0)
-
-                    # convert minute to datetime.
-                    # -- For some reason I need this...
-                    minute = pd.to_datetime(minute)
-
-                    # if it is the last repitition, add another minute so the for loop can
-                    # continue on to fill other gaps.
-                    if z == reps[-1]:
-                        minute = pd.to_datetime(
-                            (minute + datetime.timedelta(minutes=1))).time().strftime('%H:%M:%S')
-                        minute = pd.to_datetime(minute)
-
-            # Save last close for future gaps.
-            lclose = b
-            minute = a
-        dfx['ticker'] = tickers
-        dfx['time'] = t
-        dfx['open'] = o
-        dfx['high'] = h
-        dfx['low'] = l
-        dfx['close'] = cl
-        dfx['volume'] = v
-
-        # Put everything in order...
-        df = df.append(dfx, sort=False)
-        df = df.sort_values(by='time')
-    return df
+    m = m.append(added_df, sort=False)
+    m = m.sort_values(by='time')
+    m = m.reset_index(drop=True)
+    m['time'] = m.time.apply(lambda x: x.strftime('%H:%M:%S'))
+    return m
 
 
 def create_second_data(sim_df, index, mode='mixed'):

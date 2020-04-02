@@ -93,6 +93,10 @@ def run_trade_sim(new_orders):
 
 
 def sim_progress_open_orders(open_orders, lag, price_offset):
+    '''
+    # Sim Progress Open Orders
+    Iterates through each open order in the `open_orders` DataFrame.  
+    '''
 
     current = gl.current
 

@@ -6,7 +6,7 @@ from local_functions.pull_historical import historical_funcs as hist
 def get_orders():
     '''
     gets filled orders and converts them to something that will be easier down the line to plot
-    
+
     takes no arguments
     '''
     # get the filled orders
@@ -19,31 +19,103 @@ def get_orders():
     o = append_o_notes(df)
     return o
 
-def expand_mkt_data(m,o):
+
+def expand_mkt_data(m, o):
     '''
-    expands upon market data, calculates pls and so forth. 
+    expands upon market data, calculates pls and so forth.
     '''
-    # these functions are pretty self explanatory... 
-    m = append_avg(m,o)
-    m = append_position(m,o)
-    m = append_PL(m,o)
+    # these functions are pretty self explanatory...
+    m = append_avg(m, o)
+    m = append_position(m, o)
+    m = append_PL(m, o)
     m = append_PLs(m)
     return m
 
+
 def plot_results(market_data):
     '''
-    all in one for getting the market data plotted. 
+    all in one for getting the market data plotted.
     '''
     o = get_orders()
-    m = expand_mkt_data(market_data,o)
+    m = expand_mkt_data(market_data, o)
+    e_frame = max_exposures(o, m)
 
-    get_trading_charts(o,m,'Today',1000,table = False, yearly = False, notes = False, OnDemand = False, html = False, plot = True)
+    get_trading_charts(o, m, e_frame, 'Today', 1000, html=False, plot=True)
+
+
+def get_current_positions(buys, sells):
+    '''
+    # Update Current Positions
+    Takes current positions and adds new fills. Function then calculates which positions are still active.
+    e.g.: if you have two positions open, then sell one half, this will sort out the remaining position.
+    '''
+
+    # buys = buys.reset_index(drop=True)
+    for qty, price in zip(sells.quantity, sells.avgprice):
+        remainder = qty
+        while remainder > 0:
+
+            first_row = buys.index.tolist()[0]
+            if (buys.at[first_row, 'quantity'] - remainder) <= 0:
+
+                diff = int(remainder - buys.at[first_row, 'quantity'])
+                buys = buys.drop(first_row)
+
+                remainder = diff
+
+            elif (buys.at[first_row, 'quantity'] - remainder) > 0:
+
+                buys.at[first_row, 'quantity'] = buys.at[first_row,
+                                                         'quantity'] - remainder
+                remainder = 0
+
+    return buys
+
+
+def max_exposures(orders, mkt_data):
+
+    buys = pd.DataFrame()
+    exposures = []
+    exposure = 0
+
+    minutes = sorted(list(set(mkt_data.time)))
+
+    for minute in minutes:
+        minute_ex = []
+        df = orders[orders['time'] == minute]
+        if len(df) == 0:
+            exposures.append(exposure)
+            continue
+
+        df = df.sort_values(by='o_time')
+
+        for row in df.index:
+
+            if df.at[row, 'buyorsell'] == 'BUY':
+                buys = buys.append(df[df.index == row], sort=False)
+            else:
+                buys = get_current_positions(buys, df[df.index == row])
+
+            if len(buys) == 0:
+                exposure = 0
+                minute_ex.append(exposure)
+                continue
+            else:
+                calc_frame = pd.DataFrame()
+                calc_frame['cash'] = buys.quantity * buys.avgprice
+                exposure = calc_frame.cash.sum()
+                minute_ex.append(exposure)
+
+        exposures.append(max(minute_ex))
+
+    e = pd.DataFrame({'exposure': exposures, 'time': minutes})
+    return e
 
 
 def convert_orders(df):
     type2 = []
     qty_list = []
-    for order, qty in zip(df.buy_or_sell,df.qty):
+    for order, qty in zip(df.buy_or_sell, df.qty):
         if order == 'BUY':
             type2.append('TO OPEN')
             qty_list.append(qty)
@@ -51,105 +123,132 @@ def convert_orders(df):
             type2.append('TO CLOSE')
             qty_list.append(qty*-1)
 
-
     df['type2'] = type2
     df['quantity'] = qty_list
 
-    df = df.rename(columns={'buy_or_sell':'buyorsell', 'exe_price':'avgprice', 'exe_time':'time'})
+    df = df.rename(columns={'buy_or_sell': 'buyorsell',
+                            'exe_price': 'avgprice', 'exe_time': 'time'})
     columns = ['time', 'buyorsell', 'quantity', 'type2', 'ticker', 'avgprice']
     df = df[columns]
     return df
 
+
 def update_orders(orders):
     '''Takes the default orders dataframe and adds some crucial rows.
-    
+
     Rows added are: "rolling shares", "rolling average", "dollars invested" and "rolling P/L".
-    
+
     In addition, this function will round the time of each order row to the nearest minute value. '''
     orders['time'] = orders.time.apply(lambda x: pd.to_datetime(x)).dt.time
 
-    #these two lines make a list of tickers where once no ticker repeats.
+    # these two lines make a list of tickers where once no ticker repeats.
     stocklist = orders.ticker
     stocklist = list(dict.fromkeys(stocklist))
-    
-    # It is useful to create a new dataframe instead of editing the given one. 
-    #DFX will be returned at the end of the function. 
+
+    # It is useful to create a new dataframe instead of editing the given one.
+    # DFX will be returned at the end of the function.
     dfx = pd.DataFrame()
-    
-    #This is why we create a new dataframe -- the data has to be completed based on each ticker.
+
+    # This is why we create a new dataframe -- the data has to be completed based on each ticker.
     for x in stocklist:
-        
+
         o = orders[orders.ticker == x]
-        #these should already be sorted by time, but stranger things have happened.
-        dfz = pd.DataFrame(o).sort_values(by = 'time')
+        # these should already be sorted by time, but stranger things have happened.
+        dfz = pd.DataFrame(o).sort_values(by='time')
 
-        '''----- Rolling Shares -----'''
-        #Sets a default value for shares. 0 to start. 
-        # also creates an empty list that will become the rolling shares column (rs)
-        sharecount = 0
-        rolling_shares = []
-        for x in dfz.quantity:
-            #dfz.quantities will tell how many shares. 
-            #the += will add the integer x to the current value of "sharecount". 
-            #with each loop the value will change (or not) 
-            #and the value will be recorded in the next line.
-            sharecount += int(x)
-            rolling_shares.append(sharecount)
-            
-        #After the loop, we should have a full list the size of the df, 
-        #so we can just make a new column
-        dfz['rs'] = rolling_shares
+        def append_rolling_shares(dfz):
+            '''----- Rolling Shares -----'''
+            # Sets a default value for shares. 0 to start.
+            # also creates an empty list that will become the rolling shares column (rs)
+            sharecount = 0
+            rolling_shares = []
+            for x in dfz.quantity:
+                sharecount += int(x)
+                rolling_shares.append(sharecount)
 
-        
-        types = []
-        last_y = 0
-        
-        # This is a problem I encountered that if youre long and about to flip short, 
-        # the sell orders will all be labeled 
-        # As 'to close' when really, after you're flat. Not a perfect system, but good for now. 
+            # After the loop, we should have a full list the size of the df,
+            # so we can just make a new column
+            dfz['rs'] = rolling_shares
+            return dfz
 
-        for x,y in zip(dfz.type2, dfz.rs):
-            if last_y == 0: 
-                types.append('TO OPEN')
-            elif (last_y <=.01) & (last_y >= -.01):
-                types.append('TO OPEN')
-            else: 
-                types.append(x)
-            last_y = y
-            
-        # After we perform the above task — we can basically replace the original "type" column 
-        # with the new and improved column. 
-        # The reason that the original is called type2 is because of an error I encountered and
-        # fixed but never really cleaned out all the skeletons of the error. 
-        dfz = dfz.drop('type2',axis = 1)
-        dfz['type'] = types
-        
+        dfz = append_rolling_shares(dfz)
+
+        def correct_type(dfz):
+
+            # This is a problem I encountered that if youre long and about to flip short,
+            # the sell orders will all be labeled
+            # As 'to close' when really, after you're flat. Not a perfect system, but good for now.
+
+            types = []
+            last_y = 0
+
+            for x, y in zip(dfz.type2, dfz.rs):
+                if last_y == 0:
+                    types.append('TO OPEN')
+                elif (last_y <= .01) & (last_y >= -.01):
+                    types.append('TO OPEN')
+                else:
+                    types.append(x)
+                last_y = y
+
+            # After we perform the above task — we can basically replace the original "type" column
+            # with the new and improved column.
+            # The reason that the original is called type2 is because of an error I encountered and
+            # fixed but never really cleaned out all the skeletons of the error.
+            dfz = dfz.drop('type2', axis=1)
+            dfz['type'] = types
+
+            return dfz
+
+        dfz = correct_type(dfz)
+
+        def rounding_time(dfz):
+            times = []
+
+            # This loop breaks up each time into the hour, minute and second and then rounds to the nearest minute.
+            # This is to align with the market data for graphing over-top.
+            for x in dfz.time:
+                hr, mt, sc = str(x).split(':')
+
+                if len(mt) == 1:
+                    mt = "0"+mt
+                # recreate the string with rounded minute.
+                times.append(hr+':'+mt+':00')
+
+            # redefine the df column.
+            dfz = dfz.rename(columns={'time': 'o_time'})
+            dfz['time'] = times
+            # add all info to dfx in each loop of stocks.
+
+            return dfz
+
+        dfz = rounding_time(dfz)
+
         '''----- Rolling Average and Profit / Loss -----'''
-        
-        # Start with some default pl of 0 and some empty lists to fill and make columns. 
+
+        # Start with some default pl of 0 and some empty lists to fill and make columns.
         ravg = []
         pl = 0
         pl_over = []
-        
-        # To calculate how each order would effect open positions, I actually created 
-        # a df that updates each time shares are bought and sold. 
-        # This frame is used to calculate PL and average price. 
+
+        # To calculate how each order would effect open positions, I actually created
+        # a df that updates each time shares are bought and sold.
+        # This frame is used to calculate PL and average price.
         buys = pd.DataFrame()
-        
-        # By default short is false  -  
-        #this cuts down on the amount of assignments needed in if then statements.  
+
+        # By default short is false  -
+        # this cuts down on the amount of assignments needed in if then statements.
         short = False
 
-        
-        for x,y,a,b in zip(dfz.type, dfz.quantity, dfz.avgprice, dfz.rs):
-            
+        for x, y, a, b in zip(dfz.type, dfz.quantity, dfz.avgprice, dfz.rs):
+
             # Was getting some errors with type compliance, so I went ahead and converted
-            # these to floats to avoid the errors. 
+            # these to floats to avoid the errors.
             y = float(y)
             a = float(a)
             b = float(b)
-            
-            # Determines if position is long or short. 
+
+            # Determines if position is long or short.
             if x == 'TO OPEN':
                 if y < 0:
                     short = True
@@ -161,7 +260,7 @@ def update_orders(orders):
                 else:
                     short = False
 
-            # Fills is another df that is used to add to the buys df. 
+            # Fills is another df that is used to add to the buys df.
             # Each for loop creates another row in the buys df
             fills = pd.DataFrame()
             fills['quantity'] = [y]
@@ -169,98 +268,99 @@ def update_orders(orders):
 
             # This if statement is for when I don't have any more shares (I'm flat)
             if b == 0:
-                
-                # y is used to calculate PL for both short and long, but can be negative if you sold long.  
-                # This makes sure the y value is positive for the pl calculation. 
+
+                # y is used to calculate PL for both short and long, but can be negative if you sold long.
+                # This makes sure the y value is positive for the pl calculation.
                 if y < 0:
                     y = y * -1
-                
+
                 # While shorting, the calculated last_avg may be negative, which we need to negate in order
-                # to correctly calculate profit loss. 
+                # to correctly calculate profit loss.
                 if last_avg < 0:
                     last_avg = last_avg*-1
-                
-                
-                #Two calculations - one for short, one for long. 
+
+                # Two calculations - one for short, one for long.
                 if short == True:
                     pl += (last_avg - a)*y
-                    
+
                 else:
                     pl += (a - last_avg)*y
-                
-                #When I don't have shares, the buys df resets because the orders are all sold. 
+
+                # When I don't have shares, the buys df resets because the orders are all sold.
                 buys = pd.DataFrame()
                 ravg.append('Nan')
-                
-            else: #as in - I DO have shares still invested...
-                #if I'm opening new positions, I need to append those to the buys df. 
-                #to be added to the rest.
+
+            else:  # as in - I DO have shares still invested...
+                # if I'm opening new positions, I need to append those to the buys df.
+                # to be added to the rest.
                 if x == 'TO OPEN':
-                    buys = buys.append(fills, sort = True)
-                    
+                    buys = buys.append(fills, sort=True)
 
                 elif x == 'TO CLOSE':
-                    # Due to how the rows are appended from the fills df, the index may have numbers with all zeros. 
-                    # This corrects that. 
-                    buys = buys.reset_index(drop = True)
-                    
-                    # This var is not named that well because it isnt actually an average. 
-                    # It refers to the amount of dollars that were sold. 
-                    # Later on I use sold_av / quantity to get the true average of the shares sold 
-                    #- which is then used to calculate Profit Loss. 
+                    # Due to how the rows are appended from the fills df, the index may have numbers with all zeros.
+                    # This corrects that.
+                    buys = buys.reset_index()
+                    buys = buys.drop('index', axis=1)
+
+                    # This var is not named that well because it isnt actually an average.
+                    # It refers to the amount of dollars that were sold.
+                    # Later on I use sold_av / quantity to get the true average of the shares sold
+                    # - which is then used to calculate Profit Loss.
                     sold_av = 0
 
-                    #Long Close
-                    #Below this if statement, there is a very similar code for shorting. 
-                    #These notes really apply there too
+                    # Long Close
+                    # Below this if statement, there is a very similar code for shorting.
+                    # These notes really apply there too
                     if y < 0:
-                        
-                        #remainder is the number of shares you are subtracting from each buys row 
-                        #Starting at the top (earliest buys...)
+
+                        # remainder is the number of shares you are subtracting from each buys row
+                        # Starting at the top (earliest buys...)
                         remainder = y
-                        
-                        # the buys df will be edited during the for loop, so I thought it would be 
-                        # a good idea to make a copy at the start of it to stop any weird stuff happening. 
+
+                        # the buys df will be edited during the for loop, so I thought it would be
+                        # a good idea to make a copy at the start of it to stop any weird stuff happening.
                         b2 = buys.copy()
                         for z in b2.quantity:
-                            
+
                             # when closing long positions, the remainder value will start off negative
-                            # So really this is saying: as long as there are still shares to take off, proceed. 
+                            # So really this is saying: as long as there are still shares to take off, proceed.
                             if remainder < 0:
-                                
+
                                 # The buys df is row after row of orders, the topmost rows being the first (earliest) placed.
                                 # This looks at the first placed value in the quantity (num of shares) col
                                 # If the first quantity in buys MINUS the amount of shares that are being sold is less than 0,
-                                # That means that the # of shares sold is larger than the shares in that row. 
+                                # That means that the # of shares sold is larger than the shares in that row.
                                 if (list(buys.quantity)[0] + remainder) <= 0:
-                                    
-                                    # If the row is depleted, then add the amount of capital I had in that 
-                                    # row to sold_av. This may happen several times. 
-                                    # buys.dol is calculated at the end of this for loop, but is essentially 
+
+                                    # If the row is depleted, then add the amount of capital I had in that
+                                    # row to sold_av. This may happen several times.
+                                    # buys.dol is calculated at the end of this for loop, but is essentially
                                     # just (avg price)*(share qty)
                                     sold_av += list(buys.dol)[0]
                                 else:
-                                    
-                                    # In the event that the row isn't taken out by the remainder, then we take 
-                                    # the rest of the remainder, make it positive, and multiply it by the avg 
-                                    # price of the row. Then add that to sold_av. 
-                                    sold_av += (remainder*-1)*(list(buys.avgprice)[0])  
-                                
-                                # these last three lines actually update the dataframe. 
+
+                                    # In the event that the row isn't taken out by the remainder, then we take
+                                    # the rest of the remainder, make it positive, and multiply it by the avg
+                                    # price of the row. Then add that to sold_av.
+                                    sold_av += (remainder*-1) * \
+                                        (list(buys.avgprice)[0])
+
+                                # these last three lines actually update the dataframe.
                                 # update the quantity value of row 1 of the df.
-                                buys.iloc[0:1,2] = buys.iloc[0:1,2] + remainder
-                                # Update remainder. For loop will assess every time if there are shares remaining. 
+                                buys.iloc[0:1, 2] = buys.iloc[0:1,
+                                                              2] + remainder
+                                # Update remainder. For loop will assess every time if there are shares remaining.
                                 remainder = z + remainder
                                 # if the remainder is larger than the row qty, then the row gets deleted
                                 buys = buys[buys.quantity > 0]
                             else:
                                 break
-                        
-                        #calcuate pl using the sold_av, the order quantity, and order price.
-                        pl += (a -(sold_av/(y*-1)))*(y*-1)
 
-                    #Short Close
-                    # Essentially the same as Long close but with negated values. 
+                        # calcuate pl using the sold_av, the order quantity, and order price.
+                        pl += (a - (sold_av/(y*-1)))*(y*-1)
+
+                    # Short Close
+                    # Essentially the same as Long close but with negated values.
                     if y > 0:
                         remainder = y
                         b2 = buys.copy()
@@ -269,117 +369,98 @@ def update_orders(orders):
                                 if (list(buys.quantity)[0] + remainder) >= 0:
                                     sold_av += (list(buys.dol)[0])*-1
                                 else:
-                                    sold_av += (remainder)*(list(buys.avgprice)[0])    
-                                buys.iloc[0:1,2] = buys.iloc[0:1,2] + remainder
+                                    sold_av += (remainder) * \
+                                        (list(buys.avgprice)[0])
+                                buys.iloc[0:1, 2] = buys.iloc[0:1,
+                                                              2] + remainder
                                 remainder = z + remainder
                                 buys = buys[buys.quantity < 0]
                             else:
                                 break
 
-                        pl += (a -(sold_av/(y)))*(y*-1)
+                        pl += (a - (sold_av/(y)))*(y*-1)
 
-                # buys dollars invested is calculated to calculate average. 
+                # buys dollars invested is calculated to calculate average.
                 buys['dol'] = buys.quantity*buys.avgprice
                 bprices = buys.dol.sum()
                 bquant = buys.quantity.sum()
                 ravg.append(bprices/bquant)
-                # last_avg is saved in the event that the next order is to go flat. 
+                # last_avg is saved in the event that the next order is to go flat.
                 last_avg = (bprices/bquant)
 
             pl_over.append(pl)
 
-        # Adds some columns to the rows. Rolling Average, Dollars invested, and Profit Loss. 
+        # Adds some columns to the rows. Rolling Average, Dollars invested, and Profit Loss.
         dfz['ravg'] = ravg
         dfz['dol_inv'] = (dfz.ravg*dfz.rs)
         dfz['real_pl'] = pl_over
-     
-        '''----- Rounding Time -----'''
-        times = []
 
-        # This loop breaks up each time into the hour, minute and second and then rounds to the nearest minute. 
-        # This is to align with the market data for graphing over-top. 
-        for x in dfz.time:
-            x = str(x).split(':')
-            hr = x[0]
-            mt = x[1]
-            sc = x[2]
-            # Rounding mechanism...
-#             if int(sc) >= 31:
-#                 mt = str(int(mt)+1)
-            if len(mt) == 1:
-                mt = "0"+mt
-            # recreate the string with rounded minute. 
-            times.append(hr+':'+mt+':00')
-            
-        #redefine the df column.
-        dfz = dfz.rename(columns = {'time':'o_time'})
-        dfz['time'] = times
-        #add all info to dfx in each loop of stocks.
         dfx = dfx.append(dfz)
-         
+
     return dfx
+
 
 def append_o_notes(o):
     '''Takes a dataframe of orders and adds columns that are useful for graphing.
-    
+
     The columns created will be "scolor", "sig" and "annotes". 
     The "Sig" column is a string that tells you what type of order - Buy (B) Sell (S) or Buy Short (Bs)
     The "scolor" column is the color that will be graphed for each signal (sig)
     The "Annote" column will show information about the number of shares bought at what price.'''
-    
-    #Create empty lists to be converted to columns. 
-    sig = [] 
+
+    # Create empty lists to be converted to columns.
+    sig = []
     annote = []
     colist = []
-    
-    #Going through each line of dataframe and calculating above values.
-    for x, y, z, a in zip(o.buyorsell,o.type,o.quantity,o.avgprice):
+
+    # Going through each line of dataframe and calculating above values.
+    for x, y, z, a in zip(o.buyorsell, o.type, o.quantity, o.avgprice):
         z = float(z)
         a = float(a)
-        
-        #Sigcolor defaults to buy.
-        sigcol = 'rgba(51,204,255,0.5)'#'#6dbee3'
+
+        # Sigcolor defaults to buy.
+        sigcol = 'rgba(51,204,255,0.5)'  # '#6dbee3'
         if x == 'BUY':
-            #Opening Long
+            # Opening Long
             if y == 'TO OPEN':
                 mark = 'B'
-            #Closing Short
+            # Closing Short
             else:
                 mark = 'S'
-                
+
         else:
-            #Opening Short
+            # Opening Short
             if y == 'TO OPEN':
                 mark = 'Bs'
-            #Closing Long
+            # Closing Long
             else:
                 mark = 'S'
-                
-        #this makes all order quantities positive.
+
+        # this makes all order quantities positive.
         if z < 0:
             z = int(z)*-1
-        
-        #this second block creates the annote column. 
-        #If is for sell, elif is for buy short and else is for buy long. 
-        #you can see that buy and sell colors are already built in here. 
+
+        # this second block creates the annote column.
+        # If is for sell, elif is for buy short and else is for buy long.
+        # you can see that buy and sell colors are already built in here.
         if mark == 'S':
             note = '-'+f'{z:,}'+' @ $'+str(a)
-            sigcol = 'rgba(255,255,102,0.5)'#'#ebeb4d'
+            sigcol = 'rgba(255,255,102,0.5)'  # '#ebeb4d'
         elif mark == 'Bs':
             note = f'{z:,}'+' @ $'+str(a)
-            sigcol =  'rgba(204,0,102,0.5)'#'#c678cc'
+            sigcol = 'rgba(204,0,102,0.5)'  # '#c678cc'
         else:
             note = f'{z:,}'+' @ $'+str(a)
 
-        #at the end of each for loop append value to lists.
-        colist.append(sigcol)    
+        # at the end of each for loop append value to lists.
+        colist.append(sigcol)
         sig.append(mark)
         annote.append(note)
-        
+
     o['scolor'] = colist
     o['sig'] = sig
     o['annote'] = annote
-    
+
     return o
 
 
@@ -387,46 +468,47 @@ def append_PL(mkt_data, order_data):
     '''Function:
     Takes the realized Profit Loss info from order data df and transfers the data to a new 
     column in the market data df. 
-    
+
     Inputs:
     {
     mkt_data: df of market information from day traded. 
     order_data: df of order info from day traded.  
     }'''
-    
+
     import pandas as pd
-    
-    # create df to return. 
+
+    # create df to return.
     dfz = pd.DataFrame()
-    
-    # list of stocks with no repeats. 
+
+    # list of stocks with no repeats.
     stocklist = mkt_data.ticker
     stocklist = list(dict.fromkeys(stocklist))
-    
-    for x in stocklist:
-        
-        # Filter orders and mkt data by current stock
-        ox = order_data[order_data.ticker==x].sort_values(by = 'time')
 
-        dfx = pd.DataFrame(mkt_data[mkt_data.ticker == x]).sort_values(by = 'time')
-        
-        #create empty list to append to and default starting value for pl. 
+    for x in stocklist:
+
+        # Filter orders and mkt data by current stock
+        ox = order_data[order_data.ticker == x].sort_values(by='time')
+
+        dfx = pd.DataFrame(
+            mkt_data[mkt_data.ticker == x]).sort_values(by='time')
+
+        # create empty list to append to and default starting value for pl.
         plist = []
         pl = 0
-        
+
         for a in dfx.time:
-            o = ox[ox.time==a]
-            
-            # If the length of the orders df isn't 0, that means there are orders during that minute. 
+            o = ox[ox.time == a]
+
+            # If the length of the orders df isn't 0, that means there are orders during that minute.
             if len(o) != 0:
-                #takes the last value that minute... 
-                x = o.sort_values(by = 'o_time').tail(1).real_pl.mean()
-                    
-                if pl != x: # if the data is different than it was, update it. 
+                # takes the last value that minute...
+                x = o.sort_values(by='o_time').tail(1).real_pl.mean()
+
+                if pl != x:  # if the data is different than it was, update it.
                     pl = x
 
             plist.append(pl)
-            
+
         dfx['pl'] = plist
         dfz = dfz.append(dfx)
     return dfz
@@ -442,34 +524,34 @@ def append_PLs(mkt_data):
     To add two columns to market data -  an unrealized high, and an unrealized low. 
     These show the range of unrealized profits from minute to minute.
     Note: YOU MUST HAVE ALREADY USED THE FUNCTION "append_PL" as this func used the column generated there. 
-    
+
     Inputs:
     {
     mkt_data: df of minute by minute market data containing a profit loss column and high low values. 
     }'''
 
     import pandas as pd
-    
-    #df to be returned. 
+
+    # df to be returned.
     dfz = pd.DataFrame()
-    
-    #stocklist with no redundancies. 
+
+    # stocklist with no redundancies.
     stocklist = mkt_data.ticker
     stocklist = list(dict.fromkeys(stocklist))
-    
-    
+
     for x in stocklist:
-        
-        dfx = pd.DataFrame(mkt_data[mkt_data.ticker == x]).sort_values(by = 'time')
+
+        dfx = pd.DataFrame(
+            mkt_data[mkt_data.ticker == x]).sort_values(by='time')
 
         hpl = []
         lpl = []
         pos = 0
         pl = 0
-        
+
         for a, b, c, d, e in zip(dfx.high, dfx.low, dfx.rs, dfx.ravg, dfx.pl):
-            
-            #if flat, no there is no unrealized profit/loss. 
+
+            # if flat, no there is no unrealized profit/loss.
             if c == 'Nan':
                 highr = 'Nan'
                 lowr = 'Nan'
@@ -478,20 +560,20 @@ def append_PLs(mkt_data):
                 a = float(a)
                 b = float(b)
                 d = float(d)
-                
-                #values if short (rolling shares are negative)
+
+                # values if short (rolling shares are negative)
                 if int(c) < 0:
                     lowr = ((d - a)*c*-1)+pl
                     highr = ((d - b)*c*-1)+pl
-                    
-                #values when long. 
+
+                # values when long.
                 else:
-                    highr = ((a - d)*c)+pl 
+                    highr = ((a - d)*c)+pl
                     lowr = ((b - d)*c)+pl
 
             hpl.append(highr)
             lpl.append(lowr)
-            #saves last pl value for each loop iteration.
+            # saves last pl value for each loop iteration.
             pl = float(e)
 
         dfx['hpl'] = hpl
@@ -499,52 +581,54 @@ def append_PLs(mkt_data):
         dfz = dfz.append(dfx)
     return dfz
 
+
 def append_avg(mkt_data, order_data):
-    
     '''Function:
     Adds a column to market data df that tracks the average price of open orders every minute.
     Does this by scraping info from the orders dataframe. 
-    
+
     Inputs:
     {
     mkt_data: df of market data
     order_data: df of order data
     }
-    
+
     '''
     import pandas as pd
     dfz = pd.DataFrame()
-    
-    #creates list of stocks without repeats. 
+
+    # creates list of stocks without repeats.
     stocklist = mkt_data.ticker
     stocklist = list(dict.fromkeys(stocklist))
-    
+
     for x in stocklist:
-        
-        #filter both orders and mkt data by ticker
-        ox = order_data[order_data.ticker==x].sort_values(by = 'time')
-        dfx = pd.DataFrame(mkt_data[mkt_data.ticker == x]).sort_values(by = 'time')
-        
-        #start with empty list and blank average (because I would be flat at beginning of day.)
+
+        # filter both orders and mkt data by ticker
+        ox = order_data[order_data.ticker == x].sort_values(by='time')
+        dfx = pd.DataFrame(
+            mkt_data[mkt_data.ticker == x]).sort_values(by='time')
+
+        # start with empty list and blank average (because I would be flat at beginning of day.)
         avp = []
         av = 'Nan'
-        
+
         for a in dfx.time:
-            #filter orders for each minute in mkt_data
-            o = ox[ox.time==a]
-            
-            # if there is at least 1 order entry in that minute, iterate through orders. 
+            # filter orders for each minute in mkt_data
+            o = ox[ox.time == a]
+
+            # if there is at least 1 order entry in that minute, iterate through orders.
             if len(o) != 0:
-                x = o.sort_values(by = 'o_time').tail(1).rs.mean()
-                y = o.sort_values(by = 'o_time').tail(1).ravg.mean()
-                #for x, y in zip(o.rs,o.ravg): ### Essentially, this for loop takes the last average of the minute
+                x = o.sort_values(by='o_time').tail(1).rs.mean()
+                y = o.sort_values(by='o_time').tail(1).ravg.mean()
+                # for x, y in zip(o.rs,o.ravg): ### Essentially, this for loop takes the last average of the minute
                 if x != 0:
                     av = y
-                else:   # This is if the order closes all positions - making me flat. 
+                # This is if the order closes all positions - making me flat.
+                else:
                     av = 'Nan'
-            
+
             avp.append(av)
-            
+
         dfx['ravg'] = avp
         dfz = dfz.append(dfx)
     return dfz
@@ -553,12 +637,13 @@ def append_avg(mkt_data, order_data):
 #
 # ----- append Position Size to Market Data
 
+
 def append_position(mkt_data, order_data):
     '''
     Function:
     creates new column for market data df. 
     This column is created by using info from the thinkorswim orders. 
-    
+
     Inputs:
     {
     mkt_data: df of market data
@@ -567,153 +652,141 @@ def append_position(mkt_data, order_data):
     '''
     import pandas as pd
     dfz = pd.DataFrame()
-    
-    # creates list of stocks without duplicates. 
+
+    # creates list of stocks without duplicates.
     stocklist = mkt_data.ticker
     stocklist = list(dict.fromkeys(stocklist))
-    
+
     for x in stocklist:
-        
-        #filter both orders and mkt data by ticker each loop. 
-        ox = order_data[order_data.ticker==x].sort_values(by = 'time')
-        dfx = pd.DataFrame(mkt_data[mkt_data.ticker == x]).sort_values(by = 'time')
-        
+
+        # filter both orders and mkt data by ticker each loop.
+        ox = order_data[order_data.ticker == x].sort_values(by='time')
+        dfx = pd.DataFrame(
+            mkt_data[mkt_data.ticker == x]).sort_values(by='time')
+
         pos_list = []
         pos = 'Nan'
-        
+
         for a in dfx.time:
-            #filter orders for each minute in mkt_data
-            o = ox[ox.time==a]
-            
-            # if there is at least 1 order entry in that minute, iterate through orders. 
+            # filter orders for each minute in mkt_data
+            o = ox[ox.time == a]
+
+            # if there is at least 1 order entry in that minute, iterate through orders.
             if len(o) != 0:
                 for x in o.rs:
-                    
+
                     if x == 0:
-                        pos = 'Nan' #if I don't own any shares, then don't append anything, 
+                        pos = 'Nan'  # if I don't own any shares, then don't append anything,
                     else:
-                        pos = int(x) #otherwise, append the value
-            
+                        pos = int(x)  # otherwise, append the value
+
             pos_list.append(pos)
-            
+
         dfx['rs'] = pos_list
         dfz = dfz.append(dfx)
     return dfz
 
 
-def get_trading_charts(orders,mkt_data,date,height,table = False, yearly = False, notes = False, OnDemand = False, html = False, plot = True):
+def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot=True):
     '''Function:
     Creates a table showing minute by minute data and overlays trades. 
     Also shows info like position size and profit loss in depth. 
-    
+
     Inputs:
     {
     orders: a dataframe of orders from thinkorswim. 
-    
+
     mkt_data: a dataframe of market data for minute by minute pricing data. 
-    
+
     date: a string with the format "yyyy-mm-dd"
-    
+
     height: integer value. y dimension of daily graph. 800-1000 is good to start. 
-    
+
     table: Defaults to "True". creates a table of fundamental data above daily chart. 
-    
+
     yearly: Defaults to "True". Shows yearly chart above daily chart for day by day
     chart history. 
-    
+
     notes: appends a table for each stock traded that shows notes I've written showing my thoughts on the stock. 
-    
+
     OnDemand: Defaults to False - only if you say true does this default to getting fundamentals from a different source.
-    
+
     html: creates html plot for viewing later.
-    
+
     plot: whether or not it outputs the plot.
     }
     '''
-    
-    # Creates a list of stocks without repeats. 
+
+    # Creates a list of stocks without repeats.
     stocklist = mkt_data.ticker
     stocklist = list(dict.fromkeys(stocklist))
-    
-    
+
     for x in stocklist:
-        
+
         # Create a df for each stock
-        df = mkt_data[mkt_data.ticker==x]
+        df = mkt_data[mkt_data.ticker == x]
         df['high'] = df.high.astype(float)
         df['low'] = df.low.astype(float)
-        
-        #Create orders just for the current stock. 
+
+        # Create orders just for the current stock.
         o = orders[orders.ticker == x]
-        
-        # Add in yearly data and table with info...
-        if yearly == True:
-            if OnDemand == True:
-                get_OnDemand_fundamentals(x,date)
-            else: 
-                get_fundamentals(x,date)
-        if table == True:
-            if OnDemand == True:
-                spec_table(x,date,OnDemand = True)
-            else:
-                spec_table(x,date,OnDemand = False)
-        
+
         import plotly.graph_objects as go
-        
+
         # xax is an axis with every minute from 9:30 to 4:00
         xax = df.time
-        # xax2 only has times noted in order df. 
+        # xax2 only has times noted in order df.
         xax2 = o.time
 
         # Create figure
         fig = go.Figure()
 
         # Add traces
-        #---- CandleSticks
+        # ---- CandleSticks
         pricing = go.Candlestick(x=df.time,
-                        open=df.open, high=df.high,
-                        low=df.low, close=df.close,
-                        line_width = .5, increasing_line_color= '#0fba51', 
-                                     decreasing_line_color= '#b5091d',
-                        name="pricing",
-                        yaxis="y2",
-#                         hoverinfo='text',
-                        showlegend=False
+                                 open=df.open, high=df.high,
+                                 low=df.low, close=df.close,
+                                 line_width=.5, increasing_line_color='#0fba51',
+                                 decreasing_line_color='#b5091d',
+                                 name="pricing",
+                                 yaxis="y2",
+                                 #                         hoverinfo='text',
+                                 showlegend=False
 
-        )
+                                 )
 
         fig.add_trace(pricing)
 
-        
-        # This isn't working right now. may be interesting to look into. 
+        # This isn't working right now. may be interesting to look into.
+
         def toggle_hover(trace, points, state):
             trace.hoverinfo == 'all'
-            
+
         pricing.on_click(toggle_hover)
 
-        #---- overlay average price
-        avgcolor = 'rgba(255,153,102,0.8)'#'#ab4e1b'#'#6dbee3'
-        fig.add_trace(go.Scatter(x=xax, y=df.ravg,line=dict(
-                                                    color = avgcolor,
-                                                    shape='hv', width = 1.3, 
-                                                    dash="dash"), mode='lines', 
-                                                    name='average price', yaxis = 'y2'))
+        # ---- overlay average price
+        avgcolor = 'rgba(255,153,102,0.8)'  # '#ab4e1b'#'#6dbee3'
+        fig.add_trace(go.Scatter(x=xax, y=df.ravg, line=dict(
+            color=avgcolor,
+            shape='hv', width=1.3,
+            dash="dash"), mode='lines',
+            name='average price', yaxis='y2'))
 
         dollar_volume = df.volume.astype(float)*df.close.astype(float)
-        
-        #Low to High:
-        #7a7a7a -- Gray
-        #130933
-        #0d1147
-        #102f5b
-        #145670
-        #17847f
-        #1b986a
-        #1fac4b
-        #24c022
-        #60d426
-        #a2db37 
-        
+
+        # Low to High:
+        # 7a7a7a -- Gray
+        # 130933
+        # 0d1147
+        # 102f5b
+        # 145670
+        # 17847f
+        # 1b986a
+        # 1fac4b
+        # 24c022
+        # 60d426
+        # a2db37
+
         dol_vol_cols = []
         for y in dollar_volume:
             if y < 10000:
@@ -738,69 +811,67 @@ def get_trading_charts(orders,mkt_data,date,height,table = False, yearly = False
                 dol_vol_cols.append('#60d426')
             else:
                 dol_vol_cols.append('#a2db37')
-                
-                
-        #---- Volume
-        fig.add_trace(go.Bar(x=xax, y=dollar_volume,
-                             marker_color=dol_vol_cols, yaxis = 'y',showlegend=False))
-        
-        # ---- Zero Line
-        fig.add_trace(go.Scatter(x=['09:31:00','16:00:00'], y=[100000,100000],
-                                 line=dict(color = '#c2a31b',width = .7),
-                                 mode='lines', yaxis = 'y',showlegend=False))
 
+        # ---- Volume
+        fig.add_trace(go.Bar(x=xax, y=dollar_volume,
+                             marker_color=dol_vol_cols, yaxis='y', showlegend=False))
+
+        # ---- Zero Line
+        fig.add_trace(go.Scatter(x=['09:31:00', '16:00:00'], y=[100000, 100000],
+                                 line=dict(color='#c2a31b', width=.7),
+                                 mode='lines', yaxis='y', showlegend=False))
 
         poscolor = 'green'
         #
         #
         # ---- Zero Line
-        fig.add_trace(go.Scatter(x=['09:31:00','16:00:00'], y=[0,0],
-                                 line=dict(color = '#d9d9db', dash="dash",width = .7),
-                                 mode='lines', yaxis = 'y3',showlegend=False))
+        fig.add_trace(go.Scatter(x=['09:31:00', '16:00:00'], y=[0, 0],
+                                 line=dict(color='#d9d9db',
+                                           dash="dash", width=.7),
+                                 mode='lines', yaxis='y3', showlegend=False))
 
-        #---- Position Size
-        fig.add_trace(go.Scatter(x=xax, y=df.rs.astype(float)*df.ravg.astype(float), 
-                                 line=dict(shape='hv', color = poscolor, width = 1.3), 
-                                 mode='lines', name='dollars_invested', yaxis = 'y3',showlegend=False))
-
+        # ---- Position Size
+        fig.add_trace(go.Scatter(x=e_frame.time, y=e_frame.exposure,
+                                 line=dict(
+                                     shape='hv', color=poscolor, width=1.3),
+                                 mode='lines', name='dollars_invested', yaxis='y3', showlegend=False))
 
         plcolor = '#faa441'
         #
         #
         #
         # ---- Zero Line
-        fig.add_trace(go.Scatter(x=['09:31:00','16:00:00'], y=[0,0], line=dict(color = '#d9d9db',
-                                dash="dash",width = .7),mode='lines', yaxis = 'y4',showlegend=False))
+        fig.add_trace(go.Scatter(x=['09:31:00', '16:00:00'], y=[0, 0], line=dict(color='#d9d9db',
+                                                                                 dash="dash", width=.7), mode='lines', yaxis='y4', showlegend=False))
 
-        #---- P/l High
-        fig.add_trace(go.Scatter(x=xax, y=df.hpl, line=dict(color='green', shape='spline',width = .7),
-                                 mode='lines', name='Unreal High', yaxis = 'y4'))
+        # ---- P/l High
+        fig.add_trace(go.Scatter(x=xax, y=df.hpl, line=dict(color='green', shape='spline', width=.7),
+                                 mode='lines', name='Unreal High', yaxis='y4'))
 
-        #---- P/l Low
-        fig.add_trace(go.Scatter(x=xax, y=df.lpl, line=dict(color='red',shape='spline',width = .7),
-                                 mode='lines', name='Unreal Low', yaxis = 'y4'))
+        # ---- P/l Low
+        fig.add_trace(go.Scatter(x=xax, y=df.lpl, line=dict(color='red', shape='spline', width=.7),
+                                 mode='lines', name='Unreal Low', yaxis='y4'))
 
-        #---- Profit Loss
+        # ---- Profit Loss
         fig.add_trace(go.Scatter(x=xax, y=df.pl, line=dict(shape='hv',
-                                color=plcolor, width = 1.3),
-                                mode='lines', name='Realized P/L', yaxis = 'y4'))
-        
-        #---- Trades
+                                                           color=plcolor, width=1.3),
+                                 mode='lines', name='Realized P/L', yaxis='y4'))
+
+        # ---- Trades
         fig.add_trace(go.Scatter(x=xax2, y=o.avgprice, mode='markers', marker=dict(size=5,
-                              line=dict(width=.5,color='rgba(255,255,255,.4)')),marker_color=o.scolor,
-                                text=o.annote, name='Trades', yaxis = 'y2'))
-        
-        
+                                                                                   line=dict(width=.5, color='rgba(255,255,255,.4)')), marker_color=o.scolor,
+                                 text=o.annote, name='Trades', yaxis='y2'))
+
         # Volatility...
         volatility = ((df.high - df.low)/df.low)*100
-   
-        #gray = '#7a7a7a'
-        #purple = '#32207a'
-        #blue = '#294e8e'
-        #dark green = '#115e2f'
-        #green = '#39bd57'
-        #yellow = '#d0d61e'
-        #white = '#ffffff'
+
+        # gray = '#7a7a7a'
+        # purple = '#32207a'
+        # blue = '#294e8e'
+        # dark green = '#115e2f'
+        # green = '#39bd57'
+        # yellow = '#d0d61e'
+        # white = '#ffffff'
         vol_cols = []
         for b in volatility:
             if b < 1.0:
@@ -814,30 +885,31 @@ def get_trading_charts(orders,mkt_data,date,height,table = False, yearly = False
             elif (b >= 5) and (b < 10):
                 color = '#39bd57'
             elif (b >= 10) and (b < 20):
-                color = '#d0d61e'        
+                color = '#d0d61e'
             else:
                 color = '#ffffff'
-            vol_cols.append(color)  
-        
-        fig.add_trace(go.Scatter(x=xax, y=volatility, mode='markers', marker_size = 4.5,marker_color = vol_cols, yaxis = 'y5',name='Volatility in %',showlegend=False))
+            vol_cols.append(color)
+
+        fig.add_trace(go.Scatter(x=xax, y=volatility, mode='markers', marker_size=4.5,
+                                 marker_color=vol_cols, yaxis='y5', name='Volatility in %', showlegend=False))
 
         # Update axes
         fig.update_layout(
             xaxis=go.layout.XAxis(
                 autorange=True,
-                fixedrange= False,
-                range=['09:31:00','16:00:00'],
+                fixedrange=False,
+                range=['09:31:00', '16:00:00'],
                 rangeslider=dict(
                     autorange=True,
-                    range=['09:31:00','16:00:00']
+                    range=['09:31:00', '16:00:00']
                 )
             ),
-            
+
             # VOLUME
             yaxis=go.layout.YAxis(
                 anchor="x",
                 autorange=True,
-                fixedrange= False,
+                fixedrange=False,
                 domain=[0, 0.1],
                 linecolor="#673ab7",
                 mirror=True,
@@ -847,93 +919,94 @@ def get_trading_charts(orders,mkt_data,date,height,table = False, yearly = False
                 tickfont={"color": "#673ab7"},
                 tickmode="auto",
                 ticks="",
-                title = "Volume($)",
+                title="Volume($)",
                 titlefont={"color": "#673ab7"},
                 type="linear",
                 zeroline=False
             ),
-            
+
             # CANDLES
             yaxis2=go.layout.YAxis(
                 anchor="x",
                 autorange=True,
-                fixedrange= False,
+                fixedrange=False,
                 domain=[0.2, 0.6],
                 linecolor=avgcolor,
                 mirror=True,
-                #range=[df.volume.min(), df.volume.max()],
+                # range=[df.volume.min(), df.volume.max()],
                 showline=True,
                 side="left",
                 tickfont={"color": avgcolor},
                 tickmode="auto",
                 ticks="",
-                title = "Daily Chart",
+                title="Daily Chart",
                 titlefont={"color": avgcolor},
                 type="linear",
                 zeroline=False
             ),
-            
+
             # POSITION SIZE
             yaxis3=go.layout.YAxis(
                 anchor="x",
                 autorange=True,
-                fixedrange= False,
+                fixedrange=False,
                 domain=[0.8, 1.0],
                 linecolor=poscolor,
                 mirror=True,
-                range=[df.rs.astype(float)*df.ravg.astype(float).min(), df.rs.astype(float)*df.ravg.astype(float).max()],
+                range=[df.rs.astype(float)*df.ravg.astype(float).min(),
+                       df.rs.astype(float)*df.ravg.astype(float).max()],
                 showline=True,
                 side="left",
                 tickfont={"color": poscolor},
                 tickmode="auto",
                 ticks="",
-                title = "Position Size($)",
+                title="Position Size($)",
                 titlefont={"color": poscolor},
                 type="linear",
                 zeroline=False
             ),
-            
+
             # PROFIT LOSS
             yaxis4=go.layout.YAxis(
                 anchor="x",
                 autorange=True,
-                fixedrange= False,
+                fixedrange=False,
                 domain=[0.6, 0.8],
                 linecolor=plcolor,
                 mirror=True,
-                #range=[df.hpl.min(), df.lpl.max()],
+                # range=[df.hpl.min(), df.lpl.max()],
                 showline=True,
                 side="left",
                 tickfont={"color": plcolor},
                 tickmode="auto",
                 ticks="",
-                title = 'P/L in Depth',
+                title='P/L in Depth',
                 titlefont={"color": plcolor},
                 type="linear",
                 zeroline=False
             ),
-            
-            # Volatility 
+
+            # Volatility
             yaxis5=go.layout.YAxis(
                 anchor="x",
                 autorange=True,
-                fixedrange= False,
+                fixedrange=False,
                 domain=[0.1, 0.2],
                 linecolor="#E91E63",
                 mirror=True,
-                #range=[df.hpl.min(), df.lpl.max()],
+                # range=[df.hpl.min(), df.lpl.max()],
                 showline=True,
                 side="left",
                 tickfont={"color": "#E91E63"},
                 tickmode="auto",
                 ticks="",
-                title = "VIX (%)",
+                title="VIX (%)",
                 titlefont={"color": "#E91E63"},
                 type="linear",
                 zeroline=False
             )
         )
-        
+
         # Update Layout here...
         fig.update_layout(
             title=str(x)+" Minute Chart "+str(date),
@@ -941,28 +1014,26 @@ def get_trading_charts(orders,mkt_data,date,height,table = False, yearly = False
             dragmode="zoom",
             hovermode="x",
             legend=dict(traceorder="reversed"),
-            #height can be changed for pc to laptop. 1500 is good for laptop...
+            # height can be changed for pc to laptop. 1500 is good for laptop...
             height=height,
             template="plotly_dark",
             margin=dict(
                 t=100,
                 b=100
-            ),showlegend = True,
+            ), showlegend=True,
             xaxis=dict(showgrid=True)
-        )        
+        )
 
         html_name = date+"_"+str(html)+'_'+str(x)
-        
+
         if html != False:
             fig.write_html("html_plots/dailies/"+html_name+".html")
-        
+
         if plot:
             fig.show(config={
                 'displayModeBar': True,
                 'editable': True})
-        
-        if notes == True:
-            note_table(x,date)
+
 
 def plot_momentum():
 
@@ -972,71 +1043,66 @@ def plot_momentum():
     fig = go.Figure()
 
     # Add traces
-    #---- CandleSticks
+    # ---- CandleSticks
     pricing = go.Candlestick(x=df.time,
-                    open=df.open, high=df.high,
-                    low=df.low, close=df.close,
-                    line_width = .5, increasing_line_color= '#0fba51', 
-                                 decreasing_line_color= '#b5091d',
-                    name="pricing",
-    #                 yaxis="y2",
-    #                         hoverinfo='text',
-                    showlegend=True
-    )
-
+                             open=df.open, high=df.high,
+                             low=df.low, close=df.close,
+                             line_width=.5, increasing_line_color='#0fba51',
+                             decreasing_line_color='#b5091d',
+                             name="pricing",
+                             #                 yaxis="y2",
+                             #                         hoverinfo='text',
+                             showlegend=True
+                             )
 
     fig.add_trace(pricing)
 
     for stime, etime, trend, high, low, color in zip(dfz.start_time,
-                                                 dfz.end_time,
-                                                 dfz.trend,
-                                                 dfz.high,
-                                                 dfz.low,
-                                                 dfz.color):
+                                                     dfz.end_time,
+                                                     dfz.trend,
+                                                     dfz.high,
+                                                     dfz.low,
+                                                     dfz.color):
 
-        if trend  == 'uptrend':
+        if trend == 'uptrend':
             x_one = low
             x_two = high
         else:
             x_one = high
             x_two = low
 
-        trace = go.Scatter(x=[stime,etime], y=[x_one,x_two],
-                        mode='lines', line_color = color,showlegend=False)
+        trace = go.Scatter(x=[stime, etime], y=[x_one, x_two],
+                           mode='lines', line_color=color, showlegend=False)
 
         fig.add_trace(trace)
 
-
-
     fig.update_layout(
-                xaxis=go.layout.XAxis(
-                    autorange=True,
-                    fixedrange= False,
-                    range=['09:31:00','16:00:00'],
-                    rangeslider=dict(
-                        autorange=True,
-                        range=['09:31:00','16:00:00']
-                    )
-                ),# VOLUME
-                yaxis=go.layout.YAxis(
-                    anchor="x",
-                    autorange=True,
-                    fixedrange= False,
-                    range=[df.low.min(), df.high.max()],
-                    ticks="",
-                    type="linear",
-                    zeroline=False
-                ))
-
-
+        xaxis=go.layout.XAxis(
+            autorange=True,
+            fixedrange=False,
+            range=['09:31:00', '16:00:00'],
+            rangeslider=dict(
+                autorange=True,
+                range=['09:31:00', '16:00:00']
+            )
+        ),  # VOLUME
+        yaxis=go.layout.YAxis(
+            anchor="x",
+            autorange=True,
+            fixedrange=False,
+            range=[df.low.min(), df.high.max()],
+            ticks="",
+            type="linear",
+            zeroline=False
+        ))
 
     fig.update_layout(
 
-                height=650,
-                template="plotly_dark",
-                margin=dict(
-                    t=100,
-                    b=100
-                )#,showlegend = True
-            )        
+        height=650,
+        template="plotly_dark",
+        margin=dict(
+            t=100,
+            b=100
+        )  # ,showlegend = True
+    )
     fig.show()
