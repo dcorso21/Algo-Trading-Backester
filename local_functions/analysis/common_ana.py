@@ -187,3 +187,9 @@ def update_ex():
         pl_ex['max_ex'] = ex
 
     gl.pl_ex = pl_ex
+
+
+def all_rows(df):
+    '''Shows a dataframe without cutting off all rows... Enter a DF.'''
+    with gl.pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        display(df)

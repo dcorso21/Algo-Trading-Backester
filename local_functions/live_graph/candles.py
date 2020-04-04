@@ -67,5 +67,17 @@ def chart_candles():
     return
 
 
-if __name__ == "__main__":
-    chart_candles()
+def show_candlestick_chart(df):
+
+    item = CandlestickItem(df)
+
+    plt = gl.pg.plot()
+    plt.addItem(item)
+    plt.setWindowTitle('Algo Charts')
+
+    vb = plt.getViewBox()
+    vb.setYRange(df.low.min(), df.high.max(), padding=.05)
+
+    gl.QtGui.QApplication.instance().exec_()
+    return
+

@@ -13,6 +13,7 @@ import requests
 
 # Imports - list follows folders
 from local_functions.account_info import account_info as account
+
 from local_functions.analysis import analyse as ana
 from local_functions.analysis import common_ana
 
@@ -41,6 +42,7 @@ from local_functions.trade_funcs import sim_executions as sim_exe
 from local_functions.trade_funcs import trade_funcs
 
 from local_functions.live_graph import candles as candles
+from local_functions.td_api import api_chart
 
 
 pos_update = False
