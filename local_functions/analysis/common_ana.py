@@ -160,15 +160,17 @@ def update_pl(real='skip', unreal='skip'):
     '''
 
     pl_ex = gl.pl_ex
-
+    log = False
     if real != 'skip':
         pl_ex['real'] += real
-        gl.logging.info(
-            'CA: realized PL updated: {} unreal : {}'.format(pl_ex['real'], pl_ex['unreal']))
+        log = True
 
     if unreal != 'skip':
         pl_ex['unreal'] = unreal
 
+    if log:
+        gl.logging.info(
+            'CA: realized PL updated: {} unreal : {}'.format(pl_ex['real'], pl_ex['unreal']))
     gl.pl_ex = pl_ex
 
 
@@ -178,7 +180,7 @@ def update_ex():
 
     Updates Exposure values in the global pl_ex dictionary. 
     '''
-    ex = gl.current_positions.qty.sum()
+    ex = gl.current_positions.cash.sum()
     pl_ex = gl.pl_ex
     pl_ex['last_ex'] = ex
     if ex > pl_ex['max_ex']:

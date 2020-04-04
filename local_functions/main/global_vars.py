@@ -8,6 +8,8 @@ import pandas as pd
 import logging
 import random
 import sys
+import requests
+
 
 # Imports - list follows folders
 from local_functions.account_info import account_info as account
@@ -30,8 +32,8 @@ from local_functions.analysis.ana_indicators.p_eval.conditions import sell_condi
 
 # Other
 from local_functions.assemble_data import gather_data as gather
+from local_functions.assemble_data import stock_screening as screen
 from local_functions.main import algo
-# from local_functions.plotting import plot_results as plotr
 from local_functions.pull_historical import historical_funcs as hist
 from local_functions.reset_temp_files import reset_temp_files as reset
 
@@ -43,12 +45,17 @@ from local_functions.live_graph import candles as candles
 
 pos_update = False
 loop_feedback = True
+buy_lock = False
+sell_out = False
 chart_response = False
 
 
 # Sim Data
 # only need to reference this once.
 sim_df = hist.get_mkt_data(r'example.csv')
+csv_indexes = {}
+minute_prices = []
+minute_volumes = []
 
 # All assets start as blank.
 
@@ -62,6 +69,7 @@ mom_frame = pd.DataFrame()
 sup_res_frame = pd.DataFrame()
 
 current = {}
+last = {}
 pl_ex = {}
 volas = {}
 
@@ -110,7 +118,6 @@ def save_all():
         'current': current,
         'pl_ex': pl_ex,
         'current_frame': current_frame,
-        'daily_ohlc': daily_ohlc,
         'mom_frame': mom_frame,
         'sup_res_frame': sup_res_frame,
         'volas': volas,
@@ -126,3 +133,7 @@ def save_all():
             save_dict_to_csv(file, file_name)
         else:
             save_frame(file, file_name)
+
+
+def get_vars():
+    return current, pl_ex, current_frame, mom_frame, sup_res_frame, volas, current_positions, filled_orders, open_orders

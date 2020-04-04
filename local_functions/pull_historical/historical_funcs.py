@@ -105,8 +105,8 @@ def create_second_data(sim_df, index, mode='mixed'):
     '''
     row = list(sim_df.iloc[index])
 
-    ticker = row[0]
-    minute = row[1]
+    # ticker = row[0]
+    # minute = row[1]
     o = float(row[2])
     h = float(row[3])
     l = float(row[4])
@@ -114,7 +114,7 @@ def create_second_data(sim_df, index, mode='mixed'):
     v = round(float(row[6]), 1)
 
     prices, volumes = create_second_data_2(o, h, l, c, v, mode)
-    return prices, volumes, ticker, minute
+    return prices, volumes  # , ticker, minute
 
 
 def create_second_data_2(o, h, l, c, v, mode):

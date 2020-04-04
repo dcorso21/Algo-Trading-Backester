@@ -1,6 +1,67 @@
 from local_functions.main import global_vars as gl
 
 
+def csv_refresh():
+
+    sim_df = gl.sim_df
+    current = gl.current
+    gl.last = current
+    last = gl.last
+    new_minute = False
+
+    # If at the very beginning... get the index of the sim_df.
+    if len(gl.csv_indexes) == 0:
+
+        first_ind = sim_df.index.to_list()[0]
+        last_ind = sim_df.index.to_list()[-1]
+        indexes = {'first': first_ind, 'current': first_ind, 'last': last_ind}
+        gl.csv_indexes = indexes
+        gl.sim_ticker = sim_df.at[first_ind, 'ticker']
+        row = first_ind
+        current['minute'] = sim_df.at[first_ind, 'time']
+        current['second'] = 0
+        new_minute = True
+    else:
+        row = gl.csv_indexes['current']
+
+        if row == gl.csv_indexes['last']:
+            gl.loop_feedback = False
+            return
+
+        if last['minute'] == '11:05:00':
+            gl.loop_feedback = False
+            return
+
+    # Continue Minute...
+    if last['second'] == 59:
+        new_minute = True
+    else:
+        minute = current['minute']
+        second = current['second'] + 1
+
+    # New Minute...
+    if new_minute == True:
+        # Log end of last minute...
+        gl.gather.clone_current_frame()
+        gl.logging.info('minute complete\n')
+        # Go to next row.
+        row = gl.csv_indexes['current'] = gl.csv_indexes['current'] + 1
+        gl.minute_prices, gl.minute_volumes = gl.hist.create_second_data(sim_df,
+                                                                         row, mode='momentum')
+        minute = sim_df.at[row, 'time']
+        second = 0
+        # Log New Minute
+        gl.logging.info(f'  {minute}')
+        gl.sys.stdout.write(f'\rcurrent minute : {minute}')
+        gl.sys.stdout.flush()
+
+    price = gl.minute_prices[second]
+    volume = gl.minute_volumes[second]
+    ticker = gl.sim_ticker
+
+    gl.gather.update_candle(price, volume, ticker, minute, second)
+
+
 def update_candle(price, volume, ticker, minute, second):
     '''
     # Update Candle

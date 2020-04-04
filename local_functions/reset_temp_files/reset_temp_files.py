@@ -8,8 +8,12 @@ def reset_variables():
     and this file resets them so you can easily run the algo back to back. 
     '''
 
+    csv_indexes = []
+
     gl.pos_update = False
     gl.loop_feedback = True
+    gl.buy_lock = False
+    gl.sell_out = False
     gl.chart_response = False
 
     gl.current_frame = gl.pd.DataFrame()
@@ -44,7 +48,20 @@ def reset_variables():
         'ticker': 'nan'
     }
 
+    # last_current
+    last = {
+        'open': 'nan',
+        'high': 'nan',
+        'low': 'nan',
+        'close': 'nan',
+        'volume': 'nan',
+        'second': 'nan',
+        'minute': 'nan',
+        'ticker': 'nan'
+    }
+
     gl.current = current
+    gl.last = last
 
     # volas
     volas = {

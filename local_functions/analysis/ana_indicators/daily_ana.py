@@ -32,6 +32,9 @@ def run_daily():
     if p_eval:  # and v_eval:
         gl.chart_response = True
 
+    else:
+        gl.chart_response = False
+
 
 def volume_eval():
 

@@ -2,33 +2,22 @@
 from local_functions.main import global_vars as gl
 
 
-def main_algo():
-
+def test_trade():
     gl.reset.reset_variables()
-    # each minute in df
-    for row in range(len(gl.sim_df)):
 
-        # first, get second data for fake 'real-time' pricing.
-        prices, volumes, ticker, minute = gl.hist.create_second_data(gl.sim_df,
-                                                                     row, mode='momentum')
+    gl.screen.pick_stock()
+    if gl.stock_pick == 'nan':
+        return
 
-        gl.logging.info(f'  {minute}')
-        gl.sys.stdout.write(f'\rcurrent minute : {minute}')
-        gl.sys.stdout.flush()
+    loop = True
+    while loop:
 
-        # each second, update current candle and assess patterns, consider trading.
-        for price, volume, second in zip(prices, volumes, range(0, 60)):
+        # Updates Current and Current_frame variables...
+        gl.gather.csv_refresh()
+        orders = gl.ana.analyse()
+        gl.trade_funcs.exe_orders(orders)
 
-            gl.gather.update_candle(price, volume, ticker, minute, second)
-            orders = gl.ana.analyse()
-            gl.trade_funcs.exe_orders(orders)
-
-        # End of Minute
-        gl.gather.clone_current_frame()
-        # gl.candles.chart_candles()
-        gl.logging.info('minute complete\n')
-
-        if minute == '11:05:00':
+        if gl.loop_feedback == False:
             break
 
     gl.save_all()

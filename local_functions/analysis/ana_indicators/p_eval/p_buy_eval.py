@@ -58,7 +58,7 @@ def bad_buy_conditions():
     # 1) If the chart looks bad
     cond1 = (gl.chart_response == False)
     # 2) If there are no current positions.
-    cond2 = (len(gl.current_positions) != 0)
+    cond2 = (len(gl.current_positions) == 0)
     if cond1 and cond2:
         return True
     return False

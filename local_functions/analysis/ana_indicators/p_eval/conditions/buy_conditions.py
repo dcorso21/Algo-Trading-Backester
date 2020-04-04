@@ -13,11 +13,14 @@ def starting_position():
 
     Returns buys DataFrame. 
     '''
-    cash = gl.account.get_available_capital() * .01
-    cancel_spec = gl.o_tools.cancel_specs['standard']
-    buys = gl.o_tools.create_buys(
-        cash, gl.current['close'], cancel_spec)
-    return buys
+    if gl.chart_response == True:
+        cash = gl.account.get_available_capital() * .01
+        cancel_spec = gl.o_tools.cancel_specs['standard']
+        buys = gl.o_tools.create_buys(
+            cash, gl.current['close'], cancel_spec)
+        gl.logging.info('---> Sending Starting Position.')
+        return buys
+    return gl.pd.DataFrame()
 
 ##################################################
 ##################################################
@@ -37,16 +40,25 @@ def drop_below_average():
     '''
 
     current = gl.current
-    max_vola = gl.common_ana.get_max_vola(gl.volas, 4)
+    max_vola = gl.common_ana.get_max_vola(volas=gl.volas, min_vola=2.5)
     drop_perc = gl.common_ana.get_inverse_perc(max_vola)
     avg = gl.common_ana.get_average()
 
     if current['close'] < (avg * drop_perc):
         cash = gl.pl_ex['last_ex']
+        available = gl.account.get_available_capital() - cash
+
+        if available < 100:
+            gl.logging.info('---> No More Capital!')
+            return gl.pd.DataFrame()
+
+        if cash > available:
+            cash = available
         exe_price = current['close']
         cancel_spec = gl.o_tools.cancel_specs['standard']
         buys = gl.o_tools.create_buys(
             cash, exe_price, cancel_spec)
+        gl.logging.info('---> Drop triggers buy.')
         return buys
 
     return gl.pd.DataFrame()

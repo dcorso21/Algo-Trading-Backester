@@ -174,8 +174,14 @@ def check_cancel(open_orders):
     if len(open_orders) == 0:
         return open_orders
 
+    # Update the wait time. This is CRUCIAL.
+    open_orders['wait_duration'] = open_orders.wait_duration + 1
+
     # 1) Reset the index so we can keep track of index values.
-    df = open_orders.reset_index(drop=True)
+
+    open_orders = open_orders.reset_index(drop=True)
+    df = open_orders
+
     drop_indexes = []
     for cancel_spec, exe_price, duration, index in zip(df.cancel_spec,
                                                        df.exe_price,
@@ -186,13 +192,19 @@ def check_cancel(open_orders):
         xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
         xtime = int(cancel_spec.split(',')[1].split(':')[1])
 
+        # Time Out
         if duration >= xtime:
+            gl.logging.info('order cancelled (time out)')
             drop_indexes.append(index)
 
-        elif ((100 + xp)*exe_price) < gl.current['close']:
+        # Price Drop
+        elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
+            gl.logging.info('order cancelled (price drop)')
             drop_indexes.append(index)
 
-        elif ((100 - xp)*exe_price) < gl.current['close']:
+        # Price Spike
+        elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
+            gl.logging.info('order cancelled (price spike)')
             drop_indexes.append(index)
 
     if len(drop_indexes) != 0:

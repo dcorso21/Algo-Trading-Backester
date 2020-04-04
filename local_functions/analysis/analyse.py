@@ -20,12 +20,16 @@ def analyse():
     ### 2) Build Orders 
     '''
 
+    # Skip Clause ---
     # If feedback is false, dont run the function, return the blank df...
-    if gl.loop_feedback == False:
-        return gl.pd.DataFrame()
+    if gl.buy_lock == True:
+        if len(gl.current_positions) == 0:
+            gl.loop_feedback = False
+            return gl.pd.DataFrame()
 
-    # 1) Analyse Daily Chart
-    gl.daily_ana.run_daily()
+    # 1) Analyse Daily Chart - Only when there has been a price update...
+    if gl.current['close'] != gl.last['close']:
+        gl.daily_ana.run_daily()
 
     # 2) Build Orders
     orders = gl.position_ana.build_orders()

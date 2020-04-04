@@ -18,8 +18,9 @@ def percentage_gain():
         # sell all
         everything = gl.current_positions.qty.sum()
         cancel_spec = gl.o_tools.cancel_specs['standard']
+        exe_price = gl.o_tools.bid_price()
         sells = gl.o_tools.create_sells(
-            everything, gl.current['close'], cancel_spec)
+            everything, exe_price, cancel_spec)
         gl.logging.info('----> over 3 perc gain triggered. ')
         return sells
     sells = gl.pd.DataFrame()
@@ -42,7 +43,7 @@ def target_unreal():
     if unreal > target_int:
         # sell all
         everything = gl.current_positions.qty.sum()
-        exe_price = gl.current['close']
+        exe_price = gl.o_tools.bid_price()
         cancel_spec = gl.o_tools.cancel_specs['standard']
         sells = gl.o_tools.create_sells(everything, exe_price, cancel_spec)
         gl.logging.info(f'----> unreal hits trigger: {unreal}')
@@ -68,7 +69,7 @@ def exposure_over_account_limit():
     exposure = gl.pl_ex['last_ex']
     if exposure > available_capital:
         half = int(gl.current_positions.qty.sum()/2)
-        exe_price = gl.current['close']
+        exe_price = gl.o_tools.bid_price()
         cancel_spec = gl.o_tools.cancel_specs['standard']
         sells = gl.o_tools.create_sells(half, exe_price, cancel_spec)
         gl.logging.info('----> over-exposed sell half.')
@@ -90,13 +91,18 @@ def eleven_oclock_exit():
     '''
     current = gl.current
 
-    if (current['minute'] == '11:00:00'):
+    if (current['minute'] == '11:00:00') or (gl.sell_out == True):
         everything = gl.current_positions.qty.sum()
-        exe_price = current['close']
+        exe_price = gl.o_tools.extrapolate_exe_price()
+        avg = gl.common_ana.get_average()
+        price = gl.current['close']
+        if (exe_price < avg) and (price > avg):
+            exe_price = avg
         cancel_spec = gl.o_tools.cancel_specs['standard']
         sells = gl.o_tools.create_sells(everything, exe_price, cancel_spec)
         gl.logging.info('PS: Sell to Stop...')
-        gl.loop_feedback = False
+        gl.buy_lock = True
+        gl.sell_out = True
     else:
         sells = gl.pd.DataFrame()
     return sells

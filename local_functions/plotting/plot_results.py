@@ -43,70 +43,44 @@ def plot_results(market_data):
     get_trading_charts(o, m, e_frame, 'Today', 1000, html=False, plot=True)
 
 
-def get_current_positions(buys, sells):
-    '''
-    # Update Current Positions
-    Takes current positions and adds new fills. Function then calculates which positions are still active.
-    e.g.: if you have two positions open, then sell one half, this will sort out the remaining position.
-    '''
-
-    # buys = buys.reset_index(drop=True)
-    for qty, price in zip(sells.quantity, sells.avgprice):
-        remainder = qty
-        while remainder > 0:
-
-            first_row = buys.index.tolist()[0]
-            if (buys.at[first_row, 'quantity'] - remainder) <= 0:
-
-                diff = int(remainder - buys.at[first_row, 'quantity'])
-                buys = buys.drop(first_row)
-
-                remainder = diff
-
-            elif (buys.at[first_row, 'quantity'] - remainder) > 0:
-
-                buys.at[first_row, 'quantity'] = buys.at[first_row,
-                                                         'quantity'] - remainder
-                remainder = 0
-
-    return buys
-
-
 def max_exposures(orders, mkt_data):
+    '''
+    # Max Exposures
+    Takes `orders` df and `mkt_data` df and finds the max exposure per minute. 
 
+    Returns `exposure_frame` - two columns with time and exposure.
+
+    ## Process:
+
+    ### 1) Create a list of minutes.   
+
+    ### 2) For each minute, go through each order in minute
+    - If there are no orders in the given minute, append last known exposure and continue.
+    - If there are no orders active, exposure is 0...
+
+    ### 3) After each minute is complete, find the max exposure from that minute and append it to the Exposures list. 
+
+    ### 4) Create the e_frame and return it. 
+
+    '''
     buys = pd.DataFrame()
     exposures = []
-    exposure = 0
+    last_ex_in_min = 0
 
+    # 1) Create a list of minutes.
     minutes = sorted(list(set(mkt_data.time)))
 
     for minute in minutes:
-        minute_ex = []
-        df = orders[orders['time'] == minute]
+        minute_max = []
+        df = orders[orders.time == minute]
         if len(df) == 0:
-            exposures.append(exposure)
+            exposures.append(last_ex_in_min)
             continue
 
-        df = df.sort_values(by='o_time')
-
-        for row in df.index:
-
-            if df.at[row, 'buyorsell'] == 'BUY':
-                buys = buys.append(df[df.index == row], sort=False)
-            else:
-                buys = get_current_positions(buys, df[df.index == row])
-
-            if len(buys) == 0:
-                exposure = 0
-                minute_ex.append(exposure)
-                continue
-            else:
-                calc_frame = pd.DataFrame()
-                calc_frame['cash'] = buys.quantity * buys.avgprice
-                exposure = calc_frame.cash.sum()
-                minute_ex.append(exposure)
-
-        exposures.append(max(minute_ex))
+        minute_max.append(df.dol_inv.max())
+        minute_max.append(last_ex_in_min)
+        last_ex_in_min = df.dol_inv.tolist()[-1]
+        exposures.append(max(minute_max))
 
     e = pd.DataFrame({'exposure': exposures, 'time': minutes})
     return e
@@ -393,6 +367,8 @@ def update_orders(orders):
         # Adds some columns to the rows. Rolling Average, Dollars invested, and Profit Loss.
         dfz['ravg'] = ravg
         dfz['dol_inv'] = (dfz.ravg*dfz.rs)
+        dfz = dfz.replace({'dol_inv': ''}, 0)
+
         dfz['real_pl'] = pl_over
 
         dfx = dfx.append(dfz)

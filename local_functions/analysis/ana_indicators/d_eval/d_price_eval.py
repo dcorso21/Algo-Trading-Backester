@@ -10,7 +10,10 @@ def pricing_eval():
     if len(gl.current_frame) < 5:
         return ana_first_mins()
 
-    return volatile_downtrend()
+    elif volatile_downtrend() and bottom_of_candle():
+        return True
+
+    return False
 
 
 def ana_first_mins():
@@ -36,8 +39,35 @@ def volatile_downtrend():
     last_index = mom_frame.index.to_list()[-1]
     trend = mom_frame.at[last_index, 'trend']
     vola = mom_frame.at[last_index, 'volatility']
-    if (trend == 'downtrend') and (vola > gl.volas['mean']):
+    if (trend == 'downtrend') and (vola > 5):  # gl.volas['mean']):
         # gl.logging.info('chart looks good via vola_downtrend')
+        return True
+    return False
+
+
+def bottom_of_candle():
+    '''
+    # Bottom of Candle
+    Returns a True/False
+
+    True if price is closer to the low of the candle than the high. 
+    '''
+    current = gl.current
+
+    # If its more than
+    if current['second'] >= 30:
+        # If the distance from the price to the high is greater than the distance from the price to the low.
+        # In other words, if price is closer to low than high.
+        if (current['close'] - current['low']) < (current['high'] - current['close']):
+            return True
+        return False
+
+    df = gl.current_frame.tail(2)
+    low = df.low.min()
+    high = df.high.max()
+    # If the distance from the price to the high is greater than the distance from the price to the low.
+    # In other words, if price is closer to low than high.
+    if (current['close'] - low) < (high - current['close']):
         return True
     return False
 

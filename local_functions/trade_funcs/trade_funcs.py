@@ -18,6 +18,8 @@ def exe_orders(orders):
 
     ## 2) If there are new fills, update the 'filled_orders' and 'current_positions' vars.  
     '''
+    if gl.loop_feedback == False:
+        return
 
     # SIMULATE EXECUTIONS
     new_fills = gl.sim_exe.run_trade_sim(orders)
@@ -81,5 +83,9 @@ def update_current_positions(new_fills):
     current_positions = buys
     gl.current_positions = current_positions
     if realized != 0:
-        gl.common_ana.update_pl(realized, 'skip')
+        if len(current_positions) == 0:
+            unrealized = 0
+        else:
+            unrealized = 'skip'
+        gl.common_ana.update_pl(realized, unrealized)
     gl.common_ana.update_ex()

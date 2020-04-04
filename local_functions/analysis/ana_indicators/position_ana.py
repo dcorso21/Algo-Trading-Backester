@@ -31,7 +31,7 @@ def build_orders():
     sell_orders = gl.p_sell_eval.sell_eval()
     log_sent_orders(sell_orders, 'sell')
     # if it is a good time to stop, end the function with only sell orders.
-    if (gl.loop_feedback == False):
+    if (gl.buy_lock == True):
         return sell_orders
 
     # 3) Get Buy Orders

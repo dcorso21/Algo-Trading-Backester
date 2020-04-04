@@ -83,6 +83,47 @@ def size_in():
 # Cancellation Dictionaty
 
 
+def sell_to_breakeven():
+    exe_price = gl.common_ana.get_average()
+    qty = gl.current_positions.qty.sum()
+    sells = create_sells(qty, exe_price, cancel_specs['standard'])
+    return sells
+
+
+def extrapolate_exe_price():
+    current = gl.current
+    current_vola = gl.volas['current']
+    sec_vola = current_vola / (current['second']+1)
+    vola_offset = sec_vola * 3
+    offset = (vola_offset * .01) * current['close']
+
+    # Determine if the candle is red or green,
+    # And if the price is above or below the average.
+    candle = 'green'
+    if current['open'] > current['close']:
+        candle = 'red'
+
+    if candle == 'red':
+        offset = (current_vola * .01) * current['close']
+        exe_price = current['close'] - offset
+    else:
+        exe_price = current['close'] + offset
+
+    return exe_price
+
+
 cancel_specs = {
-    'standard': r'p:%1,t:5'
+    'standard': r'p:%5,t:7'
 }
+
+
+def bid_price():
+    current_price = gl.current['close']
+    bid = current_price - .01
+    return bid
+
+
+def ask_price():
+    current_price = gl.current['close']
+    ask = current_price + .01
+    return ask
