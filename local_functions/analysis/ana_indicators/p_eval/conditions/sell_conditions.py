@@ -21,7 +21,7 @@ def percentage_gain():
         exe_price = gl.o_tools.bid_price()
         sells = gl.o_tools.create_sells(
             everything, exe_price, cancel_spec)
-        gl.logging.info('----> over 3 perc gain triggered. ')
+        gl.log_funcs.log('----> over 3 perc gain triggered. ')
         return sells
     sells = gl.pd.DataFrame()
     return sells
@@ -46,7 +46,7 @@ def target_unreal():
         exe_price = gl.o_tools.bid_price()
         cancel_spec = gl.o_tools.cancel_specs['standard']
         sells = gl.o_tools.create_sells(everything, exe_price, cancel_spec)
-        gl.logging.info(f'----> unreal hits trigger: {unreal}')
+        gl.log_funcs.log(f'----> unreal hits trigger: {unreal}')
         return sells
 
     sells = gl.pd.DataFrame()
@@ -72,7 +72,7 @@ def exposure_over_account_limit():
         exe_price = gl.o_tools.bid_price()
         cancel_spec = gl.o_tools.cancel_specs['standard']
         sells = gl.o_tools.create_sells(half, exe_price, cancel_spec)
-        gl.logging.info('----> over-exposed sell half.')
+        gl.log_funcs.log('----> over-exposed sell half.')
     else:
         sells = gl.pd.DataFrame()
     return sells
@@ -100,7 +100,7 @@ def eleven_oclock_exit():
             exe_price = avg
         cancel_spec = gl.o_tools.cancel_specs['standard']
         sells = gl.o_tools.create_sells(everything, exe_price, cancel_spec)
-        gl.logging.info('PS: Sell to Stop...')
+        gl.log_funcs.log('Sell to Stop...')
         gl.buy_lock = True
         gl.sell_out = True
     else:

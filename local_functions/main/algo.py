@@ -5,12 +5,11 @@ from local_functions.main import global_vars as gl
 def test_trade():
     gl.reset.reset_variables()
 
-    gl.screen.pick_stock()
-    if gl.stock_pick == 'nan':
-        return
+    # gl.screen.pick_stock()
+    # if gl.stock_pick == 'nan':
+    #     return
 
-    loop = True
-    while loop:
+    while True:
 
         # Updates Current and Current_frame variables...
         gl.gather.csv_refresh()

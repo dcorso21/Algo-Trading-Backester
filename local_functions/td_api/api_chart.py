@@ -5,6 +5,7 @@ from local_functions.main import global_vars as gl
 
 
 def daily_chart(ticker):
+    ticker = ticker.upper()
 
     now = gl.datetime.datetime.now()
     unix_now = str(int(now.timestamp()))+'000'
@@ -53,7 +54,7 @@ def daily_chart(ticker):
 
 
 def yearly_chart(ticker):
-
+    ticker = ticker.upper()
     now = gl.datetime.datetime.now()
     end = str(int(now.timestamp()))+'000'
     start = now - gl.datetime.timedelta(days=366)
@@ -89,3 +90,13 @@ def yearly_chart(ticker):
     df.drop(columns='datetime')
 
     return df
+
+
+def show_plot(period='day', ticker='MSFT'):
+
+    if period == 'day':
+        df = daily_chart(ticker)
+    if period == 'year':
+        df = yearly_chart(ticker)
+
+    gl.candles.show_candlestick_chart(df)

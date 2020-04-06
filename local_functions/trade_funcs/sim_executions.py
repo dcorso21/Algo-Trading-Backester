@@ -86,7 +86,7 @@ def run_trade_sim(new_orders):
     open_orders = open_orders.drop(index=fill_indexes)
     gl.open_orders = open_orders
 
-    gl.logging.info(
+    gl.log_funcs.log(
         f'new_fills: {len(filled_orders)}, open: {len(open_orders)}')
 
     return filled_orders
@@ -194,20 +194,20 @@ def check_cancel(open_orders):
 
         # Time Out
         if duration >= xtime:
-            gl.logging.info('order cancelled (time out)')
+            gl.log_funcs.log('order cancelled (time out)')
             drop_indexes.append(index)
 
         # Price Drop
         elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
-            gl.logging.info('order cancelled (price drop)')
+            gl.log_funcs.log('order cancelled (price drop)')
             drop_indexes.append(index)
 
         # Price Spike
         elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
-            gl.logging.info('order cancelled (price spike)')
+            gl.log_funcs.log('order cancelled (price spike)')
             drop_indexes.append(index)
 
     if len(drop_indexes) != 0:
-        gl.logging.info(f'TF/SE: order(s) cancelled')
+        gl.log_funcs.log(f'order(s) cancelled')
 
     return open_orders.drop(index=drop_indexes)

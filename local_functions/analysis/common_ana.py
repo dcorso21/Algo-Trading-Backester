@@ -169,8 +169,8 @@ def update_pl(real='skip', unreal='skip'):
         pl_ex['unreal'] = unreal
 
     if log:
-        gl.logging.info(
-            'CA: realized PL updated: {} unreal : {}'.format(pl_ex['real'], pl_ex['unreal']))
+        gl.log(
+            'Realized PL updated: {} Unreal : {}'.format(pl_ex['real'], pl_ex['unreal']))
     gl.pl_ex = pl_ex
 
 

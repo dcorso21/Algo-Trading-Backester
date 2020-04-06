@@ -7,6 +7,7 @@ import datetime
 import pandas as pd
 import logging
 import random
+import os
 import sys
 import requests
 
@@ -35,6 +36,7 @@ from local_functions.analysis.ana_indicators.p_eval.conditions import sell_condi
 from local_functions.assemble_data import gather_data as gather
 from local_functions.assemble_data import stock_screening as screen
 from local_functions.main import algo
+from local_functions.main import log_funcs
 from local_functions.pull_historical import historical_funcs as hist
 from local_functions.reset_temp_files import reset_temp_files as reset
 
@@ -139,3 +141,43 @@ def save_all():
 
 def get_vars():
     return current, pl_ex, current_frame, mom_frame, sup_res_frame, volas, current_positions, filled_orders, open_orders
+
+
+def log(msg='', line_break=False):
+
+    brk = ''
+    if line_break == True:
+        brk = '\n'
+
+    sec = current['second']
+    func_name = sys._getframe(1).f_code.co_name
+
+    line_number = sys._getframe(1).f_lineno
+    file_name = sys._getframe(1).f_code.co_filename
+    # func_name = "r'{}'".format(func_name)
+    file_name = file_name.split('\\')[-1]
+
+    new_line = f'{sec}/ {msg}/ {file_name}/ {func_name}/ {line_number}/ {brk}'
+    logging.info(new_line)
+
+
+def log(msg=''):
+    minute = current['minute']
+    sec = current['second']
+    func_name = sys._getframe(1).f_code.co_name
+    line_number = sys._getframe(1).f_lineno
+    file_name = sys._getframe(1).f_code.co_filename
+    file_name = file_name.split('\\')[-1]
+
+    new_row = {
+
+        'minute': [minute],
+        'second': [sec],
+        'message': [msg],
+        'file': [file_name],
+        'function': [func_name],
+        'line': [line_number],
+
+    }
+
+    df = pd.DataFrame(new_row)

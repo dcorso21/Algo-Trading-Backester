@@ -77,12 +77,12 @@ def reset_variables():
     # mom_frame
 
     # Logging Notes
-    with open('temp_assets/algo.log', 'w'):
-        pass
+    df = gl.pd.DataFrame()
+    headers = gl.pd.Series(
+        ['minute', 'second', 'message', 'core', 'file', 'function', 'line'])
 
-    gl.logging.basicConfig(
-        filename='temp_assets/algo.log', level=gl.logging.INFO)
-    gl.logging.info('Started\n')
-    # mylib.do_something()
+    df = df.append(headers, ignore_index=True)
+    df = df.set_index(0)
+    df.to_csv('temp_assets/log.csv', header=False)
 
     print('variables reset')

@@ -23,18 +23,28 @@ class CandlestickItem(gl.pg.GraphicsObject):
         # rather than re-drawing the shapes every time.
         self.picture = gl.QtGui.QPicture()
         p = gl.QtGui.QPainter(self.picture)
-        p.setPen(gl.pg.mkPen('w'))
         # w = (self.data[1][0] - self.data[0][0]) / 3.
         w = .33
         for (t, o, h, l, c) in zip(range(len(self.data)), self.data.open,
                                    self.data.high, self.data.low,
                                    self.data.close):
-            p.drawLine(gl.QtCore.QPointF(t, l), gl.QtCore.QPointF(t, h))
             if o > c:
-                p.setBrush(gl.pg.mkBrush('r'))
+                p.setBrush(gl.pg.mkBrush('#730b19'))
+                p.setPen(gl.pg.mkPen('#730b19'))
+            elif o < c:
+                p.setBrush(gl.pg.mkBrush('#194a1f'))
+                p.setPen(gl.pg.mkPen('#194a1f'))
             else:
-                p.setBrush(gl.pg.mkBrush('g'))
-            p.drawRect(gl.QtCore.QRectF(t-w, o, w*2, c-o))
+                p.setPen(gl.pg.mkPen('#696969'))
+
+            # If the o h l and c are all the same value,
+            if h == l:
+                p.drawLine(gl.QtCore.QPointF(t-w, c),
+                           gl.QtCore.QPointF(t+w, c))
+            else:
+
+                p.drawLine(gl.QtCore.QPointF(t, l), gl.QtCore.QPointF(t, h))
+                p.drawRect(gl.QtCore.QRectF(t-w, o, w*2, c-o))
 
         p.end()
 
@@ -80,4 +90,3 @@ def show_candlestick_chart(df):
 
     gl.QtGui.QApplication.instance().exec_()
     return
-

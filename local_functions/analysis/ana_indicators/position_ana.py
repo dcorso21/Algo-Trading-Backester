@@ -118,5 +118,5 @@ def log_sent_orders(orders, buy_or_sell):
         order_cash = orders.cash.sum()
         order_qty = orders.qty.sum()
 
-        message = f'PA: signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
-        gl.logging.info(message)
+        message = f'Signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
+        gl.log_funcs.log(message)

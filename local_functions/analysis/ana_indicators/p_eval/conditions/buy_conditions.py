@@ -18,7 +18,7 @@ def starting_position():
         cancel_spec = gl.o_tools.cancel_specs['standard']
         buys = gl.o_tools.create_buys(
             cash, gl.current['close'], cancel_spec)
-        gl.logging.info('---> Sending Starting Position.')
+        gl.log_funcs.log('---> Sending Starting Position.')
         return buys
     return gl.pd.DataFrame()
 
@@ -49,7 +49,7 @@ def drop_below_average():
         available = gl.account.get_available_capital() - cash
 
         if available < 100:
-            gl.logging.info('---> No More Capital!')
+            gl.log_funcs.log('---> No More Capital!')
             return gl.pd.DataFrame()
 
         if cash > available:
@@ -58,7 +58,7 @@ def drop_below_average():
         cancel_spec = gl.o_tools.cancel_specs['standard']
         buys = gl.o_tools.create_buys(
             cash, exe_price, cancel_spec)
-        gl.logging.info('---> Drop triggers buy.')
+        gl.log_funcs.log('---> Drop triggers buy.')
         return buys
 
     return gl.pd.DataFrame()

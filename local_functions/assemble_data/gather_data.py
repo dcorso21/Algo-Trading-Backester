@@ -2,6 +2,19 @@ from local_functions.main import global_vars as gl
 
 
 def csv_refresh():
+    '''
+    # CSV Refresh Data
+
+    This is a master function for simulated (not real-time) trading. 
+    It iterates through each row of the `sim_df` function, 
+
+    Returns nothing, updates `current` and `current_frame` variables. 
+
+    ## Process:
+
+    - Note: this function has many different conditions that will alter the path of sequence.  
+
+    '''
 
     sim_df = gl.sim_df
     current = gl.current
@@ -18,8 +31,9 @@ def csv_refresh():
         gl.csv_indexes = indexes
         gl.sim_ticker = sim_df.at[first_ind, 'ticker']
         row = first_ind
-        current['minute'] = sim_df.at[first_ind, 'time']
+        minute = current['minute'] = sim_df.at[first_ind, 'time']
         current['second'] = 0
+        gl.log_funcs.log(f'^^^{minute}')
         new_minute = True
     else:
         row = gl.csv_indexes['current']
@@ -41,17 +55,16 @@ def csv_refresh():
 
     # New Minute...
     if new_minute == True:
-        # Log end of last minute...
         gl.gather.clone_current_frame()
-        gl.logging.info('minute complete\n')
+        # Log end of last minute...
+        gl.log_funcs.log(msg='minute complete')
         # Go to next row.
         row = gl.csv_indexes['current'] = gl.csv_indexes['current'] + 1
         gl.minute_prices, gl.minute_volumes = gl.hist.create_second_data(sim_df,
                                                                          row, mode='momentum')
         minute = sim_df.at[row, 'time']
         second = 0
-        # Log New Minute
-        gl.logging.info(f'  {minute}')
+        # New Minute
         gl.sys.stdout.write(f'\rcurrent minute : {minute}')
         gl.sys.stdout.flush()
 
@@ -122,6 +135,8 @@ def update_candle(price, volume, ticker, minute, second):
                'ticker': ticker}
 
     gl.current = current
+    if current['second'] == 0:
+        gl.log_funcs.log(f'^^^{minute}')
 
     # 3) Update global variable `current_frame` with the `add_new_minute()` function.
     add_new_minute(current)
