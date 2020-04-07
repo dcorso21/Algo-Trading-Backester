@@ -85,4 +85,13 @@ def reset_variables():
     df = df.set_index(0)
     df.to_csv('temp_assets/log.csv', header=False)
 
+    # Logging Efficiency
+    df = gl.pd.DataFrame()
+    headers = gl.pd.Series(
+        ['minute', 'second', 'function', 'run_time'])
+
+    df = df.append(headers, ignore_index=True)
+    df = df.set_index(0)
+    df.to_csv('temp_assets/efficiency_log.csv', header=False)
+
     print('variables reset')

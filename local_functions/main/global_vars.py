@@ -13,6 +13,8 @@ import requests
 
 
 # Imports - list follows folders
+from local_functions.main import log_funcs
+
 from local_functions.account_info import account_info as account
 
 from local_functions.analysis import analyse as ana
@@ -36,7 +38,6 @@ from local_functions.analysis.ana_indicators.p_eval.conditions import sell_condi
 from local_functions.assemble_data import gather_data as gather
 from local_functions.assemble_data import stock_screening as screen
 from local_functions.main import algo
-from local_functions.main import log_funcs
 from local_functions.pull_historical import historical_funcs as hist
 from local_functions.reset_temp_files import reset_temp_files as reset
 

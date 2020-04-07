@@ -1,8 +1,11 @@
 # LOCAL FUNCTIONS #############
 from local_functions.main import global_vars as gl
+import time
 
 
 def test_trade():
+
+    start_time = time.time()
     gl.reset.reset_variables()
 
     # gl.screen.pick_stock()
@@ -21,3 +24,6 @@ def test_trade():
 
     gl.save_all()
     print('\ndone')
+
+    duration = time.time() - start_time
+    print(f'algo finished in {duration} second(s)')

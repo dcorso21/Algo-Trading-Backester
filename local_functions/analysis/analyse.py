@@ -1,6 +1,7 @@
 from local_functions.main import global_vars as gl
 
 
+# @ gl.log_funcs.log_efficiency
 def analyse():
     '''
     # Core Function: Analyse
