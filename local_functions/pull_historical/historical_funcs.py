@@ -45,12 +45,17 @@ def get_mkt_data(name):
     m['close'] = m.close.astype(float)
     m['volume'] = m.volume.astype(float).astype(int)
 
+    # Re-Order
     m = m[['ticker', 'time', 'open', 'high', 'low', 'close', 'volume']]
 
     return m
 
 
 def make_new_minute(ticker, new_min, close_price):
+    '''
+    # Make New Minute
+    Referenced by the `complete_data` function to append a row to the `sim_df` df. 
+    '''
     new_row = {'ticker': [ticker],
                'time': [new_min],
                'open': [close_price],
@@ -64,6 +69,10 @@ def make_new_minute(ticker, new_min, close_price):
 
 
 def complete_data(mkt_data):
+    '''
+    # Complete Data
+    Fills in gaps in the `sim_df` variable. 
+    '''
     m = mkt_data
     ticker = m.at[0, 'ticker']
 
@@ -101,6 +110,8 @@ def complete_data(mkt_data):
 
 def create_second_data(sim_df, index, mode='mixed'):
     '''
+    # Create Second Data
+    Creates second data based on minute row of `sim_df`
 
     '''
     row = list(sim_df.iloc[index])
@@ -118,6 +129,9 @@ def create_second_data(sim_df, index, mode='mixed'):
 
 
 def create_second_data_2(o, h, l, c, v, mode):
+    '''
+    Continuation of `create_second_data` function. 
+    '''
 
     volumes = []
     vol = 0

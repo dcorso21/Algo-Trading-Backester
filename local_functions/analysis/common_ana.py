@@ -22,21 +22,14 @@ def red_green():
 
     Returns red/green list.   
     '''
-
-    current_frame = gl.current_frame
-
-    r_g = []
-    for o, c in zip(current_frame.open, current_frame.close):
-
-        val = 'doji'
-        if o < c:
-            val = 'green'
-        elif o > c:
-            val = 'red'
-
-        r_g.append(val)
-
-    return r_g
+    cf = gl.current_frame   # copy frame
+    # create a new column for r/g values with doji as the default.
+    cf['r_g'] = 'doji'
+    cf.loc[(cf['open'].values < cf['close'].values),
+           'r_g'] = 'green'   # define which rows are green
+    cf.loc[(cf['open'].values > cf['close'].values),
+           'r_g'] = 'red'     # define which rows are red
+    return cf.r_g.tolist()  # returns list.
 
 
 # def open_to_price(current_frame, price):
@@ -100,7 +93,6 @@ def get_max_vola(volas, min_vola):
 
     2. You can specify a minimum volatility with the min_vola argument. 
     It will be added to the list, making it the minimum 'max' value. 
-
 
     ### Properties:{
 
@@ -169,7 +161,7 @@ def update_pl(real='skip', unreal='skip'):
         pl_ex['unreal'] = unreal
 
     if log:
-        gl.log(
+        gl.log_funcs.log(
             'Realized PL updated: {} Unreal : {}'.format(pl_ex['real'], pl_ex['unreal']))
     gl.pl_ex = pl_ex
 

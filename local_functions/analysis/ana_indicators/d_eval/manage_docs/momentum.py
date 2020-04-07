@@ -2,8 +2,6 @@ from local_functions.main import global_vars as gl
 
 
 import pandas as pd
-# import json
-# import logging
 
 
 def update_momentum():
@@ -295,14 +293,11 @@ def many_lengths(agg_list, offset, yin, yang, df):
     dfx = pd.DataFrame()
     # 1) Loops through each value in aggregation list
     for x in agg_list:
-
         y = x + offset
         if len(df) >= y:
-
             row = simplify_candles(df, offset, y)
             # 2) Each Row is added to a dfx, which is then returned.
             dfx = dfx.append(row, sort=False)
-
         else:
             break
 

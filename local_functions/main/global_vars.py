@@ -48,6 +48,11 @@ from local_functions.live_graph import candles as candles
 from local_functions.td_api import api_chart
 
 
+# Stock info.
+stock_pick = 'nan'
+trade_mode = 'nan'
+
+# Binaries
 pos_update = False
 loop_feedback = True
 buy_lock = False
@@ -55,16 +60,13 @@ sell_out = False
 chart_response = False
 
 
-# Sim Data
-# only need to reference this once.
+# CSV Trading
 sim_df = hist.get_mkt_data(r'example.csv')
 csv_indexes = {}
 minute_prices = []
 minute_volumes = []
 
-# All assets start as blank.
-
-
+# will be defined first by reset func, then updated.
 current_frame = pd.DataFrame()
 daily_ohlc = pd.DataFrame()
 open_orders = pd.DataFrame()
@@ -144,41 +146,41 @@ def get_vars():
     return current, pl_ex, current_frame, mom_frame, sup_res_frame, volas, current_positions, filled_orders, open_orders
 
 
-def log(msg='', line_break=False):
+# def log(msg='', line_break=False):
 
-    brk = ''
-    if line_break == True:
-        brk = '\n'
+#     brk = ''
+#     if line_break == True:
+#         brk = '\n'
 
-    sec = current['second']
-    func_name = sys._getframe(1).f_code.co_name
+#     sec = current['second']
+#     func_name = sys._getframe(1).f_code.co_name
 
-    line_number = sys._getframe(1).f_lineno
-    file_name = sys._getframe(1).f_code.co_filename
-    # func_name = "r'{}'".format(func_name)
-    file_name = file_name.split('\\')[-1]
+#     line_number = sys._getframe(1).f_lineno
+#     file_name = sys._getframe(1).f_code.co_filename
+#     # func_name = "r'{}'".format(func_name)
+#     file_name = file_name.split('\\')[-1]
 
-    new_line = f'{sec}/ {msg}/ {file_name}/ {func_name}/ {line_number}/ {brk}'
-    logging.info(new_line)
+#     new_line = f'{sec}/ {msg}/ {file_name}/ {func_name}/ {line_number}/ {brk}'
+#     logging.info(new_line)
 
 
-def log(msg=''):
-    minute = current['minute']
-    sec = current['second']
-    func_name = sys._getframe(1).f_code.co_name
-    line_number = sys._getframe(1).f_lineno
-    file_name = sys._getframe(1).f_code.co_filename
-    file_name = file_name.split('\\')[-1]
+# def log(msg=''):
+#     minute = current['minute']
+#     sec = current['second']
+#     func_name = sys._getframe(1).f_code.co_name
+#     line_number = sys._getframe(1).f_lineno
+#     file_name = sys._getframe(1).f_code.co_filename
+#     file_name = file_name.split('\\')[-1]
 
-    new_row = {
+#     new_row = {
 
-        'minute': [minute],
-        'second': [sec],
-        'message': [msg],
-        'file': [file_name],
-        'function': [func_name],
-        'line': [line_number],
+#         'minute': [minute],
+#         'second': [sec],
+#         'message': [msg],
+#         'file': [file_name],
+#         'function': [func_name],
+#         'line': [line_number],
 
-    }
+#     }
 
-    df = pd.DataFrame(new_row)
+#     df = pd.DataFrame(new_row)

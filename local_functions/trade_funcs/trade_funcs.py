@@ -21,12 +21,19 @@ def exe_orders(orders):
     if gl.loop_feedback == False:
         return
 
-    # SIMULATE EXECUTIONS
-    new_fills = gl.sim_exe.run_trade_sim(orders)
+    # EXECUTIONS
+    new_fills = execute_direct(orders)
 
     if len(new_fills) != 0:
         update_filled_orders(new_fills)
         update_current_positions(new_fills)
+
+
+def execute_direct(orders):
+    if gl.trade_mode == 'csv':
+        return gl.sim_exe.run_trade_sim(orders)
+    else:
+        return
 
 
 def update_filled_orders(new_fills):

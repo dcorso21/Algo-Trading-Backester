@@ -1,6 +1,17 @@
 from local_functions.main import global_vars as gl
 
 
+def update_direct():
+    if gl.trade_mode == 'csv':
+        csv_refresh()
+    else:
+        live_refresh()
+
+
+def live_refresh():
+    pass
+
+
 def csv_refresh():
     '''
     # CSV Refresh Data

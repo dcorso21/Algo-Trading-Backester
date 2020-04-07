@@ -20,7 +20,6 @@ def sell_eval():
     # If nothing to sell, return blank df
     if len(gl.current_positions) == 0:
         return gl.pd.DataFrame()
-    loop = True
 
     sell_conds = [
         gl.s_conds.eleven_oclock_exit,

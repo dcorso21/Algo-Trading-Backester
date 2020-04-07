@@ -37,10 +37,14 @@ def find_core(file_name):
 
 
 def log(msg=''):
+    '''
+    # Log
+    Custom logger to csv. 
+    Automatically makes rows for minute, second, file, function, line and `core` of the algorithm. 
+    '''
     current = gl.current
     file_name = gl.sys._getframe(1).f_code.co_filename
     file_name = file_name.split('\\')[-1]
-
     core = find_core(file_name)
 
     new_row = {
@@ -59,6 +63,10 @@ def log(msg=''):
 
 
 def append_efficiency_row(function, run_time):
+    '''
+    # Append Efficiency Row
+    to be used with the `log_efficiency` decorator function. 
+    '''
     current = gl.current
     new_row = {
         'minute': [current['minute']],
@@ -72,6 +80,7 @@ def append_efficiency_row(function, run_time):
     df.to_csv('temp_assets/efficiency_log.csv', mode='a', header=False)
 
 
+# decorator
 def log_efficiency(orig_func):
     @ wraps(orig_func)
     def wrapper(*args, **kwargs):
@@ -87,6 +96,7 @@ def log_efficiency(orig_func):
     return wrapper
 
 
+# decorator
 def run_timeit(orig_func):
     @ wraps(orig_func)
     def wrapper(*args, **kwargs):

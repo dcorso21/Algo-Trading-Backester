@@ -490,11 +490,6 @@ def append_PL(mkt_data, order_data):
     return dfz
 
 
-#
-#
-#
-# unrealized p/l high and low.
-
 def append_PLs(mkt_data):
     '''Function:
     To add two columns to market data -  an unrealized high, and an unrealized low. 
@@ -608,10 +603,6 @@ def append_avg(mkt_data, order_data):
         dfx['ravg'] = avp
         dfz = dfz.append(dfx)
     return dfz
-
-#
-#
-# ----- append Position Size to Market Data
 
 
 def append_position(mkt_data, order_data):

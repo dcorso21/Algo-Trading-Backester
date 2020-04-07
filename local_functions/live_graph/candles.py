@@ -78,15 +78,15 @@ def chart_candles():
 
 
 def show_candlestick_chart(df):
-
+    '''
+    # Show Candlestick Chart
+    input a df of ohlc values and outputs a pyqt chart. 
+    '''
     item = CandlestickItem(df)
-
     plt = gl.pg.plot()
     plt.addItem(item)
     plt.setWindowTitle('Algo Charts')
-
     vb = plt.getViewBox()
     vb.setYRange(df.low.min(), df.high.max(), padding=.05)
-
     gl.QtGui.QApplication.instance().exec_()
     return

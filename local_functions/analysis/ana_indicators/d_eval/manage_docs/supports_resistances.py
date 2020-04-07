@@ -28,7 +28,6 @@ def refine_resistances(resistances, dfx, df, cf):
             time = row.end_time.tolist()[0]
         else:
             time = row.start_time.tolist()[0]
-#         print('time start : {}'.format(time))
 
         index = cf[cf.time == time].index.tolist()[0]
 

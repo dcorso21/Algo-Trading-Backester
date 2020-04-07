@@ -75,12 +75,9 @@ def create_buys(cash_value, exe_price, cancel_spec):
 def size_in():
     '''
     Looks at exposure and chart to decide how much to put in for a trade. 
-
+    Currently just `pass`
     '''
     pass
-    # return cash_value
-
-# Cancellation Dictionaty
 
 
 def sell_to_breakeven():
@@ -102,13 +99,11 @@ def extrapolate_exe_price():
     candle = 'green'
     if current['open'] > current['close']:
         candle = 'red'
-
-    if candle == 'red':
         offset = (current_vola * .01) * current['close']
         exe_price = current['close'] - offset
-    else:
-        exe_price = current['close'] + offset
-
+        return exe_price
+    # if candle green...
+    exe_price = current['close'] + offset
     return exe_price
 
 

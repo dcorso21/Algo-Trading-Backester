@@ -1,11 +1,6 @@
 from local_functions.main import global_vars as gl
 
 
-##################################################
-##################################################
-# START POSITION...
-
-
 def starting_position():
     '''
     ## Starting Position
