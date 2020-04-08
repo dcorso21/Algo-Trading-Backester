@@ -32,6 +32,7 @@ def csv_refresh():
     gl.last = current
     last = gl.last
     new_minute = False
+    gl.buy_clock -= 1
 
     # If at the very beginning... get the index of the sim_df.
     if len(gl.csv_indexes) == 0:

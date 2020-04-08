@@ -43,9 +43,9 @@ def run_trade_sim(new_orders):
 
     # 2) Add New Orders to Open
     if len(new_orders) != 0:
-        new_orders['price_check'] = gl.pd.Series(0)
-        new_orders['vol_start'] = gl.pd.Series(0)
-        new_orders['wait_duration'] = gl.pd.Series(0)
+        new_orders['price_check'] = -1
+        new_orders['vol_start'] = -1
+        new_orders['wait_duration'] = -1
         open_orders = open_orders.append(new_orders, sort=False)
         # Re - Index
         open_orders = open_orders.reset_index(drop=True)
@@ -56,7 +56,7 @@ def run_trade_sim(new_orders):
 
     # 3) Check Price Requirement
     open_orders, potential_fills = sim_progress_open_orders(
-        open_orders, lag=2, price_offset=0.0)
+        open_orders, lag=2, price_offset=0.01)
 
     # if there are no potential fills,
     # update the open_orders and return - dont bother checking volume...
@@ -206,8 +206,5 @@ def check_cancel(open_orders):
         elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
             gl.log_funcs.log('order cancelled (price spike)')
             drop_indexes.append(index)
-
-    if len(drop_indexes) != 0:
-        gl.log_funcs.log(f'order(s) cancelled')
 
     return open_orders.drop(index=drop_indexes)

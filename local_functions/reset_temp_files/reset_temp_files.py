@@ -1,14 +1,16 @@
 from local_functions.main import global_vars as gl
 
 
-def reset_variables():
+def reset_variables(mode, csv_file):
     '''
     ## Reset Variables
     There are many global variables that are used throughout the algorithm, 
     and this file resets them so you can easily run the algo back to back. 
     '''
 
-    csv_indexes = []
+    if mode == 'csv':
+        gl.csv_indexes = []
+        gl.sim_df = gl.hist.get_mkt_data(csv_file)
 
     gl.pos_update = False
     gl.loop_feedback = True
@@ -17,7 +19,6 @@ def reset_variables():
     gl.chart_response = False
 
     gl.current_frame = gl.pd.DataFrame()
-    gl.daily_ohlc = gl.pd.DataFrame()
     gl.open_orders = gl.pd.DataFrame()
     gl.current_positions = gl.pd.DataFrame()
     gl.filled_orders = gl.pd.DataFrame()
@@ -74,8 +75,6 @@ def reset_variables():
 
     gl.volas = volas
 
-    # mom_frame
-
     # Logging Notes
     df = gl.pd.DataFrame()
     headers = gl.pd.Series(
@@ -83,7 +82,7 @@ def reset_variables():
 
     df = df.append(headers, ignore_index=True)
     df = df.set_index(0)
-    df.to_csv('temp_assets/log.csv', header=False)
+    df.to_csv(gl.filepath['log'], header=False)
 
     # Logging Efficiency
     df = gl.pd.DataFrame()
@@ -92,6 +91,6 @@ def reset_variables():
 
     df = df.append(headers, ignore_index=True)
     df = df.set_index(0)
-    df.to_csv('temp_assets/efficiency_log.csv', header=False)
+    df.to_csv(gl.filepath['efficiency_log'], header=False)
 
     print('variables reset')

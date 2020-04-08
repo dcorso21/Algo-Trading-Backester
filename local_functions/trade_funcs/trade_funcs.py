@@ -10,6 +10,31 @@ Purpose of this sheet:
 '''
 
 
+def execute_direct(orders):
+    if gl.trade_mode == 'csv':
+        return gl.sim_exe.run_trade_sim(orders)
+    else:
+        return live_executions(orders)
+
+
+def live_executions(new_orders):
+    '''    
+    Live Equivalent to sim_executions
+    '''
+    def live_get_open_orders():
+        pass
+
+    def live_cancellation():
+        pass
+
+    def live_send_orders(new_orders):
+        pass
+
+    live_send_orders(new_orders)
+    live_get_open_orders()
+    live_cancellation()
+
+
 def exe_orders(orders):
     '''
     # Core Function: Executing Orders
@@ -25,15 +50,9 @@ def exe_orders(orders):
     new_fills = execute_direct(orders)
 
     if len(new_fills) != 0:
+        reset_buy_clock(new_fills)
         update_filled_orders(new_fills)
         update_current_positions(new_fills)
-
-
-def execute_direct(orders):
-    if gl.trade_mode == 'csv':
-        return gl.sim_exe.run_trade_sim(orders)
-    else:
-        return
 
 
 def update_filled_orders(new_fills):
@@ -96,3 +115,8 @@ def update_current_positions(new_fills):
             unrealized = 'skip'
         gl.common_ana.update_pl(realized, unrealized)
     gl.common_ana.update_ex()
+
+
+def reset_buy_clock(new_fills):
+    if len(new_fills[new_fills['buy_or_sell'] == 'BUY']) != 0:
+        gl.buy_clock = 10

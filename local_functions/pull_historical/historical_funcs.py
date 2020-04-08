@@ -19,7 +19,8 @@ def get_mkt_data(name):
 
     `name`: filename of csv in main folder. This file should be made from the 'traded tickers' sheet in quantopian. 
 
-    }'''
+    }
+    '''
 
     #filename = 'quantopian_data/'+str(date)+'-QuantData.csv'
 

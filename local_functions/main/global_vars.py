@@ -55,16 +55,18 @@ trade_mode = 'nan'
 # Binaries
 pos_update = False
 loop_feedback = True
-buy_lock = False
 sell_out = False
 chart_response = False
+buy_clock = 0
+buy_lock = False
 
 
 # CSV Trading
-sim_df = hist.get_mkt_data(r'example.csv')
+sim_df = 'nan'
 csv_indexes = {}
 minute_prices = []
 minute_volumes = []
+batch_frame = pd.DataFrame()
 
 # will be defined first by reset func, then updated.
 current_frame = pd.DataFrame()
@@ -100,18 +102,18 @@ def save_frame(dataframe, file_name):
 
 
 filepath = {
-
     'current': r'temp_assets\current.csv',
     'pl_ex': r'temp_assets\pl_and_ex.csv',
-    'current_frame': r'temp_assets\charts\current_frame.csv',
-    'daily_ohlc': r'temp_assets\charts\daily.csv',
-    'mom_frame': r'temp_assets\analysis\mom_frame.csv',
-    'sup_res_frame': r'temp_assets\analysis\supports_resistances.csv',
-    'volas': r'temp_assets\analysis\volas.csv',
-    'current_positions': r'temp_assets\all_orders\current_positions.csv',
-    'filled_orders': r'temp_assets\all_orders\filled_orders.csv',
-    'open_orders': r'temp_assets\all_orders\open_orders.csv'
+    'volas': r'temp_assets\volas.csv',
+    'current_frame': r'temp_assets\current_frame.csv',
+    'mom_frame': r'temp_assets\mom_frame.csv',
+    'sup_res_frame': r'temp_assets\supports_resistances.csv',
+    'current_positions': r'temp_assets\current_positions.csv',
+    'filled_orders': r'temp_assets\filled_orders.csv',
+    'open_orders': r'temp_assets\open_orders.csv',
 
+    'log': r'temp_assets\log.csv',
+    'efficiency_log': r'temp_assets\efficiency_log.csv',
 }
 
 
@@ -144,43 +146,3 @@ def save_all():
 
 def get_vars():
     return current, pl_ex, current_frame, mom_frame, sup_res_frame, volas, current_positions, filled_orders, open_orders
-
-
-# def log(msg='', line_break=False):
-
-#     brk = ''
-#     if line_break == True:
-#         brk = '\n'
-
-#     sec = current['second']
-#     func_name = sys._getframe(1).f_code.co_name
-
-#     line_number = sys._getframe(1).f_lineno
-#     file_name = sys._getframe(1).f_code.co_filename
-#     # func_name = "r'{}'".format(func_name)
-#     file_name = file_name.split('\\')[-1]
-
-#     new_line = f'{sec}/ {msg}/ {file_name}/ {func_name}/ {line_number}/ {brk}'
-#     logging.info(new_line)
-
-
-# def log(msg=''):
-#     minute = current['minute']
-#     sec = current['second']
-#     func_name = sys._getframe(1).f_code.co_name
-#     line_number = sys._getframe(1).f_lineno
-#     file_name = sys._getframe(1).f_code.co_filename
-#     file_name = file_name.split('\\')[-1]
-
-#     new_row = {
-
-#         'minute': [minute],
-#         'second': [sec],
-#         'message': [msg],
-#         'file': [file_name],
-#         'function': [func_name],
-#         'line': [line_number],
-
-#     }
-
-#     df = pd.DataFrame(new_row)

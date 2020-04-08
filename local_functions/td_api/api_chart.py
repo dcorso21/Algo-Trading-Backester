@@ -1,7 +1,4 @@
-
-# %%
 from local_functions.main import global_vars as gl
-# import json
 
 
 def daily_chart(ticker):
@@ -100,3 +97,4 @@ def show_plot(period='day', ticker='MSFT'):
         df = yearly_chart(ticker)
 
     gl.candles.show_candlestick_chart(df)
+

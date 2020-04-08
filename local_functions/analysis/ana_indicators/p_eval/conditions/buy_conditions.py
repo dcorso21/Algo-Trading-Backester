@@ -33,6 +33,8 @@ def drop_below_average():
     ### Details:
     The drop amount is taken from the volas module with the function: `get_max_vola()`
     '''
+    if gl.buy_clock > 0:
+        return gl.pd.DataFrame()
 
     current = gl.current
     max_vola = gl.common_ana.get_max_vola(volas=gl.volas, min_vola=2.5)

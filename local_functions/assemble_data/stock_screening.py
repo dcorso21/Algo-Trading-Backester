@@ -2,11 +2,12 @@ from local_functions.main import global_vars as gl
 
 
 def pick_stock_direct(mode):
-    if mode == 'csv':
-        gl.stock_pick = 'csv'
+    if mode == 'live':
+        stock_selection()
         gl.trade_mode = mode
     else:
-        stock_selection()
+        gl.stock_pick = mode
+        gl.trade_mode = mode
 
 
 def stock_selection():
