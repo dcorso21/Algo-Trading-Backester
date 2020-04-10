@@ -286,7 +286,7 @@ def many_lengths(agg_list, offset, yin, yang, df):
             # yin is momentum, and its going up...
             yin = 'hi'
             yang = 'li'
-        elif c < o:
+        elif c <= o:
             yin = 'li'
             yang = 'hi'
 

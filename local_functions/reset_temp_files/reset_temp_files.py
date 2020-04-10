@@ -8,9 +8,20 @@ def reset_variables(mode, csv_file):
     and this file resets them so you can easily run the algo back to back. 
     '''
 
+    def get_sim_df(csv_file):
+        m = gl.pd.read_csv(csv_file)
+        m['open'] = m.open.astype(float)
+        m['high'] = m.high.astype(float)
+        m['low'] = m.low.astype(float)
+        m['close'] = m.close.astype(float)
+        m['volume'] = m.volume.astype(float).astype(int)
+        # Re-Order
+        m = m[['ticker', 'time', 'open', 'high', 'low', 'close', 'volume']]
+        return m
+
     if mode == 'csv':
         gl.csv_indexes = []
-        gl.sim_df = gl.hist.get_mkt_data(csv_file)
+        gl.sim_df = get_sim_df(csv_file)
 
     gl.pos_update = False
     gl.loop_feedback = True
@@ -30,7 +41,11 @@ def reset_variables(mode, csv_file):
 
     pl_ex = {
         'unreal': 0,
+        'min_unreal': 0,
+        'max_unreal': 0,
         'real': 0,
+        'min_real': 0,
+        'max_real': 0,
         'last_ex': 0,
         'max_ex': 0
     }
@@ -76,13 +91,7 @@ def reset_variables(mode, csv_file):
     gl.volas = volas
 
     # Logging Notes
-    df = gl.pd.DataFrame()
-    headers = gl.pd.Series(
-        ['minute', 'second', 'message', 'core', 'file', 'function', 'line'])
-
-    df = df.append(headers, ignore_index=True)
-    df = df.set_index(0)
-    df.to_csv(gl.filepath['log'], header=False)
+    # Log is now managed in global vars and log_funcs
 
     # Logging Efficiency
     df = gl.pd.DataFrame()

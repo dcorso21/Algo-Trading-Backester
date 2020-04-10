@@ -83,7 +83,7 @@ def get_average():
 def get_max_vola(volas, min_vola):
     '''
     ## Get Max Volatility
-    Finds the max value in the global 'volas' dictionary.   
+    Finds the min value in the global 'volasindictionary.   
 
     Returns the max value. 
 
@@ -155,10 +155,22 @@ def update_pl(real='skip', unreal='skip'):
     log = False
     if real != 'skip':
         pl_ex['real'] += real
+
+        if pl_ex['real'] > pl_ex['max_real']:
+            pl_ex['max_real'] = pl_ex['real']
+
+        if pl_ex['real'] < pl_ex['min_real']:
+            pl_ex['min_real'] = pl_ex['real']
         log = True
 
     if unreal != 'skip':
         pl_ex['unreal'] = unreal
+
+        if pl_ex['unreal'] > pl_ex['max_unreal']:
+            pl_ex['max_unreal'] = pl_ex['unreal']
+
+        if pl_ex['unreal'] < pl_ex['min_unreal']:
+            pl_ex['min_unreal'] = pl_ex['unreal']
 
     if log:
         gl.log_funcs.log(

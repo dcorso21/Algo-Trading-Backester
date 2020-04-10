@@ -8,6 +8,7 @@ import pandas as pd
 import logging
 import random
 import os
+import shutil
 import sys
 import requests
 
@@ -47,6 +48,7 @@ from local_functions.trade_funcs import trade_funcs
 from local_functions.live_graph import candles as candles
 from local_functions.td_api import api_chart
 
+from local_functions.plotting import plot_results as plotr
 
 # Stock info.
 stock_pick = 'nan'
@@ -70,12 +72,12 @@ batch_frame = pd.DataFrame()
 
 # will be defined first by reset func, then updated.
 current_frame = pd.DataFrame()
-daily_ohlc = pd.DataFrame()
 open_orders = pd.DataFrame()
 current_positions = pd.DataFrame()
 filled_orders = pd.DataFrame()
 mom_frame = pd.DataFrame()
 sup_res_frame = pd.DataFrame()
+log = pd.DataFrame()
 
 current = {}
 last = {}
@@ -117,6 +119,21 @@ filepath = {
 }
 
 
+def clear_temp_assets():
+    import os
+    import shutil
+    folder = 'temp_assets'
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
+
+
 def save_all():
     '''
     ### Save All Files
@@ -132,10 +149,11 @@ def save_all():
         'volas': volas,
         'current_positions': current_positions,
         'filled_orders': filled_orders,
-        'open_orders': open_orders
+        'open_orders': open_orders,
+        'log': log,
 
     }
-
+    clear_temp_assets()
     for file_name, file in zip(files.keys(), files.values()):
 
         if type(file) == dict:
@@ -143,6 +161,5 @@ def save_all():
         else:
             save_frame(file, file_name)
 
-
-def get_vars():
-    return current, pl_ex, current_frame, mom_frame, sup_res_frame, volas, current_positions, filled_orders, open_orders
+    if len(filled_orders) != 0:
+        plotr.plot_results(current_frame, filled_orders)

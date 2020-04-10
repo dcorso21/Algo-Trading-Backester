@@ -1,18 +1,124 @@
 import pandas as pd
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 from local_functions.pull_historical import historical_funcs as hist
 
 
-def get_orders():
+def add_box_scatter_cross(fig, row, column, x_values, y_values, labels):
+
+    x = x_values
+    y = y_values
+
+    x_off = [min(x) - (max(x) - min(x))*.05]*len(y)
+    y_off = [min(y) - (max(y) - min(y))*.05]*len(x)
+    x_width = abs((max(x) - min(x))*.03)
+    y_width = abs((max(y) - min(y))*.05)
+
+    # create a violin plot
+    vert_box = go.Box(y=y,
+                      x=x_off,
+                      orientation='v',
+                      text=y,
+                      boxmean=True,
+                      boxpoints=False,
+                      width=x_width
+                      )
+
+    hor_box = go.Box(x=x,
+                     orientation='h',
+                     y=y_off,
+                     text=x,
+                     boxmean=True,
+                     boxpoints=False,
+                     width=y_width,
+                     )
+
+    # create a scatter plot
+    scatter = go.Scatter(x=x,
+                         y=y,
+                         mode='markers',
+                         text=labels,
+                         )
+
+    # append figure to subplot
+    fig.append_trace(vert_box, row, column)
+    fig.append_trace(hor_box, row, column)
+    fig.append_trace(scatter, row, column)
+
+    return fig
+
+
+def new_line_plot(x_values, y_values, text):
+    line_plot = go.Scatter(x=x_values,
+                           y=y_values,
+                           mode='lines+markers',
+                           text=text
+                           )
+    return line_plot
+
+
+def new_box_plot(x_values, labels, jitter):
+    box_plot = go.Box(x=x_values,
+                      boxpoints='all',
+                      jitter=jitter,
+                      pointpos=-1.8,
+                      text=labels,
+                      boxmean=True
+                      )
+
+    return box_plot
+
+
+def new_scatter_plot(x_values, y_values, text):
+    scatter_plot = go.Scatter(x=x_values,
+                              y=y_values,
+                              mode='markers',
+                              text=text
+                              )
+    return scatter_plot
+
+
+def plot_batch_overview(batch_frame, batch_path):
+
+    df = batch_frame
+
+    jitter = .7
+    profit_progress = new_line_plot(x_values=list(range(
+        len(df))), y_values=df.real_pl.cumsum(), text=df.tick_date)
+
+    fig = make_subplots(rows=4, cols=2,
+                        specs=[[{'colspan': 2, 'rowspan': 2}, None],
+                               [None, None],
+                               [{'rowspan': 2}, {'rowspan': 2}],
+                               [None, None],
+                               ],
+                        subplot_titles=("Profit Over Time",
+                                        "Profit/Loss x Exposure",
+                                        "Min Unreal x Max Unreal",
+                                        ))
+
+    fig.append_trace(profit_progress, row=1, col=1)
+
+    fig = add_box_scatter_cross(fig, 3, 1, df.real_pl, df.max_ex, df.tick_date)
+    fig = add_box_scatter_cross(
+        fig, 3, 2, df.min_unreal, df.max_unreal, df.tick_date)
+
+    fig.update_layout(
+        title_text="Batch Results")
+
+    # fig.show()
+    fig.write_html(batch_path + "overview.html")
+
+
+def get_orders(filled_orders):
     '''
     gets filled orders and converts them to something that will be easier down the line to plot
 
     takes no arguments
     '''
-    # get the filled orders
-    df = pd.read_csv('temp_assets/all_orders/filled_orders.csv')
     # convert it to a df that will be easier to plot
-    df = convert_orders(df)
+    df = convert_orders(filled_orders)
     # add on several columns , calculating pl and average
     df = update_orders(df)
     # add other columns for plotting...
@@ -32,15 +138,17 @@ def expand_mkt_data(m, o):
     return m
 
 
-def plot_results(market_data):
+def plot_results(current_frame, filled_orders):
     '''
     all in one for getting the market data plotted.
     '''
-    o = get_orders()
-    m = expand_mkt_data(market_data, o)
+    o = get_orders(filled_orders)
+    m = expand_mkt_data(current_frame, o)
     e_frame = max_exposures(o, m)
+    html_name = 'temp_assets\\daily_chart.html'
 
-    get_trading_charts(o, m, e_frame, 'Today', 1000, html=False, plot=True)
+    get_trading_charts(o, m, e_frame, 'Today', 1000,
+                       html=html_name, plot=False)
 
 
 def max_exposures(orders, mkt_data):
@@ -994,7 +1102,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot
         html_name = date+"_"+str(html)+'_'+str(x)
 
         if html != False:
-            fig.write_html("html_plots/dailies/"+html_name+".html")
+            fig.write_html(html)
 
         if plot:
             fig.show(config={

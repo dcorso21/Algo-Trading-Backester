@@ -58,8 +58,13 @@ def log(msg=''):
     }
 
     df = gl.pd.DataFrame(new_row)
-    df = df.set_index('minute')
-    df.to_csv('temp_assets/log.csv', mode='a', header=False)
+    df = gl.log.append(df, sort=False)
+
+    if len(df) == 1:
+        df.columns = ['minute', 'second', 'message',
+                      'core', 'file', 'function', 'line']
+
+    gl.log = df
 
 
 def append_efficiency_row(function, run_time):

@@ -8,7 +8,7 @@ import random
 import datetime
 
 
-def get_mkt_data(name):
+def get_mkt_data(file_path):
     '''
     # Get Market Data
     Retrieves info from quantopian csv data. Selectively chooses which rows to use and formats.
@@ -26,8 +26,7 @@ def get_mkt_data(name):
 
     # read data, only choose the rows listed in iloc.
     # the capital T at the end is to transpose the data - switch rows with columns.
-    m = pd.read_csv(name, header=None).T
-
+    m = pd.read_csv(file_path, header=None).T
     # These become the column names.
     columns = {0: 'ticker',
                1: 'time',
@@ -37,6 +36,7 @@ def get_mkt_data(name):
                5: 'open',
                6: 'volume'}
     m = m.rename(columns=columns)
+    return m
     m.drop(m.tail(1).index, inplace=True)
     m = complete_data(m)
 
