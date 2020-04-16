@@ -1,6 +1,45 @@
 from local_functions.main import global_vars as gl
 
 
+cancel_specs = {
+    'standard': r'p:%5,t:7'
+}
+
+# Order Creation
+def smart_order(order_type, cash_value, exe_price, cancel_spec):
+
+    if order_type == 'buy':
+        create_orders = create_buys
+    else:
+        create_orders = create_sells
+
+    chunk = 5000
+
+    if cash_value > chunk:
+        divs = cash_value / chunk
+
+    full_order_len = cash_value // chunk
+
+    qs = {'time': 0, 'order_fill': 'x', 'order_cancel': 'x'}
+
+    't:{},f:{},c:{}'.format(qs['time'], qs['order_fill'], qs['order_cancel'])
+
+    order_id = 'x'
+
+    orders = gl.pd.DataFrame()
+    for _ in range(full_order_len):
+        order = create_orders(chunk, exe_price, cancel_spec, queue_spec)
+        order_id = order.at[0, 'order_id']
+        orders = orders.append(order, sort=False)
+
+    remainder = cash_value % chunk
+    if remainder != 0:
+        order = create_orders(remainder, exe_price, cancel_spec, queue_spec)
+        orders = orders.append(order, sort=False)
+
+    return orders
+
+
 def create_sells(qty, exe_price, cancel_spec):
     '''
     # Create Sells
@@ -35,7 +74,7 @@ def create_sells(qty, exe_price, cancel_spec):
     return sells
 
 
-def create_buys(cash_value, exe_price, cancel_spec):
+def create_buys(cash_value, exe_price, cancel_spec, queue_spec):
     '''
     # Create Buys
     Creates A one-row DataFrame buy order
@@ -52,6 +91,7 @@ def create_buys(cash_value, exe_price, cancel_spec):
     '''
 
     current = gl.current
+    order_id = gl.order_count + 1
 
     ticker = current['ticker']
     timestamp = gl.common_ana.get_timestamp(
@@ -61,23 +101,18 @@ def create_buys(cash_value, exe_price, cancel_spec):
     cash_value = round(qty * exe_price, 2)
 
     columns = {'ticker': [ticker],
+               'order_id': [order_id],
                'send_time': [timestamp],
                'buy_or_sell': ['BUY'],
                'cash': [cash_value],
                'qty': [qty],
                'exe_price': [exe_price],
-               'cancel_spec': [cancel_spec]}
+               'cancel_spec': [cancel_spec],
+               'queue_spec': [queue_spec],
+               }
 
     buys = gl.pd.DataFrame(columns)
     return buys
-
-
-def size_in():
-    '''
-    Looks at exposure and chart to decide how much to put in for a trade. 
-    Currently just `pass`
-    '''
-    pass
 
 
 def sell_to_breakeven():
@@ -87,6 +122,7 @@ def sell_to_breakeven():
     return sells
 
 
+# Price Methods
 def extrapolate_exe_price():
     current = gl.current
     current_vola = gl.volas['current']
@@ -105,11 +141,6 @@ def extrapolate_exe_price():
     # if candle green...
     exe_price = current['close'] + offset
     return exe_price
-
-
-cancel_specs = {
-    'standard': r'p:%5,t:7'
-}
 
 
 def bid_price():

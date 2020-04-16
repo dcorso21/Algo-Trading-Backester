@@ -10,7 +10,33 @@ Purpose of this sheet:
 '''
 
 
+def exe_orders(orders):
+    '''
+    # Core Function: Executing Orders
+    ## 1) Takes suggested orders and puts them through a simluation 
+       to see whether or not they would be filled.
+
+    ## 2) If there are new fills, update the 'filled_orders' and 'current_positions' vars.  
+    '''
+    if gl.loop_feedback == False:
+        return
+
+    # Queue Orders
+    orders = queue_orders(orders)
+
+    # EXECUTIONS
+    new_fills = execute_direct(orders)
+
+    if len(new_fills) != 0:
+        reset_buy_clock(new_fills)
+        update_filled_orders(new_fills)
+        update_current_positions(new_fills)
+
+
 def execute_direct(orders):
+    '''
+    # Redirect for executing orders.  
+    '''
     if gl.trade_mode == 'csv':
         return gl.sim_exe.run_trade_sim(orders)
     else:
@@ -33,26 +59,6 @@ def live_executions(new_orders):
     live_send_orders(new_orders)
     live_get_open_orders()
     live_cancellation()
-
-
-def exe_orders(orders):
-    '''
-    # Core Function: Executing Orders
-    ## 1) Takes suggested orders and puts them through a simluation 
-       to see whether or not they would be filled.
-
-    ## 2) If there are new fills, update the 'filled_orders' and 'current_positions' vars.  
-    '''
-    if gl.loop_feedback == False:
-        return
-
-    # EXECUTIONS
-    new_fills = execute_direct(orders)
-
-    if len(new_fills) != 0:
-        reset_buy_clock(new_fills)
-        update_filled_orders(new_fills)
-        update_current_positions(new_fills)
 
 
 def update_filled_orders(new_fills):
@@ -119,4 +125,8 @@ def update_current_positions(new_fills):
 
 def reset_buy_clock(new_fills):
     if len(new_fills[new_fills['buy_or_sell'] == 'BUY']) != 0:
-        gl.buy_clock = 10
+        gl.buy_clock = 25
+
+
+def queue_orders(orders):
+    

@@ -5,7 +5,7 @@ from plotly.subplots import make_subplots
 from local_functions.pull_historical import historical_funcs as hist
 
 
-def add_box_scatter_cross(fig, row, column, x_values, y_values, labels):
+def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, color):
 
     x = x_values
     y = y_values
@@ -22,7 +22,9 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels):
                       text=y,
                       boxmean=True,
                       boxpoints=False,
-                      width=x_width
+                      width=x_width,
+                      opacity=.5,
+                      marker_color=color,
                       )
 
     hor_box = go.Box(x=x,
@@ -32,12 +34,15 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels):
                      boxmean=True,
                      boxpoints=False,
                      width=y_width,
+                     opacity=.5,
+                     marker_color=color,
                      )
 
     # create a scatter plot
     scatter = go.Scatter(x=x,
                          y=y,
                          mode='markers',
+                         marker_color=color,
                          text=labels,
                          )
 
@@ -53,7 +58,7 @@ def new_line_plot(x_values, y_values, text):
     line_plot = go.Scatter(x=x_values,
                            y=y_values,
                            mode='lines+markers',
-                           text=text
+                           text=text,
                            )
     return line_plot
 
@@ -81,31 +86,65 @@ def new_scatter_plot(x_values, y_values, text):
 
 def plot_batch_overview(batch_frame, batch_path):
 
-    df = batch_frame
-
-    jitter = .7
-    profit_progress = new_line_plot(x_values=list(range(
-        len(df))), y_values=df.real_pl.cumsum(), text=df.tick_date)
-
-    fig = make_subplots(rows=4, cols=2,
-                        specs=[[{'colspan': 2, 'rowspan': 2}, None],
-                               [None, None],
-                               [{'rowspan': 2}, {'rowspan': 2}],
-                               [None, None],
+    fig = make_subplots(rows=3, cols=2,
+                        specs=[[{'colspan': 2}, None],
+                               [{}, {}],
+                               [{}, {}],
                                ],
-                        subplot_titles=("Profit Over Time",
+                        subplot_titles=("Resolved Profit Over Time",
                                         "Profit/Loss x Exposure",
                                         "Min Unreal x Max Unreal",
-                                        ))
+                                        "PL x Volatility",
+                                        )
+                        )
 
-    fig.append_trace(profit_progress, row=1, col=1)
+    not_traded = batch_frame[batch_frame.min_unreal == 0]
+    not_traded = not_traded[not_traded.max_unreal == 0]
+    traded = batch_frame.drop(not_traded.index.tolist())
+    resolved = traded[traded.unreal_pl == 0]
+    unresolved = traded.drop(resolved.index.tolist())
 
-    fig = add_box_scatter_cross(fig, 3, 1, df.real_pl, df.max_ex, df.tick_date)
-    fig = add_box_scatter_cross(
-        fig, 3, 2, df.min_unreal, df.max_unreal, df.tick_date)
+    res_color = 'red'
+    unres_color = 'green'
+    not_color = 'yellow'
+
+    if len(resolved) != 0:
+        resolved_progress = new_line_plot(x_values=list(range(
+            len(resolved))), y_values=resolved.real_pl.cumsum(), text=resolved.tick_date)
+        fig.append_trace(resolved_progress, row=1, col=1)
+
+        fig = add_box_scatter_cross(
+            fig, 2, 1, resolved.real_pl, resolved.max_ex, resolved.tick_date, res_color)
+        fig = add_box_scatter_cross(
+            fig, 2, 2, resolved.min_unreal, resolved.max_unreal, resolved.tick_date, res_color)
+        fig = add_box_scatter_cross(
+            fig, 3, 1, resolved.real_pl, resolved.avg_vola, resolved.tick_date, res_color)
+
+    if len(unresolved) != 0:
+        unresolved_progress = new_line_plot(x_values=list(range(
+            len(unresolved))), y_values=unresolved.real_pl.cumsum(), text=unresolved.tick_date)
+        fig.append_trace(unresolved_progress, row=1, col=1)
+
+        fig.append_trace(go.Scatter(x=unresolved.real_pl, y=unresolved.max_ex,
+                                    text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=2, col=1)
+        fig.append_trace(go.Scatter(x=unresolved.min_unreal, y=unresolved.max_unreal,
+                                    text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=2, col=2)
+        fig.append_trace(go.Scatter(x=unresolved.real_pl, y=unresolved.avg_vola,
+                                    text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=3, col=1)
+
+    if len(not_traded) != 0:
+        fig.append_trace(go.Scatter(x=not_traded.real_pl, y=not_traded.max_ex,
+                                    text=not_traded.tick_date, mode='markers', marker_color=not_color), row=2, col=1)
+        fig.append_trace(go.Scatter(x=not_traded.min_unreal, y=not_traded.max_unreal,
+                                    text=not_traded.tick_date, mode='markers', marker_color=not_color), row=2, col=2)
+        fig.append_trace(go.Scatter(x=not_traded.real_pl, y=not_traded.avg_vola,
+                                    text=not_traded.tick_date, mode='markers', marker_color=not_color), row=3, col=1)
 
     fig.update_layout(
-        title_text="Batch Results")
+        # template='plotly_dark',
+        title_text="Batch Results",
+        # height=1800
+    )
 
     # fig.show()
     fig.write_html(batch_path + "overview.html")
@@ -154,21 +193,21 @@ def plot_results(current_frame, filled_orders):
 def max_exposures(orders, mkt_data):
     '''
     # Max Exposures
-    Takes `orders` df and `mkt_data` df and finds the max exposure per minute. 
+    Takes `orders` df and `mkt_data` df and finds the max exposure per minute.
 
     Returns `exposure_frame` - two columns with time and exposure.
 
-    ## Process:
+    # Process:
 
-    ### 1) Create a list of minutes.   
+    # 1) Create a list of minutes.
 
-    ### 2) For each minute, go through each order in minute
+    # 2) For each minute, go through each order in minute
     - If there are no orders in the given minute, append last known exposure and continue.
     - If there are no orders active, exposure is 0...
 
-    ### 3) After each minute is complete, find the max exposure from that minute and append it to the Exposures list. 
+    # 3) After each minute is complete, find the max exposure from that minute and append it to the Exposures list.
 
-    ### 4) Create the e_frame and return it. 
+    # 4) Create the e_frame and return it.
 
     '''
     buys = pd.DataFrame()
@@ -487,7 +526,7 @@ def update_orders(orders):
 def append_o_notes(o):
     '''Takes a dataframe of orders and adds columns that are useful for graphing.
 
-    The columns created will be "scolor", "sig" and "annotes". 
+    The columns created will be "scolor", "sig" and "annotes".
     The "Sig" column is a string that tells you what type of order - Buy (B) Sell (S) or Buy Short (Bs)
     The "scolor" column is the color that will be graphed for each signal (sig)
     The "Annote" column will show information about the number of shares bought at what price.'''
@@ -550,13 +589,13 @@ def append_o_notes(o):
 
 def append_PL(mkt_data, order_data):
     '''Function:
-    Takes the realized Profit Loss info from order data df and transfers the data to a new 
-    column in the market data df. 
+    Takes the realized Profit Loss info from order data df and transfers the data to a new
+    column in the market data df.
 
     Inputs:
     {
-    mkt_data: df of market information from day traded. 
-    order_data: df of order info from day traded.  
+    mkt_data: df of market information from day traded.
+    order_data: df of order info from day traded.
     }'''
 
     import pandas as pd
@@ -600,13 +639,13 @@ def append_PL(mkt_data, order_data):
 
 def append_PLs(mkt_data):
     '''Function:
-    To add two columns to market data -  an unrealized high, and an unrealized low. 
+    To add two columns to market data -  an unrealized high, and an unrealized low.
     These show the range of unrealized profits from minute to minute.
-    Note: YOU MUST HAVE ALREADY USED THE FUNCTION "append_PL" as this func used the column generated there. 
+    Note: YOU MUST HAVE ALREADY USED THE FUNCTION "append_PL" as this func used the column generated there.
 
     Inputs:
     {
-    mkt_data: df of minute by minute market data containing a profit loss column and high low values. 
+    mkt_data: df of minute by minute market data containing a profit loss column and high low values.
     }'''
 
     import pandas as pd
@@ -664,7 +703,7 @@ def append_PLs(mkt_data):
 def append_avg(mkt_data, order_data):
     '''Function:
     Adds a column to market data df that tracks the average price of open orders every minute.
-    Does this by scraping info from the orders dataframe. 
+    Does this by scraping info from the orders dataframe.
 
     Inputs:
     {
@@ -716,8 +755,8 @@ def append_avg(mkt_data, order_data):
 def append_position(mkt_data, order_data):
     '''
     Function:
-    creates new column for market data df. 
-    This column is created by using info from the thinkorswim orders. 
+    creates new column for market data df.
+    This column is created by using info from the thinkorswim orders.
 
     Inputs:
     {
@@ -764,25 +803,25 @@ def append_position(mkt_data, order_data):
 
 def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot=True):
     '''Function:
-    Creates a table showing minute by minute data and overlays trades. 
-    Also shows info like position size and profit loss in depth. 
+    Creates a table showing minute by minute data and overlays trades.
+    Also shows info like position size and profit loss in depth.
 
     Inputs:
     {
-    orders: a dataframe of orders from thinkorswim. 
+    orders: a dataframe of orders from thinkorswim.
 
-    mkt_data: a dataframe of market data for minute by minute pricing data. 
+    mkt_data: a dataframe of market data for minute by minute pricing data.
 
     date: a string with the format "yyyy-mm-dd"
 
-    height: integer value. y dimension of daily graph. 800-1000 is good to start. 
+    height: integer value. y dimension of daily graph. 800-1000 is good to start.
 
-    table: Defaults to "True". creates a table of fundamental data above daily chart. 
+    table: Defaults to "True". creates a table of fundamental data above daily chart.
 
     yearly: Defaults to "True". Shows yearly chart above daily chart for day by day
-    chart history. 
+    chart history.
 
-    notes: appends a table for each stock traded that shows notes I've written showing my thoughts on the stock. 
+    notes: appends a table for each stock traded that shows notes I've written showing my thoughts on the stock.
 
     OnDemand: Defaults to False - only if you say true does this default to getting fundamentals from a different source.
 

@@ -30,7 +30,7 @@ from local_functions.analysis.ana_indicators.d_eval.manage_docs import volas as 
 
 # Position Analysis
 from local_functions.analysis.ana_indicators import position_ana
-from local_functions.analysis.ana_indicators.p_eval import p_buy_eval, p_sell_eval
+from local_functions.analysis.ana_indicators.p_eval import p_order_eval
 from local_functions.analysis.ana_indicators.p_eval import order_tools as o_tools
 from local_functions.analysis.ana_indicators.p_eval.conditions import buy_conditions as b_conds
 from local_functions.analysis.ana_indicators.p_eval.conditions import sell_conditions as s_conds
@@ -54,7 +54,8 @@ from local_functions.plotting import plot_results as plotr
 stock_pick = 'nan'
 trade_mode = 'nan'
 
-# Binaries
+
+order_count = 0
 pos_update = False
 loop_feedback = True
 sell_out = False

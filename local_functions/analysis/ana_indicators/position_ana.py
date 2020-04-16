@@ -28,14 +28,14 @@ def build_orders():
         return gl.pd.DataFrame()
 
     # 2) Get Sell Orders
-    sell_orders = gl.p_sell_eval.sell_eval()
+    sell_orders = gl.p_order_eval.sell_eval()
     log_sent_orders(sell_orders, 'sell')
     # if it is a good time to stop, end the function with only sell orders.
     if (gl.buy_lock == True):
         return sell_orders
 
     # 3) Get Buy Orders
-    buy_orders = gl.p_buy_eval.buy_eval()
+    buy_orders = gl.p_order_eval.buy_eval()
     log_sent_orders(buy_orders, 'buy')
 
     # combine orders

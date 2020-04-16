@@ -38,7 +38,7 @@ def target_unreal():
     #### Note: 
     If the condition is not met, this returns a blank DF. 
     '''
-    target_int = 20
+    target_int = 200
     unreal = gl.pl_ex['unreal']
     if unreal > target_int:
         # sell all

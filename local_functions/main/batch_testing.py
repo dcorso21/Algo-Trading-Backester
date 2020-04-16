@@ -11,6 +11,7 @@ def append_batch_frame(batch_frame, file_name, rep):
 
     row = {
         'tick_date': file_name+f'_{rep}',
+        'avg_vola': gl.volas['mean'],
 
         'real_pl': gl.pl_ex['real'],
         'min_real': gl.pl_ex['min_real'],

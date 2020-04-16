@@ -23,6 +23,8 @@ def reset_variables(mode, csv_file):
         gl.csv_indexes = []
         gl.sim_df = get_sim_df(csv_file)
 
+    gl.order_count = 0
+
     gl.pos_update = False
     gl.loop_feedback = True
     gl.buy_lock = False

@@ -17,8 +17,7 @@ def starting_position():
         return buys
     return gl.pd.DataFrame()
 
-##################################################
-##################################################
+
 # SIZE IN...
 
 
@@ -58,4 +57,23 @@ def drop_below_average():
         gl.log_funcs.log('---> Drop triggers buy.')
         return buys
 
+    return gl.pd.DataFrame()
+
+
+def aggresive_average():
+    current = gl.current
+    vola = gl.common_ana.get_max_vola(gl.volas, .02)/4
+    avg = gl.common_ana.get_average()
+    drop_percent = gl.common_ana.get_inverse_perc(vola)
+    if (gl.buy_clock <= 0) and (current['close'] <= avg * drop_percent):
+        # and if the current price is below the average by 2%
+        ex = gl.pl_ex['last_ex']
+        cash = (ex*(avg - 1.01*current['close']))/.01*current['close']
+        if cash > current['close']:
+            exe_price = current['close']
+            cancel_spec = gl.o_tools.cancel_specs['standard']
+            buys = gl.o_tools.create_buys(
+                cash, exe_price, cancel_spec)
+            gl.log_funcs.log('---> Aggressive Avg Follow.')
+            return buys
     return gl.pd.DataFrame()
