@@ -71,7 +71,7 @@ def run_trade_sim(new_orders):
     columns = ['ticker', 'send_time',
                'buy_or_sell', 'cash', 'qty', 'exe_price']
     filled_orders = filled_orders[columns]
-    filled_orders['exe_time'] = gl.pd.Series(gl.common_ana.get_timestamp(
+    filled_orders['exe_time'] = gl.pd.Series(gl.common.get_timestamp(
         current['minute'], current['second']))
     filled_orders = filled_orders.dropna()
     open_orders = open_orders.drop(index=fill_indexes)

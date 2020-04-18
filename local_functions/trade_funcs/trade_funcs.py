@@ -110,8 +110,8 @@ def update_current_positions(new_fills):
             unrealized = 0
         else:
             unrealized = 'skip'
-        gl.common_ana.update_pl(realized, unrealized)
-    gl.common_ana.update_ex()
+        gl.common.update_pl(realized, unrealized)
+    gl.common.update_ex()
 
 
 def reset_buy_clock(new_fills):
@@ -122,7 +122,10 @@ def reset_buy_clock(new_fills):
 def queue_order_center(orders):
 
     q_orders = gl.queued_orders
-    ready = orders[orders['queue_spec'] == None]
+
+    ready = gl.pd.DataFrame()
+    if len(orders) != 0:
+        ready = orders[orders['queue_spec'] == None]
 
     if len(q_orders) != 0:
         q_orders = q_orders.reset_index(drop=True)
@@ -145,12 +148,14 @@ def queue_order_center(orders):
                         ready = ready.append(q_orders.iloc[row], sort=False)
                         drop_indexes.append(row)
 
-    q_orders.drop(drop_indexes)
+        q_orders.drop(drop_indexes)
 
-    for_q = orders[orders['queue_spec'] != None]
-    if len(for_q) != 0:
-        q_orders = q_orders.append(for_q, sort=False)
+    for_q = gl.pd.DataFrame()
+    if len(orders) != 0:
+        for_q = orders[orders['queue_spec'] != None]
+        if len(for_q) != 0:
+            q_orders = q_orders.append(for_q, sort=False)
 
     gl.queued_orders = q_orders
 
-    return gl.o_tools.format_orders(ready)
+    return gl.order_tools.format_orders(ready)

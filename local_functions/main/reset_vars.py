@@ -40,6 +40,7 @@ def reset_variables(mode, csv_file):
     gl.current_frame = gl.pd.DataFrame()
     gl.mom_frame = gl.pd.DataFrame()
     gl.sup_res_frame = gl.pd.DataFrame()
+    gl.log = gl.pd.DataFrame()
 
     # PL and Exposure
     gl.sys.dont_write_bytecode = True

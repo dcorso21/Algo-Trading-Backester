@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from local_functions.pull_historical import historical_funcs as hist
+from local_functions.data_management import historical_funcs as hist
 
 
 def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, color):

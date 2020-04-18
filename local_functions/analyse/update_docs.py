@@ -29,7 +29,7 @@ def update_files():
             update_supports_resistances()
 
 
-'''----- Current_Positions -----'''
+'''----- Current Positions -----'''
 
 
 def update_return_and_pl():
@@ -63,8 +63,7 @@ def update_return_and_pl():
             current_positions.p_return*.01
 
         gl.current_positions = current_positions
-        gl.common_ana.update_pl('skip', current_positions['un_pl'].sum())
-
+        gl.common.update_pl('skip', current_positions['un_pl'].sum())
 
 
 '''----- Volas & Volumes -----'''
@@ -79,7 +78,7 @@ def update_volas():
     cf = gl.current_frame
 
     # make volatility column
-    cf['vola'] = gl.common_ana.get_volatility(
+    cf['vola'] = gl.common.get_volatility(
         cf['high'], cf['low'])
 
     # calculate volatilities for different time increments
@@ -104,14 +103,14 @@ def update_volumes():
 
     current = gl.current
     current_frame = gl.current_frame
-    last_row = current_frame.index.to_list[-1]
+    last_row = current_frame.index.to_list()[-1]
     current_frame = current_frame.drop(last_row)
 
     current_frame['dvol'] = current_frame['close']*current_frame['volume']
 
     current_dvol = current['volume'] * current['close']
 
-    volumes['extrap_current'] = (current_dvol / current['second'])*60
+    volumes['extrap_current'] = (current_dvol / (current['second']+1))*60
     volumes['mean'] = current_frame.dvol.mean()
     volumes['minimum'] = current_frame.dvol.min()
     if len(current_frame) >= 3:
@@ -171,7 +170,7 @@ def update_momentum():
     if len(df) < 5:
         return
 
-    dfz = pd.DataFrame()
+    dfz = gl.pd.DataFrame()
     # momentum swings from up to down, so I name this push and pull yin and yang.
     yin = 'start'
     yang = 'start'
@@ -219,7 +218,7 @@ def update_momentum():
     # 4) Replace old mom_frame with newly made one.
     if len(dfz) != 0:
 
-        dfz['volatility'] = gl.common_ana.get_volatility(
+        dfz['volatility'] = gl.common.get_volatility(
             dfz.high.astype(float), dfz.low.astype(float))
 
         if fresh == False:
@@ -332,8 +331,8 @@ def append_mom_row(yin, offset, last_offset, df, dfz):
         low = df[df.time == end_time].low.to_list()[0]
         color = '#e336a4'
 
-    row = pd.DataFrame({'start_time': [start_time], 'end_time': [end_time], 'duration': [duration],
-                        'trend': [trend], 'high': [high], 'low': [low], 'color': [color]})
+    row = gl.pd.DataFrame({'start_time': [start_time], 'end_time': [end_time], 'duration': [duration],
+                           'trend': [trend], 'high': [high], 'low': [low], 'color': [color]})
 
     dfz = dfz.append(row, sort=False)
 
@@ -416,7 +415,7 @@ def many_lengths(agg_list, offset, yin, yang, df):
             yin = 'li'
             yang = 'hi'
 
-    dfx = pd.DataFrame()
+    dfx = gl.pd.DataFrame()
     # 1) Loops through each value in aggregation list
     for x in agg_list:
         y = x + offset
@@ -459,7 +458,7 @@ def simplify_candles(df, start_index, end_index):
 
         minute = [o, h, l, c, oi, hi, li, ci]
 
-        dfx = pd.DataFrame(minute).T
+        dfx = gl.pd.DataFrame(minute).T
         dfx = dfx.rename(
             columns={0: 'o', 1: 'h', 2: 'l', 3: 'c', 4: 'oi', 5: 'hi', 6: 'li', 7: 'ci'})
 
@@ -470,7 +469,7 @@ def aggregate_df(agg_num, df):
 
     #agg_num = 11
     last_ind = 0
-    dfx = pd.DataFrame()
+    dfx = gl.pd.DataFrame()
 
     for x in range(1, int(len(df)/agg_num)+1):
         ind = x*agg_num + 1

@@ -6,7 +6,7 @@ import time
 def test_trade(mode='csv', csv_file='first'):
 
     start_time = time.time()
-    gl.reset.reset_variables(mode=mode, csv_file=csv_file)
+    gl.reset_vars.reset_variables(mode=mode, csv_file=csv_file)
 
     gl.screen.pick_stock_direct(mode)
     if gl.stock_pick == 'nan':
@@ -14,8 +14,8 @@ def test_trade(mode='csv', csv_file='first'):
 
     while True:
 
-        gl.gather.update_direct()  # Updates Info...
-        orders = gl.ana.analyse()  # Analyse and build orders
+        gl.gather.update_direct()          # Updates Info...
+        orders = gl.analyse.analyse()      # Analyse and build orders
         gl.trade_funcs.exe_orders(orders)  # Execute orders.
 
         if gl.loop_feedback == False:

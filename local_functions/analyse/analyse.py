@@ -60,7 +60,7 @@ def ana_day():
 
     '''
     # 1) Runs update_files function
-    gl.d_update_docs.update_files()
+    gl.update_docs.update_files()
 
     # 2) Evaluates current price info with the pricing_eval function.
     p_eval = day_pricing_eval()
@@ -79,7 +79,7 @@ def ana_day():
 
 def day_pricing_eval():
 
-    pmeths = pricing_analysis_methods
+    pmeths = day_pricing_analysis_methods
 
     if len(gl.current_frame) < 5:
         return pmeths('closer_to_low_than_open')
@@ -91,7 +91,7 @@ def day_pricing_eval():
 
 
 def day_volume_eval():
-    vmeth = volume_analysis_methods
+    vmeth = day_volume_analysis_methods
     return vmeth('volume_min_check')
 
 

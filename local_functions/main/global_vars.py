@@ -19,21 +19,19 @@ from local_functions.main import log_funcs
 from local_functions.main import reset_vars
 
 # Analyse
-from local_functions.analysis import analyse
-from local_functions.analysis import common
-from local_functions.analysis import order_eval
-from local_functions.analysis import order_tools
-from local_functions.analysis import update_docs
+from local_functions.analyse import analyse
+from local_functions.analyse import common
+from local_functions.analyse import order_eval
+from local_functions.analyse import order_tools
+from local_functions.analyse import update_docs
 
 # Account Info
 from local_functions.account import account_info as account
-
 
 # Data Management
 from local_functions.data_management import gather_data as gather
 from local_functions.data_management import stock_screening as screen
 from local_functions.data_management import historical_funcs as hist
-
 
 # Trade Functions
 from local_functions.trade_funcs import sim_executions as sim_exe

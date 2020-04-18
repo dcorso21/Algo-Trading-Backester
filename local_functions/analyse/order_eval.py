@@ -92,15 +92,13 @@ def sell_conditions(condition):
         #### Note: 
         If the condition is not met, this returns a blank DF. 
         '''
-        avg = gl.common_ana.get_average()
+        avg = gl.common.get_average()
         if gl.current['close'] > (avg * 1.03):
             # sell all
             everything = gl.current_positions.qty.sum()
-            cancel_spec = gl.o_tools.cancel_specs['standard']
-            exe_price = gl.o_tools.bid_price()
-            sells = gl.o_tools.create_sells(
-                everything, exe_price, cancel_spec)
-            gl.log_funcs.log('----> over 3 perc gain triggered. ')
+            exe_price = 'bid'
+            sells = gl.order_tools.create_orders('SELL', everything, exe_price)
+            gl.log_funcs.log('----> over 3 perc gain triggered.')
             return sells
         sells = gl.pd.DataFrame()
         return sells
@@ -120,15 +118,14 @@ def sell_conditions(condition):
         unreal = gl.pl_ex['unreal']
         if unreal > target_int:
             # sell all
-            everything = gl.current_positions.qty.sum()
-            exe_price = gl.o_tools.bid_price()
-            cancel_spec = gl.o_tools.cancel_specs['standard']
-            sells = gl.o_tools.create_sells(everything, exe_price, cancel_spec)
+            qty = gl.current_positions.qty.sum()
+            exe_price = 'bid'
+            sells = gl.order_tools.create_orders('SELL', qty, exe_price)
+
             gl.log_funcs.log(f'----> unreal hits trigger: {unreal}')
             return sells
 
-        sells = gl.pd.DataFrame()
-        return sells
+        return gl.pd.DataFrame()
 
     def exposure_over_account_limit():
         '''
@@ -144,10 +141,11 @@ def sell_conditions(condition):
         available_capital = gl.account.get_available_capital()
         exposure = gl.pl_ex['last_ex']
         if exposure > available_capital:
-            half = int(gl.current_positions.qty.sum()/2)
-            exe_price = gl.o_tools.bid_price()
-            cancel_spec = gl.o_tools.cancel_specs['standard']
-            sells = gl.o_tools.create_sells(half, exe_price, cancel_spec)
+            # half
+            qty = int(gl.current_positions.qty.sum()/2)
+            exe_price = 'bid'
+            sells = gl.order_tools.create_orders('SELL', qty, exe_price)
+
             gl.log_funcs.log('----> over-exposed sell half.')
         else:
             sells = gl.pd.DataFrame()
@@ -164,17 +162,11 @@ def sell_conditions(condition):
         #### Note: 
         If the condition is not met, this returns a blank DF. 
         '''
-        current = gl.current
+        if (gl.current['minute'] == '11:00:00') or (gl.sell_out == True):
+            qty = gl.current_positions.qty.sum()
+            pmethod = 'extrapolate'
+            sells = gl.order_tools.create_orders('SELL', qty, pmethod)
 
-        if (current['minute'] == '11:00:00') or (gl.sell_out == True):
-            everything = gl.current_positions.qty.sum()
-            exe_price = gl.o_tools.extrapolate_exe_price()
-            avg = gl.common_ana.get_average()
-            price = gl.current['close']
-            if (exe_price < avg) and (price > avg):
-                exe_price = avg
-            cancel_spec = gl.o_tools.cancel_specs['standard']
-            sells = gl.o_tools.create_sells(everything, exe_price, cancel_spec)
             gl.log_funcs.log('Sell to Stop...')
             gl.buy_lock = True
             gl.sell_out = True
@@ -227,17 +219,17 @@ def buy_eval():
     # 1. Check to see if there are any current_positions.
     # If there aren't any current_positions, ---> return a starting position buy DF.
     if len(gl.current_positions) == 0:
-        return gl.b_conds.starting_position()
+        return buy_conditions('starting_position')
 
     buy_conds = [
-        gl.b_conds.aggresive_average,
-        # gl.b_conds.drop_below_average,
+        'aggresive_average',
+        'drop_below_average',
     ]
 
     # 2. Go through each Buy Condition to see if the time is right to sell (this second)
     # Order is important as the first function to yield an order will break the loop and return the DF.
-    for func in buy_conds:
-        buys = func()
+    for condition in buy_conds:
+        buys = buy_conditions(condition)
         if len(buys) != 0:
             gl.log_funcs.log_sent_orders(buys, 'buy')
             break
@@ -255,9 +247,8 @@ def buy_conditions(condition):
         '''
         if gl.chart_response == True:
             cash = gl.account.get_available_capital() * .01
-            cancel_spec = gl.o_tools.cancel_specs['standard']
-            buys = gl.o_tools.create_buys(
-                cash, gl.current['close'], cancel_spec)
+            pmeth = 'ask'
+            buys = gl.order_tools.create_orders('BUY', cash, pmeth)
             gl.log_funcs.log('---> Sending Starting Position.')
             return buys
         return gl.pd.DataFrame()
@@ -277,9 +268,9 @@ def buy_conditions(condition):
             return gl.pd.DataFrame()
 
         current = gl.current
-        max_vola = gl.common_ana.get_max_vola(volas=gl.volas, min_vola=2.5)
-        drop_perc = gl.common_ana.get_inverse_perc(max_vola)
-        avg = gl.common_ana.get_average()
+        max_vola = gl.common.get_max_vola(volas=gl.volas, min_vola=2.5)
+        drop_perc = gl.common.get_inverse_perc(max_vola)
+        avg = gl.common.get_average()
 
         if current['close'] < (avg * drop_perc):
             cash = gl.pl_ex['last_ex']
@@ -291,10 +282,9 @@ def buy_conditions(condition):
 
             if cash > available:
                 cash = available
-            exe_price = current['close']
-            cancel_spec = gl.o_tools.cancel_specs['standard']
-            buys = gl.o_tools.create_buys(
-                cash, exe_price, cancel_spec)
+
+            pmeth = 'current_price'
+            buys = gl.order_tools.create_orders('BUY', cash, pmeth)
             gl.log_funcs.log('---> Drop triggers buy.')
             return buys
 
@@ -302,18 +292,16 @@ def buy_conditions(condition):
 
     def aggresive_average():
         current = gl.current
-        vola = gl.common_ana.get_max_vola(gl.volas, .02)/4
-        avg = gl.common_ana.get_average()
-        drop_percent = gl.common_ana.get_inverse_perc(vola)
+        vola = gl.common.get_max_vola(gl.volas, .02)/4
+        avg = gl.common.get_average()
+        drop_percent = gl.common.get_inverse_perc(vola)
         if (gl.buy_clock <= 0) and (current['close'] <= avg * drop_percent):
             # and if the current price is below the average by 2%
             ex = gl.pl_ex['last_ex']
             cash = (ex*(avg - 1.01*current['close']))/.01*current['close']
             if cash > current['close']:
-                exe_price = current['close']
-                cancel_spec = gl.o_tools.cancel_specs['standard']
-                buys = gl.o_tools.create_buys(
-                    cash, exe_price, cancel_spec)
+                pmeth = 'bid'
+                buys = gl.order_tools.create_orders('BUY', cash, pmeth)
                 gl.log_funcs.log('---> Aggressive Avg Follow.')
                 return buys
         return gl.pd.DataFrame()

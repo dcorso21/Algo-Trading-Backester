@@ -6,7 +6,9 @@ cancel_specs = {
 }
 
 
-def create_orders(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec, parse=True):
+def create_orders(buy_or_sell, cash_or_qty, price_method,
+                  auto_renew=True, cancel_spec=cancel_specs['standard'],
+                  queue_spec=None, parse=False):
     '''
     # Create Orders
     Creates an order and splits it into multiple chunks if cash size is too big. 
@@ -29,7 +31,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spe
     ### 1) Define chunk size in cash and make convert to shares if order is a sell. 
     '''
     # Parse Clause:
-    if parse != True:
+    if parse == False:
         return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, None)
 
     # 1) Define chunk size in cash and make convert to shares if order is a sell.
@@ -60,8 +62,8 @@ def create_orders(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spe
         orders = gl.pd.DataFrame()
         orders = orders.append(first_order, sort=False)
 
-        # Create parses based on fill queue spec.
-        if queue_spec == 'fill':
+        # Create parses based on fill
+        if parse == 'fill':
             for cash in cashes:
                 q_spec = f'fill:{gl.order_count}'
                 order = fill_out_order(
@@ -69,11 +71,12 @@ def create_orders(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spe
                 orders = orders.append(order, sort=False)
                 return orders
 
-        # Create parses based on time queue spec.
-        if queue_spec[0:4] == 'time':
-            for cash in cashes:
+        # Create parses based on time
+        if parse[0:4] == 'time':
+            for num, cash in enumerate(cashes, start=1):
+                q_spec = 'time:{}'.format(int(parse.split(':')[1]) * num)
                 order = fill_out_order(
-                    buy_or_sell, cash, price_method, auto_renew, cancel_spec, queue_spec)
+                    buy_or_sell, cash, price_method, auto_renew, cancel_spec, q_spec)
                 orders = orders.append(order, sort=False)
                 return orders
 
@@ -84,13 +87,13 @@ def fill_out_order(buy_or_sell, cash, price_method, auto_renew, cancel_spec, que
     order_id = gl.order_count
 
     order = {
-        'order_id': order_id,
-        'buy_or_sell': buy_or_sell,
-        'cash': cash,
-        'price_method': price_method,
-        'auto_renew': auto_renew,
-        'cancel_spec': cancel_spec,
-        'queue_spec': queue_spec,
+        'order_id': [order_id],
+        'buy_or_sell': [buy_or_sell],
+        'cash': [cash],
+        'price_method': [price_method],
+        'auto_renew': [auto_renew],
+        'cancel_spec': [cancel_spec],
+        'queue_spec': [queue_spec],
     }
 
     order = gl.pd.DataFrame(order)
@@ -109,7 +112,7 @@ def format_orders(orders):
         order_id, buy_or_sell, cash_or_qty, p_method, auto_renew, cancel_spec, queue_spec = row
 
         exe_price = get_exe_price(p_method)
-        timestamp = gl.common_ana.get_timestamp(
+        timestamp = gl.common.get_timestamp(
             gl.current['minute'], gl.current['second'])
         if buy_or_sell == 'buy':
             qty = int(cash_or_qty/exe_price)

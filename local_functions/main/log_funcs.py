@@ -3,7 +3,7 @@ from functools import wraps
 
 main_list = ['algo.py', 'global_vars.py']
 refresh_list = ['gather_data.py']
-analyse_list = ['analyse.py', 'common_ana.py']
+analyse_list = ['analyse.py', 'common.py']
 daily_list = ['daily_ana.py', 'd_price_eval.py',
               'd_update_docs.py', 'momentum.py',
               'supports_resistances.py', 'volas.py']
@@ -135,4 +135,3 @@ def log_sent_orders(orders, buy_or_sell):
 
         message = f'Signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
         gl.log_funcs.log(message)
-
