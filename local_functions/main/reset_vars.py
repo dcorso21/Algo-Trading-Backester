@@ -31,10 +31,13 @@ def reset_variables(mode, csv_file):
     gl.sell_out = False
     gl.chart_response = False
 
-    gl.current_frame = gl.pd.DataFrame()
+    gl.order_specs = gl.pd.DataFrame()
+    gl.queued_orders = gl.pd.DataFrame()
     gl.open_orders = gl.pd.DataFrame()
+    gl.cancelled_orders = gl.pd.DataFrame()
     gl.current_positions = gl.pd.DataFrame()
     gl.filled_orders = gl.pd.DataFrame()
+    gl.current_frame = gl.pd.DataFrame()
     gl.mom_frame = gl.pd.DataFrame()
     gl.sup_res_frame = gl.pd.DataFrame()
 
@@ -91,6 +94,20 @@ def reset_variables(mode, csv_file):
     }
 
     gl.volas = volas
+    # volumes
+    volumes = {
+        'mean': 'nan',
+        'minimum': 'nan',
+        'extrap_current': 'nan',
+        'three_min_mean': 'nan',
+        'three_min_min': 'nan',
+        'five_min_mean': 'nan',
+        'five_min_min': 'nan',
+        'ten_min_mean': 'nan',
+        'ten_min_min': 'nan',
+    }
+
+    gl.volumes = volumes
 
     # Logging Notes
     # Log is now managed in global vars and log_funcs

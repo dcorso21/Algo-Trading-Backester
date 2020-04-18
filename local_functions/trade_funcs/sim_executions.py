@@ -1,13 +1,5 @@
 from local_functions.main import global_vars as gl
 
-'''
-Purpose of this module:
-
-1. Simulate Market conditions like slippage and execution lag.
-
-2. Place orders in queue to be executed
-'''
-
 
 def run_trade_sim(new_orders):
     '''
@@ -39,7 +31,6 @@ def run_trade_sim(new_orders):
 
     # 1) Cancel Orders
     open_orders = check_cancel(open_orders)
-    # open_orders = cancel_at_wait_duration(open_orders, cancel_second=5)
 
     # 2) Add New Orders to Open
     if len(new_orders) != 0:
@@ -206,5 +197,9 @@ def check_cancel(open_orders):
         elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
             gl.log_funcs.log('order cancelled (price spike)')
             drop_indexes.append(index)
+
+    if len(drop_indexes) != 0:
+        gl.cancelled_orders = gl.cancelled_orders.append(
+            open_orders.iloc[drop_indexes], sort=False)
 
     return open_orders.drop(index=drop_indexes)

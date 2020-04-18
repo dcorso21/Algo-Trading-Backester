@@ -1,14 +1,5 @@
 from local_functions.main import global_vars as gl
 
-'''
-Purpose of this sheet:
-
-1. Update Fills
-
-2. Update Real PL
-
-'''
-
 
 def exe_orders(orders):
     '''
@@ -22,7 +13,7 @@ def exe_orders(orders):
         return
 
     # Queue Orders
-    orders = queue_orders(orders)
+    orders = queue_order_center(orders)
 
     # EXECUTIONS
     new_fills = execute_direct(orders)
@@ -128,5 +119,38 @@ def reset_buy_clock(new_fills):
         gl.buy_clock = 25
 
 
-def queue_orders(orders):
-    
+def queue_order_center(orders):
+
+    q_orders = gl.queued_orders
+    ready = orders[orders['queue_spec'] == None]
+
+    if len(q_orders) != 0:
+        q_orders = q_orders.reset_index(drop=True)
+
+        drop_indexes = []
+        for row in q_orders.index:
+            qs = q_orders.at[row, 'queue_spec']
+
+            if qs[0:4] == 'time':
+                qs = int(qs.split(':')[1]) - 1
+                q_orders.at[row, 'queue_spec'] = qs
+                if qs == 0:
+                    ready = ready.append(q_orders.iloc[row], sort=False)
+                    drop_indexes.append(row)
+
+            if qs[0:4] == 'fill':
+                order_id = int(qs.split(':')[1])
+                if len(gl.filled_orders) != 0:
+                    if qs in gl.filled_orders.order_id.tolist():
+                        ready = ready.append(q_orders.iloc[row], sort=False)
+                        drop_indexes.append(row)
+
+    q_orders.drop(drop_indexes)
+
+    for_q = orders[orders['queue_spec'] != None]
+    if len(for_q) != 0:
+        q_orders = q_orders.append(for_q, sort=False)
+
+    gl.queued_orders = q_orders
+
+    return gl.o_tools.format_orders(ready)

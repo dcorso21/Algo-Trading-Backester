@@ -13,40 +13,34 @@ import sys
 import requests
 
 
-# Imports - list follows folders
-from local_functions.main import log_funcs
-
-from local_functions.account_info import account_info as account
-
-from local_functions.analysis import analyse as ana
-from local_functions.analysis import common_ana
-
-# Daily Analysis
-from local_functions.analysis.ana_indicators import daily_ana
-from local_functions.analysis.ana_indicators.d_eval import d_price_eval, d_update_docs
-from local_functions.analysis.ana_indicators.d_eval.manage_docs import momentum as mom
-from local_functions.analysis.ana_indicators.d_eval.manage_docs import supports_resistances as sup_res
-from local_functions.analysis.ana_indicators.d_eval.manage_docs import volas as vf
-
-# Position Analysis
-from local_functions.analysis.ana_indicators import position_ana
-from local_functions.analysis.ana_indicators.p_eval import p_order_eval
-from local_functions.analysis.ana_indicators.p_eval import order_tools as o_tools
-from local_functions.analysis.ana_indicators.p_eval.conditions import buy_conditions as b_conds
-from local_functions.analysis.ana_indicators.p_eval.conditions import sell_conditions as s_conds
-
-# Other
-from local_functions.assemble_data import gather_data as gather
-from local_functions.assemble_data import stock_screening as screen
+# Main Folder
 from local_functions.main import algo
-from local_functions.pull_historical import historical_funcs as hist
-from local_functions.reset_temp_files import reset_temp_files as reset
+from local_functions.main import log_funcs
+from local_functions.main import reset_vars
 
+# Analyse
+from local_functions.analysis import analyse
+from local_functions.analysis import common
+from local_functions.analysis import order_eval
+from local_functions.analysis import order_tools
+from local_functions.analysis import update_docs
+
+# Account Info
+from local_functions.account import account_info as account
+
+
+# Data Management
+from local_functions.data_management import gather_data as gather
+from local_functions.data_management import stock_screening as screen
+from local_functions.data_management import historical_funcs as hist
+
+
+# Trade Functions
 from local_functions.trade_funcs import sim_executions as sim_exe
 from local_functions.trade_funcs import trade_funcs
 
-from local_functions.live_graph import candles as candles
-from local_functions.td_api import api_chart
+# from local_functions.live_graph import candles as candles
+# from local_functions.td_api import api_chart
 
 from local_functions.plotting import plot_results as plotr
 
@@ -65,25 +59,29 @@ buy_lock = False
 
 
 # CSV Trading
-sim_df = 'nan'
-csv_indexes = {}
-minute_prices = []
-minute_volumes = []
-batch_frame = pd.DataFrame()
+sim_df = 'Dataframe'
+csv_indexes = 'dictionary'
+minute_prices = 'list'
+minute_volumes = 'list'
+batch_frame = 'Dataframe'
 
 # will be defined first by reset func, then updated.
-current_frame = pd.DataFrame()
-open_orders = pd.DataFrame()
-current_positions = pd.DataFrame()
-filled_orders = pd.DataFrame()
-mom_frame = pd.DataFrame()
-sup_res_frame = pd.DataFrame()
-log = pd.DataFrame()
+order_specs = 'Dataframe'
+queued_orders = 'Dataframe'
+open_orders = 'Dataframe'
+cancelled_orders = 'Dataframe'
+current_positions = 'Dataframe'
+filled_orders = 'Dataframe'
+current_frame = 'Dataframe'
+mom_frame = 'Dataframe'
+sup_res_frame = 'Dataframe'
+log = 'Dataframe'
 
-current = {}
-last = {}
-pl_ex = {}
-volas = {}
+current = 'dictionary'
+last = 'dictionary'
+pl_ex = 'dictionary'
+volas = 'dictionary'
+volumes = 'dictionary'
 
 
 def csv_to_dict(file_path):

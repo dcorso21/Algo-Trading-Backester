@@ -112,3 +112,27 @@ def run_timeit(orig_func):
         lines = lines[decorator:]
         return timeit.timeit(lines, number=1000000)
     return wrapper
+
+
+def log_sent_orders(orders, buy_or_sell):
+    '''
+    # Log Sent Orders
+    takes orders and order types and logs a message 
+
+    of the amount of shares and cash being bought/sold
+
+    ## Parameters:{
+
+    orders: df of new prospective orders,
+
+    buy_or_sell: order type - string 'buy' or 'sell'
+
+    }
+    '''
+    if len(orders) != 0:
+        order_cash = orders.cash.sum()
+        order_qty = orders.qty.sum()
+
+        message = f'Signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
+        gl.log_funcs.log(message)
+

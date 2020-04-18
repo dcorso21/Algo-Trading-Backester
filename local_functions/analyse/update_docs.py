@@ -1,7 +1,133 @@
 from local_functions.main import global_vars as gl
 
 
-import pandas as pd
+def update_files():
+    '''
+    ## Update Daily Analysis Files
+    Updates the `mom_frame`, `volas` and `sup_res_frame` global variables. 
+
+    ### Details.
+
+    `volas` (volatility dictionary) is updated every second. 
+
+    `volumes` (volumes dictionary) is updated every second. 
+
+    `mom_frame` (momentum analysis) and `sup_res_frame` (supports/resistances) are updated each minute
+
+    ##### Note: Order does not really matter here. 
+
+    '''
+
+    update_return_and_pl()
+    update_volas()
+    update_volumes()
+
+    if gl.current['second'] == 59:
+        update_momentum()
+        if len(gl.mom_frame) != 0:
+            # in the future, make a condition to only update if outside the current support resistance
+            update_supports_resistances()
+
+
+'''----- Current_Positions -----'''
+
+
+def update_return_and_pl():
+    '''
+    # Update Current Positions Return and PL
+    Updates the current positions return and PL columns, as well as the Unreal value in gl.pl_ex
+
+    Returns Nothing. 
+
+    ## Process:
+
+    #### Skip Clause
+    If there aren't any current_positions, skip function. 
+
+    ### 1) Calculate percentage return for each position in the 'p_return' column
+    ### 2) Calculate the unrealized profit/loss in the 'un_pl' column
+    ### 3) Update the current_position global variable to include these newly updated rows
+    ### 4) Update the current Unrealized PL from the sum of the 'un_pl' column. 
+
+    '''
+    current_positions = gl.current_positions
+
+    if len(current_positions) != 0:
+
+        ret = []
+        for x in current_positions.exe_price:
+            ret.append(round(((gl.current['close'] - x)/x)*100, 1))
+
+        current_positions['p_return'] = ret
+        current_positions['un_pl'] = current_positions.cash * \
+            current_positions.p_return*.01
+
+        gl.current_positions = current_positions
+        gl.common_ana.update_pl('skip', current_positions['un_pl'].sum())
+
+
+
+'''----- Volas & Volumes -----'''
+
+
+def update_volas():
+    '''
+    # Update Volatility Variable
+    Updates the global variable `volas`
+    '''
+
+    cf = gl.current_frame
+
+    # make volatility column
+    cf['vola'] = gl.common_ana.get_volatility(
+        cf['high'], cf['low'])
+
+    # calculate volatilities for different time increments
+    cf['three_vola'] = cf.vola.rolling(3).mean()
+    cf['five_vola'] = cf.vola.rolling(5).mean()
+    cf['ten_vola'] = cf.vola.rolling(10).mean()
+    volas = {
+        'current': cf['vola'].tolist()[-1],
+        'mean': cf.vola.mean(),
+        'three_min': cf['three_vola'].tolist()[-1],
+        'five_min': cf['five_vola'].tolist()[-1],
+        'ten_min': cf['ten_vola'].tolist()[-1]
+    }
+
+    # save json file
+    gl.volas = volas
+
+
+def update_volumes():
+
+    volumes = gl.volumes
+
+    current = gl.current
+    current_frame = gl.current_frame
+    last_row = current_frame.index.to_list[-1]
+    current_frame = current_frame.drop(last_row)
+
+    current_frame['dvol'] = current_frame['close']*current_frame['volume']
+
+    current_dvol = current['volume'] * current['close']
+
+    volumes['extrap_current'] = (current_dvol / current['second'])*60
+    volumes['mean'] = current_frame.dvol.mean()
+    volumes['minimum'] = current_frame.dvol.min()
+    if len(current_frame) >= 3:
+        volumes['three_min_min'] = current_frame.tail(3).dvol.min()
+        volumes['three_min_mean'] = current_frame.tail(3).dvol.mean()
+        if len(current_frame) >= 5:
+            volumes['five_min_mean'] = current_frame.tail(5).dvol.mean()
+            volumes['five_min_min'] = current_frame.tail(5).dvol.min()
+            if len(current_frame) >= 10:
+                volumes['ten_min_mean'] = current_frame.tail(10).dvol.mean()
+                volumes['ten_min_min'] = current_frame.tail(10).dvol.min()
+
+    gl.volumes = volumes
+
+
+'''----- Momentum -----'''
 
 
 def update_momentum():
@@ -357,3 +483,205 @@ def aggregate_df(agg_num, df):
             df, len(df)-left, len(df)), sort=False)
 
     return dfx
+
+
+'''----- Supports and Resistances -----'''
+
+
+def update_supports_resistances():
+
+    resistances = get_resistances()
+    supports = get_supports()
+
+    df = gl.mom_frame
+    cf = gl.current_frame
+
+    dfx = gl.pd.DataFrame()
+
+    resistances = refine_resistances(resistances, dfx, df, cf)
+
+    supports = refine_supports(supports, dfx, df, cf)
+
+    dfz = resistances.append(supports, sort=False)
+
+    gl.sup_res_frame = dfz
+
+
+def refine_resistances(resistances, dfx, df, cf):
+    for x in resistances:
+
+        row = df[df.high == x].head(1)
+        if row.trend.tolist()[0] == 'uptrend':
+            time = row.end_time.tolist()[0]
+        else:
+            time = row.start_time.tolist()[0]
+
+        index = cf[cf.time == time].index.tolist()[0]
+
+        remainder = cf.iloc[index:, :]
+        higher = remainder[remainder.high.astype(float) > float(x)]
+
+        if len(higher) != 0:
+
+            next_high_index = higher.index.tolist()[0]
+            duration = next_high_index - index
+
+            if duration > 8:
+                row = {'type': ['resistance'], 'start_time': [
+                    time], 'duration': [duration], 'price': [x]}
+                add = True
+            else:
+                add = False
+
+        else:
+            row = {'type': ['resistance'], 'start_time': [
+                time], 'duration': [len(remainder)], 'price': [x]}
+            add = True
+
+        if add == True:
+            row = gl.pd.DataFrame(row)
+            dfx = dfx.append(row, sort=False)
+
+    if len(dfx) != 0:
+        dfx = dfx.sort_values(by='start_time')
+    return dfx
+
+
+def refine_supports(supports, dfx, df, cf):
+    for x in supports:
+
+        row = df[df.low == x].head(1)
+        if row.trend.tolist()[0] == 'downtrend':
+            time = row.end_time.tolist()[0]
+        else:
+            time = row.start_time.tolist()[0]
+
+        index = cf[cf.time == time].index.tolist()[0]
+
+        remainder = cf.iloc[index-2:, :]
+        lower = remainder[remainder.low.astype(float) < float(x)]
+
+        if len(lower) != 0:
+
+            next_low_index = lower.index.tolist()[0]
+            duration = next_low_index - index
+
+            if duration > 8:
+
+                row = {'type': ['support'], 'start_time': [
+                    time], 'duration': [duration], 'price': [x]}
+                add = True
+            else:
+                add = False
+
+        else:
+            row = {'type': ['support'], 'start_time': [time],
+                   'duration': [len(remainder)], 'price': [x]}
+            add = True
+
+        if add == True:
+            row = gl.pd.DataFrame(row)
+            dfx = dfx.append(row, sort=False)
+
+    if len(dfx) != 0:
+        dfx = dfx.sort_values(by='start_time')
+    return dfx
+
+
+def get_resistances(cent_range=10):
+
+    df = gl.mom_frame
+
+    highs = df[df.high >= gl.current['close']].high.to_list()
+
+    highs = list(dict.fromkeys(highs))
+
+    resistances = set()
+
+    for high in highs:
+        added = False
+
+        if len(resistances) == 0:
+            resistances.add(high)
+
+        else:
+            for resistance in resistances:
+
+                added = eval_resistance(
+                    high, resistance, resistances, cent_range)
+
+                if added == True:
+                    break
+
+            if added == False:
+                resistances.add(high)
+
+    return list(resistances)
+
+
+def eval_resistance(high, resistance, resistance_set, cent_range):
+
+    cents = (cent_range*.01)/2
+
+    if (high > resistance - cents) and (high < resistance + cents):
+
+        added = True
+        if high > resistance:
+
+            resistance_set.discard(resistance)
+            resistance_set.add(high)
+
+    else:
+        added = False
+
+    return added
+
+
+def get_supports(cent_range=6):
+
+    # volas = pull_json('temp_assets/analysis/volas.json')
+
+    df = gl.mom_frame
+
+    lows = df[df.low <= gl.current['close']].low.to_list()
+
+    lows = list(dict.fromkeys(lows))
+
+    supports = set()
+
+    for low in lows:
+        added = False
+
+        if len(supports) == 0:
+            supports.add(low)
+
+        else:
+            for support in supports:
+
+                added = eval_support(low, support, supports, cent_range)
+
+                if added == True:
+                    break
+
+            if added == False:
+                supports.add(low)
+
+    return list(supports)
+
+
+def eval_support(low, support, support_set, cent_range):
+
+    cents = (cent_range*.01)/2
+
+    if (low > support - cents) and (low < support + cents):
+
+        added = True
+        if low < support:
+
+            support_set.discard(support)
+            support_set.add(low)
+
+    else:
+        added = False
+
+    return added

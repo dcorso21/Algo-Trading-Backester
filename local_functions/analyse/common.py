@@ -32,11 +32,6 @@ def red_green():
     return cf.r_g.tolist()  # returns list.
 
 
-# def open_to_price(current_frame, price):
-#     open_price = list(current_frame[current_frame.time == '09:31:00'].open)[0]
-#     return get_volatility([open_price], [price])
-
-
 def cash_to_shares(cash, price):
     '''
     ## Cash to Shares
