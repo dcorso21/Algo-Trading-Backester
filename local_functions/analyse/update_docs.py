@@ -85,6 +85,11 @@ def update_volas():
     cf['three_vola'] = cf.vola.rolling(3).mean()
     cf['five_vola'] = cf.vola.rolling(5).mean()
     cf['ten_vola'] = cf.vola.rolling(10).mean()
+
+    if len(cf) >= 5:
+        cf['differential'] = (cf.tail(5).vola.mean() -
+                              cf.head(5).vola.mean()) / cf.head(5).vola.mean()
+
     volas = {
         'current': cf['vola'].tolist()[-1],
         'mean': cf.vola.mean(),
@@ -118,6 +123,8 @@ def update_volumes():
         volumes['three_min_mean'] = current_frame.tail(3).dvol.mean()
         if len(current_frame) >= 5:
             volumes['five_min_mean'] = current_frame.tail(5).dvol.mean()
+            volumes['differential'] = (
+                volumes['five_min_mean'] - current_frame.head(5).mean()) / current_frame.head(5).mean()
             volumes['five_min_min'] = current_frame.tail(5).dvol.min()
             if len(current_frame) >= 10:
                 volumes['ten_min_mean'] = current_frame.tail(10).dvol.mean()

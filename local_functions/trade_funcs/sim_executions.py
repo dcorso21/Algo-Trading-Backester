@@ -29,14 +29,11 @@ def run_trade_sim(new_orders):
     '''
     open_orders = gl.open_orders
 
-    # 1) Cancel Orders
-    open_orders = check_cancel(open_orders)
-
     # 2) Add New Orders to Open
     if len(new_orders) != 0:
-        new_orders['price_check'] = -1
-        new_orders['vol_start'] = -1
-        new_orders['wait_duration'] = -1
+        new_orders['price_check'] = [-1] * len(new_orders)
+        new_orders['vol_start'] = [-1] * len(new_orders)
+        new_orders['wait_duration'] = [-1] * len(new_orders)
         open_orders = open_orders.append(new_orders, sort=False)
         # Re - Index
         open_orders = open_orders.reset_index(drop=True)
@@ -57,25 +54,19 @@ def run_trade_sim(new_orders):
         return filled_orders
 
     # 4) Check Volume Requirement
-    fill_indexes, open_orders = vol_check(potential_fills, open_orders)
-
-    if len(fill_indexes) == 0:
-        filled_orders = gl.pd.DataFrame()
-        gl.open_orders = open_orders
-        return filled_orders
+    filled_orders, open_orders = vol_check(potential_fills, open_orders)
 
     # 5) Return Filled Orders and Update Remaining Current_frame var.
     current = gl.current
-
-    filled_orders = open_orders.iloc[fill_indexes, :]
-    columns = ['ticker', 'send_time',
-               'buy_or_sell', 'cash', 'qty', 'exe_price']
-    filled_orders = filled_orders[columns]
-    filled_orders['exe_time'] = gl.pd.Series(gl.common.get_timestamp(
-        current['minute'], current['second']))
-    filled_orders = filled_orders.dropna()
-    open_orders = open_orders.drop(index=fill_indexes)
     gl.open_orders = open_orders
+
+    if len(filled_orders) != 0:
+        drop_columns = ['price_check', 'vol_start',
+                        'wait_duration', 'cancel_spec']
+        filled_orders = filled_orders.drop(drop_columns, axis=1).dropna()
+        exe_time = gl.common.get_timestamp(
+            current['minute'], current['second'])
+        filled_orders['exe_time'] = [exe_time] * len(filled_orders)
 
     gl.log_funcs.log(
         f'new_fills: {len(filled_orders)}, open: {len(open_orders)}')
@@ -111,8 +102,9 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
     # SET STARTING VOLUME
     for price_check, index in zip(open_orders.price_check, open_orders.index):
 
-        if price_check == 1:
-            open_orders.at[index, 'vol_start'] = current['volume']
+        if price_check == 0:
+            vminute, vstart = current['minute'], current['volume']
+            open_orders.at[index, 'vol_start'] = f'{vminute},{vstart}'
 
     # there is potential for these orders to be filled.
     potential_fills = open_orders[open_orders['price_check'] >= lag]
@@ -120,86 +112,45 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
     return open_orders, potential_fills
 
 
-def vol_check(potential_fills, open_orders):
-    fill_indexes = []
-    for index, vol_start, qty in zip(potential_fills.index, potential_fills.vol_start, potential_fills.qty):
+def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplier=1.2):
+    filled_orders = gl.pd.DataFrame()
+    for index, exe_price, vol_start, qty in zip(potential_fills.index,
+                                                potential_fills.exe_price,
+                                                potential_fills.vol_start,
+                                                potential_fills.qty):
 
         current = gl.current
         # if the volume has increased since last time, but is in the same minute
         # also, if the change is bigger than qty, then add the index for fill.
-        if (current['volume'] > vol_start) & ((current['volume'] - vol_start) > qty):
-            fill_indexes.append(index)
 
-        elif current['volume'] < vol_start:
+        vminute, vstart = vol_start.split(',')
 
-            if current['volume'] > qty:
-                fill_indexes.append(index)
-            else:
-                open_orders.at[index, 'vol_start'] = 0
-    return fill_indexes, open_orders
+        # Define the vol_passed variable
+        # (Amount traded since order has been open)
+        vol_passed = current['volume'] - vstart
+        if vminute != current['minute']:
+            # Add volume from previous minute if order has rolled over.
+            vol_passed = vol_passed + gl.current_frame.volume.to_list()[-2]
 
+        # Entire order gets filled.
+        if vol_passed >= qty*offset_multiplier:
+            filled_orders = filled_orders.append(
+                open_orders.iloc[index, :], sort=False)
+            open_orders.drop(index)
 
-def check_cancel(open_orders):
-    '''
-    # Check Cancellation Requirements
-    Each buy or sell order has a `cancel_spec` column, specifying when to cancel if necessary. 
+        # Partial order fill.
+        elif int(vol_passed / offset_multiplier) >= (min_chunk_cash / exe_price):
+            fill = open_orders.iloc[index, :]
+            fill_qty = int(vol_passed / offset_multiplier)
+            fill['qty'] = fill_qty
+            fill['order_id'] = open_orders.at[index, 'order_id'] + 'x'
+            filled_orders = filled_orders.append(fill, sort=False)
 
-    Returns updated `open_orders` frame without cancelled orders. 
+            # Redefine remainder of order
+            vstart = current['minute']
+            vminute = current['volume']
+            open_orders.at[index, 'vol_start'] = f'{vminute},{vstart}'
+            remainder = qty - fill_qty
+            open_orders.at[index, 'qty'] = remainder
 
-    ## Process: 
-
-    - #### Skip Clause:
-    If there are no open orders, then return without doing anything. 
-
-    ### 1) Reset the index so we can keep track of index values.
-
-    ### 2) Loop over each open order and check to see if the Cancel Conditions are met. 
-    - defines cancellation specifications. 
-    - checks time cancellation spec
-    - checks price cancellation spec
-
-    ### 3) If the row meets either condition, add it to a list of indexes. 
-
-    ### 4) Return `open_orders` without the indexes that meet cancellation requirements.  
-    '''
-    if len(open_orders) == 0:
-        return open_orders
-
-    # Update the wait time. This is CRUCIAL.
-    open_orders['wait_duration'] = open_orders.wait_duration + 1
-
-    # 1) Reset the index so we can keep track of index values.
-
-    open_orders = open_orders.reset_index(drop=True)
-    df = open_orders
-
-    drop_indexes = []
-    for cancel_spec, exe_price, duration, index in zip(df.cancel_spec,
-                                                       df.exe_price,
-                                                       df.wait_duration,
-                                                       df.index):
-        # Example cancel_spec : r'p:%1,t:5'
-        xptype = cancel_spec.split(',')[0].split(':')[1][0]
-        xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
-        xtime = int(cancel_spec.split(',')[1].split(':')[1])
-
-        # Time Out
-        if duration >= xtime:
-            gl.log_funcs.log('order cancelled (time out)')
-            drop_indexes.append(index)
-
-        # Price Drop
-        elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
-            gl.log_funcs.log('order cancelled (price drop)')
-            drop_indexes.append(index)
-
-        # Price Spike
-        elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
-            gl.log_funcs.log('order cancelled (price spike)')
-            drop_indexes.append(index)
-
-    if len(drop_indexes) != 0:
-        gl.cancelled_orders = gl.cancelled_orders.append(
-            open_orders.iloc[drop_indexes], sort=False)
-
-    return open_orders.drop(index=drop_indexes)
+    return filled_orders, open_orders

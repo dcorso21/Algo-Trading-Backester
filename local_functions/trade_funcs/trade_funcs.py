@@ -15,6 +15,7 @@ def exe_orders(orders):
     # Queue Orders
     orders = queue_order_center(orders)
 
+    check_cancel()
     # EXECUTIONS
     new_fills = execute_direct(orders)
 
@@ -142,7 +143,9 @@ def queue_order_center(orders):
                     drop_indexes.append(row)
 
             if qs[0:4] == 'fill':
-                order_id = int(qs.split(':')[1])
+                # 'x' here is a character passed on the last partition of any order.
+                # Because of partial fills, multiple filled orders may have the same name.
+                order_id = int(qs.split(':')[1])+'x'
                 if len(gl.filled_orders) != 0:
                     if qs in gl.filled_orders.order_id.tolist():
                         ready = ready.append(q_orders.iloc[row], sort=False)
@@ -159,3 +162,72 @@ def queue_order_center(orders):
     gl.queued_orders = q_orders
 
     return gl.order_tools.format_orders(ready)
+
+
+def check_cancel():
+    '''
+    # Check Cancellation Requirements
+    Each buy or sell order has a `cancel_spec` column, specifying when to cancel if necessary. 
+
+    Returns updated `open_orders` frame without cancelled orders. 
+
+    ## Process: 
+
+    - #### Skip Clause:
+    If there are no open orders, then return without doing anything. 
+
+    ### 1) Reset the index so we can keep track of index values.
+
+    ### 2) Loop over each open order and check to see if the Cancel Conditions are met. 
+    - defines cancellation specifications. 
+    - checks time cancellation spec
+    - checks price cancellation spec
+
+    ### 3) If the row meets either condition, add it to a list of indexes. 
+
+    ### 4) Return `open_orders` without the indexes that meet cancellation requirements.  
+    '''
+
+    open_orders = gl.open_orders
+
+    if len(open_orders) == 0:
+        return open_orders
+
+    # Update the wait time. This is CRUCIAL.
+    open_orders['wait_duration'] = open_orders.wait_duration + 1
+
+    # 1) Reset the index so we can keep track of index values.
+
+    open_orders = open_orders.reset_index(drop=True)
+    df = open_orders
+
+    drop_indexes = []
+    for cancel_spec, exe_price, duration, index in zip(df.cancel_spec,
+                                                       df.exe_price,
+                                                       df.wait_duration,
+                                                       df.index):
+        # Example cancel_spec : r'p:%1,t:5'
+        xptype = cancel_spec.split(',')[0].split(':')[1][0]
+        xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
+        xtime = int(cancel_spec.split(',')[1].split(':')[1])
+
+        # Time Out
+        if duration >= xtime:
+            gl.log_funcs.log('order cancelled (time out)')
+            drop_indexes.append(index)
+
+        # Price Drop
+        elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
+            gl.log_funcs.log('order cancelled (price drop)')
+            drop_indexes.append(index)
+
+        # Price Spike
+        elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
+            gl.log_funcs.log('order cancelled (price spike)')
+            drop_indexes.append(index)
+
+    if len(drop_indexes) != 0:
+        gl.cancelled_orders = gl.cancelled_orders.append(
+            open_orders.iloc[drop_indexes], sort=False)
+
+    gl.open_orders = open_orders.drop(index=drop_indexes)
