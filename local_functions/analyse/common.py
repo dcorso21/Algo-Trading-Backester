@@ -2,12 +2,14 @@ from local_functions.main import global_vars as gl
 
 
 def get_volatility(high_list, low_list):
+    # region Docstring
     '''
     ## Get Volatility
     Takes high and low lists and makes a list of volatilities based on the highs and lows. 
 
     returns list of volatilities. 
     '''
+    # endregion Docstring
 
     vola = []
     for high, low in zip(high_list, low_list):
@@ -16,12 +18,15 @@ def get_volatility(high_list, low_list):
 
 
 def red_green():
+    # region Docstring
     '''
     ## Red Green Analysis
     Makes a list with a value for each candle to represent if it was red or green.
 
     Returns red/green list.   
     '''
+    # endregion Docstring
+
     cf = gl.current_frame   # copy frame
     # create a new column for r/g values with doji as the default.
     cf['r_g'] = 'doji'
@@ -33,17 +38,21 @@ def red_green():
 
 
 def cash_to_shares(cash, price):
+    # region Docstring
     '''
-    ## Cash to Shares
+    # Cash to Shares
     Takes cash amount and execution price and calculates how many shares to buy. 
 
     returns share quantity. 
     '''
+    # endregion Docstring
+
     share_quantity = (int(cash/price))
     return share_quantity
 
 
 def get_timestamp(minute, second):
+    # region Docstring
     '''
     ## Get TimeStamp
     Takes a minute string and a second integer and creates a timestamp down to the second. 
@@ -58,6 +67,7 @@ def get_timestamp(minute, second):
 
     }
     '''
+    # endregion Docstring
 
     from datetime import datetime, timedelta
     time = datetime.strptime(minute, '%H:%M:%S')
@@ -66,16 +76,20 @@ def get_timestamp(minute, second):
 
 
 def get_average():
+    # region Docstring
     '''
-    ### Get Average
-    Returns the average price of Current Positions. 
+    ## Get Average
+    Returns the average price of `current_positions`. 
     '''
+    # endregion Docstring
+
     df = gl.current_positions
     avg = df.cash.sum() / df.qty.sum()
     return avg
 
 
 def get_max_vola(volas, min_vola):
+    # region Docstring
     '''
     ## Get Max Volatility
     Finds the min value in the global 'volasindictionary.   
@@ -98,6 +112,7 @@ def get_max_vola(volas, min_vola):
     }
 
     '''
+    # endregion Docstring
 
     volas_list = list(volas.values())
     # get rid of nan values to use max func...
@@ -110,6 +125,7 @@ def get_max_vola(volas, min_vola):
 
 
 def get_inverse_perc(percentage_drop):
+    # region Docstring
     '''
     ## Get Inverse Percentage
     Returns the value of 100 - percentage drop. 
@@ -124,6 +140,7 @@ def get_inverse_perc(percentage_drop):
 
     }
     '''
+    # endregion Docstring
 
     drop_percent = (100 - percentage_drop)*.01
 
@@ -131,6 +148,7 @@ def get_inverse_perc(percentage_drop):
 
 
 def update_pl(real='skip', unreal='skip'):
+    # region Docstring
     '''
     ## Update Profit/Loss
     Updates the value of Profit Loss in the global pl_ex dictionary. 
@@ -145,6 +163,7 @@ def update_pl(real='skip', unreal='skip'):
 
     }
     '''
+    # endregion Docstring
 
     pl_ex = gl.pl_ex
     log = False
@@ -174,11 +193,14 @@ def update_pl(real='skip', unreal='skip'):
 
 
 def update_ex():
+    # region Docstring
     '''
     ## Update Exposure
 
     Updates Exposure values in the global pl_ex dictionary. 
     '''
+    # endregion Docstring
+
     ex = gl.current_positions.cash.sum()
     pl_ex = gl.pl_ex
     pl_ex['last_ex'] = ex

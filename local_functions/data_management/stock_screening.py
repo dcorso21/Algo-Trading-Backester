@@ -15,6 +15,7 @@ def stock_selection():
 
 
 def get_prospective_stocks():
+    # region Docstring
     '''
     # Get Prospective Stocks
     Returns a list of stocks that are gapping up at least 5 percent. 
@@ -32,6 +33,7 @@ def get_prospective_stocks():
     ### 5) Return a list of tickers. 
 
     '''
+    # endregion Docstring
 
     from selenium import webdriver
     from selenium.webdriver.chrome.options import Options

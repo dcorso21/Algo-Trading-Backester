@@ -13,19 +13,16 @@ def live_refresh():
 
 
 def csv_refresh():
+    # region Docstring
     '''
     # CSV Refresh Data
-
     This is a master function for simulated (not real-time) trading. 
-    It iterates through each row of the `sim_df` function, 
+    It iterates through each row of the `sim_df` variable.
 
     Returns nothing, updates `current` and `current_frame` variables. 
 
-    ## Process:
-
-    - Note: this function has many different conditions that will alter the path of sequence.  
-
     '''
+    # endregion Docstring
 
     sim_df = gl.sim_df
     current = gl.current
@@ -88,6 +85,7 @@ def csv_refresh():
 
 
 def update_candle(price, volume, ticker, minute, second):
+    # region Docstring
     '''
     # Update Candle
     Updates the global variables: `current` and `current_frame`. 
@@ -95,18 +93,12 @@ def update_candle(price, volume, ticker, minute, second):
     Nothing Returned.  
 
     ## Parameters:{
-
-    - `price`: updated price,
-
-    - `volume`: updated volume,
-
-    - `ticker`: Ticker Symbol of stock,
-
-    - `minute`: Updated Minute,
-
-    - `second`: Updated Second  
-
-    ## } 
+    ####    `price`: updated price,
+    ####    `volume`: updated volume,
+    ####    `ticker`: Ticker Symbol of stock,
+    ####    `minute`: Updated Minute,
+    ####    `second`: Updated Second
+    ## }
 
     ## Process:
     ### Start Clause:
@@ -119,7 +111,10 @@ def update_candle(price, volume, ticker, minute, second):
 
     ### 2) Re-Save global variable `current`
     ### 3) Update global variable `current_frame` with the `add_new_minute()` function. 
+
     '''
+    # endregion Docstring
+
     # Start Clause:
     if second == 0:
         o, h, l, c = price, price, price, price
@@ -155,12 +150,21 @@ def update_candle(price, volume, ticker, minute, second):
 
 
 def add_new_minute(current):
+    # region Docstring
     '''
     # Add New Minute
+
     Retreive `sim_df` up to (but not including) current minute.
     Then, append the `current` variable as the most recent minute 
-    and re-save the variable `current_frame`   
+    and re-save the variable `current_frame` 
+
+    ## Parameters:{
+    ####    `current`: dictionary to be appended as new minute.  
+    ## }
+
     '''
+    # endregion Docstring
+
     new_minute = {'time': [current['minute']],
                   'ticker': [current['ticker']],
                   'open': [current['open']],
@@ -179,12 +183,15 @@ def add_new_minute(current):
 
 
 def clone_current_frame():
+    # region Docstring
     '''
     ## Clone Current Frame
     At the end of each minute, simply pull the `sim_df` variable and copy the needed rows. 
 
     The cloned `sim_df` is then saved as the `current_frame` variable. 
     '''
+    # endregion Docstring
+
     df = gl.sim_df
     ind = df[df.time == gl.current['minute']].index.tolist()[0]
     gl.current_frame = df[:ind+1]

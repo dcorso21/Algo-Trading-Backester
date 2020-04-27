@@ -1,7 +1,7 @@
 from local_functions.main import global_vars as gl
 
 
-def run_trade_sim(new_orders):
+def sim_execute_orders(new_orders, cancel_ids):
     '''
     # Run Trade Simulation
 
@@ -27,7 +27,13 @@ def run_trade_sim(new_orders):
     ### 5) Return Filled Orders and Updates Remaining Current_frame var. 
 
     '''
+
+    cancelled_orders = sim_cancel_orders(cancel_ids)
+
     open_orders = gl.open_orders
+
+    # Update the wait time. This is CRUCIAL.
+    open_orders['wait_duration'] = open_orders.wait_duration + 1
 
     # 2) Add New Orders to Open
     if len(new_orders) != 0:
@@ -71,7 +77,7 @@ def run_trade_sim(new_orders):
     gl.log_funcs.log(
         f'new_fills: {len(filled_orders)}, open: {len(open_orders)}')
 
-    return filled_orders
+    return filled_orders, cancelled_orders
 
 
 def sim_progress_open_orders(open_orders, lag, price_offset):
@@ -154,3 +160,39 @@ def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplie
             open_orders.at[index, 'qty'] = remainder
 
     return filled_orders, open_orders
+
+
+def sim_cancel_orders(new_cancel_ids, wait_time=1):
+    open_cancels = gl.open_cancels
+    open_orders = gl.open_orders
+
+    cancelled = []
+    # update wait times
+    for order in open_cancels.keys():
+        open_cancels[order] += 1
+        if open_cancels[order] == wait_time:
+            cancelled.append(order)
+
+    # add new cancellations
+    if len(new_cancel_ids) != 0:
+        for order_id in new_cancel_ids:
+            open_cancels[order_id] = 0
+
+    cancelled_orders = open_orders[open_orders.order_id in cancelled]
+
+    if len(cancelled) != 0:
+        for order_id in cancelled:
+            # If the order is in the df
+            if order_id in open_orders.order_id:
+                # then drop the order from the frame.
+                open_orders = open_orders[open_orders.order_id != order_id]
+                gl.log_funcs.log(
+                    msg=f'Order no. {order_id} successfully cancelled')
+            else:
+                gl.log_funcs.log(
+                    msg=f'Unable to cancel order no. {order_id} because it already filled.')
+
+    gl.open_cancels = open_cancels
+    gl.open_orders = open_orders
+
+    return cancelled_orders

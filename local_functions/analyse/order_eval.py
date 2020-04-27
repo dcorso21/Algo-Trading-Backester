@@ -2,8 +2,11 @@ from local_functions.main import global_vars as gl
 
 
 def build_orders():
+    # region Docstring
     '''
     # Build Orders
+
+    Returns Dataframe of orders. 
 
     Analyses positions and decides whether or not to buy or sell. 
 
@@ -20,6 +23,8 @@ def build_orders():
     ### 3) Get Buy Orders
 
     '''
+    # endregion Docstring
+
     # 1) Checks auto-refresh cancelled orders.
     refreshed = check_auto_refresh()
     if len(refreshed) != 0:
@@ -45,6 +50,7 @@ def build_orders():
 
 
 def sell_eval():
+    # region Docstring
     '''
     # Sell Evaluation
     Evaluates whether or not it would be a good time to sell, based on a number of SELL CONDIIONS.
@@ -60,16 +66,13 @@ def sell_eval():
     If a condition is met, it will return a DataFrame with a sell order, and the loop will be broken. 
     return ---> Sells DataFrame
     '''
+    # endregion Docstring
+
     # If nothing to sell, return blank df
     if len(gl.current_positions) == 0:
         return gl.pd.DataFrame()
 
-    sell_conds = [
-        'eleven_oclock_exit',
-        'percentage_gain',
-        'target_unreal',
-        'exposure_over_account_limit',
-    ]
+    sell_conds = gl.controls.sell_conditions
 
     for condition in sell_conds:
         sells = sell_conditions(condition)
@@ -80,20 +83,39 @@ def sell_eval():
 
 
 def sell_conditions(condition):
-    # 3 % gain... sell all
+    # region Docstring
+    '''
+    # Sell Conditions
+    Master Function that holds all Selling condition functions for trading. 
+
+    ## Parameters:{
+    ####    `condition`: string that names the name of the sell conditions function to be accessed ## } ## Process: ### 1) 
+    ## Notes:
+    -  All Parameters for sell conditions are controlled in `local_functions.main.controls`
+
+    ## TO DO:
+    - Item
+    '''
+    # endregion Docstring
+
     def percentage_gain():
+        # region Docstring
         '''
-        ## Percentage Gain
-        ### Sell Condition
-        If the current price is a certain percentage over the average, then sell EVERYTHING. 
+        # Percentage_Gain
+        A Sell Condition function that will create a sell order based on a percentage gain of `current_positions` overall.  
 
-        Returns a Sells DataFrame
+        Returns a DataFrame of Sell Orders. 
 
-        #### Note: 
-        If the condition is not met, this returns a blank DF. 
+        ## Notes:
+        - Notes
+
+        ## TO DO:
+        - Item
         '''
+        # endregion Docstring
         avg = gl.common.get_average()
-        if gl.current['close'] > (avg * 1.03):
+        perc = gl.controls.percentage_gain_params['perc_gain']
+        if gl.current['close'] > (avg * 1 * .01 * perc):
             # sell all
             everything = gl.current_positions.qty.sum()
             exe_price = 'bid'
@@ -104,19 +126,23 @@ def sell_conditions(condition):
         return sells
 
     def target_unreal():
+        # region Docstring
         '''
-        ## Target Unreal
-        ### Sell Condition
-        If the amount in unreal is above a specified target, sell EVERYTHING. 
+        # Target_Unreal
+        ### Sell Condition 
+        Looks at current unreal PL and if it gets over a certain amount, creates sell order(s). 
 
-        Returns a Sells DataFrame
+        Returns DataFrame of Sell Orders. 
 
-        #### Note: 
-        If the condition is not met, this returns a blank DF. 
+        ## Parameters:{
+        ####    All Parametes are controlled in `local_functions.main.controls`
+        ## }
+
         '''
-        target_int = 200
+        # endregion Docstring
+        target_unreal_amount = gl.controls.target_unreal_params['target_unreal']
         unreal = gl.pl_ex['unreal']
-        if unreal > target_int:
+        if unreal >= target_unreal_amount:
             # sell all
             qty = gl.current_positions.qty.sum()
             exe_price = 'bid'
@@ -128,16 +154,20 @@ def sell_conditions(condition):
         return gl.pd.DataFrame()
 
     def exposure_over_account_limit():
+        # region Docstring
         '''
-        ## Exposure over Account Limit
-        ### Sell Condition
-        If the amount owned in shares is more than I can afford, immediately sell HALF. 
+        # exposure_over_account_limit
+        ### Sell Condition 
+        Looks at current exposure and if it gets over the account limit, creates sell order(s). 
 
-        Returns a Sells DataFrame
+        Returns DataFrame of Sell Orders. 
 
-        #### Note: 
-        If the condition is not met, this returns a blank DF. 
+        ## Parameters:{
+        ####    All Parametes are controlled in `local_functions.main.controls`
+        ## }
+
         '''
+        # endregion Docstring
         available_capital = gl.account.get_available_capital()
         exposure = gl.pl_ex['last_ex']
         if exposure > available_capital:
@@ -151,18 +181,27 @@ def sell_conditions(condition):
             sells = gl.pd.DataFrame()
         return sells
 
-    def eleven_oclock_exit():
+    def timed_exit():
+        # region Docstring
         '''
-        ## Eleven O'Clock Exit
+        ## Timed Exit
         ### Sell Condition
         If the current minute is 11:00:00, then sell EVERYTHING. 
 
         Returns a Sells DataFrame
 
-        #### Note: 
-        If the condition is not met, this returns a blank DF. 
+        ## Parameters:{
+        ####    All Parametes are controlled in `local_functions.main.controls`
+        ## }
         '''
-        if (gl.current['minute'] == '11:00:00') or (gl.sell_out == True):
+        # endregion Docstring
+        exit_time = gl.controls.timed_exit_params['time']
+        exit_time = gl.pd.to_datetime(exit_time).timestamp()
+
+        current_time = gl.current['minute']
+        current_time = gl.pd.to_datetime(current_time).timestamp()
+
+        if (current_time >= exit_time) or (gl.sell_out == True):
             qty = gl.current_positions.qty.sum()
             pmethod = 'extrapolate'
             sells = gl.order_tools.create_orders('SELL', qty, pmethod)
@@ -179,7 +218,7 @@ def sell_conditions(condition):
         'percentage_gain': percentage_gain,
         'target_unreal': target_unreal,
         'exposure_over_account_limit': exposure_over_account_limit,
-        'eleven_oclock_exit': eleven_oclock_exit,
+        'timed_exit': timed_exit,
 
     }
 
@@ -187,6 +226,7 @@ def sell_conditions(condition):
 
 
 def buy_eval():
+    # region Docstring
     '''
     # Buy Evaluation
     Evaluation conditions for buying stock. 
@@ -203,6 +243,7 @@ def buy_eval():
     ### 2. Go through each Buy Condition to see if the time is right to sell (this second)
     Order is important as the first function to yield an order will break the loop and return the DF. 
     '''
+    # endregion Docstring
 
     # Skip Clause:
     # DONT RUN THE CODE IF THESE CONDITIONS ARE MET.
@@ -221,10 +262,7 @@ def buy_eval():
     if len(gl.current_positions) == 0:
         return buy_conditions('starting_position')
 
-    buy_conds = [
-        'aggresive_average',
-        'drop_below_average',
-    ]
+    buy_conds = gl.controls.buy_conditions
 
     # 2. Go through each Buy Condition to see if the time is right to sell (this second)
     # Order is important as the first function to yield an order will break the loop and return the DF.
@@ -237,14 +275,45 @@ def buy_eval():
 
 
 def buy_conditions(condition):
+    # region Docstring
+    '''
+    # Buy Conditions
+    Master function that holds all Buy Conditions 
+
+    Returns DataFrame of Buy Orders or blank DF if condition is not met. 
+
+    ## Parameters:{
+    ####    `condition`: string that names the name of the buy conditions function to be accessed 
+    ## }
+
+
+    ## Process:
+
+    ### 1) uses dictionary to compare string condition to function name of condition. 
+
+    ## Notes:
+    -  All Parameters for sell conditions are controlled in `local_functions.main.controls`
+
+
+    ## TO DO:
+    - Item
+    '''
+    # endregion Docstring
 
     def starting_position():
+        # region Docstring
         '''
-        ## Starting Position
-        Creates buy order with one percent of available capital at current price. 
+        # Starting Position
+        Creates buy order with one percent of available capital.  
 
-        Returns buys DataFrame. 
+        Returns buys DataFrame.
+
+        ## Parameters:{
+        ####    All Parametes are controlled in `local_functions.main.controls`
+        ## }
+
         '''
+        # endregion Docstring
         if gl.chart_response == True:
             cash = gl.account.get_available_capital() * .01
             pmeth = 'ask'
@@ -254,16 +323,24 @@ def buy_conditions(condition):
         return gl.pd.DataFrame()
 
     def drop_below_average():
+        # region Docstring
         '''
-        ## Drop Below Average
+        # Drop Below Average
         ### Buy Condition
         Checks to see if the current price is a certain amount below the average price of your current positions. 
 
         Returns buys DataFrame
 
-        ### Details:
-        The drop amount is taken from the volas module with the function: `get_max_vola()`
+
+        ## Parameters:{
+        ####    All Parametes are controlled in `local_functions.main.controls`
+        ## }
+
+        ## Notes:
+        - The drop amount is taken from the volas module with the function: `get_max_vola()`
         '''
+        # endregion Docstring
+
         if gl.buy_clock > 0:
             return gl.pd.DataFrame()
 
@@ -291,6 +368,20 @@ def buy_conditions(condition):
         return gl.pd.DataFrame()
 
     def aggresive_average():
+        # region Docstring
+        '''
+        # Aggresive Average
+        ### Buy Condition
+        Checks to see if the current price is a certain amount below the average price of your current positions. 
+
+        Returns buys DataFrame
+
+        ## Parameters:{
+        ####    All Parametes are controlled in `local_functions.main.controls`
+        ## }
+
+        '''
+        # endregion Docstring
         current = gl.current
         vola = gl.common.get_max_vola(gl.volas, .02)/4
         avg = gl.common.get_average()
@@ -302,12 +393,11 @@ def buy_conditions(condition):
             if cash > current['close']:
                 pmeth = 'bid'
                 buys = gl.order_tools.create_orders('BUY', cash, pmeth)
-                gl.log_funcs.log('---> Aggressive Avg Follow.')
+                gl.log_funcs.log('---> Follow Aggressive Avg.')
                 return buys
         return gl.pd.DataFrame()
 
     conditions = {
-
         'starting_position': starting_position,
         'drop_below_average': drop_below_average,
         'aggresive_average': aggresive_average,
@@ -317,17 +407,64 @@ def buy_conditions(condition):
 
 
 def check_auto_refresh():
+    # region Docstring
+    '''
+    # check_auto_refresh
+    Checks to see if there are cancelled orders that can be autorefreshed.  
+
+    ## Process:
+
+    ### 1) Retrieves cancelled order ids. 
+    - These orders will be dropped from the cancelled_orders frame to 
+    avoid repetition. 
+    ### 2) Retrieves cash or qty values based on order type. 
+    ### 3) Decrease auto-renew value by one for new orders.  
+    ### 4) Return Renewed Orders 
+
+    ## Notes:
+    - Notes
+
+    ## TO DO:
+    - Item
+    '''
+    # endregion Docstring
     cancelled = gl.cancelled_orders
-    if len(cancelled) != 0:
-        to_refresh = cancelled[cancelled['auto_refresh']
-                               != False].order_id.to_list()
-        refreshed = gl.order_specs.iloc[to_refresh]
-        return refreshed
-    else:
+    if len(cancelled) == 0:
         return []
+
+    # 1) Retrieves cancelled order ids.
+    need_renew = cancelled[cancelled['auto_refresh'] > 0]
+    refresh_ids = need_renew.order_id.to_list()
+
+    gl.cancelled_orders = cancelled[cancelled.order_id not in refresh_ids]
+
+    if len(refresh_ids) == 0:
+        return []
+
+    need_renew = need_renew.reset_index(drop=True)
+    need_renew = need_renew.sort_values(by='order_id')
+
+    # 2) Retrieves cash or qty values based on order type.
+    cash_or_qty = []
+    for index in range(len(need_renew)):
+        if need_renew.at[index, 'buy_or_sell'] == 'BUY':
+            cash_or_qty.append(need_renew.at[index, 'cash'])
+        else:
+            cash_or_qty.append(need_renew.at[index, 'qty'])
+
+    refresh_df = gl.order_specs[gl.order_specs.order_id in refresh_ids]
+    refresh_df = refresh_df.sort_values(by='order_id')
+
+    # 3) Decrease auto-renew value by one for new orders.
+    refresh_df['auto_renew'] = refresh_df['auto_renew'] - 1
+    refresh_df['cash_or_qty'] = cash_or_qty
+
+    # 4) Return Renewed Orders
+    return refresh_df
 
 
 def bad_trade_conds():
+    # region Docstring
     '''
     # Check for Bad Trade Conditions
     Checks to see if certain conditions are met  
@@ -339,6 +476,8 @@ def bad_trade_conds():
 
     ### 2) if there are NO Current Positions AND the chart response is Bad (False) ---> return True 
     '''
+    # endregion Docstring
+
     if len(gl.open_orders) != 0:
         return True
 
@@ -346,26 +485,3 @@ def bad_trade_conds():
         return True
 
     return False
-
-
-def log_sent_orders(orders, buy_or_sell):
-    '''
-    # Log Sent Orders
-    takes orders and order types and logs a message 
-
-    of the amount of shares and cash being bought/sold
-
-    ## Parameters:{
-
-    orders: df of new prospective orders,
-
-    buy_or_sell: order type - string 'buy' or 'sell'
-
-    }
-    '''
-    if len(orders) != 0:
-        order_cash = orders.cash.sum()
-        order_qty = orders.qty.sum()
-
-        message = f'Signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
-        gl.log_funcs.log(message)

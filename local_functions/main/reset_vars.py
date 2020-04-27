@@ -98,6 +98,7 @@ def reset_variables(mode, csv_file):
     gl.volas = volas
     # volumes
     volumes = {
+        'safe_capital_limit': 'nan',
         'differential': 'nan',
         'mean': 'nan',
         'minimum': 'nan',

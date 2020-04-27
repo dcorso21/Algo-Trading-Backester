@@ -1,4 +1,5 @@
-# Modules
+# region Modules
+
 import pyqtgraph as pg
 from pyqtgraph import QtCore, QtGui
 
@@ -17,6 +18,7 @@ import requests
 from local_functions.main import algo
 from local_functions.main import log_funcs
 from local_functions.main import reset_vars
+from local_functions.main import controls
 
 # Analyse
 from local_functions.analyse import analyse
@@ -42,11 +44,13 @@ from local_functions.trade_funcs import trade_funcs
 
 from local_functions.plotting import plot_results as plotr
 
+# endregion imports
+
 # Stock info.
 stock_pick = 'nan'
 trade_mode = 'nan'
 
-
+# used for order ids.
 order_count = 0
 pos_update = False
 loop_feedback = True
@@ -63,7 +67,7 @@ minute_prices = 'list'
 minute_volumes = 'list'
 batch_frame = 'Dataframe'
 
-# will be defined first by reset func, then updated.
+# region Frames
 order_specs = 'Dataframe'
 queued_orders = 'Dataframe'
 open_orders = 'Dataframe'
@@ -74,12 +78,15 @@ current_frame = 'Dataframe'
 mom_frame = 'Dataframe'
 sup_res_frame = 'Dataframe'
 log = 'Dataframe'
+# endregion Frames
 
 current = 'dictionary'
 last = 'dictionary'
 pl_ex = 'dictionary'
 volas = 'dictionary'
 volumes = 'dictionary'
+
+open_cancels = {}
 
 
 def csv_to_dict(file_path):

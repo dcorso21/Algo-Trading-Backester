@@ -2,6 +2,7 @@ from local_functions.main import global_vars as gl
 
 
 def analyse():
+    # region Docstring
     '''
     # Core Function: Analyse
 
@@ -19,6 +20,7 @@ def analyse():
 
     ### 2) Build Orders 
     '''
+    # endregion Docstring
 
     # Skip Clause ---
     # If feedback is false, dont run the function, return the blank df...
@@ -27,9 +29,12 @@ def analyse():
             gl.loop_feedback = False
             return gl.pd.DataFrame()
 
-    # 1) Analyse Daily Chart - Only when there has been a price update...
+    # 1) Analyse Daily Chart - Only when there has been an update...
     if gl.current['close'] != gl.last['close']:
-        ana_day()
+        gl.update_docs.update_files()
+        # only necessary to evaluate if there are no current positions.
+        if len(gl.current_positions) == 0:
+            day_pricing_eval()
 
     # 2) Build Orders
     orders = gl.order_eval.build_orders()
@@ -40,69 +45,81 @@ def analyse():
 '''----- Day Analysis -----'''
 
 
-def ana_day():
+def day_pricing_eval():
+    # region Docstring
     '''
-    # Analyse Day Chart
-    Updates files and looks for patterns in the daily chart. 
+    # Day Pricing Evaluation
+    Decides if it is a good time to place a starting position. 
 
-    Updates Global chart_response boolean. 
+    Updates the global variable `chart_response`
 
     ## Process:
 
-    ### 1) Runs update_files function
-    Updates momentum, supports, resistances and volatility analysis. 
+    ### 1) References `day_pricing_analysis_methods` function,
+    this function contains all of the different methods for checking if its a good time to buy. 
 
-    ### 2) Evaluates current price info with the pricing_eval function. 
+    ## Notes:
+    - At the moment, it has two methods, based on the amount of time into market. 
 
-    ### 3) Evaluates current volume info with the volume_eval function. 
-
-    ### 4) Based on these assessments, set the global variable chart_response as True or False. 
-
+    ## TO DO:
+    - Item
     '''
-    # 1) Runs update_files function
-    gl.update_docs.update_files()
-
-    # 2) Evaluates current price info with the pricing_eval function.
-    p_eval = day_pricing_eval()
-
-    # 3) Evaluates current volume info with the volume_eval function.
-    if len(gl.current_frame) >= 5:
-        v_eval = day_volume_eval()
-
-    # 4) Based on these assessments, set the global variable chart_response as True or False.
-    if p_eval:  # and v_eval:
-        gl.chart_response = True
-
-    else:
-        gl.chart_response = False
-
-
-def day_pricing_eval():
+    # endregion Docstring
 
     pmeths = day_pricing_analysis_methods
 
+    # if first 5 minutes check this function.
     if len(gl.current_frame) < 5:
-        return pmeths('closer_to_low_than_open')
+        response = pmeths('closer_to_low_than_open')
+    else:
+        response = False
+        if pmeths('volatile_downtrend') and pmeths('bottom_of_candle'):
+            response = True
 
-    elif pmeths('volatile_downtrend') and pmeths('bottom_of_candle'):
-        return True
-
-    return False
-
-
-def day_volume_eval():
-    vmeth = day_volume_analysis_methods
-    return vmeth('volume_min_check')
+    gl.chart_response = response
 
 
 def day_pricing_analysis_methods(method):
+    # region Docstring
+    '''
+    # Day Pricing Analysis Methods
+    Master Function for accessing any of the pricing methods.  
+
+    Returns True/False from function named. 
+
+    ## Parameters:{
+    ####    `method`: string of name of function to call.  
+    ## }
+
+    ## Process:
+
+    ### 1) String references the function from a dictionary, 
+    ### then calls it and returns a bool. 
+
+    ## Notes:
+    - Notes
+
+    ## TO DO:
+    - Item
+    '''
+    # endregion Docstring
     def closer_to_low_than_open():
+        # region Docstring
+        '''
+        # Closer to Low than Open
+        Compares open price to current price and checks two conditions:
+        - it is less than open
+        - it is closer to the low than the open.  
+
+        Returns Bool
+        '''
+        # endregion Docstring
         df = gl.current_frame
         day_open = df.open.to_list()[0]
         low = df.low.min()
         c_price = df.close.to_list()[-1]
 
-        # If the price is less than current price...
+        # If the price is less than open...
         if c_price < day_open:
             # If the price is closer to the low than the high price.
             if (day_open - c_price) > (c_price - low):
@@ -112,6 +129,18 @@ def day_pricing_analysis_methods(method):
         return False
 
     def volatile_downtrend():
+        # region Docstring
+        '''
+        # Volatile Downtrend
+        Checks to see there is currently a volatile downtrend happening. 
+        This is based on the `mom_frame` variable.
+
+        Return Bool
+
+        ## TO DO:
+        - relate volatility with flexibility. 
+        '''
+        # endregion Docstring
         mom_frame = gl.mom_frame
         if len(mom_frame) == 0:
             return False
@@ -124,14 +153,19 @@ def day_pricing_analysis_methods(method):
         return False
 
     def bottom_of_candle():
+        # region Docstring
         '''
         # Bottom of Candle
+        True if price is closer to the low of the candle than the high. 
+
         Returns a True/False
 
-        True if price is closer to the low of the candle than the high. 
+        Note:
+        - if less than 30 seconds in to candle, aggregate last candle with current. 
         '''
-        current = gl.current
+        # endregion Docstring
 
+        current = gl.current
         # If its more than
         if current['second'] >= 30:
             # If the distance from the price to the high is greater than the distance from the price to the low.
@@ -153,39 +187,6 @@ def day_pricing_analysis_methods(method):
         'closer_to_low_than_open': closer_to_low_than_open,
         'volatile_downtrend': volatile_downtrend,
         'bottom_of_candle': bottom_of_candle,
-    }
-
-    return methods[method]()
-
-
-def day_volume_analysis_methods(method):
-
-    def volume_min_check():
-        mins_back = 5
-        minimum_volume = 100000
-        current_frame = gl.current_frame
-
-        if len(current_frame) < mins_back:
-            mins_back = len(current_frame)
-
-        df = current_frame.tail(mins_back)
-
-        # drop current row...
-        if len(df) != 0:
-            df = df.head(mins_back-1)
-
-        vols = df.volume.values
-        closes = df.close.values
-
-        dvol = list(float(close)*float(vol)
-                    for close, vol in zip(closes, vols))
-
-        if sorted(dvol)[0] > minimum_volume:
-            return True
-        return False
-
-    methods = {
-        'volume_min_check': volume_min_check,
     }
 
     return methods[method]()

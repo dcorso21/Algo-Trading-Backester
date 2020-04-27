@@ -15,22 +15,27 @@ def exe_orders(orders):
     # Queue Orders
     orders = queue_order_center(orders)
 
-    check_cancel()
+    cancel_ids = check_cancel()
+
     # EXECUTIONS
-    new_fills = execute_direct(orders)
+    new_fills, cancelled_orders = execute_direct(orders, cancel_ids)
 
     if len(new_fills) != 0:
         reset_buy_clock(new_fills)
         update_filled_orders(new_fills)
         update_current_positions(new_fills)
 
+    if len(cancelled_orders) != 0:
+        gl.cancelled_orders = gl.cancelled_orders.append(
+            cancelled_orders, sort=False)
 
-def execute_direct(orders):
+
+def execute_direct(orders, cancel_ids):
     '''
     # Redirect for executing orders.  
     '''
     if gl.trade_mode == 'csv':
-        return gl.sim_exe.run_trade_sim(orders)
+        return gl.sim_exe.sim_execute_orders(orders, cancel_ids)
     else:
         return live_executions(orders)
 
@@ -117,7 +122,7 @@ def update_current_positions(new_fills):
 
 def reset_buy_clock(new_fills):
     if len(new_fills[new_fills['buy_or_sell'] == 'BUY']) != 0:
-        gl.buy_clock = 25
+        gl.buy_clock = 10
 
 
 def queue_order_center(orders):
@@ -193,9 +198,6 @@ def check_cancel():
     if len(open_orders) == 0:
         return open_orders
 
-    # Update the wait time. This is CRUCIAL.
-    open_orders['wait_duration'] = open_orders.wait_duration + 1
-
     # 1) Reset the index so we can keep track of index values.
 
     open_orders = open_orders.reset_index(drop=True)
@@ -213,21 +215,22 @@ def check_cancel():
 
         # Time Out
         if duration >= xtime:
-            gl.log_funcs.log('order cancelled (time out)')
+            gl.log_funcs.log('cancellation sent (time out)')
             drop_indexes.append(index)
 
         # Price Drop
         elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
-            gl.log_funcs.log('order cancelled (price drop)')
+            gl.log_funcs.log('cancellation sent (price drop)')
             drop_indexes.append(index)
 
         # Price Spike
         elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
-            gl.log_funcs.log('order cancelled (price spike)')
+            gl.log_funcs.log('cancellation sent (price spike)')
             drop_indexes.append(index)
 
     if len(drop_indexes) != 0:
         gl.cancelled_orders = gl.cancelled_orders.append(
             open_orders.iloc[drop_indexes], sort=False)
 
-    gl.open_orders = open_orders.drop(index=drop_indexes)
+    # return list of order ids for cancellation.
+    return open_orders.drop(index=drop_indexes).order_id.to_list()

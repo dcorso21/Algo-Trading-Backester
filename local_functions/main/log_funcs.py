@@ -2,13 +2,27 @@ from local_functions.main import global_vars as gl
 from functools import wraps
 
 
-
 def log(msg=''):
+    # region Docstring
     '''
     # Log
     Custom logger to csv. 
-    Automatically makes rows for minute, second, file, function, line and `core` of the algorithm. 
+    Automatically makes rows for minute, second, file, function, and line of the algorithm. 
+
+    Returns Nothing. 
+
+    ## Parameters:{
+    ####    `msg`: message to be logged. 
+    ## }
+
+    ## Notes:
+    - Log is saved as a global variable DF until the end of test, 
+    then is converted to a csv with the other frames. 
+
+    ## TO DO:
+    - Item
     '''
+    # endregion Docstring
     current = gl.current
     file_name = gl.sys._getframe(1).f_code.co_filename
     file_name = file_name.split('\\')[-1]
@@ -30,6 +44,35 @@ def log(msg=''):
                       'core', 'file', 'function', 'line']
 
     gl.log = df
+
+
+def log_sent_orders(orders, buy_or_sell):
+    # region Docstring
+    '''
+    # Log Sent Orders
+    takes orders and order types and logs a message 
+
+    of the amount of shares and cash being bought/sold
+
+    ## Parameters:{
+
+    orders: df of new prospective orders,
+
+    buy_or_sell: order type - string 'buy' or 'sell'
+
+    }
+    '''
+    # endregion Docstring
+
+    if len(orders) != 0:
+        order_cash = orders.cash.sum()
+        order_qty = orders.qty.sum()
+
+        message = f'Signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
+        gl.log_funcs.log(message)
+
+
+# region UNUSED
 
 
 def append_efficiency_row(function, run_time):
@@ -78,25 +121,4 @@ def run_timeit(orig_func):
         return timeit.timeit(lines, number=1000000)
     return wrapper
 
-
-def log_sent_orders(orders, buy_or_sell):
-    '''
-    # Log Sent Orders
-    takes orders and order types and logs a message 
-
-    of the amount of shares and cash being bought/sold
-
-    ## Parameters:{
-
-    orders: df of new prospective orders,
-
-    buy_or_sell: order type - string 'buy' or 'sell'
-
-    }
-    '''
-    if len(orders) != 0:
-        order_cash = orders.cash.sum()
-        order_qty = orders.qty.sum()
-
-        message = f'Signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
-        gl.log_funcs.log(message)
+# endregion UNUSED
