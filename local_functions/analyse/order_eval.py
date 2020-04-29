@@ -77,7 +77,7 @@ def sell_eval():
     for condition in sell_conds:
         sells = sell_conditions(condition)
         if len(sells) != 0:
-            gl.log_funcs.log_sent_orders(sells, 'sell')
+            gl.log_funcs.log_sent_orders(sells, 'SELL')
             break
         return sells
 
@@ -269,7 +269,7 @@ def buy_eval():
     for condition in buy_conds:
         buys = buy_conditions(condition)
         if len(buys) != 0:
-            gl.log_funcs.log_sent_orders(buys, 'buy')
+            gl.log_funcs.log_sent_orders(buys, 'BUY')
             break
     return buys
 
@@ -417,6 +417,7 @@ def check_auto_refresh():
     ### 1) Retrieves cancelled order ids. 
     - These orders will be dropped from the cancelled_orders frame to 
     avoid repetition. 
+
     ### 2) Retrieves cash or qty values based on order type. 
     ### 3) Decrease auto-renew value by one for new orders.  
     ### 4) Return Renewed Orders 
@@ -433,18 +434,18 @@ def check_auto_refresh():
         return []
 
     # 1) Retrieves cancelled order ids.
-    need_renew = cancelled[cancelled['auto_refresh'] > 0]
+    need_renew = cancelled[cancelled['auto_renew'] > 0]
     refresh_ids = need_renew.order_id.to_list()
-
-    gl.cancelled_orders = cancelled[cancelled.order_id not in refresh_ids]
 
     if len(refresh_ids) == 0:
         return []
 
+    # ~ is used to negate statement. So cancelled orders are orders that are NOT being refreshed
+    gl.cancelled_orders = cancelled[~cancelled.order_id.isin(refresh_ids)]
+
     need_renew = need_renew.reset_index(drop=True)
     need_renew = need_renew.sort_values(by='order_id')
 
-    # 2) Retrieves cash or qty values based on order type.
     cash_or_qty = []
     for index in range(len(need_renew)):
         if need_renew.at[index, 'buy_or_sell'] == 'BUY':
@@ -452,11 +453,20 @@ def check_auto_refresh():
         else:
             cash_or_qty.append(need_renew.at[index, 'qty'])
 
-    refresh_df = gl.order_specs[gl.order_specs.order_id in refresh_ids]
+    o_specs = gl.order_specs
+    refresh_df = gl.pd.DataFrame()
+    for order_id in need_renew.order_id:
+        row = o_specs[o_specs.order_id == order_id].head(1)
+        refresh_df = refresh_df.append(row, sort=False)
+
+    # refresh_df = gl.order_specs[gl.order_specs.order_id.isin(refresh_ids)]
+    refresh_df = refresh_df.reset_index(drop=True)
     refresh_df = refresh_df.sort_values(by='order_id')
 
+    # 2) Retrieves cash or qty values based on order type.
+
     # 3) Decrease auto-renew value by one for new orders.
-    refresh_df['auto_renew'] = refresh_df['auto_renew'] - 1
+    refresh_df['auto_renew'] = need_renew['auto_renew'] - 1
     refresh_df['cash_or_qty'] = cash_or_qty
 
     # 4) Return Renewed Orders

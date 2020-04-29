@@ -147,7 +147,7 @@ def update_volas():
         'mean': cf.vola.mean(),
         'three_min': cf['three_vola'].tolist()[-1],
         'five_min': cf['five_vola'].tolist()[-1],
-        'ten_min': cf['ten_vola'].tolist()[-1]
+        'ten_min': cf['ten_vola'].tolist()[-1],
     }
 
     if len(cf) > 5:
@@ -790,7 +790,7 @@ def get_resistances(cent_range=5):
 
         # if it is higher than the nearby one, replace old one.
         if high > nearby_resistance[0]:
-            resistances.discard(nearby_resistance)
+            resistances.discard(nearby_resistance[0])
             resistances.add(high)
 
     # 3) return list
@@ -854,7 +854,7 @@ def get_supports(cent_range=3):
 
         # if it is lower than the nearby one, replace old one.
         if low > nearby_support[0]:
-            supports.discard(nearby_support)
+            supports.discard(nearby_support[0])
             supports.add(low)
 
     # 3) return list

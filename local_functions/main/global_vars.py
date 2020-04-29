@@ -12,6 +12,7 @@ import os
 import shutil
 import sys
 import requests
+from functools import wraps
 
 
 # Main Folder
@@ -89,6 +90,17 @@ volumes = 'dictionary'
 open_cancels = {}
 
 
+# region Controls/Configurations
+
+sell_conditions = []
+buy_conditions = []
+
+
+# endregion Controls/Configurations
+
+
+
+
 def csv_to_dict(file_path):
     df = pd.read_csv(file_path)
     df = df.set_index('type')
@@ -104,7 +116,7 @@ def save_dict_to_csv(dictionary, file_name):
 
 
 def save_frame(dataframe, file_name):
-    dataframe.to_csv(filepath[file_name])
+    dataframe.to_csv(f'temp_assets\\{file_name}.csv')
 
 
 filepath = {
@@ -147,13 +159,21 @@ def save_all():
 
         'current': current,
         'pl_ex': pl_ex,
+        'volas': volas,
+        'volumes': volumes,
+
         'current_frame': current_frame,
         'mom_frame': mom_frame,
         'sup_res_frame': sup_res_frame,
-        'volas': volas,
+
+
+        'order_specs': order_specs,
+        'queued_orders': queued_orders,
+        'cancelled_orders': cancelled_orders,
+        'open_orders': open_orders,
         'current_positions': current_positions,
         'filled_orders': filled_orders,
-        'open_orders': open_orders,
+
         'log': log,
 
     }
@@ -167,3 +187,75 @@ def save_all():
 
     if len(filled_orders) != 0:
         plotr.plot_results(current_frame, filled_orders)
+
+
+def save_on_error(orig_func):
+    # region Docstring
+    '''
+    # Save on Error
+    ## Decorator Function
+    Saves all global variables to the temp assets folder whenever there is an error
+
+    Also prints out the traceback. 
+
+    '''
+    # endregion Docstring
+    @ wraps(orig_func)
+    def wrapper(*args, **kwargs):
+        import traceback
+        try:
+            orig_func(*args, **kwargs)
+        except:
+            trace = traceback.format_exc()
+            print('\n\nError Occurred\n')
+            save_all()
+            print('global variables saved to temp_assets.\n')
+            # print(trace)
+            with open('temp_assets\\trace.txt', 'x') as file:
+                file.writelines(trace)
+                # trace = file.readlines()
+                file.close()
+
+            trace = trace.split('\n')
+            simple_traceback(trace)
+    return wrapper
+
+
+def simple_traceback(trace):
+    l = trace
+    del l[0]
+    error = l[-2]
+    del l[-1]
+    del l[-1]
+
+    paths = []
+    lns = []
+    funcs = []
+    codes = []
+    for line in l:
+        line = line.strip()
+        if line.startswith('File'):
+            path, ln, func = line.split(',')
+            path = path.split('local_functions\\')[1]
+            ln = ln.split('line ')[1]
+            func = func.split('in ')[1].split('\n')[0]
+            paths.append(path)
+            lns.append(ln)
+            funcs.append(func)
+        else:
+            codes.append(line)
+
+    frame = {
+        'file': paths,
+        'line': lns,
+        'code': codes,
+        'function': funcs,
+    }
+    print(error)
+    df = pd.DataFrame(frame)
+    pd.set_option('display.max_colwidth', -1)
+    df = df.sort_index(ascending=False)
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        display(df)
+
+

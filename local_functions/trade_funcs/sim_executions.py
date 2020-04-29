@@ -2,6 +2,7 @@ from local_functions.main import global_vars as gl
 
 
 def sim_execute_orders(new_orders, cancel_ids):
+    # region Docstring
     '''
     # Run Trade Simulation
 
@@ -27,26 +28,30 @@ def sim_execute_orders(new_orders, cancel_ids):
     ### 5) Return Filled Orders and Updates Remaining Current_frame var. 
 
     '''
+    # endregion Docstring
 
     cancelled_orders = sim_cancel_orders(cancel_ids)
 
     open_orders = gl.open_orders
 
-    # Update the wait time. This is CRUCIAL.
-    open_orders['wait_duration'] = open_orders.wait_duration + 1
-
     # 2) Add New Orders to Open
     if len(new_orders) != 0:
+        current = gl.current
         new_orders['price_check'] = [-1] * len(new_orders)
-        new_orders['vol_start'] = [-1] * len(new_orders)
         new_orders['wait_duration'] = [-1] * len(new_orders)
+        vminute, vstart = current['minute'], current['volume']
+        new_orders['vol_start'] = [f'{vminute},{vstart}'] * len(new_orders)
+
         open_orders = open_orders.append(new_orders, sort=False)
         # Re - Index
         open_orders = open_orders.reset_index(drop=True)
 
     if len(open_orders) == 0:
         gl.open_orders = open_orders
-        return gl.pd.DataFrame()
+        return gl.pd.DataFrame(), cancelled_orders
+
+    # Update the wait time. This is CRUCIAL.
+    open_orders['wait_duration'] = open_orders.wait_duration + 1
 
     # 3) Check Price Requirement
     open_orders, potential_fills = sim_progress_open_orders(
@@ -57,7 +62,7 @@ def sim_execute_orders(new_orders, cancel_ids):
     if len(potential_fills) == 0:
         filled_orders = gl.pd.DataFrame()
         gl.open_orders = open_orders
-        return filled_orders
+        return filled_orders, cancelled_orders
 
     # 4) Check Volume Requirement
     filled_orders, open_orders = vol_check(potential_fills, open_orders)
@@ -105,7 +110,7 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
             if open_orders.at[index, 'price_check'] != 0:
                 open_orders.at[index, 'price_check'] = 0
 
-    # SET STARTING VOLUME
+    # RESET STARTING VOLUME
     for price_check, index in zip(open_orders.price_check, open_orders.index):
 
         if price_check == 0:
@@ -133,15 +138,17 @@ def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplie
 
         # Define the vol_passed variable
         # (Amount traded since order has been open)
-        vol_passed = current['volume'] - vstart
+        vol_passed = current['volume'] - float(vstart)
         if vminute != current['minute']:
             # Add volume from previous minute if order has rolled over.
             vol_passed = vol_passed + gl.current_frame.volume.to_list()[-2]
 
         # Entire order gets filled.
         if vol_passed >= qty*offset_multiplier:
-            filled_orders = filled_orders.append(
-                open_orders.iloc[index, :], sort=False)
+            fill = open_orders.iloc[index]
+            fill['order_id'] = str(open_orders.at[index, 'order_id'])+'x'
+
+            filled_orders = filled_orders.append(fill, sort=False)
             open_orders.drop(index)
 
         # Partial order fill.
@@ -149,12 +156,11 @@ def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplie
             fill = open_orders.iloc[index, :]
             fill_qty = int(vol_passed / offset_multiplier)
             fill['qty'] = fill_qty
-            fill['order_id'] = open_orders.at[index, 'order_id'] + 'x'
             filled_orders = filled_orders.append(fill, sort=False)
 
             # Redefine remainder of order
-            vstart = current['minute']
-            vminute = current['volume']
+            vminute = current['minute']
+            vstart = current['volume']
             open_orders.at[index, 'vol_start'] = f'{vminute},{vstart}'
             remainder = qty - fill_qty
             open_orders.at[index, 'qty'] = remainder
@@ -164,33 +170,44 @@ def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplie
 
 def sim_cancel_orders(new_cancel_ids, wait_time=1):
     open_cancels = gl.open_cancels
+
+    if len(new_cancel_ids) == 0 and len(open_cancels) == 0:
+        return gl.pd.DataFrame()
+
     open_orders = gl.open_orders
 
-    cancelled = []
-    # update wait times
+    # If there are no open orders, log any orders that were awaiting cancellation.
+    if len(open_orders) == 0:
+        if len(open_cancels.keys()) != 0:
+            gl.log_funcs.log(
+                msg=f'orders filled before cancellation: {open_cancels.keys()}')
+            gl.open_cancels = {}
+            return gl.pd.DataFrame()
+
+    cancelled_ids = []
+    expired = []
+    # update wait times and make list of cancels that reached wait_time.
     for order in open_cancels.keys():
-        open_cancels[order] += 1
-        if open_cancels[order] == wait_time:
-            cancelled.append(order)
+        if order not in open_orders.order_id:
+            gl.log_funcs.log(
+                msg=f'order filled before cancellation: {order}')
+            expired.append(order)
 
-    # add new cancellations
-    if len(new_cancel_ids) != 0:
-        for order_id in new_cancel_ids:
-            open_cancels[order_id] = 0
+        elif order in open_orders.order_id:
+            open_cancels[order] = open_cancels[order] + 1
+            if open_cancels[order] == wait_time:
+                cancelled_ids.append(order)
+                expired.append(order)
 
-    cancelled_orders = open_orders[open_orders.order_id in cancelled]
+    for x in expired:
+        del open_cancels[x]
 
-    if len(cancelled) != 0:
-        for order_id in cancelled:
-            # If the order is in the df
-            if order_id in open_orders.order_id:
-                # then drop the order from the frame.
-                open_orders = open_orders[open_orders.order_id != order_id]
-                gl.log_funcs.log(
-                    msg=f'Order no. {order_id} successfully cancelled')
-            else:
-                gl.log_funcs.log(
-                    msg=f'Unable to cancel order no. {order_id} because it already filled.')
+    # add new ids to open_cancels dictionary
+    for order_id in new_cancel_ids:
+        open_cancels[order_id] = 0
+
+    cancelled_orders = open_orders[open_orders.order_id.isin(cancelled_ids)]
+    open_orders = open_orders[~ open_orders.order_id.isin(cancelled_ids)]
 
     gl.open_cancels = open_cancels
     gl.open_orders = open_orders

@@ -3,6 +3,7 @@ from local_functions.main import algo
 import time
 
 
+@ gl.save_on_error
 def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
     # region Docstring
     '''
@@ -59,7 +60,7 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
     print(f'number of stocks: {len(csv_list)}\n')
 
     # 3) Estimate amount of time to take to execute batch.
-    calc_batch_time(len(csv_list), reps, stop_at)
+    calc_batch_time(len(csv_list), reps)
 
     path = get_batch_path()
     batch_frame = gl.pd.DataFrame()

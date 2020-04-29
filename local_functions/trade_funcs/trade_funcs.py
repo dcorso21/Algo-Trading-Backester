@@ -129,16 +129,17 @@ def queue_order_center(orders):
 
     q_orders = gl.queued_orders
 
-    ready = gl.pd.DataFrame()
-    if len(orders) != 0:
-        ready = orders[orders['queue_spec'] == None]
-
     if len(q_orders) != 0:
         q_orders = q_orders.reset_index(drop=True)
 
         drop_indexes = []
         for row in q_orders.index:
             qs = q_orders.at[row, 'queue_spec']
+
+            # Redundant check.
+            # if qs == None:
+            #     drop_indexes.append(row)
+            #     continue
 
             if qs[0:4] == 'time':
                 qs = int(qs.split(':')[1]) - 1
@@ -147,12 +148,12 @@ def queue_order_center(orders):
                     ready = ready.append(q_orders.iloc[row], sort=False)
                     drop_indexes.append(row)
 
-            if qs[0:4] == 'fill':
+            elif qs[0:4] == 'fill':
                 # 'x' here is a character passed on the last partition of any order.
                 # Because of partial fills, multiple filled orders may have the same name.
-                order_id = int(qs.split(':')[1])+'x'
+                order_id = str(qs.split(':')[1])+'x'
                 if len(gl.filled_orders) != 0:
-                    if qs in gl.filled_orders.order_id.tolist():
+                    if order_id in gl.filled_orders.order_id.tolist():
                         ready = ready.append(q_orders.iloc[row], sort=False)
                         drop_indexes.append(row)
 
@@ -160,11 +161,15 @@ def queue_order_center(orders):
 
     for_q = gl.pd.DataFrame()
     if len(orders) != 0:
-        for_q = orders[orders['queue_spec'] != None]
+        for_q = orders[orders['queue_spec'] != 'nan']
         if len(for_q) != 0:
             q_orders = q_orders.append(for_q, sort=False)
 
     gl.queued_orders = q_orders
+
+    ready = gl.pd.DataFrame()
+    if len(orders) != 0:
+        ready = orders[orders['queue_spec'] == 'nan']
 
     return gl.order_tools.format_orders(ready)
 

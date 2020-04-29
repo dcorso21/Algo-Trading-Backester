@@ -6,7 +6,7 @@ import time
 def test_trade(mode='csv', csv_file='first'):
 
     start_time = time.time()
-    gl.reset_vars.reset_variables(mode=mode, csv_file=csv_file)
+    gl.controls.master_configure(mode=mode, csv_file=csv_file)
 
     gl.screen.pick_stock_direct(mode)
     if gl.stock_pick == 'nan':

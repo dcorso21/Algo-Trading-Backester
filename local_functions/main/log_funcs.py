@@ -40,8 +40,8 @@ def log(msg=''):
     df = gl.log.append(df, sort=False)
 
     if len(df) == 1:
-        df.columns = ['minute', 'second', 'message',
-                      'core', 'file', 'function', 'line']
+        df.columns = ['minute', 'second',
+                      'message', 'file', 'function', 'line']
 
     gl.log = df
 
@@ -65,10 +65,16 @@ def log_sent_orders(orders, buy_or_sell):
     # endregion Docstring
 
     if len(orders) != 0:
-        order_cash = orders.cash.sum()
-        order_qty = orders.qty.sum()
+        cash_or_qty = orders.cash_or_qty.sum()
 
-        message = f'Signal to {buy_or_sell} {order_qty} shares (cash: {order_cash})'
+        if buy_or_sell == 'BUY':
+            cash = cash_or_qty
+            qty = '~aprox {}'.format(cash / gl.current['close'])
+        else:
+            qty = cash_or_qty
+            cash = '~aprox {}'.format(qty * gl.current['close'])
+
+        message = f'Signal to {buy_or_sell} {qty} shares (cash: {cash})'
         gl.log_funcs.log(message)
 
 
@@ -120,5 +126,11 @@ def run_timeit(orig_func):
         lines = lines[decorator:]
         return timeit.timeit(lines, number=1000000)
     return wrapper
+
+
+
+
+
+
 
 # endregion UNUSED

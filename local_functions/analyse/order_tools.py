@@ -20,7 +20,7 @@ renew_spec = {
 
 def create_orders(buy_or_sell, cash_or_qty, price_method,
                   auto_renew=renew_spec['standard'], cancel_spec=cancel_specs['standard'],
-                  queue_spec=None, parse=False):
+                  queue_spec='nan', parse=False):
     # region Docstring
     '''
     # Create Orders
@@ -50,7 +50,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
     # endregion Docstring
     # Parse Clause:
     if parse == False:
-        return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, None)
+        return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec)
 
     # 1) Define chunk size in cash and make convert to shares if order is a sell.
     chunk = 5000
@@ -60,11 +60,11 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
 
     # If the chunk is greater than the order, don't bother parsing.
     if cash_or_qty <= chunk:
-        return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, None)
+        return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec)
     else:
         # Create first order
         first_order = fill_out_order(
-            buy_or_sell, chunk, price_method, auto_renew, cancel_spec, None)
+            buy_or_sell, chunk, price_method, auto_renew, cancel_spec, queue_spec)
 
         # Divs is number of orders not including a remainder.
         divs = (cash_or_qty // chunk)-1
@@ -99,7 +99,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
                 return orders
 
 
-def fill_out_order(buy_or_sell, cash, price_method, auto_renew, cancel_spec, queue_spec):
+def fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec):
     '''
     ## Fill Out Order
     Convert order specifications into a one-row dataframe. 
@@ -110,7 +110,7 @@ def fill_out_order(buy_or_sell, cash, price_method, auto_renew, cancel_spec, que
     order = {
         'order_id': [order_id],
         'buy_or_sell': [buy_or_sell],
-        'cash': [cash],
+        'cash_or_qty': [cash_or_qty],
         'price_method': [price_method],
         'auto_renew': [auto_renew],
         'cancel_spec': [cancel_spec],
@@ -237,4 +237,3 @@ def position_sizer():
 
     if safe_cap < avail_cap:
         safe_left = safe_cap - exposure
-
