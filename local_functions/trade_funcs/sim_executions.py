@@ -43,7 +43,6 @@ def sim_execute_orders(new_orders, cancel_ids):
         new_orders['vol_start'] = [f'{vminute},{vstart}'] * len(new_orders)
 
         open_orders = open_orders.append(new_orders, sort=False)
-        # Re - Index
         open_orders = open_orders.reset_index(drop=True)
 
     if len(open_orders) == 0:
@@ -106,16 +105,16 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
         elif buyorsell == 'SELL' and (current['close'] >= (price + price_offset)):
             open_orders.at[index, 'price_check'] += 1
 
+        # Reset to 0
         else:
-            if open_orders.at[index, 'price_check'] != 0:
-                open_orders.at[index, 'price_check'] = 0
+            open_orders.at[index, 'price_check'] = 0
 
     # RESET STARTING VOLUME
-    for price_check, index in zip(open_orders.price_check, open_orders.index):
+    vminute, vstart = current['minute'], current['volume']
 
-        if price_check == 0:
-            vminute, vstart = current['minute'], current['volume']
-            open_orders.at[index, 'vol_start'] = f'{vminute},{vstart}'
+    open_orders.loc[(open_orders['price_check'].values == 0),
+                    'vol_start'] = f'{vminute},{vstart}'
+
 
     # there is potential for these orders to be filled.
     potential_fills = open_orders[open_orders['price_check'] >= lag]
@@ -125,6 +124,8 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
 
 def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplier=1.2):
     filled_orders = gl.pd.DataFrame()
+
+    # for each potential fill. 
     for index, exe_price, vol_start, qty in zip(potential_fills.index,
                                                 potential_fills.exe_price,
                                                 potential_fills.vol_start,
@@ -172,6 +173,7 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
     open_cancels = gl.open_cancels
 
     if len(new_cancel_ids) == 0 and len(open_cancels) == 0:
+        gl.log_funcs.log('Nothing to Cancel.')
         return gl.pd.DataFrame()
 
     open_orders = gl.open_orders
@@ -180,7 +182,7 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
     if len(open_orders) == 0:
         if len(open_cancels.keys()) != 0:
             gl.log_funcs.log(
-                msg=f'orders filled before cancellation: {open_cancels.keys()}')
+                msg=f'orders filled before cancellation: {list(open_cancels.keys())}')
             gl.open_cancels = {}
             return gl.pd.DataFrame()
 

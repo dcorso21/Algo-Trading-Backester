@@ -36,6 +36,8 @@ def reset_variables(mode, csv_file):
     gl.queued_orders = gl.pd.DataFrame()
     gl.open_orders = gl.pd.DataFrame()
     gl.cancelled_orders = gl.pd.DataFrame()
+    gl.open_cancels = {}
+
     gl.current_positions = gl.pd.DataFrame()
     gl.filled_orders = gl.pd.DataFrame()
     gl.current_frame = gl.pd.DataFrame()

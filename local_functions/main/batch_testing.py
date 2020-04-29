@@ -159,10 +159,10 @@ def batch_loop(reps, file, path, batch_frame):
 
         # 2) Categorize traded results in subfolders of batch.
         if gl.pl_ex['unreal'] == 0:
-            subfolder = 'resolved\\'
+            subfolder = 'resolved'
         else:
-            subfolder = 'unresolved\\'
-        full_path = path + subfolder + f'{file_name}_{rep}'
+            subfolder = 'unresolved'
+        full_path = path / subfolder / f'{file_name}_{rep}'
         # 3) Save all temp_assets with `save_documentation` function.
         save_documentation(full_path)
 
@@ -219,7 +219,7 @@ def manage_batch_frame(batch_frame, path):
     # endregion Docstring
     batch_frame.set_index('tick_date')
     gl.batch_frame = batch_frame
-    batch_frame.to_csv(path + 'batch_overview.csv')
+    batch_frame.to_csv(path / 'batch_overview.csv')
     gl.plotr.plot_batch_overview(batch_frame, path)
     return batch_frame
 
@@ -241,9 +241,9 @@ def save_documentation(path):
     # endregion Docstring
     import shutil
 
-    directory = 'C:\\Users\\19374\\Documents\\Python\\Algorithmic Trading\\'
-    src = directory+('temp_assets')
-    dst = directory + path
+    directory = gl.directory
+    src = directory / 'temp_assets'
+    dst = path
     move = shutil.copytree(src, dst)
 
 
@@ -270,7 +270,8 @@ def get_batch_path():
     # 1) Get current day's date to file the batch under.
     timestamp = datetime.datetime.today()
     today = timestamp.strftime(r'%m-%d-%Y')
-    today_results = f'results\\{today}'
+    directory = gl.directory
+    today_results = directory / 'results' / today
 
     # 2) Number the batch based on number of previous batches in the current day's folder.
     batch_num = 1
@@ -283,7 +284,7 @@ def get_batch_path():
     time = timestamp.strftime(r'%I,%M_%p')
 
     # 4) Return Full Path.
-    path = today_results + f'\\batch_{batch_num}_{time}\\'
+    path = directory / 'results' / today / f'batch_{batch_num}_{time}'
     return path
 
 
@@ -302,7 +303,7 @@ def rename_folders(path):
     # endregion Docstring
     import glob
     for folder in ['resolved', 'unresolved']:
-        full_path = path + folder
+        full_path = path / folder
         if gl.os.path.exists(full_path):
-            num_of_folders = len(glob.glob(full_path + '\\*'))
-            gl.os.rename(full_path, path + f'{folder}_{num_of_folders}')
+            num_of_folders = len(glob.glob(full_path / '*'))
+            gl.os.rename(full_path, path / f'{folder}_{num_of_folders}')

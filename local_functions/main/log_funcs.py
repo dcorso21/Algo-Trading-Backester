@@ -69,10 +69,10 @@ def log_sent_orders(orders, buy_or_sell):
 
         if buy_or_sell == 'BUY':
             cash = cash_or_qty
-            qty = '~aprox {}'.format(cash / gl.current['close'])
+            qty = '~aprox {}'.format(int(cash / gl.current['close']))
         else:
             qty = cash_or_qty
-            cash = '~aprox {}'.format(qty * gl.current['close'])
+            cash = '~aprox {}'.format(round(qty * gl.current['close'], 2))
 
         message = f'Signal to {buy_or_sell} {qty} shares (cash: {cash})'
         gl.log_funcs.log(message)
@@ -126,11 +126,6 @@ def run_timeit(orig_func):
         lines = lines[decorator:]
         return timeit.timeit(lines, number=1000000)
     return wrapper
-
-
-
-
-
 
 
 # endregion UNUSED

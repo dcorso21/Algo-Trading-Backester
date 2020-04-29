@@ -13,6 +13,7 @@ import shutil
 import sys
 import requests
 from functools import wraps
+from pathlib import Path
 
 
 # Main Folder
@@ -46,6 +47,8 @@ from local_functions.trade_funcs import trade_funcs
 from local_functions.plotting import plot_results as plotr
 
 # endregion imports
+
+directory = Path(os.getcwd())
 
 # Stock info.
 stock_pick = 'nan'
@@ -97,7 +100,6 @@ buy_conditions = []
 
 
 # endregion Controls/Configurations
-
 
 
 
@@ -236,7 +238,7 @@ def simple_traceback(trace):
         line = line.strip()
         if line.startswith('File'):
             path, ln, func = line.split(',')
-            path = path.split('local_functions\\')[1]
+            path = path.split('local_functions')[1]
             ln = ln.split('line ')[1]
             func = func.split('in ')[1].split('\n')[0]
             paths.append(path)
@@ -257,5 +259,4 @@ def simple_traceback(trace):
     df = df.sort_index(ascending=False)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         display(df)
-
 

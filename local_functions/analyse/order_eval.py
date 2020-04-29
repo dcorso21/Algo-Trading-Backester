@@ -79,7 +79,7 @@ def sell_eval():
         if len(sells) != 0:
             gl.log_funcs.log_sent_orders(sells, 'SELL')
             break
-        return sells
+    return sells
 
 
 def sell_conditions(condition):
@@ -260,7 +260,9 @@ def buy_eval():
     # 1. Check to see if there are any current_positions.
     # If there aren't any current_positions, ---> return a starting position buy DF.
     if len(gl.current_positions) == 0:
-        return buy_conditions('starting_position')
+        buys = buy_conditions('starting_position')
+        gl.log_funcs.log_sent_orders(buys, 'BUY')
+        return buys
 
     buy_conds = gl.controls.buy_conditions
 
@@ -468,6 +470,9 @@ def check_auto_refresh():
     # 3) Decrease auto-renew value by one for new orders.
     refresh_df['auto_renew'] = need_renew['auto_renew'] - 1
     refresh_df['cash_or_qty'] = cash_or_qty
+
+    gl.log_funcs.log('refreshing order(s): {}'.format(
+        refresh_df.order_id.to_list()))
 
     # 4) Return Renewed Orders
     return refresh_df

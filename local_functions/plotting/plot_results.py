@@ -147,7 +147,7 @@ def plot_batch_overview(batch_frame, batch_path):
     )
 
     # fig.show()
-    fig.write_html(batch_path + "overview.html")
+    fig.write_html(str(batch_path / "overview.html"))
 
 
 def get_orders(filled_orders):
