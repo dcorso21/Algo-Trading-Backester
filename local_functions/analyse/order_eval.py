@@ -346,8 +346,14 @@ def buy_conditions(condition):
         if gl.buy_clock > 0:
             return gl.pd.DataFrame()
 
+        params = gl.controls.drop_below_average_params
+
         current = gl.current
-        max_vola = gl.common.get_max_vola(volas=gl.volas, min_vola=2.5)
+        # min_vola = params['min_vola']
+        # max_vola = params['max_vola']
+
+        max_vola = gl.volas['five_min'] / 2
+        # max_vola = gl.common.get_max_vola(volas=gl.volas, min_vola=2.5)
         drop_perc = gl.common.get_inverse_perc(max_vola)
         avg = gl.common.get_average()
 
@@ -428,7 +434,7 @@ def check_auto_refresh():
     # endregion Docstring
     cancelled = gl.cancelled_orders
     if len(cancelled) != 0:
-        cancelled = cancelled[cancelled.status != 'waiting']
+        cancelled = cancelled[cancelled.status == 'successfully cancelled']
 
     if len(cancelled) == 0:
         return []

@@ -19,7 +19,7 @@ renew_spec = {
 
 
 def create_orders(buy_or_sell, cash_or_qty, price_method,
-                  auto_renew=renew_spec['standard'], cancel_spec=cancel_specs['standard'],
+                  auto_renew=0, cancel_spec=cancel_specs['standard'],
                   queue_spec='nan', parse=False):
     # region Docstring
     '''

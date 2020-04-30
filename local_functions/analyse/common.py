@@ -88,40 +88,31 @@ def get_average():
     return avg
 
 
-def get_max_vola(volas, min_vola):
+def get_max_vola(volas, min_vola, max_vola):
     # region Docstring
     '''
-    ## Get Max Volatility
-    Finds the min value in the global 'volasindictionary.   
+    # Get Max Volatility
+    Takes dictionary of numbers and gives back highest value within range. 
 
-    Returns the max value. 
+    Returns volatility. 
 
-    ### Details:
-    1. Usually, this could be accomplished easily by calling max(volas), but because
-    this dictionary in the beginning is populated with 'nan' values, it has to filter those out. 
-
-    2. You can specify a minimum volatility with the min_vola argument. 
-    It will be added to the list, making it the minimum 'max' value. 
-
-    ### Properties:{
-
-    volas: volatility dictionary
-
-    min_vola: integer or float to create a minimum volatility to be returned. 
-
-    }
-
+    ## Parameters:{
+    ####    `volas`: dictionary of volatilities
+    ####    `min_vola`: minimum set volatility to accept
+    ####    `max`: max set volatility to accept
+    ## }
     '''
     # endregion Docstring
-
     volas_list = list(volas.values())
     # get rid of nan values to use max func...
     volas_cleaned = [x for x in volas_list if str(x) != 'nan']
     # volas_cleaned = list(map(int, volas_cleaned))
     volas_cleaned.append(min_vola)
-    max_vola = max(volas_cleaned)
+    vola = max(volas_cleaned)
+    if vola > max_vola:
+        vola = max_vola
 
-    return max_vola
+    return vola
 
 
 def get_inverse_perc(percentage_drop):

@@ -188,7 +188,7 @@ sell_conditions = []
 
 
 # region Default Params for Buy Conditions
-
+bc = order_eval.buy_conditions
 # region aggressive average
 # bc.aggresive_average
 aggresive_average = False
@@ -199,7 +199,10 @@ aggresive_average_params = {}
 # region drop below average
 # bc.drop_below_average
 drop_below_average = True
-drop_below_average_params = {}
+drop_below_average_params = {
+    'min_vola': 2.5,
+    'max_vola': 5
+}
 
 # endregion drop below average
 

@@ -18,16 +18,18 @@ def exe_orders(orders):
     cancel_ids = check_cancel()
 
     # EXECUTIONS
-    new_fills, cancelled_orders = execute_direct(orders, cancel_ids)
+    new_fills, new_cancels = execute_direct(orders, cancel_ids)
+
+    gl.log_funcs.log_filled_and_open(new_fills)
 
     if len(new_fills) != 0:
         reset_buy_clock(new_fills)
         update_filled_orders(new_fills)
         update_current_positions(new_fills)
 
-    if len(cancelled_orders) != 0:
+    if len(new_cancels) != 0:
         gl.cancelled_orders = gl.cancelled_orders.append(
-            cancelled_orders, sort=False)
+            new_cancels, sort=False)
 
 
 def execute_direct(orders, cancel_ids):
@@ -201,9 +203,8 @@ def check_cancel():
 
     if len(cancelled_orders) != 0:
         cancelled_orders = cancelled_orders.reset_index(drop=True)
-        success = cancelled_orders[cancelled_orders.status ==
-                                   'successfully cancelled']
         waiting = cancelled_orders[cancelled_orders['status'] == 'waiting']
+        success = cancelled_orders[~cancelled_orders.index.isin(waiting.index)]
 
         for order_id, index in zip(waiting.order_id, waiting.index):
             if order_id in success.order_id:
@@ -212,9 +213,9 @@ def check_cancel():
                 cancelled_orders.at[index, 'status'] = 'filled before cancel'
 
         # need to define again
-        s_can_ids = success.order_id.to_list()
+        still_waiting = cancelled_orders[cancelled_orders['status'] == 'waiting']
     else:
-        s_can_ids = []
+        still_waiting = []
 
     open_orders = gl.open_orders
 
@@ -234,7 +235,7 @@ def check_cancel():
                                                                  df.index):
         # Example cancel_spec : r'p:%1,t:5'
 
-        if order_id not in s_can_ids:
+        if order_id in still_waiting:
             continue
 
         xptype = cancel_spec.split(',')[0].split(':')[1][0]

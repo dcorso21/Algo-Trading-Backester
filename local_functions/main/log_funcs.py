@@ -78,6 +78,20 @@ def log_sent_orders(orders, buy_or_sell):
         gl.log_funcs.log(message)
 
 
+def log_filled_and_open(new_fills):
+    nfids, oids = [], []
+    nf, oo = False, False
+    if len(new_fills) != 0:
+        nfids = new_fills.order_id.tolist()
+        nf = True
+    if len(gl.open_orders) != 0:
+        oids = gl.open_orders.order_id.tolist()
+        oo = True
+
+    if oo or nf:
+        gl.log_funcs.log(f'new_fill_ids: {nfids}, still open: {oids}')
+
+
 # region UNUSED
 
 

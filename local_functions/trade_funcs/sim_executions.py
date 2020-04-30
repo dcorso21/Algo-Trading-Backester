@@ -78,9 +78,6 @@ def sim_execute_orders(new_orders, cancel_ids):
             current['minute'], current['second'])
         filled_orders['exe_time'] = [exe_time] * len(filled_orders)
 
-    gl.log_funcs.log(
-        f'new_fills: {len(filled_orders)}, open: {len(open_orders)}')
-
     return filled_orders, cancelled_orders
 
 
@@ -176,7 +173,8 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
     open_cancels = gl.open_cancels
 
     if len(new_cancel_ids) == 0 and len(open_cancels) == 0:
-        return gl.pd.DataFrame()
+        return []
+        # return gl.pd.DataFrame()
 
     open_orders = gl.open_orders
 
@@ -186,7 +184,7 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
             gl.log_funcs.log(
                 msg=f'orders filled before cancellation: {list(open_cancels.keys())}')
             gl.open_cancels = {}
-            return gl.pd.DataFrame()
+            return []
 
     cancelled_ids = []
     expired = []
@@ -196,17 +194,14 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
             open_cancels[order] = open_cancels[order] + 1
             if open_cancels[order] == wait_time:
                 cancelled_ids.append(order)
-                expired.append(order)
-        else:
 
-            t_order = type(order)
-            t_o_orders = type(open_orders.order_id.to_list()[0])
+        else:
+            open_ids = open_orders.order_id.to_list()
             gl.log_funcs.log(
-                msg=f'id filled before cancellation: {t_order}, open_orders : {t_o_orders}')
+                msg=f'id filled before cancellation: {order}, open ids: {open_ids}')
             expired.append(order)
 
-        # elif order in open_orders.order_id:
-
+    # Cancel Expired ids
     for x in expired:
         del open_cancels[x]
 
@@ -214,10 +209,15 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
     for order_id in new_cancel_ids:
         open_cancels[order_id] = 0
 
-    cancelled_orders = open_orders[open_orders.order_id.isin(cancelled_ids)]
-    cancelled_orders['status'] = [
-        'successfully cancelled'] * len(cancelled_orders)
-    open_orders = open_orders[~ open_orders.order_id.isin(cancelled_ids)]
+    cancelled_orders = []
+    if len(cancelled_ids) != 0:
+        cancelled_orders = open_orders[open_orders.order_id.isin(
+            cancelled_ids)]
+        cancelled_orders['status'] = [
+            'successfully cancelled'] * len(cancelled_orders)
+        open_orders = open_orders[~ open_orders.order_id.isin(cancelled_ids)]
+
+        gl.log_funcs.log('successfully cancelled: {cancelled_ids}')
 
     gl.open_cancels = open_cancels
     gl.open_orders = open_orders
