@@ -23,6 +23,7 @@ def test_trade(mode='csv', csv_file='first'):
 
     gl.save_all()
     print('\ndone')
+    print('\nP\L: ${:.2f}'.format(gl.pl_ex['real']))
 
     duration = time.time() - start_time
     print(f'\nalgo finished in {duration} second(s)\n')

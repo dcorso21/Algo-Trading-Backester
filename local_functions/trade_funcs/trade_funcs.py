@@ -179,7 +179,7 @@ def check_cancel():
     # Check Cancellation Requirements
     Each buy or sell order has a `cancel_spec` column, specifying when to cancel if necessary. 
 
-    Returns updated `open_orders` frame without cancelled orders. 
+    Returns list of orders to be cancelled. 
 
     ## Process: 
 
@@ -197,45 +197,75 @@ def check_cancel():
 
     ### 4) Return `open_orders` without the indexes that meet cancellation requirements.  
     '''
+    cancelled_orders = gl.cancelled_orders
+
+    if len(cancelled_orders) != 0:
+        cancelled_orders = cancelled_orders.reset_index(drop=True)
+        success = cancelled_orders[cancelled_orders.status ==
+                                   'successfully cancelled']
+        waiting = cancelled_orders[cancelled_orders['status'] == 'waiting']
+
+        for order_id, index in zip(waiting.order_id, waiting.index):
+            if order_id in success.order_id:
+                cancelled_orders = cancelled_orders.drop(index)
+            elif order_id not in gl.open_orders.order_id:
+                cancelled_orders.at[index, 'status'] = 'filled before cancel'
+
+        # need to define again
+        s_can_ids = success.order_id.to_list()
+    else:
+        s_can_ids = []
 
     open_orders = gl.open_orders
 
     if len(open_orders) == 0:
-        return open_orders
+        return []
 
     # 1) Reset the index so we can keep track of index values.
 
     open_orders = open_orders.reset_index(drop=True)
     df = open_orders
 
-    drop_indexes = []
-    for cancel_spec, exe_price, duration, index in zip(df.cancel_spec,
-                                                       df.exe_price,
-                                                       df.wait_duration,
-                                                       df.index):
+    for_cancellation = []
+    for cancel_spec, order_id, exe_price, duration, index in zip(df.cancel_spec,
+                                                                 df.order_id,
+                                                                 df.exe_price,
+                                                                 df.wait_duration,
+                                                                 df.index):
         # Example cancel_spec : r'p:%1,t:5'
+
+        if order_id not in s_can_ids:
+            continue
+
         xptype = cancel_spec.split(',')[0].split(':')[1][0]
+        # x percent
         xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
+        # x time
         xtime = int(cancel_spec.split(',')[1].split(':')[1])
 
+        cancel = False
         # Time Out
         if duration >= xtime:
-            gl.log_funcs.log('cancellation sent (time out)')
-            drop_indexes.append(index)
+            for_cancellation.append(order_id)
+            cancel = 'time out'
 
         # Price Drop
         elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
-            gl.log_funcs.log('cancellation sent (price drop)')
-            drop_indexes.append(index)
+            cancel = 'price drop'
+            for_cancellation.append(order_id)
 
         # Price Spike
         elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
-            gl.log_funcs.log('cancellation sent (price spike)')
-            drop_indexes.append(index)
+            cancel = 'price spike'
+            for_cancellation.append(order_id)
 
-    if len(drop_indexes) != 0:
-        gl.cancelled_orders = gl.cancelled_orders.append(
-            open_orders.iloc[drop_indexes], sort=False)
+        if cancel != False:
+            gl.log_funcs.log(f'cancellation sent ({cancel}), id: {order_id}')
+
+    new_cancels = open_orders[open_orders.order_id.isin(for_cancellation)]
+    new_cancels['status'] = ['waiting'] * len(new_cancels)
+    gl.cancelled_orders = cancelled_orders.append(new_cancels, sort=False)
 
     # return list of order ids for cancellation.
-    return open_orders.drop(index=drop_indexes).order_id.to_list()
+    cancel_ids = new_cancels.order_id.tolist()
+    return cancel_ids

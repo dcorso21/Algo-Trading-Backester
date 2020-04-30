@@ -83,6 +83,11 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
     # 5) Rename folder assets created
     rename_folders(path)
 
+    realized = batch_frame[batch_frame.flattened == True].real_pl.sum()
+    realized = realized + \
+        batch_frame[batch_frame.flattened == False].unreal_pl.sum()
+    print('total Profit/Loss: ${:.2f}'.format(realized))
+
     if reps > 1 and mode == 'multiple':
         reps -= 1
         batch_test(reps=reps, mode='multiple')
@@ -153,7 +158,7 @@ def batch_loop(reps, file, path, batch_frame):
     for rep in range(reps):
 
         # 1) Trade the csv with the function `test_trade`
-        file_name = file.split('\\')[1].strip('.csv')
+        file_name = gl.os.path.basename(file).strip('.csv')
         print(f'now trading: {file_name}')
         algo.test_trade(mode='csv', csv_file=file)
 
@@ -191,7 +196,7 @@ def calc_batch_time(num_of_stocks, reps):
     '''
     # endregion Docstring
     increment = 'seconds'
-    ex_time = 48 * num_of_stocks * reps
+    ex_time = 85 * num_of_stocks * reps
 
     if ex_time >= 60:
         increment = 'minutes'
@@ -305,5 +310,5 @@ def rename_folders(path):
     for folder in ['resolved', 'unresolved']:
         full_path = path / folder
         if gl.os.path.exists(full_path):
-            num_of_folders = len(glob.glob(full_path / '*'))
+            num_of_folders = len(glob.glob(str(full_path / '*')))
             gl.os.rename(full_path, path / f'{folder}_{num_of_folders}')

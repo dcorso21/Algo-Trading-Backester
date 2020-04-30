@@ -2,6 +2,10 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from pathlib import Path
+import os
+
+
 from local_functions.data_management import historical_funcs as hist
 
 
@@ -184,10 +188,11 @@ def plot_results(current_frame, filled_orders):
     o = get_orders(filled_orders)
     m = expand_mkt_data(current_frame, o)
     e_frame = max_exposures(o, m)
-    html_name = 'temp_assets\\daily_chart.html'
 
+    html_path = Path(os.getcwd()) / 'temp_assets' / 'daily_chart.html'
+    html_path = str(html_path)
     get_trading_charts(o, m, e_frame, 'Today', 1000,
-                       html=html_name, plot=False)
+                       html=html_path, plot=False)
 
 
 def max_exposures(orders, mkt_data):

@@ -115,7 +115,7 @@ def sell_conditions(condition):
         # endregion Docstring
         avg = gl.common.get_average()
         perc = gl.controls.percentage_gain_params['perc_gain']
-        if gl.current['close'] > (avg * 1 * .01 * perc):
+        if gl.current['close'] >= (avg * (1 + .01 * perc)):
             # sell all
             everything = gl.current_positions.qty.sum()
             exe_price = 'bid'
@@ -424,14 +424,12 @@ def check_auto_refresh():
     ### 3) Decrease auto-renew value by one for new orders.  
     ### 4) Return Renewed Orders 
 
-    ## Notes:
-    - Notes
-
-    ## TO DO:
-    - Item
     '''
     # endregion Docstring
     cancelled = gl.cancelled_orders
+    if len(cancelled) != 0:
+        cancelled = cancelled[cancelled.status != 'waiting']
+
     if len(cancelled) == 0:
         return []
 

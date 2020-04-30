@@ -120,13 +120,13 @@ def reset_variables(mode, csv_file):
     # Log is now managed in global vars and log_funcs
 
     # Logging Efficiency
-    df = gl.pd.DataFrame()
-    headers = gl.pd.Series(
-        ['minute', 'second', 'function', 'run_time'])
+    # df = gl.pd.DataFrame()
+    # headers = gl.pd.Series(
+    #     ['minute', 'second', 'function', 'run_time'])
 
-    df = df.append(headers, ignore_index=True)
-    df = df.set_index(0)
-    df.to_csv(gl.filepath['efficiency_log'], header=False)
+    # df = df.append(headers, ignore_index=True)
+    # df = df.set_index(0)
+    # df.to_csv(gl.filepath['efficiency_log'], header=False)
 
     print('variables reset')
 
@@ -140,7 +140,7 @@ def master_configure(mode, csv_file):
 
 '''----- ORDER CONDITIONS -----'''
 # region Default Params for Sell Conditions
-sc = order_eval.sell_conditions
+# sc = order_eval.sell_conditions
 # region Percentage Gain
 
 # sc.percentage_gain
@@ -175,10 +175,11 @@ timed_exit_params = {
 # endregion Timed Exit
 
 sell_cond_priority = {
-    percentage_gain: (1, 'percentage_gain'),
-    target_unreal: (2, 'target_unreal'),
-    exposure_over_account_limit: (3, 'exposure_over_account_limit'),
-    timed_exit: (4, 'timed_exit'),
+    'percentage_gain': (1, percentage_gain),
+    'target_unreal': (1, target_unreal),
+    'exposure_over_account_limit': (1, exposure_over_account_limit),
+    'timed_exit': (1, timed_exit),
+
 }
 
 sell_conditions = []
@@ -190,7 +191,7 @@ sell_conditions = []
 
 # region aggressive average
 # bc.aggresive_average
-aggresive_average = True
+aggresive_average = False
 aggresive_average_params = {}
 
 # endregion aggressive average
@@ -203,8 +204,8 @@ drop_below_average_params = {}
 # endregion drop below average
 
 buy_cond_priority = {
-    aggresive_average: (1, 'aggresive_average'),
-    drop_below_average: (2, 'drop_below_average'),
+    'aggresive_average': (1, aggresive_average),
+    'drop_below_average': (2, drop_below_average),
 }
 
 buy_conditions = []
@@ -214,29 +215,20 @@ buy_conditions = []
 
 def set_sell_conditions():
     global sell_conditions
-
-    in_use = []
-    for condition in sell_cond_priority.keys():
-        if condition == True:
-            in_use.append(sell_cond_priority[condition])
-
-    sell_conditions = []
-    for entry in sorted(in_use):
-        sell_conditions.append(entry[1])
+    cp = sell_cond_priority
+    in_use = [(cp[condition][0], condition)
+              for condition in cp.keys() if cp[condition][1] == True]
+    sell_conditions = [entry[1] for entry in sorted(in_use)]
 
 
 def set_buy_conditions():
     global buy_conditions
-
-    in_use = []
-    for condition in buy_cond_priority.keys():
-        if condition == True:
-            in_use.append(buy_cond_priority[condition])
-
-    buy_conditions = []
-    for entry in sorted(in_use):
-        buy_conditions.append(entry[1])
+    cp = buy_cond_priority
+    in_use = [(cp[condition][0], condition)
+              for condition in cp.keys() if cp[condition][1] == True]
+    buy_conditions = [entry[1] for entry in sorted(in_use)]
 
 
 '''----- OTHER -----'''
 ideal_volatility = 3
+hard_stop = '11:05:00'

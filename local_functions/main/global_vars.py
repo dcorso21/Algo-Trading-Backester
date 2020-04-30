@@ -1,7 +1,7 @@
 # region Modules
 
-import pyqtgraph as pg
-from pyqtgraph import QtCore, QtGui
+# import pyqtgraph as pg
+# from pyqtgraph import QtCore, QtGui
 
 
 import datetime
@@ -11,7 +11,7 @@ import random
 import os
 import shutil
 import sys
-import requests
+# import requests
 from functools import wraps
 from pathlib import Path
 
@@ -19,7 +19,6 @@ from pathlib import Path
 # Main Folder
 from local_functions.main import algo
 from local_functions.main import log_funcs
-from local_functions.main import reset_vars
 from local_functions.main import controls
 
 # Analyse
@@ -102,7 +101,6 @@ buy_conditions = []
 # endregion Controls/Configurations
 
 
-
 def csv_to_dict(file_path):
     df = pd.read_csv(file_path)
     df = df.set_index('type')
@@ -118,7 +116,8 @@ def save_dict_to_csv(dictionary, file_name):
 
 
 def save_frame(dataframe, file_name):
-    dataframe.to_csv(f'temp_assets\\{file_name}.csv')
+    dst = directory / 'temp_assets' / f'{file_name}.csv'
+    dataframe.to_csv(dst)
 
 
 filepath = {
@@ -213,7 +212,8 @@ def save_on_error(orig_func):
             save_all()
             print('global variables saved to temp_assets.\n')
             # print(trace)
-            with open('temp_assets\\trace.txt', 'x') as file:
+            trace_path = directory / 'temp_assets' / 'trace.txt'
+            with open(trace_path, 'x') as file:
                 file.writelines(trace)
                 # trace = file.readlines()
                 file.close()
@@ -238,7 +238,7 @@ def simple_traceback(trace):
         line = line.strip()
         if line.startswith('File'):
             path, ln, func = line.split(',')
-            path = path.split('local_functions')[1]
+            path = os.path.basename(path)
             ln = ln.split('line ')[1]
             func = func.split('in ')[1].split('\n')[0]
             paths.append(path)
@@ -248,9 +248,9 @@ def simple_traceback(trace):
             codes.append(line)
 
     frame = {
-        'file': paths,
-        'line': lns,
         'code': codes,
+        'line': lns,
+        'file': paths,
         'function': funcs,
     }
     print(error)
@@ -258,5 +258,20 @@ def simple_traceback(trace):
     pd.set_option('display.max_colwidth', -1)
     df = df.sort_index(ascending=False)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        display(df)
+        if isnotebook():
+            display(df)
+        else:
+            print(df)
 
+
+def isnotebook():
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False      # Probably standard Python interpreter

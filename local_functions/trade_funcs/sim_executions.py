@@ -66,7 +66,7 @@ def sim_execute_orders(new_orders, cancel_ids):
     # 4) Check Volume Requirement
     filled_orders, open_orders = vol_check(potential_fills, open_orders)
 
-    # 5) Return Filled Orders and Update Remaining Current_frame var.
+    # 5) format filled.
     current = gl.current
     gl.open_orders = open_orders
 
@@ -115,9 +115,8 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
     open_orders.loc[(open_orders['price_check'].values == 0),
                     'vol_start'] = f'{vminute},{vstart}'
 
-
     # there is potential for these orders to be filled.
-    potential_fills = open_orders[open_orders['price_check'] >= lag]
+    potential_fills = open_orders[open_orders['price_check'] >= lag].index
 
     return open_orders, potential_fills
 
@@ -125,11 +124,12 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
 def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplier=1.2):
     filled_orders = gl.pd.DataFrame()
 
-    # for each potential fill. 
-    for index, exe_price, vol_start, qty in zip(potential_fills.index,
-                                                potential_fills.exe_price,
-                                                potential_fills.vol_start,
-                                                potential_fills.qty):
+    # for each potential fill.
+    for index in potential_fills:
+
+        exe_price = open_orders.at[index, 'exe_price']
+        vol_start = open_orders.at[index, 'vol_start']
+        qty = open_orders.at[index, 'qty']
 
         current = gl.current
         # if the volume has increased since last time, but is in the same minute
@@ -146,15 +146,15 @@ def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplie
 
         # Entire order gets filled.
         if vol_passed >= qty*offset_multiplier:
-            fill = open_orders.iloc[index]
-            fill['order_id'] = str(open_orders.at[index, 'order_id'])+'x'
+            fill = open_orders[open_orders.index == index]
+            fill['order_id'] = fill.order_id.apply(lambda i: str(i)+'x')
 
             filled_orders = filled_orders.append(fill, sort=False)
-            open_orders.drop(index)
+            open_orders = open_orders.drop(index)
 
         # Partial order fill.
         elif int(vol_passed / offset_multiplier) >= (min_chunk_cash / exe_price):
-            fill = open_orders.iloc[index, :]
+            fill = open_orders[open_orders.index == index]
             fill_qty = int(vol_passed / offset_multiplier)
             fill['qty'] = fill_qty
             filled_orders = filled_orders.append(fill, sort=False)
@@ -170,10 +170,12 @@ def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplie
 
 
 def sim_cancel_orders(new_cancel_ids, wait_time=1):
+
+    # This is a dictionary with the key being the order id
+    # and the value being the wait time.
     open_cancels = gl.open_cancels
 
     if len(new_cancel_ids) == 0 and len(open_cancels) == 0:
-        gl.log_funcs.log('Nothing to Cancel.')
         return gl.pd.DataFrame()
 
     open_orders = gl.open_orders
@@ -190,16 +192,20 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
     expired = []
     # update wait times and make list of cancels that reached wait_time.
     for order in open_cancels.keys():
-        if order not in open_orders.order_id:
-            gl.log_funcs.log(
-                msg=f'order filled before cancellation: {order}')
-            expired.append(order)
-
-        elif order in open_orders.order_id:
+        if order in open_orders.order_id.to_list():
             open_cancels[order] = open_cancels[order] + 1
             if open_cancels[order] == wait_time:
                 cancelled_ids.append(order)
                 expired.append(order)
+        else:
+
+            t_order = type(order)
+            t_o_orders = type(open_orders.order_id.to_list()[0])
+            gl.log_funcs.log(
+                msg=f'id filled before cancellation: {t_order}, open_orders : {t_o_orders}')
+            expired.append(order)
+
+        # elif order in open_orders.order_id:
 
     for x in expired:
         del open_cancels[x]
@@ -209,6 +215,8 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
         open_cancels[order_id] = 0
 
     cancelled_orders = open_orders[open_orders.order_id.isin(cancelled_ids)]
+    cancelled_orders['status'] = [
+        'successfully cancelled'] * len(cancelled_orders)
     open_orders = open_orders[~ open_orders.order_id.isin(cancelled_ids)]
 
     gl.open_cancels = open_cancels

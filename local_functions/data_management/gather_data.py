@@ -42,7 +42,7 @@ def csv_refresh():
         row = first_ind
         minute = current['minute'] = sim_df.at[first_ind, 'time']
         current['second'] = 0
-        gl.log_funcs.log(f'^^^{minute}')
+        # gl.log_funcs.log(f'^^^{minute}')
         new_minute = True
     else:
         row = gl.csv_indexes['current']
@@ -51,7 +51,7 @@ def csv_refresh():
             gl.loop_feedback = False
             return
 
-        if last['minute'] == '11:05:00':
+        if last['minute'] == gl.controls.hard_stop:
             gl.loop_feedback = False
             return
 
@@ -66,7 +66,7 @@ def csv_refresh():
     if new_minute == True:
         gl.gather.clone_current_frame()
         # Log end of last minute...
-        gl.log_funcs.log(msg='minute complete')
+        # gl.log_funcs.log(msg='minute complete')
         # Go to next row.
         row = gl.csv_indexes['current'] = gl.csv_indexes['current'] + 1
         gl.minute_prices, gl.minute_volumes = gl.hist.create_second_data(sim_df,
@@ -142,8 +142,8 @@ def update_candle(price, volume, ticker, minute, second):
                'ticker': ticker}
 
     gl.current = current
-    if current['second'] == 0:
-        gl.log_funcs.log(f'^^^{minute}')
+    # if current['second'] == 0:
+    #     gl.log_funcs.log(f'^^^{minute}')
 
     # 3) Update global variable `current_frame` with the `add_new_minute()` function.
     add_new_minute(current)

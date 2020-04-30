@@ -25,7 +25,7 @@ def log(msg=''):
     # endregion Docstring
     current = gl.current
     file_name = gl.sys._getframe(1).f_code.co_filename
-    file_name = file_name.split('\\')[-1]
+    file_name = gl.os.path.basename(file_name)
 
     new_row = {
         'minute': [current['minute']],

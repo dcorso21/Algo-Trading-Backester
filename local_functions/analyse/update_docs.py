@@ -102,25 +102,28 @@ def update_volumes():
     last_row = current_frame.index.to_list()[-1]
     current_frame = current_frame.drop(last_row)
 
-    current_frame['dvol'] = current_frame['close']*current_frame['volume']
+    current_frame['dvol'] = current_frame.loc[:, 'close'] * \
+        current_frame.loc[:, 'volume']
 
     current_dvol = current['volume'] * current['close']
 
     volumes['extrap_current'] = (current_dvol / (current['second']+1))*60
-    volumes['mean'] = current_frame.dvol.mean()
-    volumes['minimum'] = current_frame.dvol.min()
-    volumes['safe_capital_limit'] = volumes['minimum'] / 4
-    if len(current_frame) >= 3:
-        volumes['three_min_min'] = current_frame.tail(3).dvol.min()
-        volumes['three_min_mean'] = current_frame.tail(3).dvol.mean()
-        if len(current_frame) >= 5:
-            volumes['five_min_mean'] = current_frame.tail(5).dvol.mean()
-            volumes['differential'] = (
-                volumes['five_min_mean'] - current_frame.head(5).mean()) / current_frame.head(5).mean()
-            volumes['five_min_min'] = current_frame.tail(5).dvol.min()
-            if len(current_frame) >= 10:
-                volumes['ten_min_mean'] = current_frame.tail(10).dvol.mean()
-                volumes['ten_min_min'] = current_frame.tail(10).dvol.min()
+    if current['second'] == 59:
+        volumes['mean'] = current_frame.dvol.mean()
+        volumes['minimum'] = current_frame.dvol.min()
+        volumes['safe_capital_limit'] = volumes['minimum'] / 4
+        if len(current_frame) >= 3:
+            volumes['three_min_min'] = current_frame.tail(3).dvol.min()
+            volumes['three_min_mean'] = current_frame.tail(3).dvol.mean()
+            if len(current_frame) >= 5:
+                volumes['five_min_mean'] = current_frame.tail(5).dvol.mean()
+                volumes['differential'] = (
+                    volumes['five_min_mean'] - current_frame.head(5).mean()) / current_frame.head(5).mean()
+                volumes['five_min_min'] = current_frame.tail(5).dvol.min()
+                if len(current_frame) >= 10:
+                    volumes['ten_min_mean'] = current_frame.tail(
+                        10).dvol.mean()
+                    volumes['ten_min_min'] = current_frame.tail(10).dvol.min()
 
     gl.volumes = volumes
 
