@@ -83,9 +83,9 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
     # 5) Rename folder assets created
     rename_folders(path)
 
-    realized = batch_frame[batch_frame.flattened == True].real_pl.sum()
+    realized = batch_frame[batch_frame.flattened == 'True'].real_pl.sum()
     realized = realized + \
-        batch_frame[batch_frame.flattened == False].unreal_pl.sum()
+        batch_frame[batch_frame.flattened == 'False'].unreal_pl.sum()
     print('total Profit/Loss: ${:.2f}'.format(realized))
 
     if reps > 1 and mode == 'multiple':
@@ -204,7 +204,7 @@ def calc_batch_time(num_of_stocks, reps):
         if ex_time >= 60:
             ex_time = ex_time / 60
             increment = 'hours'
-
+    ex_time = round(ex_time, 2)
     print(f'expected time to batch: {ex_time} {increment}')
 
 
