@@ -28,8 +28,15 @@ def exe_orders(orders):
         update_current_positions(new_fills)
 
     if len(new_cancels) != 0:
-        gl.cancelled_orders = gl.cancelled_orders.append(
+        cancelled_orders = gl.cancelled_orders
+
+        cancelled_orders = cancelled_orders[~cancelled_orders.order_id.isin(
+            new_cancels.order_id)]
+
+        cancelled_orders = cancelled_orders.append(
             new_cancels, sort=False)
+
+        gl.cancelled_orders = cancelled_orders
 
 
 def execute_direct(orders, cancel_ids):
@@ -177,47 +184,13 @@ def queue_order_center(orders):
 
 
 def check_cancel():
-    '''
-    # Check Cancellation Requirements
-    Each buy or sell order has a `cancel_spec` column, specifying when to cancel if necessary. 
-
-    Returns list of orders to be cancelled. 
-
-    ## Process: 
-
-    - #### Skip Clause:
-    If there are no open orders, then return without doing anything. 
-
-    ### 1) Reset the index so we can keep track of index values.
-
-    ### 2) Loop over each open order and check to see if the Cancel Conditions are met. 
-    - defines cancellation specifications. 
-    - checks time cancellation spec
-    - checks price cancellation spec
-
-    ### 3) If the row meets either condition, add it to a list of indexes. 
-
-    ### 4) Return `open_orders` without the indexes that meet cancellation requirements.  
-    '''
     cancelled_orders = gl.cancelled_orders
-
+    open_orders = gl.open_orders
+    still_waiting = []
     if len(cancelled_orders) != 0:
         cancelled_orders = cancelled_orders.reset_index(drop=True)
-        waiting = cancelled_orders[cancelled_orders['status'] == 'waiting']
-        success = cancelled_orders[~cancelled_orders.index.isin(waiting.index)]
-
-        for order_id, index in zip(waiting.order_id, waiting.index):
-            if order_id in success.order_id:
-                cancelled_orders = cancelled_orders.drop(index)
-            elif order_id not in gl.open_orders.order_id:
-                cancelled_orders.at[index, 'status'] = 'filled before cancel'
-
-        # need to define again
-        still_waiting = cancelled_orders[cancelled_orders['status'] == 'waiting']
-    else:
-        still_waiting = []
-
-    open_orders = gl.open_orders
+        still_waiting = cancelled_orders[cancelled_orders['status'] ==
+                                         'waiting'].order_id.to_list()
 
     if len(open_orders) == 0:
         return []
@@ -225,19 +198,17 @@ def check_cancel():
     # 1) Reset the index so we can keep track of index values.
 
     open_orders = open_orders.reset_index(drop=True)
-    df = open_orders
+
+    potential_cancels = open_orders[~open_orders.order_id.isin(still_waiting)]
 
     for_cancellation = []
-    for cancel_spec, order_id, exe_price, duration, index in zip(df.cancel_spec,
-                                                                 df.order_id,
-                                                                 df.exe_price,
-                                                                 df.wait_duration,
-                                                                 df.index):
+    for cancel_spec, order_id, exe_price, duration, index in zip(potential_cancels.cancel_spec,
+                                                                 potential_cancels.order_id,
+                                                                 potential_cancels.exe_price,
+                                                                 potential_cancels.wait_duration,
+                                                                 potential_cancels.index):
+
         # Example cancel_spec : r'p:%1,t:5'
-
-        if order_id in still_waiting:
-            continue
-
         xptype = cancel_spec.split(',')[0].split(':')[1][0]
         # x percent
         xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
@@ -247,8 +218,8 @@ def check_cancel():
         cancel = False
         # Time Out
         if duration >= xtime:
-            for_cancellation.append(order_id)
             cancel = 'time out'
+            for_cancellation.append(order_id)
 
         # Price Drop
         elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
@@ -264,7 +235,8 @@ def check_cancel():
             gl.log_funcs.log(f'cancellation sent ({cancel}), id: {order_id}')
 
     new_cancels = open_orders[open_orders.order_id.isin(for_cancellation)]
-    new_cancels['status'] = ['waiting'] * len(new_cancels)
+    new_cancels['status'] = 'waiting'
+
     gl.cancelled_orders = cancelled_orders.append(new_cancels, sort=False)
 
     # return list of order ids for cancellation.

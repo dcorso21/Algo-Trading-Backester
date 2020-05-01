@@ -200,6 +200,7 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
             gl.log_funcs.log(
                 msg=f'id filled before cancellation: {order}, open ids: {open_ids}')
             expired.append(order)
+            raise BaseException('manual stop')
 
     # Cancel Expired ids
     for x in expired:
@@ -217,7 +218,7 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
             'successfully cancelled'] * len(cancelled_orders)
         open_orders = open_orders[~ open_orders.order_id.isin(cancelled_ids)]
 
-        gl.log_funcs.log('successfully cancelled: {cancelled_ids}')
+        gl.log_funcs.log(f'successfully cancelled: {cancelled_ids}')
 
     gl.open_cancels = open_cancels
     gl.open_orders = open_orders

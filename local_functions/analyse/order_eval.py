@@ -204,7 +204,8 @@ def sell_conditions(condition):
         if (current_time >= exit_time) or (gl.sell_out == True):
             qty = gl.current_positions.qty.sum()
             pmethod = 'extrapolate'
-            sells = gl.order_tools.create_orders('SELL', qty, pmethod)
+            sells = gl.order_tools.create_orders(
+                'SELL', qty, pmethod, auto_renew=5)
 
             gl.log_funcs.log('Sell to Stop...')
             gl.buy_lock = True
