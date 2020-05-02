@@ -1154,10 +1154,9 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot
                 'editable': True})
 
 
-def plot_momentum():
-
-    dfz = pd.read_csv('temp_assets/analysis/mom_frame.csv')
-    df = hist.get_mkt_data('example.csv')
+def plot_momentum(mom_frame, current_frame, html_path):
+    dfz = mom_frame
+    df = current_frame
 
     fig = go.Figure()
 
@@ -1217,11 +1216,12 @@ def plot_momentum():
 
     fig.update_layout(
 
-        height=650,
         template="plotly_dark",
         margin=dict(
             t=100,
             b=100
         )  # ,showlegend = True
     )
-    fig.show()
+
+    fig.write_html(html_path)
+

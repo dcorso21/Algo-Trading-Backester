@@ -131,7 +131,8 @@ def reset_variables(mode, csv_file):
     print('variables reset')
 
 
-def master_configure(mode, csv_file):
+def master_configure(mode, csv_file, batch_path):
+    gl.batch_path = batch_path
     reset_variables(mode, csv_file)
     set_buy_conditions()
     set_sell_conditions()
@@ -234,4 +235,4 @@ def set_buy_conditions():
 
 '''----- OTHER -----'''
 ideal_volatility = 3
-hard_stop = '11:05:00'
+hard_stop = '10:15:00'

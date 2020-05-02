@@ -3,10 +3,11 @@ from local_functions.main import global_vars as gl
 import time
 
 
-def test_trade(mode='csv', csv_file='first'):
+def test_trade(mode='csv', csv_file='first', batch_path=False):
 
     start_time = time.time()
-    gl.controls.master_configure(mode=mode, csv_file=csv_file)
+    gl.controls.master_configure(
+        mode=mode, csv_file=csv_file, batch_path=batch_path)
 
     gl.screen.pick_stock_direct(mode)
     if gl.stock_pick == 'nan':

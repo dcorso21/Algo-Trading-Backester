@@ -64,6 +64,7 @@ buy_lock = False
 
 
 # CSV Trading
+batch_path = 'string'
 sim_df = 'Dataframe'
 csv_indexes = 'dictionary'
 minute_prices = 'list'
@@ -115,9 +116,57 @@ def save_dict_to_csv(dictionary, file_name):
     save_frame(df, file_name)
 
 
-def save_frame(dataframe, file_name):
-    dst = directory / 'temp_assets' / f'{file_name}.csv'
-    dataframe.to_csv(dst)
+def save_frame(df, file_name):
+
+    page_names = {
+
+        'log': 'Log',
+        'filled_orders': 'Filled Orders',
+        'current_positions': 'Current Positions',
+        'open_orders': 'Open Orders',
+        'mom_frame': 'Momentum Frame',
+        'current_frame': 'Current Frame',
+        'order_specs': 'Order Specifications',
+        'pl_ex': 'P/L and Exposure',
+        'sup_res_frame': 'Supports and Resistances',
+        'volas': 'Volatility',
+        'volumes': 'Volume',
+        'cancelled_orders': 'Cancelled Orders',
+        'queued_orders': 'Queued Orders',
+        'current': 'Current',
+    }
+
+    def tag(text, tag, attrs=None, text_in_tag=False):
+        if text_in_tag == True:
+            return f'<{tag} {text}></{tag}>'
+
+        start_tag = f'<{tag}>'
+        if attrs != False:
+            start_tag = f'<{tag} {attrs}>'
+        end_tag = f'</{tag}>'
+        return start_tag+text+end_tag
+
+    # df = pd.read_csv('temp_assets/log.csv')
+    table = df.to_html(classes='alt', table_id='df_to_dt')
+    table = tag(table, 'div', 'class="display"')
+
+    template = str(directory / 'batch_design' / 'table_template.html')
+    with open(template, 'r') as file:
+        text = file.read()
+
+    asset_path = str(directory / 'batch_design' / 'assets')
+
+    index_path = str(batch_path / 'batch_index.html')
+
+    text = text.replace('^^^doc_name^^^', page_names[file_name])
+    text = text.replace('^^^asset_path^^^', asset_path)
+    text = text.replace('^^^index_path^^^', index_path)
+    text = text.replace('<!-- table_insert -->', table)
+
+    dst = directory / 'temp_assets' / f'{file_name}.html'
+
+    with open(dst, 'x') as file:
+        file.write(text)
 
 
 filepath = {
@@ -186,6 +235,9 @@ def save_all():
         else:
             save_frame(file, file_name)
 
+    if len(mom_frame) != 0:
+        html_path = str(directory / 'temp_assets' / 'mom_tracking.html')
+        plotr.plot_momentum(mom_frame, current_frame, html_path)
     if len(filled_orders) != 0:
         plotr.plot_results(current_frame, filled_orders)
 

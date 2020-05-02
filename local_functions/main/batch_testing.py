@@ -81,7 +81,7 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
     print('batch complete')
 
     # 5) Rename folder assets created
-    rename_folders(path)
+    # rename_folders(path)
 
     realized = batch_frame[batch_frame.flattened == 'True'].real_pl.sum()
     realized = realized + \
@@ -160,10 +160,12 @@ def batch_loop(reps, file, path, batch_frame):
         # 1) Trade the csv with the function `test_trade`
         file_name = gl.os.path.basename(file).strip('.csv')
         print(f'now trading: {file_name}')
-        algo.test_trade(mode='csv', csv_file=file)
+        algo.test_trade(mode='csv', csv_file=file, batch_path=path)
 
         # 2) Categorize traded results in subfolders of batch.
-        if gl.pl_ex['unreal'] == 0:
+        if len(gl.filled_orders) == 0:
+            subfolder = 'untraded'
+        elif gl.pl_ex['unreal'] == 0:
             subfolder = 'resolved'
         else:
             subfolder = 'unresolved'
@@ -224,9 +226,72 @@ def manage_batch_frame(batch_frame, path):
     # endregion Docstring
     batch_frame.set_index('tick_date')
     gl.batch_frame = batch_frame
+
     batch_frame.to_csv(path / 'batch_overview.csv')
     gl.plotr.plot_batch_overview(batch_frame, path)
+    save_batch_index(path)
     return batch_frame
+
+
+def save_batch_index(path):
+
+    folders = []
+    for (dirpath, dirnames, filenames) in gl.os.walk(str(path)):
+        folders.extend(dirnames)
+        break
+
+    collapsible = ''
+    for folder in folders:
+        direct = path / folder
+        tick_dates = []
+        # sublist = ''
+        # individual stocks
+        for (dirpath, dirnames, filenames) in gl.os.walk(str(direct)):
+            if len(dirnames) != 0:
+                tick_dates.extend(dirnames)
+                links = []
+                # log.html links.
+                for tick_date in tick_dates:
+                    if len(tick_date) != 0:
+                        links.append(
+                            (str(direct / tick_date / 'log.html'), tick_date))
+                        sublist = ''
+                        for link in set(links):
+                            sublist = sublist + \
+                                (f'<li><a href="{link[0]}">{link[1]}</a></li>')
+            break
+        folder_and_num = folder.capitalize() + ' ' + str(len(links))
+        collapsible = collapsible + \
+            f'<li><span class="opener">{folder_and_num}</span><ul>{sublist}</ul></li>'
+
+    collapsible
+
+    template_path = str(
+        gl.directory / 'batch_design' / 'batch_index_template.html')
+    with open(template_path, 'r') as template:
+        template = template.read()
+
+    date, batch_name = gl.os.path.split(path)
+    date = gl.os.path.split(date)[1]
+
+    batch_name = batch_name.replace(',', ':')
+    batch_name = batch_name.replace('_', ' ').capitalize()
+
+    asset_path = str(gl.directory / 'batch_design' / 'assets')
+
+    template = template.replace('^^^doc_name^^^', batch_name)
+    template = template.replace('^^^date^^^', date)
+    template = template.replace('^^^list_items^^^', collapsible)
+    template = template.replace('^^^asset_path^^^', asset_path)
+
+    save_name = str(path / 'batch_index.html')
+
+    if gl.os.path.exists(save_name):
+        with open(save_name, 'w') as file:
+            file.write(template)
+    else:
+        with open(save_name, 'x') as file:
+            file.write(template)
 
 
 def save_documentation(path):
