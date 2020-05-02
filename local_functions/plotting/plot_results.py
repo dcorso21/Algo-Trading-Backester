@@ -90,10 +90,10 @@ def new_scatter_plot(x_values, y_values, text):
 
 def plot_batch_overview(batch_frame, batch_path):
 
-    fig = make_subplots(rows=3, cols=2,
-                        specs=[[{'colspan': 2}, None],
-                               [{}, {}],
-                               [{}, {}],
+    fig = make_subplots(rows=3, cols=3,
+                        specs=[[{'colspan': 3, 'rowspan': 2}, None, None],
+                               [None, None, None],
+                               [{}, {}, {}],
                                ],
                         subplot_titles=("Resolved Profit Over Time",
                                         "Profit/Loss x Exposure",
@@ -118,11 +118,11 @@ def plot_batch_overview(batch_frame, batch_path):
         fig.append_trace(resolved_progress, row=1, col=1)
 
         fig = add_box_scatter_cross(
-            fig, 2, 1, resolved.real_pl, resolved.max_ex, resolved.tick_date, res_color)
+            fig, 3, 1, resolved.real_pl, resolved.max_ex, resolved.tick_date, res_color)
         fig = add_box_scatter_cross(
-            fig, 2, 2, resolved.min_unreal, resolved.max_unreal, resolved.tick_date, res_color)
+            fig, 3, 2, resolved.min_unreal, resolved.max_unreal, resolved.tick_date, res_color)
         fig = add_box_scatter_cross(
-            fig, 3, 1, resolved.real_pl, resolved.avg_vola, resolved.tick_date, res_color)
+            fig, 3, 3, resolved.real_pl, resolved.avg_vola, resolved.tick_date, res_color)
 
     if len(unresolved) != 0:
         unresolved_progress = new_line_plot(x_values=list(range(
@@ -130,22 +130,22 @@ def plot_batch_overview(batch_frame, batch_path):
         fig.append_trace(unresolved_progress, row=1, col=1)
 
         fig.append_trace(go.Scatter(x=unresolved.real_pl, y=unresolved.max_ex,
-                                    text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=2, col=1)
-        fig.append_trace(go.Scatter(x=unresolved.min_unreal, y=unresolved.max_unreal,
-                                    text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=2, col=2)
-        fig.append_trace(go.Scatter(x=unresolved.real_pl, y=unresolved.avg_vola,
                                     text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=3, col=1)
+        fig.append_trace(go.Scatter(x=unresolved.min_unreal, y=unresolved.max_unreal,
+                                    text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=3, col=2)
+        fig.append_trace(go.Scatter(x=unresolved.real_pl, y=unresolved.avg_vola,
+                                    text=unresolved.tick_date, mode='markers', marker_color=unres_color), row=3, col=3)
 
     if len(not_traded) != 0:
         fig.append_trace(go.Scatter(x=not_traded.real_pl, y=not_traded.max_ex,
-                                    text=not_traded.tick_date, mode='markers', marker_color=not_color), row=2, col=1)
-        fig.append_trace(go.Scatter(x=not_traded.min_unreal, y=not_traded.max_unreal,
-                                    text=not_traded.tick_date, mode='markers', marker_color=not_color), row=2, col=2)
-        fig.append_trace(go.Scatter(x=not_traded.real_pl, y=not_traded.avg_vola,
                                     text=not_traded.tick_date, mode='markers', marker_color=not_color), row=3, col=1)
+        fig.append_trace(go.Scatter(x=not_traded.min_unreal, y=not_traded.max_unreal,
+                                    text=not_traded.tick_date, mode='markers', marker_color=not_color), row=3, col=2)
+        fig.append_trace(go.Scatter(x=not_traded.real_pl, y=not_traded.avg_vola,
+                                    text=not_traded.tick_date, mode='markers', marker_color=not_color), row=3, col=3)
 
     fig.update_layout(
-        # template='plotly_dark',
+        template='plotly_dark',
         title_text="Batch Results",
         # height=1800
     )
