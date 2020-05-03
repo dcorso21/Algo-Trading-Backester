@@ -88,7 +88,7 @@ def new_scatter_plot(x_values, y_values, text):
     return scatter_plot
 
 
-def plot_batch_overview(batch_frame, batch_path):
+def plot_batch_overview(batch_frame):
 
     fig = make_subplots(rows=3, cols=3,
                         specs=[[{'colspan': 3, 'rowspan': 2}, None, None],
@@ -146,12 +146,14 @@ def plot_batch_overview(batch_frame, batch_path):
 
     fig.update_layout(
         template='plotly_dark',
-        title_text="Batch Results",
+        # title_text="Batch Results",
         # height=1800
     )
 
     # fig.show()
-    fig.write_html(str(batch_path / "overview.html"))
+    # fig.to_html(str(batch_path / "overview.html"))
+    html = fig.to_html(include_plotlyjs='cdn', full_html=False)
+    return html
 
 
 def get_orders(filled_orders):
@@ -181,7 +183,7 @@ def expand_mkt_data(m, o):
     return m
 
 
-def plot_results(current_frame, filled_orders):
+def plot_results(current_frame, filled_orders, batch_path, directory, csv_name):
     '''
     all in one for getting the market data plotted.
     '''
@@ -189,10 +191,8 @@ def plot_results(current_frame, filled_orders):
     m = expand_mkt_data(current_frame, o)
     e_frame = max_exposures(o, m)
 
-    html_path = Path(os.getcwd()) / 'temp_assets' / 'daily_chart.html'
-    html_path = str(html_path)
-    get_trading_charts(o, m, e_frame, 'Today', 1000,
-                       html=html_path, plot=False)
+    get_trading_charts(o, m, e_frame, 'Today', 1000, batch_path=batch_path,
+                       html_path=directory, plot=False, csv_name=csv_name)
 
 
 def max_exposures(orders, mkt_data):
@@ -806,7 +806,7 @@ def append_position(mkt_data, order_data):
     return dfz
 
 
-def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot=True):
+def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None, html_path=False, csv_name=None, plot=True):
     '''Function:
     Creates a table showing minute by minute data and overlays trades.
     Also shows info like position size and profit loss in depth.
@@ -1019,8 +1019,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot
                 fixedrange=False,
                 range=['09:31:00', '16:00:00'],
                 rangeslider=dict(
-                    autorange=True,
-                    range=['09:31:00', '16:00:00']
+                    visible=False
                 )
             ),
 
@@ -1128,7 +1127,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot
 
         # Update Layout here...
         fig.update_layout(
-            title=str(x)+" Minute Chart "+str(date),
+            # title=str(x)+" Minute Chart "+str(date),
             xaxis_title="Time",
             dragmode="zoom",
             hovermode="x",
@@ -1143,18 +1142,38 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, html=False, plot
             xaxis=dict(showgrid=True)
         )
 
-        html_name = date+"_"+str(html)+'_'+str(x)
+        # if plot:
+        #     fig.show(config={
+        #         'displayModeBar': True,
+        #         'editable': True})
 
-        if html != False:
-            fig.write_html(html)
+        if html_path != False:
 
-        if plot:
-            fig.show(config={
-                'displayModeBar': True,
-                'editable': True})
+            # HTML path is the current directory.
+
+            plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
+
+            template_path = str(
+                html_path / 'batch_design' / 'plot_template.html')
+
+            with open(template_path, 'r') as template:
+                text = template.read()
+
+            asset_path = str(html_path / 'batch_design' / 'assets')
+            index_path = str(batch_path / 'batch_index.html')
+            html_name = str(html_path / 'temp_assets' / 'daily_chart.html')
+
+            text = text.replace('^^^doc_name^^^', 'Daily Chart')
+            text = text.replace('^^^csv_name^^^', csv_name)
+            text = text.replace('^^^asset_path^^^', asset_path)
+            text = text.replace('^^^index_path^^^', index_path)
+            text = text.replace('^^^plot^^^', plot)
+
+            with open(html_name, 'x') as f:
+                f.write(text)
 
 
-def plot_momentum(mom_frame, current_frame, html_path):
+def plot_momentum(mom_frame, current_frame, directory, batch_path=None, csv_name=None):
     dfz = mom_frame
     df = current_frame
 
@@ -1200,8 +1219,7 @@ def plot_momentum(mom_frame, current_frame, html_path):
             fixedrange=False,
             range=['09:31:00', '16:00:00'],
             rangeslider=dict(
-                autorange=True,
-                range=['09:31:00', '16:00:00']
+                visible=False
             )
         ),  # VOLUME
         yaxis=go.layout.YAxis(
@@ -1223,5 +1241,25 @@ def plot_momentum(mom_frame, current_frame, html_path):
         )  # ,showlegend = True
     )
 
-    fig.write_html(html_path)
+    plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
 
+    template_path = str(
+        directory / 'batch_design' / 'plot_template.html')
+
+    with open(template_path, 'r') as template:
+        text = template.read()
+        template.close()
+
+    asset_path = str(directory / 'batch_design' / 'assets')
+    index_path = str(batch_path / 'batch_index.html')
+    html_name = str(directory / 'temp_assets' / 'mom_tracking.html')
+
+    text = text.replace('^^^doc_name^^^', 'Momentum Tracking')
+    text = text.replace('^^^csv_name^^^', csv_name)
+    text = text.replace('^^^asset_path^^^', asset_path)
+    text = text.replace('^^^index_path^^^', index_path)
+    text = text.replace('^^^plot^^^', plot)
+
+    with open(html_name, 'x') as f:
+        f.write(text)
+        f.close()

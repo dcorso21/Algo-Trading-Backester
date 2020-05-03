@@ -67,6 +67,7 @@ buy_lock = False
 batch_path = 'string'
 sim_df = 'Dataframe'
 csv_indexes = 'dictionary'
+csv_name = 'string'
 minute_prices = 'list'
 minute_volumes = 'list'
 batch_frame = 'Dataframe'
@@ -136,29 +137,17 @@ def save_frame(df, file_name):
         'current': 'Current',
     }
 
-    def tag(text, tag, attrs=None, text_in_tag=False):
-        if text_in_tag == True:
-            return f'<{tag} {text}></{tag}>'
-
-        start_tag = f'<{tag}>'
-        if attrs != False:
-            start_tag = f'<{tag} {attrs}>'
-        end_tag = f'</{tag}>'
-        return start_tag+text+end_tag
-
-    # df = pd.read_csv('temp_assets/log.csv')
-    table = df.to_html(classes='alt', table_id='df_to_dt')
-    table = tag(table, 'div', 'class="display"')
+    table = frame_to_html(df)
 
     template = str(directory / 'batch_design' / 'table_template.html')
     with open(template, 'r') as file:
         text = file.read()
 
     asset_path = str(directory / 'batch_design' / 'assets')
-
     index_path = str(batch_path / 'batch_index.html')
 
     text = text.replace('^^^doc_name^^^', page_names[file_name])
+    text = text.replace('^^^csv_name^^^', csv_name)
     text = text.replace('^^^asset_path^^^', asset_path)
     text = text.replace('^^^index_path^^^', index_path)
     text = text.replace('<!-- table_insert -->', table)
@@ -237,9 +226,11 @@ def save_all():
 
     if len(mom_frame) != 0:
         html_path = str(directory / 'temp_assets' / 'mom_tracking.html')
-        plotr.plot_momentum(mom_frame, current_frame, html_path)
+        plotr.plot_momentum(mom_frame, current_frame,
+                            directory, batch_path, csv_name)
     if len(filled_orders) != 0:
-        plotr.plot_results(current_frame, filled_orders)
+        plotr.plot_results(current_frame, filled_orders,
+                           batch_path, directory, csv_name)
 
 
 def save_on_error(orig_func):
@@ -327,3 +318,21 @@ def isnotebook():
             return False  # Other type (?)
     except NameError:
         return False      # Probably standard Python interpreter
+
+
+def frame_to_html(df):
+
+    def tag(text, tag, attrs=None, text_in_tag=False):
+        if text_in_tag == True:
+            return f'<{tag} {text}></{tag}>'
+
+        start_tag = f'<{tag}>'
+        if attrs != False:
+            start_tag = f'<{tag} {attrs}>'
+        end_tag = f'</{tag}>'
+        return start_tag+text+end_tag
+
+    # df = pd.read_csv('temp_assets/log.csv')
+    table = df.to_html(classes='alt', table_id='df_to_dt')
+    table = tag(table, 'div', 'class="display"')
+    return table

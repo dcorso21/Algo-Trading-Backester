@@ -2,6 +2,110 @@ from local_functions.analyse import order_eval
 from local_functions.main import global_vars as gl
 
 
+'''----- OTHER -----'''
+ideal_volatility = 3
+hard_stop = '09:50:00'
+
+
+'''----- ORDER CONDITIONS -----'''
+# region Default Params for Sell Conditions
+# sc = order_eval.sell_conditions
+# region Percentage Gain
+
+# sc.percentage_gain
+percentage_gain = True
+percentage_gain_params = {
+    'perc_gain': 3
+}
+# endregion Percentage Gain
+
+# region Target Unreal
+# sc.target_unreal
+target_unreal = True
+target_unreal_params = {
+    'target_unreal': 20
+}
+# endregion Target Unreal
+
+# region Exposure Over Account Limit
+# sc.exposure_over_account_limit
+exposure_over_account_limit = True
+exposure_over_account_limit_params = {}
+
+# endregion Exposure Over Account Limit
+
+# region Timed Exit
+
+# sc.timed_exit
+
+stop_time = gl.pd.to_datetime(hard_stop)
+stop_time = stop_time - gl.datetime.timedelta(minutes=2)
+stop_time = stop_time.strftime('%H:%M:%S')
+
+timed_exit = True
+timed_exit_params = {
+    'time': stop_time,
+}
+# endregion Timed Exit
+
+sell_cond_priority = {
+    'percentage_gain': (1, percentage_gain),
+    'target_unreal': (1, target_unreal),
+    'exposure_over_account_limit': (1, exposure_over_account_limit),
+    'timed_exit': (1, timed_exit),
+
+}
+
+sell_conditions = []
+
+# endregion Default Params for Sell Conditions
+
+
+# region Default Params for Buy Conditions
+bc = order_eval.buy_conditions
+# region aggressive average
+# bc.aggresive_average
+aggresive_average = False
+aggresive_average_params = {}
+
+# endregion aggressive average
+
+# region drop below average
+# bc.drop_below_average
+drop_below_average = True
+drop_below_average_params = {
+    'min_vola': 2.5,
+    'max_vola': 5
+}
+
+# endregion drop below average
+
+buy_cond_priority = {
+    'aggresive_average': (1, aggresive_average),
+    'drop_below_average': (2, drop_below_average),
+}
+
+buy_conditions = []
+
+# endregion Default Params for Buy Conditions
+
+
+def set_sell_conditions():
+    global sell_conditions
+    cp = sell_cond_priority
+    in_use = [(cp[condition][0], condition)
+              for condition in cp.keys() if cp[condition][1] == True]
+    sell_conditions = [entry[1] for entry in sorted(in_use)]
+
+
+def set_buy_conditions():
+    global buy_conditions
+    cp = buy_cond_priority
+    in_use = [(cp[condition][0], condition)
+              for condition in cp.keys() if cp[condition][1] == True]
+    buy_conditions = [entry[1] for entry in sorted(in_use)]
+
+
 def reset_variables(mode, csv_file):
     '''
     ## Reset Variables
@@ -23,6 +127,7 @@ def reset_variables(mode, csv_file):
     if mode == 'csv':
         gl.csv_indexes = []
         gl.sim_df = get_sim_df(csv_file)
+        gl.csv_name = gl.os.path.basename(csv_file).strip('.csv')
 
     gl.order_count = 0
 
@@ -137,102 +242,3 @@ def master_configure(mode, csv_file, batch_path):
     set_buy_conditions()
     set_sell_conditions()
     print('settings configured')
-
-
-'''----- ORDER CONDITIONS -----'''
-# region Default Params for Sell Conditions
-# sc = order_eval.sell_conditions
-# region Percentage Gain
-
-# sc.percentage_gain
-percentage_gain = True
-percentage_gain_params = {
-    'perc_gain': 3
-}
-# endregion Percentage Gain
-
-# region Target Unreal
-# sc.target_unreal
-target_unreal = True
-target_unreal_params = {
-    'target_unreal': 20
-}
-# endregion Target Unreal
-
-# region Exposure Over Account Limit
-# sc.exposure_over_account_limit
-exposure_over_account_limit = True
-exposure_over_account_limit_params = {}
-
-# endregion Exposure Over Account Limit
-
-# region Timed Exit
-
-# sc.timed_exit
-timed_exit = True
-timed_exit_params = {
-    'time': '11:00:00',
-}
-# endregion Timed Exit
-
-sell_cond_priority = {
-    'percentage_gain': (1, percentage_gain),
-    'target_unreal': (1, target_unreal),
-    'exposure_over_account_limit': (1, exposure_over_account_limit),
-    'timed_exit': (1, timed_exit),
-
-}
-
-sell_conditions = []
-
-# endregion Default Params for Sell Conditions
-
-
-# region Default Params for Buy Conditions
-bc = order_eval.buy_conditions
-# region aggressive average
-# bc.aggresive_average
-aggresive_average = False
-aggresive_average_params = {}
-
-# endregion aggressive average
-
-# region drop below average
-# bc.drop_below_average
-drop_below_average = True
-drop_below_average_params = {
-    'min_vola': 2.5,
-    'max_vola': 5
-}
-
-# endregion drop below average
-
-buy_cond_priority = {
-    'aggresive_average': (1, aggresive_average),
-    'drop_below_average': (2, drop_below_average),
-}
-
-buy_conditions = []
-
-# endregion Default Params for Buy Conditions
-
-
-def set_sell_conditions():
-    global sell_conditions
-    cp = sell_cond_priority
-    in_use = [(cp[condition][0], condition)
-              for condition in cp.keys() if cp[condition][1] == True]
-    sell_conditions = [entry[1] for entry in sorted(in_use)]
-
-
-def set_buy_conditions():
-    global buy_conditions
-    cp = buy_cond_priority
-    in_use = [(cp[condition][0], condition)
-              for condition in cp.keys() if cp[condition][1] == True]
-    buy_conditions = [entry[1] for entry in sorted(in_use)]
-
-
-'''----- OTHER -----'''
-ideal_volatility = 3
-hard_stop = '10:15:00'

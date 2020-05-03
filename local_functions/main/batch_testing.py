@@ -226,14 +226,12 @@ def manage_batch_frame(batch_frame, path):
     # endregion Docstring
     batch_frame.set_index('tick_date')
     gl.batch_frame = batch_frame
-
-    batch_frame.to_csv(path / 'batch_overview.csv')
-    gl.plotr.plot_batch_overview(batch_frame, path)
-    save_batch_index(path)
+    # batch_frame.to_csv(path / 'batch_overview.csv')
+    save_batch_index(path, batch_frame)
     return batch_frame
 
 
-def save_batch_index(path):
+def save_batch_index(path, batch_frame):
 
     folders = []
     for (dirpath, dirnames, filenames) in gl.os.walk(str(path)):
@@ -279,7 +277,13 @@ def save_batch_index(path):
 
     asset_path = str(gl.directory / 'batch_design' / 'assets')
 
+    plot = gl.plotr.plot_batch_overview(batch_frame)
+
+    batch_table = gl.frame_to_html(batch_frame)
+
     template = template.replace('^^^doc_name^^^', batch_name)
+    template = template.replace('^^^plot^^^', plot)
+    template = template.replace('^^^batch_table^^^', batch_table)
     template = template.replace('^^^date^^^', date)
     template = template.replace('^^^list_items^^^', collapsible)
     template = template.replace('^^^asset_path^^^', asset_path)
