@@ -12,8 +12,28 @@
       name="viewport"
       content="width=device-width, initial-scale=1, user-scalable=no"
     />
+    <link rel="stylesheet" href="^^^asset_path^^^/css/datatable.css" />
     <link rel="stylesheet" href="^^^asset_path^^^/css/main.css" />
-    <!-- <link rel="stylesheet" href="assets/css/main.css" /> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+      
+      input {
+        background-color: rgb(68, 68, 68);
+      }
+
+    </style>
   </head>
   <body class="is-preload">
     <!-- Wrapper -->
@@ -62,7 +82,7 @@
     </div> -->
 
     <!-- Scripts -->
-    <script src="^^^asset_path^^^/js/jquery.min.js"></script>
+    <!-- <script src="^^^asset_path^^^/js/jquery.min.js"></script> -->
     <script src="^^^asset_path^^^/js/browser.min.js"></script>
     <script src="^^^asset_path^^^/js/breakpoints.min.js"></script>
     <script src="^^^asset_path^^^/js/util.js"></script>

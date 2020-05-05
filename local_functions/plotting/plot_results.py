@@ -1020,7 +1020,8 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 range=['09:31:00', '16:00:00'],
                 rangeslider=dict(
                     visible=False
-                )
+                ),
+                showgrid=True,
             ),
 
             # VOLUME
@@ -1040,6 +1041,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 title="Volume($)",
                 titlefont={"color": "#673ab7"},
                 type="linear",
+                showgrid=False,
                 zeroline=False
             ),
 
@@ -1060,7 +1062,10 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 title="Daily Chart",
                 titlefont={"color": avgcolor},
                 type="linear",
-                zeroline=False
+                zeroline=False,
+                showgrid=True,
+                gridwidth=.6,
+                gridcolor='#2b2b2b'
             ),
 
             # POSITION SIZE
@@ -1081,6 +1086,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 title="Position Size($)",
                 titlefont={"color": poscolor},
                 type="linear",
+                showgrid=False,
                 zeroline=False
             ),
 
@@ -1101,6 +1107,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 title='P/L in Depth',
                 titlefont={"color": plcolor},
                 type="linear",
+                showgrid=False,
                 zeroline=False
             ),
 
@@ -1121,6 +1128,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 title="VIX (%)",
                 titlefont={"color": "#E91E63"},
                 type="linear",
+                showgrid=False,
                 zeroline=False
             )
         )
@@ -1128,6 +1136,8 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
         # Update Layout here...
         fig.update_layout(
             # title=str(x)+" Minute Chart "+str(date),
+            # xaxis_showgrid=False,
+
             xaxis_title="Time",
             dragmode="zoom",
             hovermode="x",
@@ -1139,13 +1149,8 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 t=100,
                 b=100
             ), showlegend=True,
-            xaxis=dict(showgrid=True)
+            # xaxis=dict(showgrid=True)
         )
-
-        # if plot:
-        #     fig.show(config={
-        #         'displayModeBar': True,
-        #         'editable': True})
 
         if html_path != False:
 
