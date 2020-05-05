@@ -238,54 +238,60 @@ def save_batch_index(path, batch_frame):
         folders.extend(dirnames)
         break
 
-    collapsible = ''
+    breakdown = ''
+    sep = ''
     for folder in folders:
         direct = path / folder
         tick_dates = []
         # sublist = ''
         # individual stocks
         for (dirpath, dirnames, filenames) in gl.os.walk(str(direct)):
+            number = 0
             if len(dirnames) != 0:
-                tick_dates.extend(dirnames)
-                links = []
-                # log.html links.
-                for tick_date in tick_dates:
-                    if len(tick_date) != 0:
-                        links.append(
-                            (str(direct / tick_date / 'log.html'), tick_date))
-                        sublist = ''
-                        for link in set(links):
-                            sublist = sublist + \
-                                (f'<li><a href="{link[0]}">{link[1]}</a></li>')
+                # stocks
+                number = len(dirnames)
             break
-        folder_and_num = folder.capitalize() + ' ' + str(len(links))
-        collapsible = collapsible + \
-            f'<li><span class="opener">{folder_and_num}</span><ul>{sublist}</ul></li>'
-
-    collapsible
+        folder_and_num = folder.capitalize() + ': ' + str(number)
+        if len(breakdown) != 0:
+            sep = ', '
+        breakdown = breakdown + sep + folder_and_num
+    # menus
+    date, batch_name = gl.os.path.split(path)
+    date = gl.os.path.split(date)[1]
+    date_and_info = f'{date}<br><br>{breakdown}'
 
     template_path = str(
         gl.directory / 'batch_design' / 'batch_index_template.html')
     with open(template_path, 'r') as template:
         template = template.read()
 
-    date, batch_name = gl.os.path.split(path)
-    date = gl.os.path.split(date)[1]
-
-    batch_name = batch_name.replace(',', ':')
-    batch_name = batch_name.replace('_', ' ').capitalize()
+    batch_name = batch_name.replace(',', ':').capitalize()
+    b, c, t, p = batch_name.split('_')
+    batch_name = f'{b} {c} @ {t} {p}'
+    # batch_name = batch_name.replace()
 
     asset_path = str(gl.directory / 'batch_design' / 'assets')
 
     plot = gl.plotr.plot_batch_overview(batch_frame)
 
-    batch_table = gl.frame_to_html(batch_frame)
+    def link_to_log(tick_date, path):
+        for root, dirs, files in gl.os.walk(path):
+            if tick_date in dirs:
+                root = gl.os.path.basename(root)
+                link = str(gl.Path(root) / tick_date / 'log.html')
+                break
+        return f'<a href="{link}">{tick_date}</a>'
+
+    # batch_frame['tick_date'] = batch_frame.tick_date.apply(lambda x: link_to_log(x, path))
+
+    batch_table = gl.frame_to_html(batch_frame, 'batch_frame')
+    for ticker in batch_frame.tick_date:
+        batch_table = batch_table.replace(ticker, link_to_log(ticker, path))
 
     template = template.replace('^^^doc_name^^^', batch_name)
     template = template.replace('^^^plot^^^', plot)
     template = template.replace('^^^batch_table^^^', batch_table)
-    template = template.replace('^^^date^^^', date)
-    template = template.replace('^^^list_items^^^', collapsible)
+    template = template.replace('^^^date^^^', date_and_info)
     template = template.replace('^^^asset_path^^^', asset_path)
 
     save_name = str(path / 'batch_index.html')

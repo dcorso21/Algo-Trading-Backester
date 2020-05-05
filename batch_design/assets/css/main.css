@@ -244,17 +244,17 @@ a {
     border-bottom-color 0.2s ease-in-out;
   -ms-transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
   transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
-  border-bottom: dotted 1px;
+  /* border-bottom: dotted 1px; */
   color: #20a77e;
   text-decoration: none;
 }
-a:hover {
+/* a:hover {
   border-bottom-color: #20a77e;
   color: #20a77e !important;
 }
 a:hover strong {
   color: inherit;
-}
+} */
 
 strong,
 b {
@@ -3099,4 +3099,60 @@ button:disabled,
   border-top: 0;
   margin-top: 0;
   padding-top: 0;
+}
+
+
+.parent {
+  display: block;
+  position: relative;
+  float: right;
+  line-height: 30px;
+  background-color: #209c81;
+  border-right: #ccc 1px solid;
+  z-index: 5;
+}
+.parent a {
+  margin: 10px;
+  color: #ffffff;
+  text-decoration: none;
+}
+.parent:hover > ul {
+  display: block;
+  position: absolute;
+}
+.child {
+  display: none;
+}
+.child li {
+  background-color: #2e2e2e;
+  line-height: 30px;
+  border-bottom: #ccc 1px solid;
+  border-right: #ccc 1px solid;
+  width: 100%;
+}
+.child li a {
+  color: #f3f3f3;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0px;
+  min-width: 10em;
+}
+ul ul ul {
+  left: 100%;
+  top: 0;
+  margin-left: 1px;
+}
+li:hover {
+  background-color: #45acac;
+}
+.parent li:hover {
+  background-color: #45acac;
+}
+.expand {
+  font-size: 12px;
+  float: right;
+  margin-right: 5px;
 }

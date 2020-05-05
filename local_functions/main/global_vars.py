@@ -137,7 +137,7 @@ def save_frame(df, file_name):
         'current': 'Current',
     }
 
-    table = frame_to_html(df)
+    table = frame_to_html(df, file_name)
 
     template = str(directory / 'batch_design' / 'table_template.html')
     with open(template, 'r') as file:
@@ -320,7 +320,23 @@ def isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def frame_to_html(df):
+def frame_to_html(df, df_name):
+
+    indexes = {
+        'batch_frame': 'tick_date',
+        'log': 'minute',
+        'filled_order': 'exe_time',
+        'volas': 'type',
+        'sup_res_frame': 'type',
+        'current_frame': 'ticker',
+        'cancelled_orders': 'ticker',
+        'current_positions': 'exe_time',
+        'cancelled_orders': 'order_id',
+        'order_specs': 'order_id',
+        'order_specs': 'order_id',
+        'open_orders': 'order_id',
+        'queued_orders': 'order_id',
+    }
 
     def tag(text, tag, attrs=None, text_in_tag=False):
         if text_in_tag == True:
@@ -332,7 +348,10 @@ def frame_to_html(df):
         end_tag = f'</{tag}>'
         return start_tag+text+end_tag
 
-    # df = pd.read_csv('temp_assets/log.csv')
+    if df_name in indexes.keys():
+        if len(df) != 0:
+            df = df.set_index(indexes[df_name], drop=True)
+
     table = df.to_html(classes='alt', table_id='df_to_dt')
     table = tag(table, 'div', 'class="display"')
     return table
