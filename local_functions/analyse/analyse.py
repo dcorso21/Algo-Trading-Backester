@@ -66,6 +66,11 @@ def day_pricing_eval():
     '''
     # endregion Docstring
 
+    if gl.pl_ex['real'] <= gl.controls.dollar_risk:
+        gl.chart_response = False
+        gl.buy_lock = True
+        return 
+
     pmeths = day_pricing_analysis_methods
 
     # if first 5 minutes check this function.

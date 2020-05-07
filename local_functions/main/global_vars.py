@@ -103,21 +103,36 @@ buy_conditions = []
 # endregion Controls/Configurations
 
 
-def csv_to_dict(file_path):
-    df = pd.read_csv(file_path)
-    df = df.set_index('type')
-    df = df[['value']]
-    dictionary = df.to_dict()['value']
-    return dictionary
+def save_dict_to_frame(dictionary, file_name):
+    # region Docstring
+    '''
+    # Save Dictionary to Frame
+    Converts dictionary to DataFrame. then uses the `save_frame` function. 
 
-
-def save_dict_to_csv(dictionary, file_name):
+    ## Parameters:{
+    ####    `dictionary`: dict to be converted 
+    ####    `file_name`: file name of dict
+    ## }
+    '''
+    # endregion Docstring
     df = pd.DataFrame(dictionary, index=['value']).T
     df = df.reset_index().rename(columns={'index': 'type'})
     save_frame(df, file_name)
 
 
 def save_frame(df, file_name):
+    # region Docstring
+    '''
+    # Save Frame
+    Takes a dataframe and converts it to an html file using a template. 
+
+    ## Parameters:{
+    ####    `df`: dataframe to save
+    ####    `file_name`: name of df
+    ## }
+
+    '''
+    # endregion Docstring
 
     page_names = {
 
@@ -175,6 +190,22 @@ filepath = {
 
 
 def clear_temp_assets():
+    # region Docstring
+    '''
+    # Clear Temp Assets
+    Deletes all items in the temp_assets folder. 
+
+    ## Process:
+
+    ### 1)
+
+    ## Notes:
+    - Notes
+
+    ## TO DO:
+    - Item
+    '''
+    # endregion Docstring
     import os
     import shutil
     folder = 'temp_assets'
@@ -220,7 +251,7 @@ def save_all():
     for file_name, file in zip(files.keys(), files.values()):
 
         if type(file) == dict:
-            save_dict_to_csv(file, file_name)
+            save_dict_to_frame(file, file_name)
         else:
             save_frame(file, file_name)
 
@@ -267,6 +298,13 @@ def save_on_error(orig_func):
 
 
 def simple_traceback(trace):
+    # region Docstring
+    '''
+    # Simple Traceback
+    ### Creates a simplified traceback for troubleshooting. 
+    '''
+    # endregion Docstring
+
     l = trace
     del l[0]
     error = l[-2]
@@ -308,6 +346,14 @@ def simple_traceback(trace):
 
 
 def isnotebook():
+    # region Docstring
+    '''
+    # Is Notebook
+    Checks to see if the code is running in an ipython kernel or in the terminal
+
+    Returns True if running in a notebook. 
+    '''
+    # endregion Docstring
     try:
         shell = get_ipython().__class__.__name__
         if shell == 'ZMQInteractiveShell':
@@ -321,6 +367,20 @@ def isnotebook():
 
 
 def frame_to_html(df, df_name):
+    # region Docstring
+    '''
+    # Frame to HTML
+    Converts Dataframe to an HTML table that will work with 
+
+    Returns html table element. 
+
+    ## Parameters:{
+    ####    `df`: global variable df
+    ####    `df_name`: global variable name. 
+    ## }
+
+    '''
+    # endregion Docstring
 
     indexes = {
         'batch_frame': 'tick_date',
@@ -355,3 +415,33 @@ def frame_to_html(df, df_name):
     table = df.to_html(classes='alt', table_id='df_to_dt')
     table = tag(table, 'div', 'class="display"')
     return table
+
+
+# region Unused
+def csv_to_dict(file_path):
+    # region Docstring
+    '''
+    # CSV to Dictionary
+    Converts 
+
+    ## Parameters:{
+    ####    `param`:
+    ## }
+
+    ## Process:
+
+    ### 1)
+
+    ## Notes:
+    - Notes
+
+    ## TO DO:
+    - Item
+    '''
+    # endregion Docstring
+    df = pd.read_csv(file_path)
+    df = df.set_index('type')
+    df = df[['value']]
+    dictionary = df.to_dict()['value']
+    return dictionary
+# endregion Unused

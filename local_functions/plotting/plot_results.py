@@ -9,17 +9,35 @@ import os
 from local_functions.data_management import historical_funcs as hist
 
 
-def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, color):
+def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, colors):
+    # region Docstring
+    '''
+    # Add Box Scatter Cross
+    Add a custom  scatter plot with box and whisker plots breakdowns included.
+
+    Returns given figure (`fig`) with new subplot added.
+
+    # Parameters:{
+    # `fig`: plotly subplot figure
+    # `row`: int, row to insert graph in subplot grid
+    # `column`: int, row to insert graph in subplot grid
+    # `x_values`: list, x values for scatter
+    # `y_values`: list, y values for scatter
+    # `labels`: list, labels for each scatter point
+    # `colors`: list, colors for each scatter point
+    # }
+    '''
+    # endregion Docstring
 
     x = x_values
     y = y_values
 
+    # define positions for box charts so they avoid the scatter.
     x_off = [min(x) - (max(x) - min(x))*.05]*len(y)
     y_off = [min(y) - (max(y) - min(y))*.05]*len(x)
     x_width = abs((max(x) - min(x))*.03)
     y_width = abs((max(y) - min(y))*.05)
 
-    # create a violin plot
     vert_box = go.Box(y=y,
                       x=x_off,
                       orientation='v',
@@ -28,7 +46,7 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, color):
                       boxpoints=False,
                       width=x_width,
                       opacity=.5,
-                      marker_color=color,
+                      marker_color=colors,
                       )
 
     hor_box = go.Box(x=x,
@@ -39,18 +57,18 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, color):
                      boxpoints=False,
                      width=y_width,
                      opacity=.5,
-                     marker_color=color,
+                     marker_color=colors,
                      )
 
     # create a scatter plot
     scatter = go.Scatter(x=x,
                          y=y,
                          mode='markers',
-                         marker_color=color,
+                         marker_color=colors,
                          text=labels,
                          )
 
-    # append figure to subplot
+    # append figures to subplot
     fig.append_trace(vert_box, row, column)
     fig.append_trace(hor_box, row, column)
     fig.append_trace(scatter, row, column)
@@ -59,6 +77,20 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, color):
 
 
 def new_line_plot(x_values, y_values, text):
+    # region Docstring
+    '''
+    # New Line Plot
+    Creates a plotly scatter trace to be appended to a figure
+
+    Returns Trace.
+
+    # Parameters:{
+    # `x_values`: list, x values for scatter
+    # `y_values`: list, y values for scatter
+    # `text`: list, labels for each point
+    # }
+    '''
+    # endregion Docstring
     line_plot = go.Scatter(x=x_values,
                            y=y_values,
                            mode='lines+markers',
@@ -68,6 +100,20 @@ def new_line_plot(x_values, y_values, text):
 
 
 def new_box_plot(x_values, labels, jitter):
+    # region Docstring
+    '''
+    # New Box Plot
+    Creates a plotly Box trace to be appended to a figure
+
+    Returns Trace.
+
+    # Parameters:{
+    # `x_values`: list, x values for scatter
+    # `labels`: list, text for hover of each point
+    # `jitter`: how much the scatter beside the box plot will be spread out.
+    # }
+    '''
+    # endregion Docstring
     box_plot = go.Box(x=x_values,
                       boxpoints='all',
                       jitter=jitter,
@@ -80,6 +126,20 @@ def new_box_plot(x_values, labels, jitter):
 
 
 def new_scatter_plot(x_values, y_values, text):
+    # region Docstring
+    '''
+    # New Scatter Plot
+    Creates a plotly scatter trace to be appended to a figure
+
+    Returns Trace.
+
+    # Parameters:{
+    # `x_values`: list, x values for scatter
+    # `y_values`: list, y values for scatter
+    # `text`: list, labels for each point
+    # }
+    '''
+    # endregion Docstring
     scatter_plot = go.Scatter(x=x_values,
                               y=y_values,
                               mode='markers',
@@ -89,13 +149,25 @@ def new_scatter_plot(x_values, y_values, text):
 
 
 def plot_batch_overview(batch_frame):
+    # region Docstring
+    '''
+    # Plot Batch Overview
+    Creates a Plotly subplots figure shown on the batch index
+
+    Returns HTML of chart to be inserted in batch index.
+
+    # Parameters:{
+    # `batch_frame`: df of batch overview.
+    # }
+    '''
+    # endregion Docstring
 
     fig = make_subplots(rows=3, cols=3,
                         specs=[[{'colspan': 3, 'rowspan': 2}, None, None],
                                [None, None, None],
                                [{}, {}, {}],
                                ],
-                        subplot_titles=("Resolved Profit Over Time",
+                        subplot_titles=("Profit Over Time",
                                         "Profit/Loss x Exposure",
                                         "Min Unreal x Max Unreal",
                                         "PL x Volatility",
@@ -157,11 +229,19 @@ def plot_batch_overview(batch_frame):
 
 
 def get_orders(filled_orders):
+    # region Docstring
     '''
-    gets filled orders and converts them to something that will be easier down the line to plot
+    # Get Orders
+    Convert `filled_orders` global variables to a df that is used in the trading charts. 
+    
+    Returns dataframe of orders 
 
-    takes no arguments
+    ## Parameters:{
+    ####    `filled_orders`: global variable df
+    ## }
+    
     '''
+    # endregion Docstring
     # convert it to a df that will be easier to plot
     df = convert_orders(filled_orders)
     # add on several columns , calculating pl and average
@@ -184,9 +264,20 @@ def expand_mkt_data(m, o):
 
 
 def plot_results(current_frame, filled_orders, batch_path, directory, csv_name):
+    # region Docstring
     '''
-    all in one for getting the market data plotted.
+    # Plot Results
+    All in one function for creating daily chart html.  
+    
+    ## Parameters:{
+    ####    `current_frame`: global variable df,
+    ####    `filled_orders`: global variable df,
+    ####    `batch_path`: global variable defined batch path
+    ####    `directory`: global variable defined directory
+    ####    `csv_name`: name of file traded
+    ## }
     '''
+    # endregion Docstring    
     o = get_orders(filled_orders)
     m = expand_mkt_data(current_frame, o)
     e_frame = max_exposures(o, m)
@@ -283,7 +374,7 @@ def update_orders(orders):
         dfz = pd.DataFrame(o).sort_values(by='time')
 
         def append_rolling_shares(dfz):
-            '''----- Rolling Shares -----'''
+            '''----- Rolling Shares - ----'''
             # Sets a default value for shares. 0 to start.
             # also creates an empty list that will become the rolling shares column (rs)
             sharecount = 0
@@ -350,7 +441,7 @@ def update_orders(orders):
 
         dfz = rounding_time(dfz)
 
-        '''----- Rolling Average and Profit / Loss -----'''
+        '''----- Rolling Average and Profit / Loss - ----'''
 
         # Start with some default pl of 0 and some empty lists to fill and make columns.
         ravg = []
@@ -532,8 +623,8 @@ def append_o_notes(o):
     '''Takes a dataframe of orders and adds columns that are useful for graphing.
 
     The columns created will be "scolor", "sig" and "annotes".
-    The "Sig" column is a string that tells you what type of order - Buy (B) Sell (S) or Buy Short (Bs)
-    The "scolor" column is the color that will be graphed for each signal (sig)
+    The "Sig" column is a string that tells you what type of order - Buy(B) Sell(S) or Buy Short(Bs)
+    The "scolor" column is the color that will be graphed for each signal(sig)
     The "Annote" column will show information about the number of shares bought at what price.'''
 
     # Create empty lists to be converted to columns.
@@ -644,7 +735,7 @@ def append_PL(mkt_data, order_data):
 
 def append_PLs(mkt_data):
     '''Function:
-    To add two columns to market data -  an unrealized high, and an unrealized low.
+    To add two columns to market data - an unrealized high, and an unrealized low.
     These show the range of unrealized profits from minute to minute.
     Note: YOU MUST HAVE ALREADY USED THE FUNCTION "append_PL" as this func used the column generated there.
 
@@ -1065,7 +1156,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 zeroline=False,
                 showgrid=True,
                 gridwidth=.6,
-                gridcolor='#2b2b2b'
+                # gridcolor='#2b2b2b'
             ),
 
             # POSITION SIZE

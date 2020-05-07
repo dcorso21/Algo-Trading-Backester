@@ -98,6 +98,24 @@ def sell_conditions(condition):
     '''
     # endregion Docstring
 
+    def dollar_risk_check():
+        # region Docstring
+        '''
+        # Dollar Risk Check
+        ### Sell Condition 
+        Checks to see if the unreal and real add up to the risk amount noted in conditions. 
+        '''
+        # endregion Docstring
+        d_risk = gl.pl_ex['unreal'] + gl.pl_ex['unreal']
+        if d_risk <= gl.controls.dollar_risk:
+            everything = gl.current_positions.qty.sum()
+            exe_price = 'current_price'
+            sells = gl.order_tools.create_orders(
+                'SELL', everything, exe_price, auto_renew=5)
+            gl.log_funcs.log('----> dollar risk triggered, selling all.')
+            return sells
+        return []
+
     def percentage_gain():
         # region Docstring
         '''
@@ -217,6 +235,7 @@ def sell_conditions(condition):
     conditions = {
 
         'percentage_gain': percentage_gain,
+        'dollar_risk_check': dollar_risk_check,
         'target_unreal': target_unreal,
         'exposure_over_account_limit': exposure_over_account_limit,
         'timed_exit': timed_exit,
