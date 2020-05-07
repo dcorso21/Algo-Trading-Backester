@@ -83,9 +83,8 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
     # 5) Rename folder assets created
     # rename_folders(path)
 
-    realized = batch_frame[batch_frame.flattened == 'True'].real_pl.sum()
-    realized = realized + \
-        batch_frame[batch_frame.flattened == 'False'].unreal_pl.sum()
+    realized = batch_frame.real_pl.sum() + batch_frame.unreal_pl.sum()
+    
     print('total Profit/Loss: ${:.2f}'.format(realized))
 
     if reps > 1 and mode == 'multiple':
@@ -101,6 +100,8 @@ def append_batch_frame(batch_frame, file_name, rep):
     end_time = 'nan'
     if len(gl.filled_orders) != 0:
         end_time = gl.filled_orders.exe_time.tolist()[-1]
+
+    status = folder_status()
 
     row = {
         'tick_date': file_name+f'_{rep}',
@@ -118,7 +119,7 @@ def append_batch_frame(batch_frame, file_name, rep):
 
         'num_of_orders': len(gl.filled_orders),
         'end_time': end_time,
-        'flattened': str(bool(len(gl.current_positions) == 0)),
+        'status': status,
     }
 
     return batch_frame.append(row, sort=False, ignore_index=True)
@@ -163,12 +164,9 @@ def batch_loop(reps, file, path, batch_frame):
         algo.test_trade(mode='csv', csv_file=file, batch_path=path)
 
         # 2) Categorize traded results in subfolders of batch.
-        if len(gl.filled_orders) == 0:
-            subfolder = 'untraded'
-        elif gl.pl_ex['unreal'] == 0:
-            subfolder = 'resolved'
-        else:
-            subfolder = 'unresolved'
+
+        subfolder = folder_status()
+
         full_path = path / subfolder / f'{file_name}_{rep}'
         # 3) Save all temp_assets with `save_documentation` function.
         save_documentation(full_path)
@@ -387,3 +385,13 @@ def rename_folders(path):
         if gl.os.path.exists(full_path):
             num_of_folders = len(glob.glob(str(full_path / '*')))
             gl.os.rename(full_path, path / f'{folder}_{num_of_folders}')
+
+
+def folder_status():
+    if len(gl.filled_orders) == 0:
+        subfolder = 'untraded'
+    elif gl.pl_ex['unreal'] == 0:
+        subfolder = 'resolved'
+    else:
+        subfolder = 'unresolved'
+    return subfolder

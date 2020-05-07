@@ -4,7 +4,7 @@ from local_functions.main import global_vars as gl
 
 '''----- OTHER -----'''
 ideal_volatility = 3
-hard_stop = '09:45:00'
+hard_stop = '10:45:00'
 
 
 '''----- ORDER CONDITIONS -----'''
