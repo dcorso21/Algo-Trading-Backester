@@ -109,6 +109,7 @@ def fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_sp
 
     order = {
         'order_id': [order_id],
+        'trigger': [gl.sys._getframe(2).f_code.co_name],
         'buy_or_sell': [buy_or_sell],
         'cash_or_qty': [cash_or_qty],
         'price_method': [price_method],
@@ -137,7 +138,7 @@ def format_orders(orders):
 
     for row in orders.index:
         row = orders.iloc[row]
-        order_id, buy_or_sell, cash_or_qty, p_method, auto_renew, cancel_spec, queue_spec = row
+        order_id, trigger, buy_or_sell, cash_or_qty, p_method, auto_renew, cancel_spec, queue_spec = row
 
         exe_price = get_exe_price(p_method)
         timestamp = gl.common.get_timestamp(

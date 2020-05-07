@@ -3,13 +3,21 @@ from local_functions.main import global_vars as gl
 
 
 '''----- OTHER -----'''
+hard_stop = '10:30:00'
+dollar_risk = -500
 ideal_volatility = 3
-hard_stop = '09:45:00'
 
 
 '''----- ORDER CONDITIONS -----'''
 # region Default Params for Sell Conditions
 # sc = order_eval.sell_conditions
+
+# region Dollar Risk Check
+dollar_risk_check = True
+dollar_risk_check_params = {}
+# endregion Dollar Risk Check
+
+
 # region Percentage Gain
 
 # sc.percentage_gain
@@ -49,11 +57,11 @@ timed_exit_params = {
 # endregion Timed Exit
 
 sell_cond_priority = {
-    'percentage_gain': (1, percentage_gain),
-    'target_unreal': (1, target_unreal),
-    'exposure_over_account_limit': (1, exposure_over_account_limit),
-    'timed_exit': (1, timed_exit),
-
+    'dollar_risk_check': (1, dollar_risk_check),
+    'timed_exit': (2, timed_exit),
+    'exposure_over_account_limit': (3, exposure_over_account_limit),
+    'percentage_gain': (4, percentage_gain),
+    'target_unreal': (5, target_unreal),
 }
 
 sell_conditions = []
