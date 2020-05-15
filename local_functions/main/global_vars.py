@@ -1,7 +1,7 @@
 # region Modules
 
-# import pyqtgraph as pg
-# from pyqtgraph import QtCore, QtGui
+import pyqtgraph as pg
+from pyqtgraph import QtCore, QtGui
 
 
 import datetime
@@ -256,6 +256,7 @@ def save_all():
             save_frame(file, file_name)
 
     if len(mom_frame) != 0:
+        update_docs.update_momentum()
         html_path = str(directory / 'temp_assets' / 'mom_tracking.html')
         plotr.plot_momentum(mom_frame, current_frame,
                             directory, batch_path, csv_name)

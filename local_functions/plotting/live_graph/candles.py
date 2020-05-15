@@ -47,7 +47,7 @@ class CandlestickItem(gl.pg.GraphicsObject):
                 p.drawRect(gl.QtCore.QRectF(t-w, o, w*2, c-o))
 
         p.end()
-
+ 
     def paint(self, p, *args):
         p.drawPicture(0, 0, self.picture)
 

@@ -179,6 +179,7 @@ def update_volas():
 
 
 def update_momentum():
+    # region Docstring
     '''
     # Update Momentum
     Updates the global variable `mom_frame`
@@ -213,6 +214,7 @@ def update_momentum():
     ### 4) Replace global `mom_frame` variable with newly made DataFrame. 
 
     '''
+    # endregion Docstring
     # 1) Define Starting Variables. #####################################################
     df = gl.current_frame.reset_index(drop=True)
     # don't do anything unless the df is at least 5 rows long.
@@ -299,6 +301,10 @@ def new_agg_list(df, last_offset):
     for x in ideal_list:
         if int((len(df)-last_offset) / x) != 0:
             agg_list.append(x)
+
+    if len(agg_list) == 0:
+        if (len(df) - last_offset)/2 >= 2:
+            agglist = [2] 
 
     return agg_list
 
