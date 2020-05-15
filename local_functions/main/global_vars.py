@@ -3,7 +3,7 @@
 import pyqtgraph as pg
 from pyqtgraph import QtCore, QtGui
 
-
+import numpy as np
 import datetime
 import pandas as pd
 import logging
@@ -11,7 +11,7 @@ import random
 import os
 import shutil
 import sys
-# import requests
+import requests
 from functools import wraps
 from pathlib import Path
 
@@ -44,6 +44,8 @@ from local_functions.trade_funcs import trade_funcs
 # from local_functions.td_api import api_chart
 
 from local_functions.plotting import plot_results as plotr
+from local_functions.plotting import candles
+from local_functions.plotting import api_chart
 
 # endregion imports
 
@@ -418,6 +420,61 @@ def frame_to_html(df, df_name):
     return table
 
 
+
+def update_config_files():
+    from config import ipy_creator
+    path = gl.directory
+    repo = get_algo_config_repo()
+    ipy_creator.update_all(path, repo)
+
+
+def delete_all_created_configs():
+    repo = get_algo_config_repo()
+    created = repo.get_contents('created')
+    if len(created) != 0:
+        for f in created:
+            commit_msg = f"removed {f}"
+            repo.delete_file(f.path, commit_msg, f.sha, branch="master")
+            print(commit_msg)
+
+
+def get_algo_config_repo():
+    from github import Github
+    user, pasw = 'dcorso21', 'PFgyMWEVJQnZzu2'
+    g = Github(user, pasw)
+    for repo in g.get_user().get_repos():
+        if str(repo) == 'Repository(full_name="dcorso21/algo_config")':
+            break
+    return repo
+
+
+def get_config_files():
+    repo = get_algo_config_repo()
+    files = list(repo.get_contents('created')).reverse()
+    return files
+
+
+def pick_config_file():
+    files = get_config_files()
+    num_files = enumerate(files)
+    msg = ''
+    # print(list(files))
+    for fil in num_files:
+        num = fil[0]
+        x = str(fil).split('created/')[1].split('.json')[0]
+        x = f'{num}. {x} \n'
+        msg = msg + x+'\n'
+    msg = f'''
+    {msg}\n
+    '''
+    print(msg)
+    prompt = 'please specify config by number'
+    num = int(input(prompt))
+    return files[num]
+
+
+
+
 # region Unused
 def csv_to_dict(file_path):
     # region Docstring
@@ -446,3 +503,5 @@ def csv_to_dict(file_path):
     dictionary = df.to_dict()['value']
     return dictionary
 # endregion Unused
+
+

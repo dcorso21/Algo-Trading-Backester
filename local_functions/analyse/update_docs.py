@@ -57,17 +57,21 @@ def update_return_and_pl():
     current_positions = gl.current_positions
 
     if len(current_positions) != 0:
+        exe_prices = current_positions.exe_price.values
+
+        current_positions['p_return'] = gl.np.around(
+            (((gl.current['close'] - exe_prices) / exe_prices)*100), decimals=2)
 
         # 1) Calculate percentage return for each position in the 'p_return' column
-        ret = []
-        for x in current_positions.exe_price:
-            ret.append(round(((gl.current['close'] - x)/x)*100, 1))
+        # ret = []
+        # for x in current_positions.exe_price:
+        #     ret.append(round(((gl.current['close'] - x)/x)*100, 1))
 
-        current_positions['p_return'] = ret
+        # current_positions['p_return'] = ret
 
         # 2) Calculate the unrealized profit/loss in the 'un_pl' column
-        current_positions['un_pl'] = current_positions.cash * \
-            current_positions.p_return*.01
+        current_positions['un_pl'] = current_positions.cash.values * \
+            current_positions.p_return.values*.01
 
         # 3) Update the current_position global variable to include these newly updated rows
         gl.current_positions = current_positions
@@ -290,13 +294,15 @@ def new_agg_list(df, last_offset):
 
     #### 2) takes an ideal list of aggregation lengths and makes a new list 
 
-    - only including the values that would fit in the remainder.  
+    - only including the values that would fit in the remainder.
+
+    NOTE: I tested this with Numpy arrays, and this method is somehow faster. Do not know why.   
     '''
 
     # ideally, these are the increments for aggregation.
     ideal_list = [5, 10, 15, 20, 25, 30]
-    agg_list = []
 
+    agg_list = []
     # this process looks at how many rows are left and adds to the list those which will fit in the remainder
     for x in ideal_list:
         if int((len(df)-last_offset) / x) != 0:

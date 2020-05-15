@@ -18,7 +18,7 @@ def daily_chart(ticker):
         'frequency': '1',
         'endDate': unix_now,
         # 'startDate': '1585797785000',
-        # 'needExtendedHoursData': 'true',
+        'needExtendedHoursData': 'false',
 
     }
 
@@ -97,4 +97,3 @@ def show_plot(period='day', ticker='MSFT'):
         df = yearly_chart(ticker)
 
     gl.candles.show_candlestick_chart(df)
-

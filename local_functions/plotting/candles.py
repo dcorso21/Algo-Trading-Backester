@@ -90,3 +90,5 @@ def show_candlestick_chart(df):
     vb.setYRange(df.low.min(), df.high.max(), padding=.05)
     gl.QtGui.QApplication.instance().exec_()
     return
+
+

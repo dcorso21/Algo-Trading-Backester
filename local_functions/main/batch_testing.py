@@ -2,9 +2,11 @@ from local_functions.main import global_vars as gl
 from local_functions.main import algo
 import time
 
+batch_configs = []
+
 
 @ gl.save_on_error
-def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
+def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_setting='last'):
     # region Docstring
     '''
     # Batch Test
@@ -43,6 +45,12 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
     '''
     # endregion Docstring
     start = time.time()
+    args = {
+        'reps': reps,
+        'mode': mode,
+        'stop_at': stop_at,
+        'shuffle': shuffle,
+    }
     import glob
 
     print('Starting BATCH test')
@@ -61,6 +69,11 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
 
     # 3) Estimate amount of time to take to execute batch.
     calc_batch_time(len(csv_list), reps)
+
+    if config_setting != False:
+        configs = pick_batch_configs(config_setting, reps)
+        global batch_configs
+        batch_configs = configs
 
     path = get_batch_path()
     batch_frame = gl.pd.DataFrame()
@@ -89,14 +102,16 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True):
 
     if reps > 1 and mode == 'multiple':
         reps -= 1
-        batch_test(reps=reps, mode='multiple')
+        batch_test(reps=reps, mode='multiple',
+                   stop_at=args['stop_at'], shuffle=args['shuffle'], config_setting=False)
 
     duration = (time.time() - start)/60
     print(f'total time elapsed: {duration} minute(s)')
 
 
-def append_batch_frame(batch_frame, file_name, rep):
+def append_batch_frame(batch_frame, file_name, rep, config):
 
+    config = config.split('created/')[1].split('.json')[0]
     end_time = 'nan'
     if len(gl.filled_orders) != 0:
         end_time = gl.filled_orders.exe_time.tolist()[-1]
@@ -105,6 +120,7 @@ def append_batch_frame(batch_frame, file_name, rep):
 
     row = {
         'tick_date': file_name+f'_{rep}',
+        'configuration_file': config,
         'avg_vola': gl.volas['mean'],
 
         'real_pl': gl.pl_ex['real'],
@@ -123,6 +139,33 @@ def append_batch_frame(batch_frame, file_name, rep):
     }
 
     return batch_frame.append(row, sort=False, ignore_index=True)
+
+
+def pick_batch_configs(config_setting, reps):
+    configs = gl.get_config_files()
+    if config_setting == 'last':
+        configs = [configs[0]]*reps
+    elif config_setting == 'pick':
+        num_files = enumerate(configs)
+        msg = ''
+        for fil in num_files:
+            num = fil[0]
+            x = str(fil).split('created/')[1].split('.json')[0]
+            x = f'{num}. {x} \n'
+            msg = msg + x+'\n'
+        msg = f'{msg}\n'
+        print(msg)
+        prompt = f'input {reps} indexes for files.'
+        picks = input(prompt).split(',')
+        picks = map(int, picks)
+        picks = list(picks)
+        cs = []
+        for index in picks:
+            cs.append(configs[index])
+        configs = cs
+
+    global batch_configs
+    batch_configs = configs
 
 
 def batch_loop(reps, file, path, batch_frame):
@@ -158,10 +201,11 @@ def batch_loop(reps, file, path, batch_frame):
     # endregion Docstring
     for rep in range(reps):
 
+        config = batch_configs.pop(0)
         # 1) Trade the csv with the function `test_trade`
         file_name = gl.os.path.basename(file).strip('.csv')
         print(f'now trading: {file_name}')
-        algo.test_trade(mode='csv', csv_file=file, batch_path=path)
+        algo.test_trade(config = config, mode='csv', csv_file=file, batch_path=path)
 
         # 2) Categorize traded results in subfolders of batch.
 
@@ -172,7 +216,7 @@ def batch_loop(reps, file, path, batch_frame):
         save_documentation(full_path)
 
         # 4) Update Batch Frame with `append_batch_frame` function.
-        batch_frame = append_batch_frame(batch_frame, file_name, rep)
+        batch_frame = append_batch_frame(batch_frame, file_name, rep, config)
 
     return batch_frame
 

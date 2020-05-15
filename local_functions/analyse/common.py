@@ -7,13 +7,12 @@ def get_volatility(high_list, low_list):
     ## Get Volatility
     Takes high and low lists and makes a list of volatilities based on the highs and lows. 
 
-    returns list of volatilities. 
+    returns numpy array of volatilities. 
     '''
     # endregion Docstring
-
-    vola = []
-    for high, low in zip(high_list, low_list):
-        vola.append(round(((high - low)/low)*100, 1))
+    highs = gl.np.array(high_list)
+    lows = gl.np.array(low_list)
+    vola = gl.np.around((((highs - lows) / lows)*100),decimals=1)
     return vola
 
 
