@@ -5,8 +5,8 @@ import time
 batch_configs = []
 
 
-@ gl.save_on_error
-def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_setting='last'):
+# @ gl.save_on_error
+def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_setting='default'):
     # region Docstring
     '''
     # Batch Test
@@ -71,9 +71,7 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
     calc_batch_time(len(csv_list), reps)
 
     if config_setting != False:
-        configs = pick_batch_configs(config_setting, reps)
-        global batch_configs
-        batch_configs = configs
+        pick_batch_configs(config_setting, reps)
 
     path = get_batch_path()
     batch_frame = gl.pd.DataFrame()
@@ -97,10 +95,12 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
     # rename_folders(path)
 
     realized = batch_frame.real_pl.sum() + batch_frame.unreal_pl.sum()
-    
+
     print('total Profit/Loss: ${:.2f}'.format(realized))
 
     if reps > 1 and mode == 'multiple':
+        global batch_configs
+        discard = batch_configs.pop(0)
         reps -= 1
         batch_test(reps=reps, mode='multiple',
                    stop_at=args['stop_at'], shuffle=args['shuffle'], config_setting=False)
@@ -111,7 +111,9 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
 
 def append_batch_frame(batch_frame, file_name, rep, config):
 
-    config = config.split('created/')[1].split('.json')[0]
+    if str(config) != 'default':
+        config = str(config.name).split('.json')[0]
+
     end_time = 'nan'
     if len(gl.filled_orders) != 0:
         end_time = gl.filled_orders.exe_time.tolist()[-1]
@@ -145,12 +147,13 @@ def pick_batch_configs(config_setting, reps):
     configs = gl.get_config_files()
     if config_setting == 'last':
         configs = [configs[0]]*reps
+    elif config_setting == 'default':
+        configs = [config_setting]*reps
     elif config_setting == 'pick':
         num_files = enumerate(configs)
         msg = ''
         for fil in num_files:
-            num = fil[0]
-            x = str(fil).split('created/')[1].split('.json')[0]
+            num, x = fil[0], str(fil[1].name)
             x = f'{num}. {x} \n'
             msg = msg + x+'\n'
         msg = f'{msg}\n'
@@ -161,7 +164,10 @@ def pick_batch_configs(config_setting, reps):
         picks = list(picks)
         cs = []
         for index in picks:
-            cs.append(configs[index])
+            if index == -1:
+                cs.append('default')
+            else:
+                cs.append(configs[index])
         configs = cs
 
     global batch_configs
@@ -199,17 +205,29 @@ def batch_loop(reps, file, path, batch_frame):
     - Item
     '''
     # endregion Docstring
+    global batch_configs
+    total = reps
+    # reps = list(range(1, reps+1))
+    # reps.reverse()
     for rep in range(reps):
 
-        config = batch_configs.pop(0)
+        # while True:
+        #     if len(batch_configs) > rep:
+        #         discarded = batch_configs.pop(0)
+        #         break
+
+        config = batch_configs[rep]
         # 1) Trade the csv with the function `test_trade`
         file_name = gl.os.path.basename(file).strip('.csv')
         print(f'now trading: {file_name}')
-        algo.test_trade(config = config, mode='csv', csv_file=file, batch_path=path)
+        algo.test_trade(config=config, mode='csv',
+                        csv_file=file, batch_path=path)
 
         # 2) Categorize traded results in subfolders of batch.
 
         subfolder = folder_status()
+
+        # rep = total - rep
 
         full_path = path / subfolder / f'{file_name}_{rep}'
         # 3) Save all temp_assets with `save_documentation` function.

@@ -152,10 +152,11 @@ def make_default_config_json(path):
     }
 
     d = json.dumps(d, indent=4, sort_keys=True)
-    name = path / 'default_config.json'
-    with open(str(name), 'w') as f:
-        f.write(d)
-        f.close()
+    if path != False:
+        name = path / 'default_config.json'
+        with open(str(name), 'w') as f:
+            f.write(d)
+            f.close()
 
     return d
 

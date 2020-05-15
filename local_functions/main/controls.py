@@ -7,7 +7,7 @@ lock_defaults = True
 
 '''----- Misc -----'''
 misc = {
-    'hard_stop': '10:30:00',
+    'hard_stop': '09:45:00',
     'dollar_risk': -500,
     'ideal_volatility': 3,
 }
@@ -53,11 +53,10 @@ percentage_gain = {
 # endregion Percentage Gain
 
 # region Target Unreal
-# sc.target_unreal
 target_unreal = {
     'active': True,
     'priority': 5,
-    'target_unreal': 20
+    'target_unreal_amount': 20
 }
 # endregion Target Unreal
 
@@ -250,6 +249,8 @@ def reset_variables(mode, csv_file):
 
 
 def configure_settings(config):
+    if config == 'default':
+        return
     if config == 'last':
         config = gl.get_config_files()[0]
     elif config == 'pick':
@@ -257,23 +258,25 @@ def configure_settings(config):
 
     import json
     config = json.loads(config.decoded_content)
+    gl.config = config
     global misc, buy_cond_params, sell_cond_params
 
     if lock_defaults == True:
-        if config['default']['everything']:
+        if config['defaults']['everything']:
             return
-        if config['default']['misc'] != True:
+        if config['defaults']['misc'] != True:
             misc = config['master']['misc']
-        if config['default']['order_conditions'] != True:
-            if config['default']['buy_conditions'] != True:
+        if config['defaults']['order_conditions'] != True:
+            if config['defaults']['buy_conditions'] != True:
                 buy_cond_params = config['master']['order_conditions']['buy_conditions']
-            if config['default']['buy_conditions'] != True:
-                buy_cond_params = config['master']['order_conditions']['sell_conditions']
+            if config['defaults']['buy_conditions'] != True:
+                sell_cond_params = config['master']['order_conditions']['sell_conditions']
         return
 
     misc = config['master']['misc']
     buy_cond_params = config['master']['order_conditions']['buy_conditions']
     sell_cond_params = config['master']['order_conditions']['sell_conditions']
+
     return
 
 

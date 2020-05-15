@@ -66,10 +66,10 @@ def day_pricing_eval():
     '''
     # endregion Docstring
 
-    if gl.pl_ex['real'] <= gl.controls.dollar_risk:
+    if gl.pl_ex['real'] <= gl.controls.misc['dollar_risk']:
         gl.chart_response = False
         gl.buy_lock = True
-        return 
+        return
 
     pmeths = day_pricing_analysis_methods
 

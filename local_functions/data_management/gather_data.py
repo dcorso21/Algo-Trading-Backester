@@ -51,7 +51,7 @@ def csv_refresh():
             gl.loop_feedback = False
             return
 
-        if last['minute'] == gl.controls.hard_stop:
+        if last['minute'] == gl.controls.misc['hard_stop']:
             gl.loop_feedback = False
             return
 

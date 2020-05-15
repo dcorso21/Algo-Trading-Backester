@@ -163,7 +163,7 @@ def update_volas():
 
     # set ideal volatility
 
-    ideal_vola = gl.controls.ideal_volatility
+    ideal_vola = gl.controls.misc['ideal_volatility']
 
     scaler = volas['five_min'] / ideal_vola
 
@@ -310,7 +310,7 @@ def new_agg_list(df, last_offset):
 
     if len(agg_list) == 0:
         if (len(df) - last_offset)/2 >= 2:
-            agglist = [2] 
+            agglist = [2]
 
     return agg_list
 

@@ -97,6 +97,7 @@ def sell_conditions(condition):
     - Item
     '''
     # endregion Docstring
+    s_params = gl.controls.sell_cond_params
 
     def dollar_risk_check():
         # region Docstring
@@ -107,7 +108,7 @@ def sell_conditions(condition):
         '''
         # endregion Docstring
         d_risk = gl.pl_ex['unreal'] + gl.pl_ex['unreal']
-        if d_risk <= gl.controls.dollar_risk:
+        if d_risk <= gl.controls.misc['dollar_risk']:
             everything = gl.current_positions.qty.sum()
             exe_price = 'current_price'
             sells = gl.order_tools.create_orders(
@@ -132,7 +133,7 @@ def sell_conditions(condition):
         '''
         # endregion Docstring
         avg = gl.common.get_average()
-        perc = gl.controls.percentage_gain_params['perc_gain']
+        perc = s_params['percentage_gain']['perc_gain']
         if gl.current['close'] >= (avg * (1 + .01 * perc)):
             # sell all
             everything = gl.current_positions.qty.sum()
@@ -158,7 +159,7 @@ def sell_conditions(condition):
 
         '''
         # endregion Docstring
-        target_unreal_amount = gl.controls.target_unreal_params['target_unreal']
+        target_unreal_amount = s_params['target_unreal']['target_unreal_amount']
         unreal = gl.pl_ex['unreal']
         if unreal >= target_unreal_amount:
             # sell all
@@ -213,7 +214,7 @@ def sell_conditions(condition):
         ## }
         '''
         # endregion Docstring
-        exit_time = gl.controls.timed_exit_params['time']
+        exit_time = s_params['timed_exit']['time']
         exit_time = gl.pd.to_datetime(exit_time).timestamp()
 
         current_time = gl.current['minute']
@@ -321,6 +322,7 @@ def buy_conditions(condition):
     - Item
     '''
     # endregion Docstring
+    b_params = gl.controls.buy_cond_params
 
     def starting_position():
         # region Docstring
@@ -366,7 +368,7 @@ def buy_conditions(condition):
         if gl.buy_clock > 0:
             return gl.pd.DataFrame()
 
-        params = gl.controls.drop_below_average_params
+        params = b_params['drop_below_average']
 
         current = gl.current
         # min_vola = params['min_vola']

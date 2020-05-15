@@ -50,6 +50,7 @@ from local_functions.plotting import api_chart
 # endregion imports
 
 directory = Path(os.getcwd())
+config = 'default'
 
 # Stock info.
 stock_pick = 'nan'
@@ -222,6 +223,23 @@ def clear_temp_assets():
             print(f'Failed to delete {file_path}. Reason: {e}')
 
 
+def save_config():
+    global config
+    if config == 'default':
+        from config.ipy_creator import make_default_config_json, sp, bp, misc
+        config = make_default_config_json(False)
+    else:
+        import json
+        config = json.dumps(config, indent=4, sort_keys=True)
+
+    path = directory / 'temp_assets' / 'config.json'
+    with open(path, 'x') as f:
+        f.write(config)
+        f.close()
+
+    config = 'default'
+
+
 def save_all():
     '''
     ### Save All Files
@@ -250,6 +268,7 @@ def save_all():
 
     }
     clear_temp_assets()
+    save_config()
     for file_name, file in zip(files.keys(), files.values()):
 
         if type(file) == dict:
@@ -420,10 +439,9 @@ def frame_to_html(df, df_name):
     return table
 
 
-
 def update_config_files():
     from config import ipy_creator
-    path = gl.directory
+    path = directory
     repo = get_algo_config_repo()
     ipy_creator.update_all(path, repo)
 
@@ -450,7 +468,8 @@ def get_algo_config_repo():
 
 def get_config_files():
     repo = get_algo_config_repo()
-    files = list(repo.get_contents('created')).reverse()
+    files = list(repo.get_contents('created'))
+    files.reverse()
     return files
 
 
@@ -471,8 +490,6 @@ def pick_config_file():
     prompt = 'please specify config by number'
     num = int(input(prompt))
     return files[num]
-
-
 
 
 # region Unused
@@ -503,5 +520,3 @@ def csv_to_dict(file_path):
     dictionary = df.to_dict()['value']
     return dictionary
 # endregion Unused
-
-
