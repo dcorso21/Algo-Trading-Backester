@@ -1,67 +1,72 @@
 from local_functions.analyse import order_eval
 from local_functions.main import global_vars as gl
 
+# For configuration of settings.
+# in the case of deprecation, setting False will keep the old settings.
+lock_defaults = True
 
-'''----- OTHER -----'''
-hard_stop = '10:30:00'
-dollar_risk = -500
-ideal_volatility = 3
+'''----- Misc -----'''
+misc = {
+    'hard_stop': '10:30:00',
+    'dollar_risk': -500,
+    'ideal_volatility': 3,
+}
 
 
 '''----- ORDER CONDITIONS -----'''
 # region Default Params for Sell Conditions
+'''----- SELL CONDITIONS-----'''
 # sc = order_eval.sell_conditions
 
 # region Dollar Risk Check
-dollar_risk_check = True
-dollar_risk_check_params = {}
+dollar_risk_check = {
+    'active': True,
+    'priority': 1,
+}
 # endregion Dollar Risk Check
 
+# region Timed Exit
+stop_time = gl.pd.to_datetime(misc['hard_stop'])
+stop_time = stop_time - gl.datetime.timedelta(minutes=2)
+stop_time = stop_time.strftime('%H:%M:%S')
+
+timed_exit = {
+    'active': True,
+    'priority': 2,
+    'time': stop_time,
+}
+# endregion Timed Exit
+
+# region Exposure Over Account Limit
+exposure_over_account_limit = {
+    'active': True,
+    'priority': 3,
+}
+# endregion Exposure Over Account Limit
 
 # region Percentage Gain
-
-# sc.percentage_gain
-percentage_gain = True
-percentage_gain_params = {
+percentage_gain = {
+    'active': True,
+    'priority': 4,
     'perc_gain': 3
 }
 # endregion Percentage Gain
 
 # region Target Unreal
 # sc.target_unreal
-target_unreal = True
-target_unreal_params = {
+target_unreal = {
+    'active': True,
+    'priority': 5,
     'target_unreal': 20
 }
 # endregion Target Unreal
 
-# region Exposure Over Account Limit
-# sc.exposure_over_account_limit
-exposure_over_account_limit = True
-exposure_over_account_limit_params = {}
-
-# endregion Exposure Over Account Limit
-
-# region Timed Exit
-
-# sc.timed_exit
-
-stop_time = gl.pd.to_datetime(hard_stop)
-stop_time = stop_time - gl.datetime.timedelta(minutes=2)
-stop_time = stop_time.strftime('%H:%M:%S')
-
-timed_exit = True
-timed_exit_params = {
-    'time': stop_time,
-}
-# endregion Timed Exit
-
-sell_cond_priority = {
-    'dollar_risk_check': (1, dollar_risk_check),
-    'timed_exit': (2, timed_exit),
-    'exposure_over_account_limit': (3, exposure_over_account_limit),
-    'percentage_gain': (4, percentage_gain),
-    'target_unreal': (5, target_unreal),
+sell_cond_params = {
+    'dollar_risk_check': dollar_risk_check,
+    'timed_exit': timed_exit,
+    'exposure_over_account_limit': exposure_over_account_limit,
+    'percentage_gain': percentage_gain,
+    'target_unreal': target_unreal,
 }
 
 sell_conditions = []
@@ -70,27 +75,27 @@ sell_conditions = []
 
 
 # region Default Params for Buy Conditions
-bc = order_eval.buy_conditions
-# region aggressive average
-# bc.aggresive_average
-aggresive_average = False
-aggresive_average_params = {}
-
-# endregion aggressive average
 
 # region drop below average
-# bc.drop_below_average
-drop_below_average = True
-drop_below_average_params = {
+drop_below_average = {
+    'active': True,
+    'priority': 1,
     'min_vola': 2.5,
     'max_vola': 5
 }
-
 # endregion drop below average
 
-buy_cond_priority = {
-    'aggresive_average': (1, aggresive_average),
-    'drop_below_average': (2, drop_below_average),
+# region aggressive average
+aggresive_average = {
+    'active': False,
+    'priority': 2,
+}
+# endregion aggressive average
+
+
+buy_cond_params = {
+    'aggresive_average': aggresive_average,
+    'drop_below_average': drop_below_average,
 }
 
 buy_conditions = []
@@ -100,18 +105,18 @@ buy_conditions = []
 
 def set_sell_conditions():
     global sell_conditions
-    cp = sell_cond_priority
-    in_use = [(cp[condition][0], condition)
-              for condition in cp.keys() if cp[condition][1] == True]
-    sell_conditions = [entry[1] for entry in sorted(in_use)]
+    sp = sell_cond_params
+    active = [(sp[cond]['priority'], cond)
+              for cond in sp.keys() if sp[cond]['active'] == True]
+    sell_conditions = [entry[1] for entry in sorted(active)]
 
 
 def set_buy_conditions():
     global buy_conditions
-    cp = buy_cond_priority
-    in_use = [(cp[condition][0], condition)
-              for condition in cp.keys() if cp[condition][1] == True]
-    buy_conditions = [entry[1] for entry in sorted(in_use)]
+    bp = buy_cond_params
+    active = [(bp[cond]['priority'], cond)
+              for cond in bp.keys() if bp[cond]['active'] == True]
+    buy_conditions = [entry[1] for entry in sorted(active)]
 
 
 def reset_variables(mode, csv_file):
@@ -244,9 +249,38 @@ def reset_variables(mode, csv_file):
     print('variables reset')
 
 
-def master_configure(mode, csv_file, batch_path):
+def configure_settings(config):
+    if config == 'last':
+        config = gl.get_config_files()[0]
+    elif config == 'pick':
+        config = gl.pick_config_file()
+
+    import json
+    config = json.loads(config.decoded_content)
+    global misc, buy_cond_params, sell_cond_params
+
+    if lock_defaults == True:
+        if config['default']['everything']:
+            return
+        if config['default']['misc'] != True:
+            misc = config['master']['misc']
+        if config['default']['order_conditions'] != True:
+            if config['default']['buy_conditions'] != True:
+                buy_cond_params = config['master']['order_conditions']['buy_conditions']
+            if config['default']['buy_conditions'] != True:
+                buy_cond_params = config['master']['order_conditions']['sell_conditions']
+        return 
+
+    misc = config['master']['misc']
+    buy_cond_params = config['master']['order_conditions']['buy_conditions']
+    sell_cond_params = config['master']['order_conditions']['sell_conditions']
+    return 
+
+
+def master_configure(config, mode, csv_file, batch_path):
     gl.batch_path = batch_path
     reset_variables(mode, csv_file)
+    configure_settings(config)
     set_buy_conditions()
     set_sell_conditions()
     print('settings configured')

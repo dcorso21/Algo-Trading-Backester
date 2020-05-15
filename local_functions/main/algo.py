@@ -3,11 +3,24 @@ from local_functions.main import global_vars as gl
 import time
 
 
-def test_trade(mode='csv', csv_file='first', batch_path=False):
+def test_trade(config='last', mode='csv', csv_file='first', batch_path=False):
+    # region Docstring
+    '''
+    # Test Trade
+    Main Function for testing algo. Runs through a stock based on configuration file. 
+
+    ## Parameters:{
+    ####    `config`: str, key-word, choices are: last, pick or the actual config file. 
+    ####    `mode`: csv or live trading
+    ####    `csv_file`: name of csv if csv trading. 
+    ####    `batch_path`: directory of batch.  
+    ## }
+    '''
+    # endregion Docstring
 
     start_time = time.time()
-    gl.controls.master_configure(
-        mode=mode, csv_file=csv_file, batch_path=batch_path)
+    gl.controls.master_configure(config=config,
+                                 mode=mode, csv_file=csv_file, batch_path=batch_path)
 
     gl.screen.pick_stock_direct(mode)
     if gl.stock_pick == 'nan':
