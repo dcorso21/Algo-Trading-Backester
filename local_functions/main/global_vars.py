@@ -224,6 +224,15 @@ def clear_temp_assets():
 
 
 def save_config():
+    # region Docstring
+    '''
+    # Save Config
+    saves config.json used for trading in the temp_assets
+
+    #### Returns nothing, saves the json file. 
+
+    '''
+    # endregion Docstring
     global config
     if config == 'default':
         from config.ipy_creator import make_default_config_json, sp, bp, misc
@@ -439,77 +448,130 @@ def frame_to_html(df, df_name):
     return table
 
 
-def update_config_files():
-    from config import ipy_creator
-    path = directory
-    repo = get_algo_config_repo()
-    ipy_creator.update_all(path, repo)
-
-
-def delete_all_created_configs():
-    repo = get_algo_config_repo()
-    created = repo.get_contents('created')
-    if len(created) != 0:
-        for f in created:
-            commit_msg = f"removed {f}"
-            repo.delete_file(f.path, commit_msg, f.sha, branch="master")
-            print(commit_msg)
-
-
-def get_algo_config_repo():
-    from github import Github
-    user, pasw = 'dcorso21', 'PFgyMWEVJQnZzu2'
-    g = Github(user, pasw)
-    for repo in g.get_user().get_repos():
-        if str(repo) == 'Repository(full_name="dcorso21/algo_config")':
-            break
-    return repo
-
-
-def get_config_files():
+def manage_algo_config_repo(method):
     # region Docstring
     '''
-    # Name
-    Description
+    # Manage algo_config repo
+    group of functions for interacting with the algo_config repo on github. 
+    
+    #### Returns depends on method
     
     ## Parameters:{
-    ####    `param`:
+    ####    `method`: str, relates to function to call:
+    -               `update`: updates the template, default.json and colab.ipynb,
+    -               `delete`: remove all config files from created folder in repo but file
+                            can still be found in commit history,
+    -               `get_repo`: returns github repo object,
+    -               `get_files`: returns list of content objects for each json,
+    -               `pick`: allows user to pick which file they would like to see. 
+
     ## }
-    
-    ## Process:
-    
-    ### 1)
-    
-    ## Notes:
-    - Notes
-    
-    ## TO DO:
-    - Item
     '''
     # endregion Docstring
-    repo = get_algo_config_repo()
-    files = list(repo.get_contents('created'))
-    files.reverse()
-    return files
 
+    def update_config_files():
+        # region Docstring
+        '''
+        # Update Config Files
+        Updates the algo_config repo on github, creating a new ipynb, default json, and template 
+        for testing based on current control.py settings.
 
-def pick_config_file():
-    files = get_config_files()
-    num_files = enumerate(files)
-    msg = ''
-    # print(list(files))
-    for fil in num_files:
-        num = fil[0]
-        x = str(fil).split('created/')[1].split('.json')[0]
-        x = f'{num}. {x} \n'
-        msg = msg + x+'\n'
-    msg = f'''
-    {msg}\n
-    '''
-    print(msg)
-    prompt = 'please specify config by number'
-    num = int(input(prompt))
-    return files[num]
+        #### Returns nothing, saves to github.
+
+        '''
+        # endregion Docstring
+        from config import ipy_creator
+        path = directory
+        repo = get_algo_config_repo()
+        ipy_creator.update_all(path, repo)
+
+    def delete_all_created_configs():
+        # region Docstring
+        '''
+        # Delete All Created Configs
+        deletes all creates config.json files in github repo
+
+        #### Returns nothing
+        '''
+        # endregion Docstring
+        repo = get_algo_config_repo()
+        created = repo.get_contents('created')
+        if len(created) != 0:
+            for f in created:
+                commit_msg = f"removed {f}"
+                repo.delete_file(f.path, commit_msg, f.sha, branch="master")
+                print(commit_msg)
+
+    def get_algo_config_repo():
+        # region Docstring
+        '''
+        # Get algo_config repo
+        retrieves the repo object using the pygithub package.  
+
+        #### Returns repo object.
+
+        note: got an email saying that login with u/p will be deprecated soon. 
+        '''
+        # endregion Docstring
+        from github import Github
+        user, pasw = 'dcorso21', 'PFgyMWEVJQnZzu2'
+        g = Github(user, pasw)
+        for repo in g.get_user().get_repos():
+            if str(repo) == 'Repository(full_name="dcorso21/algo_config")':
+                break
+        return repo
+
+    def get_config_files():
+        # region Docstring
+        '''
+        # Get Config Files
+        gets all listed config.json files in repo.
+
+        #### Returns list of github content files which can be converted to dicts.  
+        '''
+        # endregion Docstring
+        repo = get_algo_config_repo()
+        files = list(repo.get_contents('created'))
+        files.reverse()
+        return files
+
+    def pick_config_file():
+        # region Docstring
+        '''
+        # Pick Config File
+        prompts to 
+        
+        #### Returns chosen config files
+      
+        '''
+        # endregion Docstring
+        files = get_config_files()
+        num_files = enumerate(files)
+        msg = ''
+        # print(list(files))
+        for fil in num_files:
+            num = fil[0]
+            x = str(fil).split('created/')[1].split('.json')[0]
+            x = f'{num}. {x} \n'
+            msg = msg + x+'\n'
+        msg = f'''
+        {msg}\n
+        '''
+        print(msg)
+        prompt = 'please specify config by number (for default put -1)'
+        num = int(input(prompt))
+        if num == -1:
+            return 'default'
+        return files[num]
+
+    methods = {
+        'update': update_config_files,
+        'delete': delete_all_created_configs,
+        'get_repo': get_algo_config_repo,
+        'get_files': get_config_files,
+        'pick': pick_config_file,
+    }
+    return methods[method]()
 
 
 # region Unused

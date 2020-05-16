@@ -37,11 +37,6 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
     ### 5) Rename folder assets created 
     ### 6) Potentially recursively call function again
 
-    ## Notes:
-    - This is a master function that uses many others to complete the batch process. 
-
-    ## TO DO:
-    - None. 
     '''
     # endregion Docstring
     start = time.time()
@@ -111,6 +106,20 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
 
 
 def append_batch_frame(batch_frame, file_name, rep, config):
+    # region Docstring
+    '''
+    # Append Batch Frame
+    takes new info from last batch and attaches it to the `batch_frame` df.
+
+    Returns updated `batch_frame` df
+    ## Parameters:{
+    ####    `batch_frame`: df of batch results,
+    ####    `file_name`: name of stock traded for frame,
+    ####    `rep`: repetition of stock's batch execution,
+    ####    `config`: name of json setting for configuration of batch,
+    ## }
+    '''
+    # endregion Docstring
 
     if str(config) != 'default':
         config = str(config.name).split('.json')[0]
@@ -145,7 +154,24 @@ def append_batch_frame(batch_frame, file_name, rep, config):
 
 
 def pick_batch_configs(config_setting, reps):
-    configs = gl.get_config_files()
+    # region Docstring
+    '''
+    # Pick Batch Configs
+    picks a configuration.json file for use from the github repo. 
+
+    redefines global variable `batch_configs` with a list of configs to use. 
+
+    ## Parameters:{
+    ####    `config_setting`: str, 
+    - 'pick' will ask for user to choose,
+    - 'last' will select the most recent file,
+    - 'default' will use the given settings in `controls.py`
+
+    ####    `reps`: number of repetitions, 
+    ## }
+    '''
+    # endregion Docstring
+    configs = gl.manage_algo_config_repo('get_files')
     if config_setting == 'last':
         configs = [configs[0]]*reps
     elif config_setting == 'default':
@@ -293,6 +319,18 @@ def manage_batch_frame(batch_frame, path):
 
 
 def save_batch_index(path, batch_frame):
+    # region Docstring
+    '''
+    # Save Batch Index
+    Saves an html file of the batch results
+
+    Returns nothing, simply saves a file
+    ## Parameters:{
+    ####    `path`: path to batch index,
+    ####    `batch_frame`: global variable for batch results,
+    ## }
+    '''
+    # endregion Docstring
 
     folders = []
     for (dirpath, dirnames, filenames) in gl.os.walk(str(path)):
@@ -455,6 +493,14 @@ def rename_folders(path):
 
 
 def folder_status():
+    # region Docstring
+    '''
+    # Folder Status
+    Checks to see which folder the current batch test file will be allocated to 
+
+    Returns name of subfolder (str)
+    '''
+    # endregion Docstring
     if len(gl.filled_orders) == 0:
         subfolder = 'untraded'
     elif gl.pl_ex['unreal'] == 0:
@@ -465,6 +511,15 @@ def folder_status():
 
 
 def add_to_batches_html(path):
+    # region Docstring
+    '''
+    # Add to Batches Html
+    Checks to see if the current path is in the current `batches.html` file. 
+    If not, will refresh the file with the `refresh_batches_html` function.
+
+    #### Returns nothing
+    '''
+    # endregion Docstring
     path = str(path)
     with open('batches.html', 'r') as f:
         doc = f.read()
@@ -473,6 +528,14 @@ def add_to_batches_html(path):
 
 
 def refresh_batches_html():
+    # region Docstring
+    '''
+    # Refresh batches.html
+    refreshes the `batches.html` file to include all seen batches in results dir.
+
+    #### Returns nothing, updates file.
+    '''
+    # endregion Docstring
 
     links = []
     path = gl.directory

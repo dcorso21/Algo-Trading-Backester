@@ -103,6 +103,15 @@ buy_conditions = []
 
 
 def set_sell_conditions():
+    # region Docstring
+    '''
+    # Set Sell Conditions
+    Looks at the `sell_cond_params` variable to see 
+    which sell conditions are active
+    
+    #### Returns nothing, updates the global `sell_conditions` list.
+    '''
+    # endregion Docstring
     global sell_conditions
     sp = sell_cond_params
     active = [(sp[cond]['priority'], cond)
@@ -111,6 +120,15 @@ def set_sell_conditions():
 
 
 def set_buy_conditions():
+    # region Docstring
+    '''
+    # Set Buy Conditions
+    Looks at the `buy_cond_params` variable to see 
+    which buy conditions are active
+    
+    #### Returns nothing, updates the global `buy_conditions` list.
+    '''
+    # endregion Docstring
     global buy_conditions
     bp = buy_cond_params
     active = [(bp[cond]['priority'], cond)
@@ -119,11 +137,20 @@ def set_buy_conditions():
 
 
 def reset_variables(mode, csv_file):
+    # region Docstring
     '''
-    ## Reset Variables
-    There are many global variables that are used throughout the algorithm, 
-    and this file resets them so you can easily run the algo back to back. 
+    # Reset Variables
+    resets all the variables from `global_variables.py` 
+    so that you can rerun the algo infinitely. 
+    
+    #### Returns nothing, prints message
+    
+    ## Parameters:{
+    ####    `mode`: str, sets `gl.mode`
+    ####    `csv_file`: str, name of csv file to trade. 
+    ## }
     '''
+    # endregion Docstring
 
     def get_sim_df(csv_file):
         m = gl.pd.read_csv(csv_file)
@@ -249,12 +276,27 @@ def reset_variables(mode, csv_file):
 
 
 def configure_settings(config):
+    # region Docstring
+    '''
+    # Configure Settings
+    takes config.json file and sets global parameters based on entries.
+    
+    #### Returns nothing
+    
+    ## Parameters:{
+    ####    `config`: str or github contentfile. 
+    -           'default': exits the function without changing any settings.  
+    -           'pick': brings up a popup to let users choose
+    -           'last': chooses the last created file on github
+    ## }
+    '''
+    # endregion Docstring
     if config == 'default':
         return
     if config == 'last':
-        config = gl.get_config_files()[0]
+        config = gl.manage_algo_config_repo('get_files')[0] 
     elif config == 'pick':
-        config = gl.pick_config_file()
+        config = gl.manage_algo_config_repo('pick')
 
     import json
     config = json.loads(config.decoded_content)
@@ -281,6 +323,21 @@ def configure_settings(config):
 
 
 def master_configure(config, mode, csv_file, batch_path):
+    # region Docstring
+    '''
+    # Master Configure
+    function for configuring everything that needs it before the trading starts. 
+    
+    #### Returns nothing, prints confirmation
+    
+    ## Parameters:{
+    ####    `config`: str, or github content file for config.json.
+    ####    `mode`: 'csv' or 'live'
+    ####    `csv_file`: only needed if `mode` == 'csv'
+    ####    `batch_path`: filepath to current batch path. 
+    ## }
+    '''
+    # endregion Docstring
     gl.batch_path = batch_path
     reset_variables(mode, csv_file)
     configure_settings(config)
