@@ -467,6 +467,26 @@ def get_algo_config_repo():
 
 
 def get_config_files():
+    # region Docstring
+    '''
+    # Name
+    Description
+    
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    
+    ## Process:
+    
+    ### 1)
+    
+    ## Notes:
+    - Notes
+    
+    ## TO DO:
+    - Item
+    '''
+    # endregion Docstring
     repo = get_algo_config_repo()
     files = list(repo.get_contents('created'))
     files.reverse()

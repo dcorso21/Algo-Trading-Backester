@@ -86,6 +86,7 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
             batch_frame = batch_loop(1, file, path, batch_frame)
 
         batch_frame = manage_batch_frame(batch_frame, path)
+        add_to_batches_html(path)
         if stop_at != False:
             if count >= stop_at:
                 break
@@ -348,6 +349,10 @@ def save_batch_index(path, batch_frame):
     for ticker in batch_frame.tick_date:
         batch_table = batch_table.replace(ticker, link_to_log(ticker, path))
 
+    batches_link = str(gl.directory / 'batches.html')
+
+    template = template.replace('^^^batches_link^^^', batches_link)
+
     template = template.replace('^^^doc_name^^^', batch_name)
     template = template.replace('^^^plot^^^', plot)
     template = template.replace('^^^batch_table^^^', batch_table)
@@ -457,3 +462,98 @@ def folder_status():
     else:
         subfolder = 'unresolved'
     return subfolder
+
+
+def add_to_batches_html(path):
+    path = str(path)
+    with open('batches.html', 'r') as f:
+        doc = f.read()
+    if path not in doc:
+        refresh_batches_html()
+
+
+def refresh_batches_html():
+
+    links = []
+    path = gl.directory
+    results = str(path / 'results')
+    for root, folder, files in gl.os.walk('results'):
+        if 'batch_index.html' in files:
+            links.append(gl.os.path.join(root, 'batch_index.html'))
+
+    def get_batch_number(batch_name):
+        batch_name = batch_name.split(' ')[1]
+        return int(batch_name)
+
+    batch_names = []
+    dates = []
+    for link in links:
+        divs = link.split('/')
+        if type(divs) == str:
+            divs = link.split('\\')
+
+        divs = divs[1:-1]
+        dates.append(divs[0])
+
+        bn = divs[1].title()
+        bn = bn.replace(',', ':')
+        bn = bn.replace('_', ' ', 1)
+        bn = bn.split('_', 1)
+        time = bn[1].replace('_', ' ').upper()
+        bn = f'{bn[0]} ({time})'
+        batch_names.append(bn)
+
+    frame = {
+        'link': links,
+        'date': dates,
+        'batch_name': batch_names,
+    }
+
+    df = gl.pd.DataFrame(frame)
+
+    df['b_number'] = df['batch_name'].apply(get_batch_number)
+    df = df.sort_values(by='b_number', ascending=False)
+    df = df.drop('b_number', axis=1)
+    df = df.reset_index(drop=True)
+
+    def fill_out_dropdown(date, list_items):
+        template = f'''
+            <li class="parent">
+            <!-- Name of List -->
+            <a href="#">{date}<span class="expand">»</span></a>
+            <!-- List of Items -->
+            <ul class="child">
+            {list_items}
+            </ul>
+            </li>
+        '''
+        return template
+
+    def create_list_item(link, element_title):
+        return f'<li class="parent"><a href="{link}">{element_title}</a></li>'
+
+    html_text = ''
+
+    dates = sorted(set(df.date))
+    dates.reverse()
+
+    for date in dates:
+        batches = df[df['date'] == date]
+        list_items = ''
+        for row in batches.index:
+            link = batches.at[row, 'link']
+            batch_name = batches.at[row, 'batch_name']
+            list_item = create_list_item(link=link, element_title=batch_name)
+            list_items += list_item
+        html = fill_out_dropdown(date, list_items)
+        html_text += html
+
+    template = str(path / 'batch_design' / 'batches_template.html')
+    with open(template, 'r') as file:
+        text = file.read()
+
+    text = text.replace('^^^List^^^', html_text)
+
+    destination = str(path / 'batches.html')
+    with open(destination, 'w') as file:
+        file.write(text)
