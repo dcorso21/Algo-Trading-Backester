@@ -36,7 +36,11 @@ def csv_refresh():
 
         first_ind = sim_df.index.to_list()[0]
         last_ind = sim_df.index.to_list()[-1]
-        indexes = {'first': first_ind, 'current': first_ind, 'last': last_ind}
+        indexes = {
+            'first': first_ind,
+            'current': first_ind,
+            'last': last_ind
+            }
         gl.csv_indexes = indexes
         gl.sim_ticker = sim_df.at[first_ind, 'ticker']
         row = first_ind

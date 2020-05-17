@@ -37,7 +37,9 @@ def test_trade(config='last', mode='csv', csv_file='first', batch_path=False):
 
     gl.save_all()
     print('\ndone')
-    print('\nP\L: ${:.2f}'.format(gl.pl_ex['real']))
+    result = '\nP\L: real: ${:.2f}, unreal: ${:.2}'
+    print(result.format(float(gl.pl_ex['real']), float(gl.pl_ex['unreal'])))
+    
 
-    duration = time.time() - start_time
+    duration = int(time.time() - start_time)
     print(f'\nalgo finished in {duration} second(s)\n')

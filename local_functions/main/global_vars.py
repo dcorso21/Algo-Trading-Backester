@@ -4,6 +4,7 @@ import pyqtgraph as pg
 from pyqtgraph import QtCore, QtGui
 
 import numpy as np
+import json
 import datetime
 import pandas as pd
 import logging
@@ -64,6 +65,7 @@ sell_out = False
 chart_response = False
 buy_clock = 0
 buy_lock = False
+
 
 
 # CSV Trading
@@ -453,9 +455,9 @@ def manage_algo_config_repo(method):
     '''
     # Manage algo_config repo
     group of functions for interacting with the algo_config repo on github. 
-    
+
     #### Returns depends on method
-    
+
     ## Parameters:{
     ####    `method`: str, relates to function to call:
     -               `update`: updates the template, default.json and colab.ipynb,
@@ -540,9 +542,9 @@ def manage_algo_config_repo(method):
         '''
         # Pick Config File
         prompts to 
-        
+
         #### Returns chosen config files
-      
+
         '''
         # endregion Docstring
         files = get_config_files()
@@ -564,12 +566,19 @@ def manage_algo_config_repo(method):
             return 'default'
         return files[num]
 
+    def view_config_file():
+        c = pick_config_file().decoded_content
+        c = json.loads(c)
+        c = json.dumps(c, indent = 4, sort_keys=True)
+        print(c)
+
     methods = {
         'update': update_config_files,
         'delete': delete_all_created_configs,
         'get_repo': get_algo_config_repo,
         'get_files': get_config_files,
         'pick': pick_config_file,
+        'view': view_config_file,
     }
     return methods[method]()
 

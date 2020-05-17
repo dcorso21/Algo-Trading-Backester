@@ -8,6 +8,19 @@ misc = controls.misc
 
 
 def create_cell(cell_type, content):
+    # region Docstring
+    '''
+    # Create Cell
+    Creates a Dictionary in the format of an ipython cell. 
+
+    #### Returns cell dictionary
+
+    ## Parameters:{
+    ####    `cell_type`: str, 'code' or 'markdown',
+    ####    `content`: str, dictionary conaining contents for cell. 
+    ## }
+    '''
+    # endregion Docstring
 
     cell = {
         "cell_type": cell_type,
@@ -22,35 +35,20 @@ def create_cell(cell_type, content):
     return cell
 
 
-def ipynb_wrap(cells, file_name):
-    nb = {
-        "cells": cells,
-        "metadata": {
-            "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
-                "file_extension": ".py",
-                "mimetype": "text/x-python",
-                "name": "python",
-                "nbconvert_exporter": "python",
-                "pygments_lexer": "ipython3",
-                "version": 3
-            },
-            "orig_nbformat": 2
-        },
-        "nbformat": 4,
-        "nbformat_minor": 2
-    }
-    import json
-    with open(file_name, 'w') as f:
-        json.dump(nb, f, indent=4)
-        f.close()
-    return
-
-
 def calculate_constraints(value):
+    # region Docstring
+    '''
+    # Calculate Constraints
+    given a default value, this will return the upper and 
+    lower bounds to use for a slider, as well as the iteration value. 
+
+    #### Returns low(int), high(int) and iteration(float/int))
+
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
     low, high = sorted([0, value*3])
 
     steps = {
@@ -61,11 +59,11 @@ def calculate_constraints(value):
         '500': 50,
     }
 
-    for step in steps.keys():
-        if abs(value) <= int(step):
+    for key in steps.keys():
+        if abs(value) <= int(key):
             break
 
-    return low, high, steps[step]
+    return low, high, steps[key]
 
 
 def create_condition_code(dict_name, cond_dict):
@@ -188,3 +186,49 @@ def update_all(path, repo):
         print(f'updated {entry}')
 
     print('complete')
+
+
+# region Unused
+
+# def ipynb_wrap(cells, file_name):
+#     # region Docstring
+#     '''
+#     # Ipynb Wrap
+#     wraps ipynb cells into a ipynb format.
+#     Basically puts the content into a template.
+
+#     #### Returns nothing, saves file based on `file_name`
+
+#     ## Parameters:{
+#     ####    `cells`: list of cell content,
+#     ####    `file_name`: path to file location, including the name
+#     ## }
+#     '''
+#     # endregion Docstring
+
+#     nb = {
+#         "cells": cells,
+#         "metadata": {
+#             "language_info": {
+#                 "codemirror_mode": {
+#                     "name": "ipython",
+#                     "version": 3
+#                 },
+#                 "file_extension": ".py",
+#                 "mimetype": "text/x-python",
+#                 "name": "python",
+#                 "nbconvert_exporter": "python",
+#                 "pygments_lexer": "ipython3",
+#                 "version": 3
+#             },
+#             "orig_nbformat": 2
+#         },
+#         "nbformat": 4,
+#         "nbformat_minor": 2
+#     }
+#     import json
+#     with open(file_name, 'w') as f:
+#         json.dump(nb, f, indent=4)
+#         f.close()
+#     return
+# endregion Unused

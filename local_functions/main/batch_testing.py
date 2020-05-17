@@ -5,7 +5,7 @@ import time
 batch_configs = []
 
 
-# @ gl.save_on_error
+@ gl.save_on_error
 def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_setting='default'):
     # region Docstring
     '''
@@ -90,9 +90,14 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
     # 5) Rename folder assets created
     # rename_folders(path)
 
-    realized = batch_frame.real_pl.sum() + batch_frame.unreal_pl.sum()
+    realized = batch_frame.real_pl.sum()
+    unrealized = batch_frame.unreal_pl.sum()
+    result = 'total Profit/Loss: real: ${:.2f}, unreal: ${:.2}'
+    print(result.format(float(realized), float(unrealized)))
 
-    print('total Profit/Loss: ${:.2f}'.format(realized))
+    duration = time.time() - start
+    duration = agg_time(duration)
+    print(f'total time elapsed: {duration}')
 
     if reps > 1 and mode == 'multiple':
         global batch_configs
@@ -101,8 +106,18 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
         batch_test(reps=reps, mode='multiple',
                    stop_at=args['stop_at'], shuffle=args['shuffle'], config_setting=False)
 
-    duration = (time.time() - start)/60
-    print(f'total time elapsed: {duration} minute(s)')
+
+def agg_time(duration, round_to_dec=2):
+    increment = 'seconds'
+    if duration >= 60:
+        increment = 'minutes'
+        duration /= 60
+        if duration >= 60:
+            increment = 'hours'
+            duration /= 60
+    duration = round(duration, round_to_dec)
+    agg_time = f'{duration} {increment}'
+    return agg_time
 
 
 def append_batch_frame(batch_frame, file_name, rep, config):
@@ -279,22 +294,21 @@ def calc_batch_time(num_of_stocks, reps):
     ####    `reps`: integer, number of repetitions in batch test. 
     ## }
 
-    ## Notes:
-    - will automatically calculate seconds, minutes or hours based on duration. 
-
     '''
     # endregion Docstring
-    increment = 'seconds'
-    ex_time = 85 * num_of_stocks * reps
 
-    if ex_time >= 60:
-        increment = 'minutes'
-        ex_time = ex_time / 60
-        if ex_time >= 60:
-            ex_time = ex_time / 60
-            increment = 'hours'
-    ex_time = round(ex_time, 2)
-    print(f'expected time to batch: {ex_time} {increment}')
+    # gl.datetime.datetime.datetime()
+    start_time = gl.pd.to_datetime('09:30:00').timestamp()
+    end_time = gl.controls.misc['hard_stop']
+    end_time = gl.pd.to_datetime(end_time).timestamp()
+    minutes = (end_time - start_time) / 60
+    mult = 1
+
+    time = mult * minutes * num_of_stocks * reps
+
+    time = agg_time(time)
+
+    print(f'expected time to batch: {time}')
 
 
 def manage_batch_frame(batch_frame, path):
