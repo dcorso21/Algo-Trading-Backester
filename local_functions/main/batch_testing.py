@@ -566,8 +566,8 @@ def refresh_batches_html():
     dates = []
     for link in links:
         divs = link.split('/')
-        if type(divs) == str:
-            divs = link.split('\\')
+        if len(divs) == 1:
+            divs = divs[0].split('\\')
 
         divs = divs[1:-1]
         dates.append(divs[0])

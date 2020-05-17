@@ -7,7 +7,7 @@ lock_defaults = True
 
 '''----- Misc -----'''
 misc = {
-    'hard_stop': '09:45:00',
+    'hard_stop': '10:30:00',
     'dollar_risk': -500,
     'ideal_volatility': 3,
 }
