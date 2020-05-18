@@ -1416,14 +1416,22 @@ def create_batch_compare_graph(categories, category_labels):
     iplot(fig, show_link=False)
 
 
-def get_colors(hue_start_value=0, num_of_colors=3, s=71, v=75):
+def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75):
+    if hue_start_value == 'random':
+        import random
+        random.random.randint(0,360)
+
     import colorsys
     div = 360 / num_of_colors
+    hue_start_value -= div 
+
     x = 'x'
     template = [0, s/100.0, v/100.0]
     colors = []
     for color in range(num_of_colors):
         hue_start_value += div
+        if hue_start_value > 360:
+            hue_start_value -= 360
         template[0] = hue_start_value / 100.0
 
         colors.append(tuple(template))
