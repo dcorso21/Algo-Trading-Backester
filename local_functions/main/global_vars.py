@@ -470,6 +470,7 @@ def manage_algo_config_repo(method):
     ## }
     '''
     # endregion Docstring
+    from config import ipy_creator
 
     def update_config_files():
         # region Docstring
@@ -482,7 +483,6 @@ def manage_algo_config_repo(method):
 
         '''
         # endregion Docstring
-        from config import ipy_creator
         path = directory
         repo = get_algo_config_repo()
         ipy_creator.update_all(path, repo)
@@ -548,18 +548,7 @@ def manage_algo_config_repo(method):
         '''
         # endregion Docstring
         files = get_config_files()
-        num_files = enumerate(files)
-        msg = ''
-        # print(list(files))
-        for fil in num_files:
-            num = fil[0]
-            x = str(fil).split('created/')[1].split('.json')[0]
-            x = f'{num}. {x} \n'
-            msg = msg + x+'\n'
-        msg = f'''
-        {msg}\n
-        '''
-        print(msg)
+        get_df_view(files)
         prompt = 'please specify config by number (for default put -1)'
         num = int(input(prompt))
         if num == -1:
@@ -567,10 +556,37 @@ def manage_algo_config_repo(method):
         return files[num]
 
     def view_config_file():
-        c = pick_config_file().decoded_content
-        c = json.loads(c)
-        c = json.dumps(c, indent = 4, sort_keys=True)
+        c = pick_config_file()
+        if c == 'default':
+            c = ipy_creator.make_default_config_json(path = False)
+        else:
+            c = c.decoded_content
+            c = json.loads(c)
+            c = json.dumps(c, indent = 4, sort_keys=True)
         print(c)
+
+    def get_df_view(files = get_config_files()):
+        df = pd.DataFrame()
+        for f in files:
+            flist = f.name.split('created/')[0].split('_',3)
+            fn = flist[3:][0]
+            if fn == '.json':
+                fn = 'no name'
+            else:
+                fn = fn.split('.json')[0]
+            row = {
+                'name': [fn],
+                'date': [flist[0]],
+                'time': [f'{flist[1]} {flist[2]}'],
+            }
+            dfx = pd.DataFrame(row)
+            df = df.append(dfx, sort = False)
+
+        df = df.reset_index(drop=True)
+        if isnotebook():
+            display(df)
+        else:
+            print(df)
 
     methods = {
         'update': update_config_files,
@@ -579,8 +595,27 @@ def manage_algo_config_repo(method):
         'get_files': get_config_files,
         'pick': pick_config_file,
         'view': view_config_file,
+        'get_df_view': get_df_view,
     }
     return methods[method]()
+
+
+def pull_df_from_html(filepath):
+    with open(filepath, 'r') as file:
+        text = file.read()
+
+    df = pd.read_html(text)[0]
+
+    columns = []
+    for name in df.columns:
+        n = name[0]
+        if name[0].startswith('Unnamed'):
+            n = name[1]
+        columns.append(n)
+
+    df.columns = columns
+    return df
+
 
 
 # region Unused

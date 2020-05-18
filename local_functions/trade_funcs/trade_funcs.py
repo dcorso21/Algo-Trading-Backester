@@ -131,7 +131,7 @@ def update_current_positions(new_fills):
 
 def reset_buy_clock(new_fills):
     if len(new_fills[new_fills['buy_or_sell'] == 'BUY']) != 0:
-        gl.buy_clock = 10
+        gl.buy_clock = gl.controls.misc['buy_clock_countdown_amount']
 
 
 def queue_order_center(orders):

@@ -53,8 +53,7 @@ def sim_execute_orders(new_orders, cancel_ids):
     open_orders['wait_duration'] = open_orders.wait_duration + 1
 
     # 3) Check Price Requirement
-    open_orders, potential_fills = sim_progress_open_orders(
-        open_orders, lag=2, price_offset=0.01)
+    open_orders, potential_fills = sim_progress_open_orders(open_orders)
 
     # if there are no potential fills,
     # update the open_orders and return - dont bother checking volume...
@@ -81,11 +80,13 @@ def sim_execute_orders(new_orders, cancel_ids):
     return filled_orders, cancelled_orders
 
 
-def sim_progress_open_orders(open_orders, lag, price_offset):
+def sim_progress_open_orders(open_orders):
     '''
     # Sim Progress Open Orders
     Iterates through each open order in the `open_orders` DataFrame.  
     '''
+    lag = gl.controls.sim_settings['execution_lag']
+    price_offset = gl.controls.sim_settings['execution_price_offset']
 
     current = gl.current
 
@@ -118,7 +119,11 @@ def sim_progress_open_orders(open_orders, lag, price_offset):
     return open_orders, potential_fills
 
 
-def vol_check(potential_fills, open_orders, min_chunk_cash=500, offset_multiplier=1.2):
+def vol_check(potential_fills, open_orders):
+
+    min_chunk_cash = gl.controls.sim_settings['vol_min_chunk_cash']
+    offset_multiplier = gl.controls.sim_settings['vol_offset_multiplier']
+
     filled_orders = gl.pd.DataFrame()
 
     # for each potential fill.

@@ -3,13 +3,27 @@ from local_functions.main import global_vars as gl
 
 # For configuration of settings.
 # in the case of deprecation, setting False will keep the old settings.
-lock_defaults = True
+lock_defaults = False
 
-'''----- Misc -----'''
+'''----- MISC -----'''
 misc = {
-    'hard_stop': '10:30:00',
+    'hard_stop': '09:45:00',
     'dollar_risk': -500,
     'ideal_volatility': 3,
+    'buy_clock_countdown_amount': 10
+}
+
+'''----- SIMULATION SETTINGS -----'''
+sim_settings = {
+    # min amount of seconds for price to be in acceptable range before fill.
+    'execution_lag': 2,
+    # price has to be past open exe price by this amount for fill.
+    'execution_price_offset': .01,
+    # the minimum amount of capital that can be partially filled in an order. 
+    'vol_min_chunk_cash': 500, 
+    # volume checker makes sure that more than enough volume has passed. 
+    # if this ==2, then twice the amount of vol has to pass for each order. 
+    'vol_offset_multiplier': 1.2,
 }
 
 
@@ -108,7 +122,7 @@ def set_sell_conditions():
     # Set Sell Conditions
     Looks at the `sell_cond_params` variable to see 
     which sell conditions are active
-    
+
     #### Returns nothing, updates the global `sell_conditions` list.
     '''
     # endregion Docstring
@@ -125,7 +139,7 @@ def set_buy_conditions():
     # Set Buy Conditions
     Looks at the `buy_cond_params` variable to see 
     which buy conditions are active
-    
+
     #### Returns nothing, updates the global `buy_conditions` list.
     '''
     # endregion Docstring
@@ -142,9 +156,9 @@ def reset_variables(mode, csv_file):
     # Reset Variables
     resets all the variables from `global_variables.py` 
     so that you can rerun the algo infinitely. 
-    
+
     #### Returns nothing, prints message
-    
+
     ## Parameters:{
     ####    `mode`: str, sets `gl.mode`
     ####    `csv_file`: str, name of csv file to trade. 
@@ -280,9 +294,9 @@ def configure_settings(config):
     '''
     # Configure Settings
     takes config.json file and sets global parameters based on entries.
-    
+
     #### Returns nothing
-    
+
     ## Parameters:{
     ####    `config`: str or github contentfile. 
     -           'default': exits the function without changing any settings.  
@@ -294,7 +308,7 @@ def configure_settings(config):
     if config == 'default':
         return
     if config == 'last':
-        config = gl.manage_algo_config_repo('get_files')[0] 
+        config = gl.manage_algo_config_repo('get_files')[0]
     elif config == 'pick':
         config = gl.manage_algo_config_repo('pick')
 
@@ -308,6 +322,8 @@ def configure_settings(config):
             return
         if config['defaults']['misc'] != True:
             misc = config['master']['misc']
+        if config['defaults']['sim_settings'] != True:
+            sim_settings = config['master']['sim_settings']
         if config['defaults']['order_conditions'] != True:
             if config['defaults']['buy_conditions'] != True:
                 buy_cond_params = config['master']['order_conditions']['buy_conditions']
@@ -316,6 +332,7 @@ def configure_settings(config):
         return
 
     misc = config['master']['misc']
+    sim_settings = config['master']['sim_settings']
     buy_cond_params = config['master']['order_conditions']['buy_conditions']
     sell_cond_params = config['master']['order_conditions']['sell_conditions']
 
@@ -327,9 +344,9 @@ def master_configure(config, mode, csv_file, batch_path):
     '''
     # Master Configure
     function for configuring everything that needs it before the trading starts. 
-    
+
     #### Returns nothing, prints confirmation
-    
+
     ## Parameters:{
     ####    `config`: str, or github content file for config.json.
     ####    `mode`: 'csv' or 'live'

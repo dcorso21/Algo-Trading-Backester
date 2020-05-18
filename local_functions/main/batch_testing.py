@@ -49,12 +49,12 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
     }
     print('Starting BATCH test')
 
-    global batch_csvs 
+    global batch_csvs
 
     if inherit_csvs == True:
 
         csv_list = batch_csvs
-    
+
     else:
         import glob
         # 1) Retrieve list of csvs in mkt_csvs folder.
@@ -66,7 +66,7 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
 
         if stop_at != False:
             csv_list = csv_list[:stop_at]
-        
+
         batch_csvs = csv_list
 
     print(f'number of stocks: {len(csv_list)}\n')
@@ -117,6 +117,20 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
 
 
 def agg_time(duration, round_to_dec=2):
+    # region Docstring
+    '''
+    # Aggregate Time
+    takes a duration in seconds and aggregates it into 
+    seconds, minutes or hours based on the number of seconds
+
+    #### Returns string with the durating and increment. ex: '6 minutes'
+
+    ## Parameters:{
+    ####    `duration`: int, amount of seconds 
+    ####    `round_to_dec`: int, amount decimals to round in final.  
+    ## }
+    '''
+    # endregion Docstring
     increment = 'seconds'
     if duration >= 60:
         increment = 'minutes'
@@ -201,15 +215,8 @@ def pick_batch_configs(config_setting, reps):
     elif config_setting == 'default':
         configs = [config_setting]*reps
     elif config_setting == 'pick':
-        num_files = enumerate(configs)
-        msg = ''
-        for fil in num_files:
-            num, x = fil[0], str(fil[1].name)
-            x = f'{num}. {x} \n'
-            msg = msg + x+'\n'
-        msg = f'{msg}\n'
-        print(msg)
-        prompt = f'input {reps} indexes for files.'
+        gl.manage_algo_config_repo('get_df_view')
+        prompt = f'input {reps} indexes for files.Use -1 for default.'
         picks = input(prompt).split(',')
         picks = map(int, picks)
         picks = list(picks)
@@ -550,16 +557,7 @@ def add_to_batches_html(path):
         refresh_batches_html()
 
 
-def refresh_batches_html():
-    # region Docstring
-    '''
-    # Refresh batches.html
-    refreshes the `batches.html` file to include all seen batches in results dir.
-
-    #### Returns nothing, updates file.
-    '''
-    # endregion Docstring
-
+def df_of_batches():
     links = []
     path = gl.directory
     results = str(path / 'results')
@@ -598,9 +596,24 @@ def refresh_batches_html():
     df = gl.pd.DataFrame(frame)
 
     df['b_number'] = df['batch_name'].apply(get_batch_number)
-    df = df.sort_values(by='b_number', ascending=False)
+    df = df.sort_values(by=['date', 'b_number'], ascending=False)
     df = df.drop('b_number', axis=1)
     df = df.reset_index(drop=True)
+    return df
+
+
+def refresh_batches_html():
+    # region Docstring
+    '''
+    # Refresh batches.html
+    refreshes the `batches.html` file to include all seen batches in results dir.
+
+    #### Returns nothing, updates file.
+    '''
+    # endregion Docstring
+    path = gl.directory
+
+    df = df_of_batches()
 
     def fill_out_dropdown(date, list_items):
         template = f'''
@@ -643,3 +656,80 @@ def refresh_batches_html():
     destination = str(path / 'batches.html')
     with open(destination, 'w') as file:
         file.write(text)
+
+
+def compare_batches(num_to_compare=2, pick_most_recent = False):
+    from local_functions.plotting import plot_results as plotr
+    df = df_of_batches()
+    links = df.pop('link')
+    if pick_most_recent != True:
+        if gl.isnotebook():
+            display(df)
+        else:
+            print(df)
+        prompt = f'''
+            please specify the {num_to_compare} 
+            indexes of batches to compare. 
+        '''
+        response = input(prompt=prompt)
+        indexes = list(map(int, response.split(',')))
+    else:
+        indexes = list(range(num_to_compare))
+    links = [links[index] for index in indexes]
+
+    batch_names = df.iloc[indexes].batch_name
+    master_df = gl.pd.DataFrame()
+    for link, name in zip(links, batch_names):
+        batch_df = gl.pull_df_from_html(link)
+        batch_df['batch'] = name
+        master_df = master_df.append(batch_df)
+
+    color_dict = {}
+    saturation = 70
+    sat_off = 20
+
+    res_colors = plotr.get_colors(num_of_colors=len(batch_names), s=saturation)
+    unres_colors = plotr.get_colors(
+        num_of_colors=len(batch_names), s=saturation - sat_off)
+    color_values = ((r, u) for r, u in zip(res_colors, unres_colors))
+
+    for batch, color in zip(batch_names, color_values):
+        color_dict[batch] = color
+
+    def_sliders = ['resolved', 'unresolved']
+    category_labels = def_sliders
+    category_labels.extend(batch_names)
+
+    resolved = []
+    unresolved = []
+    batch_steps = []
+    for i in batch_names:
+        step = []
+        dfx = master_df[master_df.batch == i]
+        for status in def_sliders:
+            dfx = dfx[dfx.status == status]
+            y_values = dfx.real_pl.cumsum()
+            y_values += dfx.unreal_pl.cumsum()
+            x_values = list(range(len(y_values)))
+            labels = dfx.tick_date
+            if status == 'resolved':
+                color = color_dict[i][0]
+                scatter = plotr.new_line_plot(
+                    x_values, y_values, labels, color)
+                resolved.append(scatter)
+            else:
+                color = color_dict[i][1]
+                scatter = plotr.new_line_plot(
+                    x_values, y_values, labels, color)
+                unresolved.append(scatter)
+            step.append(scatter)
+        batch_steps.append(step)
+
+    categories = [resolved, unresolved]
+
+    for i in batch_steps:
+        categories.append(i)
+        
+
+    plotr.create_batch_compare_graph(categories, category_labels)
+    return

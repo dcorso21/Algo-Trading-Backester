@@ -35,6 +35,25 @@
     {
       "cell_type": "markdown",
       "metadata": {},
+      "source": [
+        "## Sim Settings\n",
+        "configure how the trade simulation works with the following parameters"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#@title Default Sim Settings {display-mode: \"form\"} \n",
+        "Default_Sim_Settings = True #@param {type:\"boolean\"}\n"
+      ],
+      "execution_count": 1,
+      "outputs": []
+    },
+    "^^^sim_settings^^^",
+    {
+      "cell_type": "markdown",
+      "metadata": {},
       "source": ["## Order Conditions\n", "\n"]
     },
     {
@@ -100,6 +119,7 @@
         "defaults = {\n",
         "    'everything': Default_Everything,\n",
         "    'misc': Default_Misc,\n",
+        "    'sim_settings': Default_Sim_Settings,\n",
         "    'order_conditions': Default_Order_Conditions,\n",
         "    'sell_conditions': Default_Sell_Conditions,\n",
         "    'buy_conditions': Default_Buy_Conditions,\n",
@@ -127,6 +147,7 @@
         "\n",
         "master_dict = {\n",
         "    'misc': misc_params,\n",
+        "    'sim_settings': sim_settings_params,\n",
         "    'order_conditions': {'buy_conditions':buy_conditions, 'sell_conditions':sell_conditions},\n",
         "}"
       ],

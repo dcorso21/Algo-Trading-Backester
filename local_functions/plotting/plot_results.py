@@ -76,7 +76,7 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, colors):
     return fig
 
 
-def new_line_plot(x_values, y_values, text):
+def new_line_plot(x_values, y_values, text, color='blue'):
     # region Docstring
     '''
     # New Line Plot
@@ -95,6 +95,7 @@ def new_line_plot(x_values, y_values, text):
                            y=y_values,
                            mode='lines+markers',
                            text=text,
+                           line_color=color,
                            )
     return line_plot
 
@@ -233,13 +234,13 @@ def get_orders(filled_orders):
     '''
     # Get Orders
     Convert `filled_orders` global variables to a df that is used in the trading charts. 
-    
+
     Returns dataframe of orders 
 
     ## Parameters:{
     ####    `filled_orders`: global variable df
     ## }
-    
+
     '''
     # endregion Docstring
     # convert it to a df that will be easier to plot
@@ -268,7 +269,7 @@ def plot_results(current_frame, filled_orders, batch_path, directory, csv_name):
     '''
     # Plot Results
     All in one function for creating daily chart html.  
-    
+
     ## Parameters:{
     ####    `current_frame`: global variable df,
     ####    `filled_orders`: global variable df,
@@ -277,7 +278,7 @@ def plot_results(current_frame, filled_orders, batch_path, directory, csv_name):
     ####    `csv_name`: name of file traded
     ## }
     '''
-    # endregion Docstring    
+    # endregion Docstring
     o = get_orders(filled_orders)
     m = expand_mkt_data(current_frame, o)
     e_frame = max_exposures(o, m)
@@ -1359,3 +1360,78 @@ def plot_momentum(mom_frame, current_frame, directory, batch_path=None, csv_name
     with open(html_name, 'x') as f:
         f.write(text)
         f.close()
+
+
+def create_batch_compare_graph(categories, category_labels):
+    from plotly.offline import init_notebook_mode, iplot
+    init_notebook_mode()
+
+    # trace_list1 = [
+    #     go.Scatter(y=[1, 2, 3], visible=True, line={'color': 'red'}),
+    #     go.Scatter(y=[3, 1, 1.5], visible=True, line={'color': 'green'}),
+    #     go.Scatter(y=[2, 2, 1], visible=True, line={'color': 'blue'})
+    # ]
+
+    # trace_list2 = [
+    #     go.Scatter(y=[1, 3, 2], visible=False, line={'color': 'black'}),
+    #     go.Scatter(y=[1.5, 2, 2.5], visible=False, line={'color': 'green'}),
+    #     go.Scatter(y=[2.5, 1.2, 2.9], visible=False, line={'color': 'yellow'})
+    # ]
+
+    traces = []
+    for trace_list in categories:
+        traces.extend(trace_list)
+
+    steps = []
+    for index, category in enumerate(categories):
+        visible = []
+        for trace in traces:
+            if trace in category:
+                visible.append(True)
+            else:
+                visible.append(False)
+        step = dict(
+            method='restyle',
+            args=['visible', visible],
+            label=category_labels[index]
+        )
+        steps.append(step)
+
+    fig = go.Figure(data=traces)
+
+    sliders = [dict(
+        # # active=0,
+        currentvalue={"prefix": "Showing: "},
+        pad={
+            "t": 50,
+            "l": 0,
+            "r": 350,
+        },
+        steps=steps
+    )]
+
+    fig.layout.sliders = sliders
+    fig.layout.template = 'plotly_dark'
+
+    iplot(fig, show_link=False)
+
+
+def get_colors(hue_start_value=0, num_of_colors=3, s=71, v=75):
+    import colorsys
+    div = 360 / num_of_colors
+    x = 'x'
+    template = [0, s/100.0, v/100.0]
+    colors = []
+    for color in range(num_of_colors):
+        hue_start_value += div
+        template[0] = hue_start_value / 100.0
+
+        colors.append(tuple(template))
+
+    rgbs = []
+    for color in colors:
+        rgb = colorsys.hsv_to_rgb(*color)
+        rgb = tuple(round(i * 255) for i in rgb)
+        rgbs.append(f'rgb{rgb}')
+
+    return rgbs
