@@ -47,6 +47,7 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, colors):
                       width=x_width,
                       opacity=.5,
                       marker_color=colors,
+                      showlegend=False
                       )
 
     hor_box = go.Box(x=x,
@@ -58,6 +59,7 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, colors):
                      width=y_width,
                      opacity=.5,
                      marker_color=colors,
+                     showlegend=False
                      )
 
     # create a scatter plot
@@ -66,6 +68,7 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, colors):
                          mode='markers',
                          marker_color=colors,
                          text=labels,
+                         showlegend=False
                          )
 
     # append figures to subplot

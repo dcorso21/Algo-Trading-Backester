@@ -5,9 +5,20 @@ import time
 batch_configs = []
 batch_csvs = []
 
+starting_msg = '''
+<><><><><><><><><><><><><><><><><><><><>\n
+-------- Starting Batch Test {} --------\n
+Loaded Configuration\n
+--> {}\n
+--> number of stocks: {}\n
+--> expected time to batch: {}\n
+----------------------------------------\n
+<><><><><><><><><><><><><><><><><><><><>\n
+'''
 
-@ gl.save_on_error
-def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_setting='default', inherit_csvs=False):
+
+# @ gl.save_on_error
+def batch_test(reps=1, mode='multiple', stop_at=False, shuffle=True, config_setting='default', inherit_csvs=False):
     # region Docstring
     '''
     # Batch Test
@@ -40,19 +51,24 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
 
     '''
     # endregion Docstring
-    start = time.time()
-    args = {
-        'reps': reps,
-        'mode': mode,
-        'stop_at': stop_at,
-        'shuffle': shuffle,
-    }
-    print('Starting BATCH test')
+    if config_setting != False:
+        pick_batch_configs(config_setting, reps)
 
     global batch_csvs
+    global batch_configs
+
+    path, batch_num = get_batch_path()
+
+    start = time.time()
+
+    
+    config_name = batch_configs[reps-1]
+    if config_name != 'default':
+        config_name = config_name.name
+        
+    
 
     if inherit_csvs == True:
-
         csv_list = batch_csvs
 
     else:
@@ -69,15 +85,14 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
 
         batch_csvs = csv_list
 
-    print(f'number of stocks: {len(csv_list)}\n')
+    num_of_stocks = len(csv_list)
 
     # 3) Estimate amount of time to take to execute batch.
-    calc_batch_time(len(csv_list), reps)
+    ex_time = calc_batch_time(len(csv_list), reps)
 
-    if config_setting != False:
-        pick_batch_configs(config_setting, reps)
-
-    path = get_batch_path()
+    msg = starting_msg.format(batch_num, config_name, num_of_stocks, ex_time)
+    print(msg)
+    
     batch_frame = gl.pd.DataFrame()
     count = 0
 
@@ -106,14 +121,14 @@ def batch_test(reps=1, mode='internal', stop_at=False, shuffle=True, config_sett
 
     duration = time.time() - start
     duration = agg_time(duration)
-    print(f'total time elapsed: {duration}')
+    print(f'total time elapsed: {duration}\n')
 
     if reps > 1 and mode == 'multiple':
-        global batch_configs
-        discard = batch_configs.pop(0)
+        # global batch_configs
+        # discard = batch_configs.pop(0)
         reps -= 1
         batch_test(reps=reps, mode='multiple',
-                   stop_at=args['stop_at'], shuffle=args['shuffle'], config_setting=False, inherit_csvs=True)
+                   stop_at=stop_at, shuffle=shuffle, config_setting=False, inherit_csvs=True)
 
 
 def agg_time(duration, round_to_dec=2):
@@ -209,12 +224,13 @@ def pick_batch_configs(config_setting, reps):
     ## }
     '''
     # endregion Docstring
-    configs = gl.manage_algo_config_repo('get_files')
-    if config_setting == 'last':
-        configs = [configs[0]]*reps
-    elif config_setting == 'default':
+    if config_setting == 'default':
         configs = [config_setting]*reps
+    elif config_setting == 'last':
+        configs = gl.manage_algo_config_repo('get_files')
+        configs = [configs[0]]*reps
     elif config_setting == 'pick':
+        configs = gl.manage_algo_config_repo('get_files')
         gl.manage_algo_config_repo('get_df_view')
         prompt = f'input {reps} indexes for files.Use -1 for default.'
         picks = input(prompt).split(',')
@@ -228,6 +244,7 @@ def pick_batch_configs(config_setting, reps):
                 cs.append(configs[index])
         configs = cs
 
+    configs.reverse()
     global batch_configs
     batch_configs = configs
 
@@ -274,7 +291,7 @@ def batch_loop(reps, file, path, batch_frame):
         #         discarded = batch_configs.pop(0)
         #         break
 
-        config = batch_configs[rep]
+        config = batch_configs[rep-1]
         # 1) Trade the csv with the function `test_trade`
         file_name = gl.os.path.basename(file).strip('.csv')
         print(f'now trading: {file_name}')
@@ -324,7 +341,8 @@ def calc_batch_time(num_of_stocks, reps):
 
     time = agg_time(time)
 
-    print(f'expected time to batch: {time}')
+    return time
+    
 
 
 def manage_batch_frame(batch_frame, path):
@@ -498,7 +516,7 @@ def get_batch_path():
 
     # 4) Return Full Path.
     path = directory / 'results' / today / f'batch_{batch_num}_{time}'
-    return path
+    return path, batch_num
 
 
 def rename_folders(path):
@@ -710,6 +728,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=False):
         batch_df = master_df[master_df.batch == batch]
         for status in ['resolved', 'unresolved']:
             dfx = batch_df[batch_df.status == status]
+            if len(dfx) == 0:
+                continue
             y_values = dfx.real_pl.cumsum()
             y_values += dfx.unreal_pl.cumsum()
             x_values = list(range(len(y_values)))

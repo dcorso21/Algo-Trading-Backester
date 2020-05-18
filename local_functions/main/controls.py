@@ -3,11 +3,11 @@ from local_functions.main import global_vars as gl
 
 # For configuration of settings.
 # in the case of deprecation, setting False will keep the old settings.
-lock_defaults = False
+lock_defaults = True
 
 '''----- MISC -----'''
 misc = {
-    'hard_stop': '10:30:00',
+    'hard_stop': '09:45:00',
     'dollar_risk': -500,
     'ideal_volatility': 3,
     'buy_clock_countdown_amount': 10
@@ -19,10 +19,10 @@ sim_settings = {
     'execution_lag': 2,
     # price has to be past open exe price by this amount for fill.
     'execution_price_offset': .01,
-    # the minimum amount of capital that can be partially filled in an order. 
-    'vol_min_chunk_cash': 500, 
-    # volume checker makes sure that more than enough volume has passed. 
-    # if this ==2, then twice the amount of vol has to pass for each order. 
+    # the minimum amount of capital that can be partially filled in an order.
+    'vol_min_chunk_cash': 500,
+    # volume checker makes sure that more than enough volume has passed.
+    # if this ==2, then twice the amount of vol has to pass for each order.
     'vol_offset_multiplier': 1.2,
 }
 
@@ -315,28 +315,49 @@ def configure_settings(config):
     import json
     config = json.loads(config.decoded_content)
     gl.config = config
-    global misc, buy_cond_params, sell_cond_params
+    global misc, buy_cond_params, sell_cond_params, sim_settings
+
+    non_standard_fields = {
+        'sim_settings': sim_settings,
+    }
 
     if lock_defaults == True:
         if config['defaults']['everything']:
             return
         if config['defaults']['misc'] != True:
-            misc = config['master']['misc']
-        if config['defaults']['sim_settings'] != True:
-            sim_settings = config['master']['sim_settings']
+            replace_fields(misc, config['master']['misc'])
+        for field in non_standard_fields.keys():
+            if field in config['defaults'].keys():
+                if config['defaults'][field] != True:
+                    replace_fields(non_standard_fields[field],
+                                   config['master'][field])
+
         if config['defaults']['order_conditions'] != True:
             if config['defaults']['buy_conditions'] != True:
-                buy_cond_params = config['master']['order_conditions']['buy_conditions']
+                replace_fields(buy_cond_params,
+                               config['master']['order_conditions']['buy_conditions'])
             if config['defaults']['buy_conditions'] != True:
-                sell_cond_params = config['master']['order_conditions']['sell_conditions']
+                replace_fields(sell_cond_params,
+                               config['master']['order_conditions']['sell_conditions'])
         return
 
     misc = config['master']['misc']
-    sim_settings = config['master']['sim_settings']
-    buy_cond_params = config['master']['order_conditions']['buy_conditions']
-    sell_cond_params = config['master']['order_conditions']['sell_conditions']
+    for field in non_standard_fields.keys():
+        if field in config['master'].keys():
+            replace_fields(non_standard_fields[field],
+                           config['master'][field])
+
+    replace_fields(buy_cond_params,
+                   config['master']['order_conditions']['buy_conditions'])
+    replace_fields(sell_cond_params,
+                   config['master']['order_conditions']['sell_conditions'])
 
     return
+
+
+def replace_fields(def_values, new_values):
+    for key in new_values.keys():
+        def_values[key] = new_values[key]
 
 
 def master_configure(config, mode, csv_file, batch_path):
