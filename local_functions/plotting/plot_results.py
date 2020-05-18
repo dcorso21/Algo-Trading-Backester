@@ -76,7 +76,9 @@ def add_box_scatter_cross(fig, row, column, x_values, y_values, labels, colors):
     return fig
 
 
-def new_line_plot(x_values, y_values, text, color='blue'):
+def new_line_plot(x_values, y_values, text, color='blue',
+                  visible=True, start_with_zero=True,
+                  name=None):
     # region Docstring
     '''
     # New Line Plot
@@ -91,11 +93,22 @@ def new_line_plot(x_values, y_values, text, color='blue'):
     # }
     '''
     # endregion Docstring
+
+    if start_with_zero:
+        x_values = list(x_values)
+        x_values.append(len(x_values))
+
+        zero = [0]
+        zero.extend(list(y_values))
+        y_values = zero
+
     line_plot = go.Scatter(x=x_values,
                            y=y_values,
                            mode='lines+markers',
                            text=text,
                            line_color=color,
+                           visible=visible,
+                           name=name
                            )
     return line_plot
 
@@ -181,13 +194,18 @@ def plot_batch_overview(batch_frame):
     resolved = traded[traded.unreal_pl == 0]
     unresolved = traded.drop(resolved.index.tolist())
 
-    res_color = 'red'
-    unres_color = 'green'
-    not_color = 'yellow'
+    unres_color, not_color, res_color = get_colors(num_of_colors=3,
+                                                   hue_start_value=289,
+                                                   cut_div=4)
+    res_color = '#209C81'
 
     if len(resolved) != 0:
-        resolved_progress = new_line_plot(x_values=list(range(
-            len(resolved))), y_values=resolved.real_pl.cumsum(), text=resolved.tick_date)
+        resolved_progress = new_line_plot(
+            x_values=list(range(len(resolved))),
+            y_values=resolved.real_pl.cumsum(),
+            text=resolved.tick_date,
+            color=res_color,
+            name='Resolved Profit')
         fig.append_trace(resolved_progress, row=1, col=1)
 
         fig = add_box_scatter_cross(
@@ -198,8 +216,12 @@ def plot_batch_overview(batch_frame):
             fig, 3, 3, resolved.real_pl, resolved.avg_vola, resolved.tick_date, res_color)
 
     if len(unresolved) != 0:
-        unresolved_progress = new_line_plot(x_values=list(range(
-            len(unresolved))), y_values=unresolved.real_pl.cumsum(), text=unresolved.tick_date)
+        unresolved_progress = new_line_plot(
+            x_values=list(range(len(unresolved))),
+            y_values=unresolved.real_pl.cumsum(),
+            text=unresolved.tick_date,
+            color=unres_color,
+            name='Unresolved Profit')
         fig.append_trace(unresolved_progress, row=1, col=1)
 
         fig.append_trace(go.Scatter(x=unresolved.real_pl, y=unresolved.max_ex,
@@ -1366,20 +1388,8 @@ def create_batch_compare_graph(categories, category_labels):
     from plotly.offline import init_notebook_mode, iplot
     init_notebook_mode()
 
-    # trace_list1 = [
-    #     go.Scatter(y=[1, 2, 3], visible=True, line={'color': 'red'}),
-    #     go.Scatter(y=[3, 1, 1.5], visible=True, line={'color': 'green'}),
-    #     go.Scatter(y=[2, 2, 1], visible=True, line={'color': 'blue'})
-    # ]
-
-    # trace_list2 = [
-    #     go.Scatter(y=[1, 3, 2], visible=False, line={'color': 'black'}),
-    #     go.Scatter(y=[1.5, 2, 2.5], visible=False, line={'color': 'green'}),
-    #     go.Scatter(y=[2.5, 1.2, 2.9], visible=False, line={'color': 'yellow'})
-    # ]
-
     traces = []
-    for trace_list in categories:
+    for trace_list in categories[2:]:
         traces.extend(trace_list)
 
     steps = []
@@ -1400,7 +1410,7 @@ def create_batch_compare_graph(categories, category_labels):
     fig = go.Figure(data=traces)
 
     sliders = [dict(
-        # # active=0,
+        active=0,
         currentvalue={"prefix": "Showing: "},
         pad={
             "t": 50,
@@ -1416,14 +1426,19 @@ def create_batch_compare_graph(categories, category_labels):
     iplot(fig, show_link=False)
 
 
-def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75):
+def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=False):
     if hue_start_value == 'random':
         import random
-        random.random.randint(0,360)
+        hue_start_value = random.randint(0, 360)
 
     import colorsys
-    div = 360 / num_of_colors
-    hue_start_value -= div 
+
+    spectrum = 360
+    if cut_div != False:
+        spectrum /= cut_div
+    div = spectrum / num_of_colors
+
+    hue_start_value -= div
 
     x = 'x'
     template = [0, s/100.0, v/100.0]

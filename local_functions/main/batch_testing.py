@@ -658,7 +658,7 @@ def refresh_batches_html():
         file.write(text)
 
 
-def compare_batches(num_to_compare=2, pick_most_recent = False):
+def compare_batches(num_to_compare=2, pick_most_recent=False):
     from local_functions.plotting import plot_results as plotr
     df = df_of_batches()
     links = df.pop('link')
@@ -677,7 +677,7 @@ def compare_batches(num_to_compare=2, pick_most_recent = False):
         indexes = list(range(num_to_compare))
     links = [links[index] for index in indexes]
 
-    batch_names = df.iloc[indexes].batch_name
+    batch_names = set(df.iloc[indexes].batch_name.to_list())
     master_df = gl.pd.DataFrame()
     for link, name in zip(links, batch_names):
         batch_df = gl.pull_df_from_html(link)
@@ -685,42 +685,44 @@ def compare_batches(num_to_compare=2, pick_most_recent = False):
         master_df = master_df.append(batch_df)
 
     color_dict = {}
-    saturation = 70
-    sat_off = 20
+    value = 70
+    val_off = 5
+    hue_start = 30
 
-    res_colors = plotr.get_colors(num_of_colors=len(batch_names), s=saturation)
-    unres_colors = plotr.get_colors(
-        num_of_colors=len(batch_names), s=saturation - sat_off)
+    res_colors = plotr.get_colors(
+        hue_start_value=hue_start, num_of_colors=len(batch_names), v=value)
+    unres_colors = plotr.get_colors(hue_start_value=hue_start - val_off,
+                                    num_of_colors=len(batch_names), s = 75 - val_off, v=value - val_off)
     color_values = ((r, u) for r, u in zip(res_colors, unres_colors))
 
     for batch, color in zip(batch_names, color_values):
         color_dict[batch] = color
 
-    def_sliders = ['resolved', 'unresolved']
-    category_labels = def_sliders
+    category_labels = ['resolved', 'unresolved']
     category_labels.extend(batch_names)
 
     resolved = []
     unresolved = []
     batch_steps = []
-    for i in batch_names:
+    for batch in batch_names:
+        bn_simple = str(batch).split('(')[0]
         step = []
-        dfx = master_df[master_df.batch == i]
-        for status in def_sliders:
-            dfx = dfx[dfx.status == status]
+        batch_df = master_df[master_df.batch == batch]
+        for status in ['resolved', 'unresolved']:
+            dfx = batch_df[batch_df.status == status]
             y_values = dfx.real_pl.cumsum()
             y_values += dfx.unreal_pl.cumsum()
             x_values = list(range(len(y_values)))
             labels = dfx.tick_date
             if status == 'resolved':
-                color = color_dict[i][0]
+                color = color_dict[batch][0]
                 scatter = plotr.new_line_plot(
-                    x_values, y_values, labels, color)
+                    x_values, y_values, labels, color, True, name=f'{bn_simple} (R)')
                 resolved.append(scatter)
             else:
-                color = color_dict[i][1]
+                color = color_dict[batch][1]
                 scatter = plotr.new_line_plot(
-                    x_values, y_values, labels, color)
+                    x_values, y_values, labels, color, False, name=f'{bn_simple} (U)')
                 unresolved.append(scatter)
             step.append(scatter)
         batch_steps.append(step)
@@ -729,7 +731,6 @@ def compare_batches(num_to_compare=2, pick_most_recent = False):
 
     for i in batch_steps:
         categories.append(i)
-        
 
     plotr.create_batch_compare_graph(categories, category_labels)
     return
