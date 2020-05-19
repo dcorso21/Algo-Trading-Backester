@@ -6,7 +6,7 @@ def pick_stock_direct(mode):
         stock_selection()
         gl.trade_mode = mode
     else:
-        gl.stock_pick = mode
+        # gl.stock_pick = mode
         gl.trade_mode = mode
 
 

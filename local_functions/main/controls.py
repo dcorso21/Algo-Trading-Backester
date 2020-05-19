@@ -4,6 +4,7 @@ from local_functions.main import global_vars as gl
 # For configuration of settings.
 # in the case of deprecation, setting False will keep the old settings.
 lock_defaults = True
+cut_prints = True
 
 '''----- MISC -----'''
 misc = {
@@ -360,7 +361,7 @@ def replace_fields(def_values, new_values):
         def_values[key] = new_values[key]
 
 
-def master_configure(config, mode, csv_file, batch_path):
+def master_configure(config, mode, csv_file, batch_dir):
     # region Docstring
     '''
     # Master Configure
@@ -376,7 +377,7 @@ def master_configure(config, mode, csv_file, batch_path):
     ## }
     '''
     # endregion Docstring
-    gl.batch_path = batch_path
+    gl.batch_dir = batch_dir
     reset_variables(mode, csv_file)
     configure_settings(config)
     set_buy_conditions()

@@ -382,45 +382,20 @@ def update_orders(orders):
     Rows added are: "rolling shares", "rolling average", "dollars invested" and "rolling P/L".
 
     In addition, this function will round the time of each order row to the nearest minute value. '''
-    orders['time'] = orders.time.apply(lambda x: pd.to_datetime(x)).dt.time
+    orders['time'] = orders.time.apply(pd.to_datetime).dt.time
 
-    # these two lines make a list of tickers where once no ticker repeats.
     stocklist = orders.ticker
     stocklist = list(dict.fromkeys(stocklist))
 
-    # It is useful to create a new dataframe instead of editing the given one.
-    # DFX will be returned at the end of the function.
     dfx = pd.DataFrame()
 
-    # This is why we create a new dataframe -- the data has to be completed based on each ticker.
-    for x in stocklist:
+    for stock in stocklist:
 
-        o = orders[orders.ticker == x]
-        # these should already be sorted by time, but stranger things have happened.
-        dfz = pd.DataFrame(o).sort_values(by='time')
+        dfz = orders[orders.ticker == stock].sort_values(by='time')
 
-        def append_rolling_shares(dfz):
-            '''----- Rolling Shares - ----'''
-            # Sets a default value for shares. 0 to start.
-            # also creates an empty list that will become the rolling shares column (rs)
-            sharecount = 0
-            rolling_shares = []
-            for x in dfz.quantity:
-                sharecount += int(x)
-                rolling_shares.append(sharecount)
-
-            # After the loop, we should have a full list the size of the df,
-            # so we can just make a new column
-            dfz['rs'] = rolling_shares
-            return dfz
-
-        dfz = append_rolling_shares(dfz)
+        dfz['rs'] = dfz.quantity.cumsum().apply(int)
 
         def correct_type(dfz):
-
-            # This is a problem I encountered that if youre long and about to flip short,
-            # the sell orders will all be labeled
-            # As 'to close' when really, after you're flat. Not a perfect system, but good for now.
 
             types = []
             last_y = 0
@@ -434,10 +409,6 @@ def update_orders(orders):
                     types.append(x)
                 last_y = y
 
-            # After we perform the above task — we can basically replace the original "type" column
-            # with the new and improved column.
-            # The reason that the original is called type2 is because of an error I encountered and
-            # fixed but never really cleaned out all the skeletons of the error.
             dfz = dfz.drop('type2', axis=1)
             dfz['type'] = types
 
@@ -474,9 +445,6 @@ def update_orders(orders):
         pl = 0
         pl_over = []
 
-        # To calculate how each order would effect open positions, I actually created
-        # a df that updates each time shares are bought and sold.
-        # This frame is used to calculate PL and average price.
         buys = pd.DataFrame()
 
         # By default short is false  -
@@ -1388,8 +1356,8 @@ def plot_momentum(mom_frame, current_frame, directory, batch_path=None, csv_name
 
 
 def create_batch_compare_graph(categories, category_labels):
-    from plotly.offline import init_notebook_mode, iplot
-    init_notebook_mode()
+    # from plotly.offline import init_notebook_mode, iplot
+    # init_notebook_mode()
 
     traces = []
     for trace_list in categories[2:]:
@@ -1426,7 +1394,9 @@ def create_batch_compare_graph(categories, category_labels):
     fig.layout.sliders = sliders
     fig.layout.template = 'plotly_dark'
 
-    iplot(fig, show_link=False)
+    html = fig.to_html(include_plotlyjs='cdn', full_html=False)
+
+    return html
 
 
 def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=False):
