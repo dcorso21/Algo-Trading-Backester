@@ -652,8 +652,27 @@ def clear_output(num_of_lines):
         sys.stdout.write(erase_line)
         sys.stdout.write(cursor_up)
         sys.stdout.write(erase_line)
+    sys.stdout.write('\r')
 
+def color_format(msg, color):
 
+    def prRed(msg): return("\033[91m {}\033[00m" .format(msg)) 
+    def prGreen(msg): return("\033[92m {}\033[00m" .format(msg)) 
+    def prYellow(msg): return("\033[93m {}\033[00m" .format(msg)) 
+    def prLightPurple(msg): return("\033[94m {}\033[00m" .format(msg)) 
+    def prPurple(msg): return("\033[95m {}\033[00m" .format(msg)) 
+    def prCyan(msg): return("\033[96m {}\033[00m" .format(msg)) 
+    def prLightGray(msg): return("\033[97m {}\033[00m" .format(msg)) 
+    def prBlack(msg): return("\033[98m {}\033[00m" .format(msg)) 
+    colors = {
+        'red':prRed,
+        'green':prGreen,
+        'yellow':prYellow,
+        'light_purple':prLightPurple,
+        'purple':prPurple,
+        'cyan':prCyan,
+    }
+    return colors[color](msg)
 # region Unused
 def csv_to_dict(file_path):
     # region Docstring

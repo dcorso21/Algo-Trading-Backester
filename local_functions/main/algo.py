@@ -40,6 +40,12 @@ def test_trade(config='last', mode='csv', csv_file='first', batch_dir=False):
     result = '\n{}: R: ${:.2f}, U: ${:.2}, @: {} ({})'
     duration = '{} s'.format(int(time.time() - start_time))
     last_min = gl.current['minute']
+    if gl.pl_ex['real']+gl.pl_ex['unreal'] > 0:
+        result = gl.color_format(result, 'green')
+    elif gl.pl_ex['real']+gl.pl_ex['unreal'] < 0:
+        result = gl.color_format(result, 'red')
+    else:
+        result = gl.color_format(result, 'yellow')
 
     gl.clear_output(4)
 

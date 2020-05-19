@@ -4,16 +4,32 @@ import glob
 import time
 
 
-starting_msg = '''
+starting_msg = '''\033[94m
 <><><><><><><><><><><><><><><><><><><><>\n
--------- Starting Batch Test {} --------\n
-Loaded Configuration\n
---> {}\n
---> number of stocks: {}\n
---> expected time to batch: {}\n
+\033[96m
+--------\033[00m Starting Batch Test {} \033[96m--------\n
+\033[00mLoaded Configuration\n
+\033[94m-->\033[00m {}\n
+\033[94m-->\033[00m number of stocks: {}\n
+\033[94m-->\033[00m expected time to batch: {}
+\033[96m
+
 ----------------------------------------\n
+\033[94m
 <><><><><><><><><><><><><><><><><><><><>\n
-'''
+\033[00m'''
+
+ending_message = '''\033[94m
+/////////////////////////////////////////\n
+\033[96m
+<><><><><><>\033[00m BATCH COMPLETE \033[96m<><><><><><>\n
+\033[94m-->\033[00m Profit/Loss: real: ${}, unreal: ${}\n
+\033[94m-->\033[00m time elapsed: {}
+\033[96m
+<><><><><><><><><><><><><><><><><><><><>\n
+\033[94m
+/////////////////////////////////////////\n
+\033[00m'''
 
 # batch name
 b_name = ''
@@ -98,16 +114,27 @@ def batch_test(reps=1, mode='multiple', stop_at=False, shuffle=True, config_sett
 
     #  <<< Trade >>>
     batch_loop(reps, mode)
+
     print('\n---> BATCH COMPLETE')
 
-    realized = b_frame.real_pl.sum()
-    unrealized = b_frame.unreal_pl.sum()
-    result = 'Profit/Loss: real: ${:.2f}, unreal: ${:.2}'
-    print(result.format(float(realized), float(unrealized)))
+    realized = round(float(b_frame.real_pl.sum()),2)
+    unrealized = round(float(b_frame.unreal_pl.sum()),2)
+
+    if realized >= 0:
+        realized = gl.color_format(realized, 'green')
+    else:
+        realized = gl.color_format(realized, 'red')
+    if unrealized >= 0:
+        unrealized = gl.color_format(unrealized, 'green')
+    else:
+        unrealized = gl.color_format(unrealized, 'red')
 
     duration = time.time() - start
     duration = agg_time(duration)
-    print(f'time elapsed: {duration}\n')
+
+    print(ending_message.format(realized,
+                                unrealized,
+                                duration))
 
     if reps > 1 and mode == 'multiple':
         # global batch_configs
@@ -173,7 +200,7 @@ def batch_loop(reps, mode):
             now_trading = '\nnow trading: {}, time_remaining: {}, ({}%)'
             print(now_trading.format(file_name,
                                      agg_time(time_remaining),
-                                     (stock_index / len(b_csvs)) *100))
+                                     (stock_index / len(b_csvs)) * 100))
             algo.test_trade(config=config, mode='csv',
                             csv_file=csv, batch_dir=b_dir)
 
