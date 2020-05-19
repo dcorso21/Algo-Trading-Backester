@@ -98,16 +98,16 @@ def batch_test(reps=1, mode='multiple', stop_at=False, shuffle=True, config_sett
 
     #  <<< Trade >>>
     batch_loop(reps, mode)
-    print('batch complete')
+    print('\n---> BATCH COMPLETE')
 
     realized = b_frame.real_pl.sum()
     unrealized = b_frame.unreal_pl.sum()
-    result = 'total Profit/Loss: real: ${:.2f}, unreal: ${:.2}'
+    result = 'Profit/Loss: real: ${:.2f}, unreal: ${:.2}'
     print(result.format(float(realized), float(unrealized)))
 
     duration = time.time() - start
     duration = agg_time(duration)
-    print(f'total time elapsed: {duration}\n')
+    print(f'time elapsed: {duration}\n')
 
     if reps > 1 and mode == 'multiple':
         # global batch_configs
@@ -167,11 +167,13 @@ def batch_loop(reps, mode):
             # 1) Trade the csv with the function `test_trade`
             file_name = gl.os.path.basename(csv).strip('.csv')
             gl.stock_pick = file_name
+            stock_index = b_csvs.index(csv)
             time_remaining = expected_time_per_stock * \
-                len(b_csvs[b_csvs.index(csv):])
-            now_trading = '\nnow trading: {}, time_remaining: {}'
+                len(b_csvs[stock_index:])
+            now_trading = '\nnow trading: {}, time_remaining: {}, ({}%)'
             print(now_trading.format(file_name,
-                                     agg_time(time_remaining)))
+                                     agg_time(time_remaining),
+                                     (stock_index / len(b_csvs)) *100))
             algo.test_trade(config=config, mode='csv',
                             csv_file=csv, batch_dir=b_dir)
 

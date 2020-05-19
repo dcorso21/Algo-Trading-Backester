@@ -41,7 +41,7 @@ def test_trade(config='last', mode='csv', csv_file='first', batch_dir=False):
     duration = '{} s'.format(int(time.time() - start_time))
     last_min = gl.current['minute']
 
-    gl.clear_output(3)
+    gl.clear_output(4)
 
     print(result.format(gl.stock_pick.split('_')[-1],
                         float(gl.pl_ex['real']),
