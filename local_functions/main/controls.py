@@ -8,7 +8,7 @@ cut_prints = True
 
 '''----- MISC -----'''
 misc = {
-    'hard_stop': '09:45:00',
+    'hard_stop': '10:30:00',
     'dollar_risk': -500,
     'ideal_volatility': 3,
     'buy_clock_countdown_amount': 10

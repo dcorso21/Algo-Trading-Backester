@@ -652,6 +652,8 @@ def clear_output(num_of_lines):
         sys.stdout.write(erase_line)
         sys.stdout.write(cursor_up)
         sys.stdout.write(erase_line)
+        
+    sys.stdout.write(cursor_up)
     sys.stdout.write('\r')
 
 def color_format(msg, color):

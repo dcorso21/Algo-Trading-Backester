@@ -104,12 +104,7 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
     get_batch_dir()
 
     # <<< Get CSVs >>>
-    if len(b_csvs) == 0:
-        b_csvs = glob.glob('mkt_csvs/*.csv')
-        if shuffle:
-            from random import shuffle
-            shuffle(b_csvs)
-        b_csvs = b_csvs[:stop_at]
+    get_b_csvs(stop_at, shuffle, first_run)
 
     #  <<< Starting Message >>>
     num_of_stocks = len(b_csvs)
@@ -260,19 +255,17 @@ def get_b_csvs(stop_at, shuffle, first_run):
     if not first_run:
         return
 
-    else:
-        import glob
-        # 1) Retrieve list of csvs in mkt_csvs folder.
-        csv_list = glob.glob("mkt_csvs/*.csv")
+    # 1) Retrieve list of csvs in mkt_csvs folder.
+    csv_list = glob.glob("mkt_csvs/*.csv")
 
-        # 2) Shuffle list to randomize sample set.
-        if shuffle == True:
-            gl.random.shuffle(csv_list)
+    # 2) Shuffle list to randomize sample set.
+    if shuffle == True:
+        gl.random.shuffle(csv_list)
 
-        if stop_at != False:
-            csv_list = csv_list[:stop_at]
+    if stop_at != False:
+        csv_list = csv_list[:stop_at]
 
-        b_csvs = csv_list
+    b_csvs = csv_list
 
 
 def append_batch_frame(full_stock_name):
@@ -957,6 +950,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config'):
     dest = b_dir / 'compare.html'
     with open(dest, 'x') as f:
         f.write(template)
+    
+    refresh_batches_html()
 
     print('comparison created')
 

@@ -1391,8 +1391,11 @@ def create_batch_compare_graph(categories, category_labels):
         steps=steps
     )]
 
-    fig.layout.sliders = sliders
-    fig.layout.template = 'plotly_dark'
+    fig.update_layout(
+        template='plotly_dark',
+        sliders = sliders,
+        height=900
+    )
 
     html = fig.to_html(include_plotlyjs='cdn', full_html=False)
 
