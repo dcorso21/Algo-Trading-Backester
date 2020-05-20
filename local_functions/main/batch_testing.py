@@ -686,8 +686,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=False):
 
     color_dict = {}
     value = 70
-    val_off = 5
-    hue_start = 30
+    val_off = 7
+    hue_start = 75
 
     res_colors = plotr.get_colors(
         hue_start_value=hue_start, num_of_colors=len(batch_names), v=value)
