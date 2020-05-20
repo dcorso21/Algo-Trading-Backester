@@ -33,6 +33,8 @@ ending_message = '''\033[94m
 
 # batch name
 b_name = ''
+# number of batches
+num_of_batches = 0
 # batch_num
 b_num = 0
 # batch path, including batch name (more formatted)
@@ -51,7 +53,9 @@ b_csvs = []
 
 
 @ gl.save_on_error
-def batch_test(reps=1, mode='multiple', stop_at=False, shuffle=True, config_setting='default', inherit_csvs=False):
+def batch_test(reps=1, mode='multiple', stop_at=False,
+               shuffle=True, config_setting='default',
+               first_run=True, create_compare='config'):
     # region Docstring
     '''
     # Batch Test
@@ -85,6 +89,10 @@ def batch_test(reps=1, mode='multiple', stop_at=False, shuffle=True, config_sett
     '''
     # endregion Docstring
     global b_csvs, b_configs, b_frame, b_current_config
+    global num_of_batches
+
+    if first_run:
+        num_of_batches = reps
 
     #  <<< Gets Configuration Files >>>
     get_batch_configs(config_setting, reps)
@@ -117,8 +125,8 @@ def batch_test(reps=1, mode='multiple', stop_at=False, shuffle=True, config_sett
 
     print('\n---> BATCH COMPLETE')
 
-    realized = round(float(b_frame.real_pl.sum()),2)
-    unrealized = round(float(b_frame.unreal_pl.sum()),2)
+    realized = round(float(b_frame.real_pl.sum()), 2)
+    unrealized = round(float(b_frame.unreal_pl.sum()), 2)
 
     if realized >= 0:
         realized = gl.color_format(realized, 'green')
@@ -141,9 +149,12 @@ def batch_test(reps=1, mode='multiple', stop_at=False, shuffle=True, config_sett
         # discard = batch_configs.pop(0)
         reps -= 1
         batch_test(reps=reps, mode='multiple',
-                   stop_at=stop_at, shuffle=shuffle, config_setting=False, inherit_csvs=True)
+                   stop_at=stop_at, shuffle=shuffle, config_setting=False, first_run=False)
 
     b_csvs = []
+    if create_compare != False:
+        if num_of_batches > 1:
+            compare_batches(compare=create_compare)
 
 
 def batch_loop(reps, mode):
@@ -200,7 +211,7 @@ def batch_loop(reps, mode):
             now_trading = '\nnow trading: {}, time_remaining: {}, ({}%)'
             print(now_trading.format(file_name,
                                      agg_time(time_remaining),
-                                     (stock_index / len(b_csvs)) * 100))
+                                     int((stock_index / len(b_csvs)) * 100)))
             algo.test_trade(config=config, mode='csv',
                             csv_file=csv, batch_dir=b_dir)
 
@@ -242,12 +253,12 @@ def agg_time(duration, round_to_dec=2):
     return agg_time
 
 
-def get_b_csvs(stop_at, shuffle, inherit_csvs):
+def get_b_csvs(stop_at, shuffle, first_run):
 
     global b_csvs
 
-    if inherit_csvs == True:
-        pass
+    if not first_run:
+        return
 
     else:
         import glob
@@ -620,6 +631,52 @@ def add_to_batches_html():
         refresh_batches_html()
 
 
+def df_of_comparisons():
+
+    links = []
+    path = gl.directory
+    results = str(path / 'results'/'comparison')
+    for root, folder, files in gl.os.walk('results'):
+        if 'compare.html' in files:
+            links.append(gl.os.path.join(root, 'compare.html'))
+
+    def get_comparison_number(compare_name):
+        compare_name = compare_name.split(' ')[1]
+        return int(compare_name)
+
+    compare_names = []
+    dates = []
+    for link in links:
+        divs = link.split('/')
+        if len(divs) == 1:
+            divs = divs[0].split('\\')
+
+        divs = divs[2:-1]
+        dates.append(divs[0])
+
+        cn = divs[1].title()
+        cn = cn.replace(',', ':')
+        cn = cn.replace('_', ' ', 1)
+        cn = cn.split('_', 1)
+        time = cn[1].replace('_', ' ').upper()
+        cn = f'{cn[0]} ({time})'
+        compare_names.append(cn)
+
+    frame = {
+        'link': links,
+        'date': dates,
+        'compare_name': compare_names,
+    }
+
+    df = gl.pd.DataFrame(frame)
+
+    df['c_number'] = df['compare_name'].apply(get_comparison_number)
+    df = df.sort_values(by=['date', 'c_number'], ascending=False)
+    df = df.drop('c_number', axis=1)
+    df = df.reset_index(drop=True)
+    return df
+
+
 def df_of_batches():
     links = []
     configs = []
@@ -686,6 +743,47 @@ def df_of_batches():
     return df
 
 
+def html_batches_menu(df, menu_index=1, name='batch'):
+    if menu_index == 1:
+        menu_index = ''
+
+    drop_down_temp = '''
+            <li class="parent{}">
+            <!-- Name of List -->
+            <a href="#">{}<span class="expand">»</span></a>
+            <!-- List of Items -->
+            <ul class="child{}">
+            {}
+            </ul>
+            </li>'''
+
+    list_item_temp = '''
+            <li class="parent{}">
+            <a href="{}">{}</a>
+            </li>'''
+
+    html_text = ''
+
+    dates = sorted(set(df.date))
+    dates.reverse()
+
+    for date in dates:
+        dfx = df[df['date'] == date]
+        list_items = ''
+        for row in dfx.index:
+            link = dfx.at[row, 'link']
+            title = dfx.at[row, f'{name}_name']
+            list_items += list_item_temp.format(f' parent{menu_index}',
+                                                link,title)
+
+        html = drop_down_temp.format(f' parent{menu_index}',
+                                    date, 
+                                    f' child{menu_index}',
+                                    list_items)
+        html_text += html
+        return html_text
+
+
 def refresh_batches_html():
     # region Docstring
     '''
@@ -697,52 +795,32 @@ def refresh_batches_html():
     # endregion Docstring
     path = gl.directory
 
-    df = df_of_batches()
-
-    def fill_out_dropdown(date, list_items):
-        template = f'''
-            <li class="parent">
-            <!-- Name of List -->
-            <a href="#">{date}<span class="expand">»</span></a>
-            <!-- List of Items -->
-            <ul class="child">
-            {list_items}
-            </ul>
-            </li>
-        '''
-        return template
-
-    def create_list_item(link, element_title):
-        return f'<li class="parent"><a href="{link}">{element_title}</a></li>'
-
-    html_text = ''
-
-    dates = sorted(set(df.date))
-    dates.reverse()
-
-    for date in dates:
-        batches = df[df['date'] == date]
-        list_items = ''
-        for row in batches.index:
-            link = batches.at[row, 'link']
-            batch_name = batches.at[row, 'batch_name']
-            list_item = create_list_item(link=link, element_title=batch_name)
-            list_items += list_item
-        html = fill_out_dropdown(date, list_items)
-        html_text += html
+    batches = df_of_batches()
+    comparisons = df_of_comparisons()
 
     template = str(path / 'batch_design' / 'batches_template.html')
     with open(template, 'r') as file:
         text = file.read()
 
-    text = text.replace('^^^List^^^', html_text)
+    if len(batches) == 0:
+        text = text.replace('^^^batches_menu^^^', '')
+    else:
+        batches = html_batches_menu(batches)
+        text = text.replace('^^^batches_menu^^^', batches)
+
+    if len(comparisons) == 0:
+        text = text.replace('^^^comparisons_menu^^^', '')
+    else:
+        comparisons = html_batches_menu(
+            comparisons, name='compare', menu_index=2)
+        text = text.replace('^^^comparisons_menu^^^', comparisons)
 
     destination = str(path / 'batches.html')
     with open(destination, 'w') as file:
         file.write(text)
 
 
-def compare_batches(num_to_compare=2, pick_most_recent=False, compare='config'):
+def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config'):
     from local_functions.plotting import plot_results as plotr
     df = df_of_batches()
     links = df.pop('link')
@@ -879,6 +957,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=False, compare='config'):
     dest = b_dir / 'compare.html'
     with open(dest, 'x') as f:
         f.write(template)
+
+    print('comparison created')
 
 
 def delete_all_results():
