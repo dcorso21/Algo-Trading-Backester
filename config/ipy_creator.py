@@ -1,6 +1,7 @@
 # %%
 from local_functions.main import controls
 import json
+import datetime
 
 misc = controls.misc
 sim_settings = controls.sim_settings
@@ -124,14 +125,27 @@ def make_default_config_json(path):
         'order_conditions': {'buy_conditions': bp, 'sell_conditions': sp}
     }
 
-    d = json.dumps(d, indent=4, sort_keys=True)
+    timestamp = datetime.datetime.today()
+    today = timestamp.strftime(r'%m-%d-%Y')
+    time = timestamp.strftime(r'%I,%M_%p')
+
+    metadata = {
+        'name': 'default',
+        'date': str(today),
+        'time': str(time),
+    }
+
+    d['metadata'] = metadata
+
+    d_string = json.dumps(d, indent=4, sort_keys=True)
+
     if path != False:
         name = path / 'default_config.json'
         with open(str(name), 'w') as f:
-            f.write(d)
+            f.write(d_string)
             f.close()
 
-    return d
+    return d_string
 
 
 def create_condition_code(dict_name, cond_dict):

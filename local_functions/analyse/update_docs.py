@@ -106,8 +106,9 @@ def update_volumes():
     last_row = current_frame.index.to_list()[-1]
     current_frame = current_frame.drop(last_row)
 
-    current_frame['dvol'] = current_frame.loc[:, 'close'] * \
-        current_frame.loc[:, 'volume']
+    with gl.pd.option_context('mode.chained_assignment', None):
+        current_frame['dvol'] = current_frame.close.values * \
+            current_frame.volume.values
 
     current_dvol = current['volume'] * current['close']
 
@@ -179,7 +180,7 @@ def update_volas():
 
 
 '''----- Momentum -----'''
-# region Momentum
+# region Momentmu110
 
 
 def update_momentum():

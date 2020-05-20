@@ -7,6 +7,7 @@ import numpy as np
 import json
 import datetime
 import pandas as pd
+pd.options.mode.chained_assignment = None
 import logging
 import random
 import os
@@ -67,9 +68,8 @@ buy_clock = 0
 buy_lock = False
 
 
-
 # CSV Trading
-batch_path = 'string'
+batch_dir = ''
 sim_df = 'Dataframe'
 csv_indexes = 'dictionary'
 csv_name = 'string'
@@ -164,7 +164,7 @@ def save_frame(df, file_name):
         text = file.read()
 
     asset_path = str(directory / 'batch_design' / 'assets')
-    index_path = str(batch_path / 'batch_index.html')
+    index_path = str(batch_dir / 'batch_index.html')
 
     text = text.replace('^^^doc_name^^^', page_names[file_name])
     text = text.replace('^^^csv_name^^^', csv_name)
@@ -194,7 +194,7 @@ filepath = {
 }
 
 
-def clear_temp_assets():
+def clear_all_in_folder(folder, confirm=False, print_complete=False):
     # region Docstring
     '''
     # Clear Temp Assets
@@ -211,9 +211,16 @@ def clear_temp_assets():
     - Item
     '''
     # endregion Docstring
+
+    if confirm:
+        msg = f'Are you SURE you would like to clear all contents of "{folder}"?   Y/N'
+        response = input(msg)
+        if response.upper() != 'Y':
+            print('function cancelled, nothing deleted')
+            return
+
     import os
     import shutil
-    folder = 'temp_assets'
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
         try:
@@ -224,8 +231,11 @@ def clear_temp_assets():
         except Exception as e:
             print(f'Failed to delete {file_path}. Reason: {e}')
 
+    if print_complete:
+        print(f'cleared contents of directory: "{folder}"')
 
-def save_config():
+
+def save_config(path_to_file):
     # region Docstring
     '''
     # Save Config
@@ -237,14 +247,13 @@ def save_config():
     # endregion Docstring
     global config
     if config == 'default':
-        from config.ipy_creator import make_default_config_json, sp, bp, misc
+        from config.ipy_creator import make_default_config_json  # , sp, bp, misc
         config = make_default_config_json(False)
     else:
-        import json
         config = json.dumps(config, indent=4, sort_keys=True)
 
-    path = directory / 'temp_assets' / 'config.json'
-    with open(path, 'x') as f:
+    f = path_to_file / 'config.json'
+    with open(f, 'x') as f:
         f.write(config)
         f.close()
 
@@ -278,8 +287,9 @@ def save_all():
         'log': log,
 
     }
-    clear_temp_assets()
-    save_config()
+    clear_all_in_folder('temp_assets')
+    if batch_dir == '':
+        save_config(directory / 'temp_assets')
     for file_name, file in zip(files.keys(), files.values()):
 
         if type(file) == dict:
@@ -291,10 +301,10 @@ def save_all():
         update_docs.update_momentum()
         html_path = str(directory / 'temp_assets' / 'mom_tracking.html')
         plotr.plot_momentum(mom_frame, current_frame,
-                            directory, batch_path, csv_name)
+                            directory, batch_dir, csv_name)
     if len(filled_orders) != 0:
         plotr.plot_results(current_frame, filled_orders,
-                           batch_path, directory, csv_name)
+                           batch_dir, directory, csv_name)
 
 
 def save_on_error(orig_func):
@@ -450,6 +460,136 @@ def frame_to_html(df, df_name):
     return table
 
 
+def update_config_files():
+        # region Docstring
+    '''
+    # Update Config Files
+    Updates the algo_config repo on github, creating a new ipynb, default json, and template 
+    for testing based on current control.py settings.
+
+    #### Returns nothing, saves to github.
+
+    '''
+    # endregion Docstring
+    from config import ipy_creator
+    path = directory
+    repo = get_algo_config_repo()
+    ipy_creator.update_all(path, repo)
+
+
+def delete_all_created_configs():
+    # region Docstring
+    '''
+    # Delete All Created Configs
+    deletes all creates config.json files in github repo
+
+    #### Returns nothing
+    '''
+    # endregion Docstring
+    repo = get_algo_config_repo()
+    created = repo.get_contents('created')
+    if len(created) != 0:
+        for f in created:
+            commit_msg = f"removed {f}"
+            repo.delete_file(f.path, commit_msg, f.sha, branch="master")
+            print(commit_msg)
+
+
+def get_algo_config_repo():
+    # region Docstring
+    '''
+    # Get algo_config repo
+    retrieves the repo object using the pygithub package.  
+
+    #### Returns repo object.
+
+    note: got an email saying that login with u/p will be deprecated soon. 
+    '''
+    # endregion Docstring
+    from github import Github
+    user, pasw = 'dcorso21', 'PFgyMWEVJQnZzu2'
+    g = Github(user, pasw)
+    for repo in g.get_user().get_repos():
+        if str(repo) == 'Repository(full_name="dcorso21/algo_config")':
+            break
+    return repo
+
+
+def get_config_files():
+    # region Docstring
+    '''
+    # Get Config Files
+    gets all listed config.json files in repo.
+
+    #### Returns list of github content files which can be converted to dicts.  
+    '''
+    # endregion Docstring
+    repo = get_algo_config_repo()
+    files = list(repo.get_contents('created'))
+    files.reverse()
+    return files
+
+
+def pick_config_file():
+    # region Docstring
+    '''
+    # Pick Config File
+    prompts to 
+
+    #### Returns chosen config files
+
+    '''
+    # endregion Docstring
+    files = get_config_files()
+    get_df_view(files)
+    prompt = 'please specify config by number (for default put -1)'
+    num = int(input(prompt))
+    if num == -1:
+        return 'default'
+    return files[num]
+
+
+def view_config_file():
+    from config import ipy_creator
+    c = pick_config_file()
+    if c == 'default':
+        c = ipy_creator.make_default_config_json(path=False)
+    else:
+        c = c.decoded_content
+        c = json.loads(c)
+        c = json.dumps(c, indent=4, sort_keys=True)
+    print(c)
+
+
+def make_config_metadata(filename):
+    flist = filename.name.split('created/')[0].split('_', 3)
+    fn = flist[3:][0]
+    if fn == '.json':
+        fn = 'no name'
+    else:
+        fn = fn.split('.json')[0]
+    metadata = {
+        'name': [fn],
+        'date': [flist[0]],
+        'time': [f'{flist[1]} {flist[2]}'],
+    }
+    return metadata
+
+
+def get_df_view(files=get_config_files()):
+    df = pd.DataFrame()
+    for f in files:
+        row = make_config_metadata(f)
+        dfx = pd.DataFrame(row)
+        df = df.append(dfx, sort=False)
+
+    df = df.reset_index(drop=True)
+    if isnotebook():
+        display(df)
+    else:
+        print(df)
+
+
 def manage_algo_config_repo(method):
     # region Docstring
     '''
@@ -470,123 +610,6 @@ def manage_algo_config_repo(method):
     ## }
     '''
     # endregion Docstring
-    from config import ipy_creator
-
-    def update_config_files():
-        # region Docstring
-        '''
-        # Update Config Files
-        Updates the algo_config repo on github, creating a new ipynb, default json, and template 
-        for testing based on current control.py settings.
-
-        #### Returns nothing, saves to github.
-
-        '''
-        # endregion Docstring
-        path = directory
-        repo = get_algo_config_repo()
-        ipy_creator.update_all(path, repo)
-
-    def delete_all_created_configs():
-        # region Docstring
-        '''
-        # Delete All Created Configs
-        deletes all creates config.json files in github repo
-
-        #### Returns nothing
-        '''
-        # endregion Docstring
-        repo = get_algo_config_repo()
-        created = repo.get_contents('created')
-        if len(created) != 0:
-            for f in created:
-                commit_msg = f"removed {f}"
-                repo.delete_file(f.path, commit_msg, f.sha, branch="master")
-                print(commit_msg)
-
-    def get_algo_config_repo():
-        # region Docstring
-        '''
-        # Get algo_config repo
-        retrieves the repo object using the pygithub package.  
-
-        #### Returns repo object.
-
-        note: got an email saying that login with u/p will be deprecated soon. 
-        '''
-        # endregion Docstring
-        from github import Github
-        user, pasw = 'dcorso21', 'PFgyMWEVJQnZzu2'
-        g = Github(user, pasw)
-        for repo in g.get_user().get_repos():
-            if str(repo) == 'Repository(full_name="dcorso21/algo_config")':
-                break
-        return repo
-
-    def get_config_files():
-        # region Docstring
-        '''
-        # Get Config Files
-        gets all listed config.json files in repo.
-
-        #### Returns list of github content files which can be converted to dicts.  
-        '''
-        # endregion Docstring
-        repo = get_algo_config_repo()
-        files = list(repo.get_contents('created'))
-        files.reverse()
-        return files
-
-    def pick_config_file():
-        # region Docstring
-        '''
-        # Pick Config File
-        prompts to 
-
-        #### Returns chosen config files
-
-        '''
-        # endregion Docstring
-        files = get_config_files()
-        get_df_view(files)
-        prompt = 'please specify config by number (for default put -1)'
-        num = int(input(prompt))
-        if num == -1:
-            return 'default'
-        return files[num]
-
-    def view_config_file():
-        c = pick_config_file()
-        if c == 'default':
-            c = ipy_creator.make_default_config_json(path = False)
-        else:
-            c = c.decoded_content
-            c = json.loads(c)
-            c = json.dumps(c, indent = 4, sort_keys=True)
-        print(c)
-
-    def get_df_view(files = get_config_files()):
-        df = pd.DataFrame()
-        for f in files:
-            flist = f.name.split('created/')[0].split('_',3)
-            fn = flist[3:][0]
-            if fn == '.json':
-                fn = 'no name'
-            else:
-                fn = fn.split('.json')[0]
-            row = {
-                'name': [fn],
-                'date': [flist[0]],
-                'time': [f'{flist[1]} {flist[2]}'],
-            }
-            dfx = pd.DataFrame(row)
-            df = df.append(dfx, sort = False)
-
-        df = df.reset_index(drop=True)
-        if isnotebook():
-            display(df)
-        else:
-            print(df)
 
     methods = {
         'update': update_config_files,
@@ -617,7 +640,39 @@ def pull_df_from_html(filepath):
     return df
 
 
+def clear_output(num_of_lines):
+    # if controls.cut_prints == False:
+    #     return
+    # elif isnotebook:
+    #     return
+    import sys
+    cursor_up = '\x1b[1A'
+    erase_line = '\x1b[2K'
+    for _ in range(num_of_lines):
+        sys.stdout.write(erase_line)
+        sys.stdout.write(cursor_up)
+        sys.stdout.write(erase_line)
+    sys.stdout.write('\r')
 
+def color_format(msg, color):
+
+    def prRed(msg): return("\033[91m {}\033[00m" .format(msg)) 
+    def prGreen(msg): return("\033[92m {}\033[00m" .format(msg)) 
+    def prYellow(msg): return("\033[93m {}\033[00m" .format(msg)) 
+    def prLightPurple(msg): return("\033[94m {}\033[00m" .format(msg)) 
+    def prPurple(msg): return("\033[95m {}\033[00m" .format(msg)) 
+    def prCyan(msg): return("\033[96m {}\033[00m" .format(msg)) 
+    def prLightGray(msg): return("\033[97m {}\033[00m" .format(msg)) 
+    def prBlack(msg): return("\033[98m {}\033[00m" .format(msg)) 
+    colors = {
+        'red':prRed,
+        'green':prGreen,
+        'yellow':prYellow,
+        'light_purple':prLightPurple,
+        'purple':prPurple,
+        'cyan':prCyan,
+    }
+    return colors[color](msg)
 # region Unused
 def csv_to_dict(file_path):
     # region Docstring

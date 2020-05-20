@@ -149,7 +149,8 @@ def vol_check(potential_fills, open_orders):
         # Entire order gets filled.
         if vol_passed >= qty*offset_multiplier:
             fill = open_orders[open_orders.index == index]
-            fill['order_id'] = fill.order_id.apply(lambda i: str(i)+'x')
+            with gl.pd.option_context('mode.chained_assignment', None):
+                fill['order_id'] = fill.order_id.apply(lambda i: str(i)+'x')
 
             filled_orders = filled_orders.append(fill, sort=False)
             open_orders = open_orders.drop(index)
@@ -158,7 +159,8 @@ def vol_check(potential_fills, open_orders):
         elif int(vol_passed / offset_multiplier) >= (min_chunk_cash / exe_price):
             fill = open_orders[open_orders.index == index]
             fill_qty = int(vol_passed / offset_multiplier)
-            fill['qty'] = fill_qty
+            with gl.pd.option_context('mode.chained_assignment', None):
+                fill['qty'] = fill_qty
             filled_orders = filled_orders.append(fill, sort=False)
 
             # Redefine remainder of order
