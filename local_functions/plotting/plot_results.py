@@ -105,6 +105,8 @@ def new_line_plot(x_values, y_values, text, color='blue',
         zero.extend(list(y_values))
         y_values = zero
 
+        text = [''].extend(text)
+
     line_plot = go.Scatter(x=x_values,
                            y=y_values,
                            mode='lines+markers',

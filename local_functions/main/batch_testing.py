@@ -203,7 +203,7 @@ def batch_loop(reps, mode):
             stock_index = b_csvs.index(csv)
             time_remaining = expected_time_per_stock * \
                 len(b_csvs[stock_index:])
-            now_trading = '\nnow trading: {}, time_remaining: {}, ({}%)'
+            now_trading = '\ntrading: {}, {} left, ({}%)'
             print(now_trading.format(file_name,
                                      agg_time(time_remaining),
                                      int((stock_index / len(b_csvs)) * 100)))
@@ -236,9 +236,9 @@ def agg_time(duration, round_to_dec=2):
     ## }
     '''
     # endregion Docstring
-    increment = 'seconds'
+    increment = 'secs'
     if duration >= 60:
-        increment = 'minutes'
+        increment = 'mins'
         duration /= 60
         if duration >= 60:
             increment = 'hours'
