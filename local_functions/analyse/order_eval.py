@@ -72,7 +72,7 @@ def sell_eval():
     if len(gl.current_positions) == 0:
         return gl.pd.DataFrame()
 
-    sell_conds = gl.controls.sell_conditions
+    sell_conds = gl.configure.sell_conditions
 
     for condition in sell_conds:
         sells = sell_conditions(condition)
@@ -91,13 +91,13 @@ def sell_conditions(condition):
     ## Parameters:{
     ####    `condition`: string that names the name of the sell conditions function to be accessed ## } ## Process: ### 1) 
     ## Notes:
-    -  All Parameters for sell conditions are controlled in `local_functions.main.controls`
+    -  All Parameters for sell conditions are controlled in `local_functions.main.configure`
 
     ## TO DO:
     - Item
     '''
     # endregion Docstring
-    s_params = gl.controls.sell_cond_params
+    s_params = gl.configure.sell_cond_params
 
     def dollar_risk_check():
         # region Docstring
@@ -108,7 +108,7 @@ def sell_conditions(condition):
         '''
         # endregion Docstring
         d_risk = gl.pl_ex['unreal'] + gl.pl_ex['unreal']
-        if d_risk <= gl.controls.misc['dollar_risk']:
+        if d_risk <= gl.configure.misc['dollar_risk']:
             everything = gl.current_positions.qty.sum()
             exe_price = 'current_price'
             sells = gl.order_tools.create_orders(
@@ -154,7 +154,7 @@ def sell_conditions(condition):
         Returns DataFrame of Sell Orders. 
 
         ## Parameters:{
-        ####    All Parametes are controlled in `local_functions.main.controls`
+        ####    All Parametes are controlled in `local_functions.main.configure`
         ## }
 
         '''
@@ -182,7 +182,7 @@ def sell_conditions(condition):
         Returns DataFrame of Sell Orders. 
 
         ## Parameters:{
-        ####    All Parametes are controlled in `local_functions.main.controls`
+        ####    All Parametes are controlled in `local_functions.main.configure`
         ## }
 
         '''
@@ -210,12 +210,15 @@ def sell_conditions(condition):
         Returns a Sells DataFrame
 
         ## Parameters:{
-        ####    All Parametes are controlled in `local_functions.main.controls`
+        ####    All Parametes are controlled in `local_functions.main.configure`
         ## }
         '''
         # endregion Docstring
-        exit_time = s_params['timed_exit']['time']
-        exit_time = gl.pd.to_datetime(exit_time).timestamp()
+        minute_off = s_params['timed_exit']['minute_off']
+        exit_time = gl.configure.misc['hard_stop']
+        exit_time = gl.pd.to_datetime(exit_time)
+        exit_time = (
+            exit_time - gl.datetime.timedelta(minutes=minute_off)).timestamp()
 
         current_time = gl.current['minute']
         current_time = gl.pd.to_datetime(current_time).timestamp()
@@ -285,7 +288,7 @@ def buy_eval():
         gl.log_funcs.log_sent_orders(buys, 'BUY')
         return buys
 
-    buy_conds = gl.controls.buy_conditions
+    buy_conds = gl.configure.buy_conditions
 
     # 2. Go through each Buy Condition to see if the time is right to sell (this second)
     # Order is important as the first function to yield an order will break the loop and return the DF.
@@ -315,14 +318,14 @@ def buy_conditions(condition):
     ### 1) uses dictionary to compare string condition to function name of condition. 
 
     ## Notes:
-    -  All Parameters for sell conditions are controlled in `local_functions.main.controls`
+    -  All Parameters for sell conditions are controlled in `local_functions.main.configure`
 
 
     ## TO DO:
     - Item
     '''
     # endregion Docstring
-    b_params = gl.controls.buy_cond_params
+    b_params = gl.configure.buy_cond_params
 
     def starting_position():
         # region Docstring
@@ -333,7 +336,7 @@ def buy_conditions(condition):
         Returns buys DataFrame.
 
         ## Parameters:{
-        ####    All Parametes are controlled in `local_functions.main.controls`
+        ####    All Parametes are controlled in `local_functions.main.configure`
         ## }
 
         '''
@@ -357,7 +360,7 @@ def buy_conditions(condition):
 
 
         ## Parameters:{
-        ####    All Parametes are controlled in `local_functions.main.controls`
+        ####    All Parametes are controlled in `local_functions.main.configure`
         ## }
 
         ## Notes:
@@ -407,7 +410,7 @@ def buy_conditions(condition):
         Returns buys DataFrame
 
         ## Parameters:{
-        ####    All Parametes are controlled in `local_functions.main.controls`
+        ####    All Parametes are controlled in `local_functions.main.configure`
         ## }
 
         '''

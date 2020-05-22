@@ -164,7 +164,7 @@ def update_volas():
 
     # set ideal volatility
 
-    ideal_vola = gl.controls.misc['ideal_volatility']
+    ideal_vola = gl.configure.misc['ideal_volatility']
 
     scaler = volas['five_min'] / ideal_vola
 

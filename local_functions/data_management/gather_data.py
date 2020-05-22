@@ -40,7 +40,7 @@ def csv_refresh():
             'first': first_ind,
             'current': first_ind,
             'last': last_ind
-            }
+        }
         gl.csv_indexes = indexes
         gl.sim_ticker = sim_df.at[first_ind, 'ticker']
         row = first_ind
@@ -55,7 +55,7 @@ def csv_refresh():
             gl.loop_feedback = False
             return
 
-        if last['minute'] == gl.controls.misc['hard_stop']:
+        if last['minute'] == gl.configure.misc['hard_stop']:
             gl.loop_feedback = False
             return
 

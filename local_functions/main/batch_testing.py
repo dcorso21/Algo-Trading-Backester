@@ -5,7 +5,7 @@ import time
 
 
 starting_msg = '''\033[94m
-<><><><><><><><><><><><><><><><><><><><>\n
+<><><><><><><><><><><><><><><><><><><><>
 \033[96m
 --------\033[00m Starting Batch Test {} \033[96m--------\n
 \033[00mLoaded Configuration\n
@@ -13,22 +13,21 @@ starting_msg = '''\033[94m
 \033[94m-->\033[00m number of stocks: {}\n
 \033[94m-->\033[00m expected time to batch: {}
 \033[96m
-
-----------------------------------------\n
+----------------------------------------
 \033[94m
 <><><><><><><><><><><><><><><><><><><><>\n
 \033[00m'''
 
 ending_message = '''\033[94m
-/////////////////////////////////////////\n
+/////////////////////////////////////////
 \033[96m
 <><><><><><>\033[00m BATCH COMPLETE \033[96m<><><><><><>\n
 \033[94m-->\033[00m Profit/Loss: real: ${}, unreal: ${}\n
 \033[94m-->\033[00m time elapsed: {}
 \033[96m
-<><><><><><><><><><><><><><><><><><><><>\n
+<><><><><><><><><><><><><><><><><><><><>
 \033[94m
-/////////////////////////////////////////\n
+/////////////////////////////////////////
 \033[00m'''
 
 # batch name
@@ -95,7 +94,7 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
         num_of_batches = reps
 
     #  <<< Gets Configuration Files >>>
-    get_batch_configs(config_setting, reps)
+    get_batch_configs(config_setting, reps, first_run)
 
     #  <<< time starts after config is picked >>>
     start = time.time()
@@ -139,6 +138,7 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
                                 unrealized,
                                 duration))
 
+    # Run Another Batch Test
     if reps > 1 and mode == 'multiple':
         # global batch_configs
         # discard = batch_configs.pop(0)
@@ -312,7 +312,7 @@ def append_batch_frame(full_stock_name):
     b_frame = b_frame.append(row, sort=False, ignore_index=True)
 
 
-def get_batch_configs(config_setting, reps):
+def get_batch_configs(config_setting, reps, first_run):
     # region Docstring
     '''
     # Pick Batch Configs
@@ -324,7 +324,7 @@ def get_batch_configs(config_setting, reps):
     ####    `config_setting`: str, 
     - 'pick' will ask for user to choose,
     - 'last' will select the most recent file,
-    - 'default' will use the given settings in `controls.py`
+    - 'default' will use the given settings in `configure.py`
 
     ####    `reps`: number of repetitions, 
     ## }
@@ -333,7 +333,7 @@ def get_batch_configs(config_setting, reps):
 
     global b_configs, b_current_config
 
-    if config_setting == None:
+    if not first_run:
         b_current_config = b_configs[reps]
         return
 
@@ -382,7 +382,7 @@ def calc_batch_time(reps):
 
     # gl.datetime.datetime.datetime()
     start_time = gl.pd.to_datetime('09:30:00').timestamp()
-    end_time = gl.controls.misc['hard_stop']
+    end_time = gl.configure.misc['hard_stop']
     end_time = gl.pd.to_datetime(end_time).timestamp()
     minutes = (end_time - start_time) / 60
     mult = 1
@@ -767,12 +767,12 @@ def html_batches_menu(df, menu_index=1, name='batch'):
             link = dfx.at[row, 'link']
             title = dfx.at[row, f'{name}_name']
             list_items += list_item_temp.format(f' parent{menu_index}',
-                                                link,title)
+                                                link, title)
 
         html = drop_down_temp.format(f' parent{menu_index}',
-                                    date, 
-                                    f' child{menu_index}',
-                                    list_items)
+                                     date,
+                                     f' child{menu_index}',
+                                     list_items)
         html_text += html
         return html_text
 
@@ -950,7 +950,7 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config'):
     dest = b_dir / 'compare.html'
     with open(dest, 'x') as f:
         f.write(template)
-    
+
     refresh_batches_html()
 
     print('comparison created')

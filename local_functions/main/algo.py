@@ -19,8 +19,8 @@ def test_trade(config='last', mode='csv', csv_file='first', batch_dir=False):
     # endregion Docstring
 
     start_time = time.time()
-    gl.controls.master_configure(config=config,
-                                 mode=mode, csv_file=csv_file, batch_dir=batch_dir)
+    gl.configure.master_configure(config=config,
+                                  mode=mode, csv_file=csv_file, batch_dir=batch_dir)
 
     gl.screen.pick_stock_direct(mode)
     if gl.stock_pick == 'nan':

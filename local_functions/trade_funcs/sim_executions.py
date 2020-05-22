@@ -85,8 +85,8 @@ def sim_progress_open_orders(open_orders):
     # Sim Progress Open Orders
     Iterates through each open order in the `open_orders` DataFrame.  
     '''
-    lag = gl.controls.sim_settings['execution_lag']
-    price_offset = gl.controls.sim_settings['execution_price_offset']
+    lag = gl.configure.sim_settings['execution_lag']
+    price_offset = gl.configure.sim_settings['execution_price_offset']
 
     current = gl.current
 
@@ -121,8 +121,8 @@ def sim_progress_open_orders(open_orders):
 
 def vol_check(potential_fills, open_orders):
 
-    min_chunk_cash = gl.controls.sim_settings['vol_min_chunk_cash']
-    offset_multiplier = gl.controls.sim_settings['vol_offset_multiplier']
+    min_chunk_cash = gl.configure.sim_settings['vol_min_chunk_cash']
+    offset_multiplier = gl.configure.sim_settings['vol_offset_multiplier']
 
     filled_orders = gl.pd.DataFrame()
 

@@ -1,5 +1,32 @@
 # region Modules
 
+from local_functions.plotting import api_chart
+from local_functions.plotting import candles
+from local_functions.plotting import plot_results as plotr
+from local_functions.trade_funcs import trade_funcs
+from local_functions.trade_funcs import sim_executions as sim_exe
+from local_functions.data_management import historical_funcs as hist
+from local_functions.data_management import stock_screening as screen
+from local_functions.data_management import gather_data as gather
+from local_functions.account import account_info as account
+from local_functions.analyse import update_docs
+from local_functions.analyse import order_tools
+from local_functions.analyse import order_eval
+from local_functions.analyse import common
+from local_functions.analyse import analyse
+from local_functions.main import configure
+from local_functions.main import log_funcs
+from local_functions.main import algo
+
+# 3rd party
+from pathlib import Path
+from functools import wraps
+import requests
+import sys
+import shutil
+import os
+import random
+import logging
 import pyqtgraph as pg
 from pyqtgraph import QtCore, QtGui
 
@@ -8,46 +35,21 @@ import json
 import datetime
 import pandas as pd
 pd.options.mode.chained_assignment = None
-import logging
-import random
-import os
-import shutil
-import sys
-import requests
-from functools import wraps
-from pathlib import Path
 
 
 # Main Folder
-from local_functions.main import algo
-from local_functions.main import log_funcs
-from local_functions.main import controls
 
 # Analyse
-from local_functions.analyse import analyse
-from local_functions.analyse import common
-from local_functions.analyse import order_eval
-from local_functions.analyse import order_tools
-from local_functions.analyse import update_docs
 
 # Account Info
-from local_functions.account import account_info as account
 
 # Data Management
-from local_functions.data_management import gather_data as gather
-from local_functions.data_management import stock_screening as screen
-from local_functions.data_management import historical_funcs as hist
 
 # Trade Functions
-from local_functions.trade_funcs import sim_executions as sim_exe
-from local_functions.trade_funcs import trade_funcs
 
 # from local_functions.live_graph import candles as candles
 # from local_functions.td_api import api_chart
 
-from local_functions.plotting import plot_results as plotr
-from local_functions.plotting import candles
-from local_functions.plotting import api_chart
 
 # endregion imports
 
@@ -97,15 +99,6 @@ volas = 'dictionary'
 volumes = 'dictionary'
 
 open_cancels = {}
-
-
-# region Controls/Configurations
-
-sell_conditions = []
-buy_conditions = []
-
-
-# endregion Controls/Configurations
 
 
 def save_dict_to_frame(dictionary, file_name):
@@ -641,7 +634,7 @@ def pull_df_from_html(filepath):
 
 
 def clear_output(num_of_lines):
-    # if controls.cut_prints == False:
+    # if configure.cut_prints == False:
     #     return
     # elif isnotebook:
     #     return
@@ -652,30 +645,33 @@ def clear_output(num_of_lines):
         sys.stdout.write(erase_line)
         sys.stdout.write(cursor_up)
         sys.stdout.write(erase_line)
-        
+
     sys.stdout.write(cursor_up)
     sys.stdout.write('\r')
 
+
 def color_format(msg, color):
 
-    def prRed(msg): return("\033[91m {}\033[00m" .format(msg)) 
-    def prGreen(msg): return("\033[92m {}\033[00m" .format(msg)) 
-    def prYellow(msg): return("\033[93m {}\033[00m" .format(msg)) 
-    def prLightPurple(msg): return("\033[94m {}\033[00m" .format(msg)) 
-    def prPurple(msg): return("\033[95m {}\033[00m" .format(msg)) 
-    def prCyan(msg): return("\033[96m {}\033[00m" .format(msg)) 
-    def prLightGray(msg): return("\033[97m {}\033[00m" .format(msg)) 
-    def prBlack(msg): return("\033[98m {}\033[00m" .format(msg)) 
+    def prRed(msg): return("\033[91m {}\033[00m" .format(msg))
+    def prGreen(msg): return("\033[92m {}\033[00m" .format(msg))
+    def prYellow(msg): return("\033[93m {}\033[00m" .format(msg))
+    def prLightPurple(msg): return("\033[94m {}\033[00m" .format(msg))
+    def prPurple(msg): return("\033[95m {}\033[00m" .format(msg))
+    def prCyan(msg): return("\033[96m {}\033[00m" .format(msg))
+    def prLightGray(msg): return("\033[97m {}\033[00m" .format(msg))
+    def prBlack(msg): return("\033[98m {}\033[00m" .format(msg))
     colors = {
-        'red':prRed,
-        'green':prGreen,
-        'yellow':prYellow,
-        'light_purple':prLightPurple,
-        'purple':prPurple,
-        'cyan':prCyan,
+        'red': prRed,
+        'green': prGreen,
+        'yellow': prYellow,
+        'light_purple': prLightPurple,
+        'purple': prPurple,
+        'cyan': prCyan,
     }
     return colors[color](msg)
 # region Unused
+
+
 def csv_to_dict(file_path):
     # region Docstring
     '''

@@ -1,154 +1,55 @@
-from local_functions.analyse import order_eval
 from local_functions.main import global_vars as gl
 
-# For configuration of settings.
-# in the case of deprecation, setting False will keep the old settings.
-lock_defaults = True
-cut_prints = True
+master = {}
 
-'''----- MISC -----'''
-misc = {
-    'hard_stop': '10:30:00',
-    'dollar_risk': -500,
-    'ideal_volatility': 3,
-    'buy_clock_countdown_amount': 10
-}
+metaconfig = {}
+misc = {}
+sim_settings = {}
 
-'''----- SIMULATION SETTINGS -----'''
-sim_settings = {
-    # min amount of seconds for price to be in acceptable range before fill.
-    'execution_lag': 2,
-    # price has to be past open exe price by this amount for fill.
-    'execution_price_offset': .01,
-    # the minimum amount of capital that can be partially filled in an order.
-    'vol_min_chunk_cash': 500,
-    # volume checker makes sure that more than enough volume has passed.
-    # if this ==2, then twice the amount of vol has to pass for each order.
-    'vol_offset_multiplier': 1.2,
-}
-
-
-'''----- ORDER CONDITIONS -----'''
-# region Default Params for Sell Conditions
-'''----- SELL CONDITIONS-----'''
-# sc = order_eval.sell_conditions
-
-# region Dollar Risk Check
-dollar_risk_check = {
-    'active': True,
-    'priority': 1,
-}
-# endregion Dollar Risk Check
-
-# region Timed Exit
-stop_time = gl.pd.to_datetime(misc['hard_stop'])
-stop_time = stop_time - gl.datetime.timedelta(minutes=2)
-stop_time = stop_time.strftime('%H:%M:%S')
-
-timed_exit = {
-    'active': True,
-    'priority': 2,
-    'time': stop_time,
-}
-# endregion Timed Exit
-
-# region Exposure Over Account Limit
-exposure_over_account_limit = {
-    'active': True,
-    'priority': 3,
-}
-# endregion Exposure Over Account Limit
-
-# region Percentage Gain
-percentage_gain = {
-    'active': True,
-    'priority': 4,
-    'perc_gain': 3
-}
-# endregion Percentage Gain
-
-# region Target Unreal
-target_unreal = {
-    'active': True,
-    'priority': 5,
-    'target_unreal_amount': 20
-}
-# endregion Target Unreal
-
-sell_cond_params = {
-    'dollar_risk_check': dollar_risk_check,
-    'timed_exit': timed_exit,
-    'exposure_over_account_limit': exposure_over_account_limit,
-    'percentage_gain': percentage_gain,
-    'target_unreal': target_unreal,
-}
+sell_cond_params = {}
+buy_cond_params = {}
 
 sell_conditions = []
-
-# endregion Default Params for Sell Conditions
-
-
-# region Default Params for Buy Conditions
-
-# region drop below average
-drop_below_average = {
-    'active': True,
-    'priority': 1,
-    'min_vola': 2.5,
-    'max_vola': 5
-}
-# endregion drop below average
-
-# region aggressive average
-aggresive_average = {
-    'active': False,
-    'priority': 2,
-}
-# endregion aggressive average
-
-
-buy_cond_params = {
-    'aggresive_average': aggresive_average,
-    'drop_below_average': drop_below_average,
-}
-
 buy_conditions = []
 
-# endregion Default Params for Buy Conditions
 
-
-def set_sell_conditions():
+def master_configure(config, mode, csv_file, batch_dir):
     # region Docstring
     '''
-    # Set Sell Conditions
-    Looks at the `sell_cond_params` variable to see 
-    which sell conditions are active
+    # Master Configure
+    function for configuring everything that needs it before the trading starts. 
 
-    #### Returns nothing, updates the global `sell_conditions` list.
+    #### Returns nothing, prints confirmation
+
+    ## Parameters:{
+    ####    `config`: str, or github content file for config.json.
+    ####    `mode`: 'csv' or 'live'
+    ####    `csv_file`: only needed if `mode` == 'csv'
+    ####    `batch_path`: filepath to current batch path. 
+    ## }
     '''
     # endregion Docstring
-    global sell_conditions
-    sp = sell_cond_params
-    active = [(sp[cond]['priority'], cond)
-              for cond in sp.keys() if sp[cond]['active'] == True]
-    sell_conditions = [entry[1] for entry in sorted(active)]
+    gl.batch_dir = batch_dir
+    reset_variables(mode, csv_file)
+    load_configuration(config)
+    set_conditions()
+    print('settings configured')
 
 
-def set_buy_conditions():
-    # region Docstring
-    '''
-    # Set Buy Conditions
-    Looks at the `buy_cond_params` variable to see 
-    which buy conditions are active
+def default_configuration():
+    global sell_cond_params, buy_cond_params, misc, sim_settings, master
 
-    #### Returns nothing, updates the global `buy_conditions` list.
-    '''
-    # endregion Docstring
-    global buy_conditions
-    bp = buy_cond_params
-    active = [(bp[cond]['priority'], cond)
-              for cond in bp.keys() if bp[cond]['active'] == True]
-    buy_conditions = [entry[1] for entry in sorted(active)]
+    config_path = str(gl.directory / 'local_functions' /
+                      'main' / 'config.json')
+    with open(config_path, 'r') as f:
+        config = f.read()
+
+    config = gl.json.loads(config)
+
+    misc = config['misc']
+    sim_settings = config['sim_settings']
+    sell_cond_params = config['order_conditions']['sell_conditions']
+    buy_cond_params = config['order_conditions']['buy_conditions']
 
 
 def reset_variables(mode, csv_file):
@@ -290,7 +191,7 @@ def reset_variables(mode, csv_file):
     print('variables reset')
 
 
-def configure_settings(config):
+def load_configuration(config):
     # region Docstring
     '''
     # Configure Settings
@@ -306,6 +207,8 @@ def configure_settings(config):
     ## }
     '''
     # endregion Docstring
+    default_configuration()
+
     if config == 'default':
         return
     if config == 'last':
@@ -316,13 +219,14 @@ def configure_settings(config):
     import json
     config = json.loads(config.decoded_content)
     gl.config = config
+
     global misc, buy_cond_params, sell_cond_params, sim_settings
 
     non_standard_fields = {
         'sim_settings': sim_settings,
     }
 
-    if lock_defaults == True:
+    if master['meta_config']['lock_defaults'] == True:
         if config['defaults']['everything']:
             return
         if config['defaults']['misc'] != True:
@@ -356,30 +260,19 @@ def configure_settings(config):
     return
 
 
+def set_conditions():
+    global buy_conditions, sell_conditions
+
+    def get_active_conditions(conditions):
+        active = [(cond['priority'], cond)
+                  for cond in conditions.keys() if conditions[cond]['active']]
+        return [cond[1] for cond in sorted(active)]
+
+    sell_conditions = get_active_conditions(sell_cond_params)
+    buy_conditions = get_active_conditions(buy_cond_params)
+
+
 def replace_fields(def_values, new_values):
     for key in new_values.keys():
         def_values[key] = new_values[key]
 
-
-def master_configure(config, mode, csv_file, batch_dir):
-    # region Docstring
-    '''
-    # Master Configure
-    function for configuring everything that needs it before the trading starts. 
-
-    #### Returns nothing, prints confirmation
-
-    ## Parameters:{
-    ####    `config`: str, or github content file for config.json.
-    ####    `mode`: 'csv' or 'live'
-    ####    `csv_file`: only needed if `mode` == 'csv'
-    ####    `batch_path`: filepath to current batch path. 
-    ## }
-    '''
-    # endregion Docstring
-    gl.batch_dir = batch_dir
-    reset_variables(mode, csv_file)
-    configure_settings(config)
-    set_buy_conditions()
-    set_sell_conditions()
-    print('settings configured')

@@ -1,13 +1,22 @@
 # %%
-from local_functions.main import controls
+from local_functions.main import configure
 import json
 import datetime
 
-misc = controls.misc
-sim_settings = controls.sim_settings
-sp = controls.sell_cond_params
-bp = controls.buy_cond_params
+import os
+from pathlib2 import Path
 
+current_config = get_current_config()
+
+def get_current_config():
+    path = Path(os.getcwd()) 
+    path = str(path / 'local_functions' / 'main' / 'config.json')
+    with open(path, 'r') as f:
+        current_config = f.read()
+
+    current_config = json.loads(current_config)
+    return current_config
+    
 
 def update_all(path, repo):
     # region Docstring
@@ -33,7 +42,7 @@ def update_all(path, repo):
         ipy_creator = f.read()
 
     colab_ipy = make_default_colab_ipynb(path)
-    def_config = make_default_config_json(path)
+    def_config = make_default_config_json()
 
     files = {
         'config_template.json': template,
@@ -55,7 +64,7 @@ def make_default_colab_ipynb(path):
     # region Docstring
     '''
     # Make Default Colab Ipynb
-    creates an ipython notebook file based on the settings currently in the `controls.py` file      
+    creates an ipython notebook file based on the settings currently in the `configure.py` file      
 
     #### Returns nothing, saves file to this folder. 
 
@@ -65,16 +74,20 @@ def make_default_colab_ipynb(path):
     '''
     # endregion Docstring
 
-    misc_cell = create_condition_code('misc', misc)
-    sim_settings_cell = create_condition_code('sim_settings', sim_settings)
+    misc_cell = create_condition_code('misc', current_config['misc'])
+    sim_settings_cell = create_condition_code('sim_settings', current_config['sim_settings'])
+
+    bp = current_config['order_conditions']['buy_conditions']
 
     buy_cells = ''
-    for condition in bp.keys():
+    for condition in current_config['buy_conditions'].keys():
         buy_cells = buy_cells + \
             str(create_condition_code(condition, bp[condition]))+','
+    
+    sp = current_config['order_conditions']['sell_conditions']
 
     sell_cells = ''
-    for condition in sp.keys():
+    for condition in current_config['sell_conditions'].keys():
         sell_cells = sell_cells + \
             str(create_condition_code(condition, sp[condition]))+','
 
@@ -119,11 +132,9 @@ def make_default_config_json(path):
     ## }
     '''
     # endregion Docstring
-    d = {
-        'misc': misc,
-        'sim_settings': sim_settings,
-        'order_conditions': {'buy_conditions': bp, 'sell_conditions': sp}
-    }
+
+    d = current_config.copy()
+    del d['metaconfig']
 
     timestamp = datetime.datetime.today()
     today = timestamp.strftime(r'%m-%d-%Y')
@@ -138,12 +149,6 @@ def make_default_config_json(path):
     d['metadata'] = metadata
 
     d_string = json.dumps(d, indent=4, sort_keys=True)
-
-    if path != False:
-        name = path / 'default_config.json'
-        with open(str(name), 'w') as f:
-            f.write(d_string)
-            f.close()
 
     return d_string
 
