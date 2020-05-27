@@ -1,0 +1,159 @@
+{
+  "master": {
+    "simple": {
+      "number": {
+        "label": "label_name",
+        "labelPosition": "left-left",
+        "mask": false,
+        "spellcheck": true,
+        "tableView": false,
+        "delimiter": false,
+        "requireDecimal": false,
+        "inputFormat": "plain",
+        "key": "key_name",
+        "type": "number",
+        "input": true,
+        "clearOnHide": false,
+        "defaultValue": "default_value"
+      },
+      "checkbox": {
+        "label": "label_name",
+        "tableView": false,
+        "key": "key_name",
+        "type": "checkbox",
+        "input": true,
+        "clearOnHide": false,
+        "defaultValue": "default_value"
+      },
+      "selection": {
+        "label": "label_name",
+        "labelPosition": "left-left",
+        "widget": "choicesjs",
+        "tableView": true,
+        "clearOnHide": false,
+        "data": {
+          "values": [
+            {
+              "label": "bid",
+              "value": "bid"
+            },
+            {
+              "label": "ask",
+              "value": "ask"
+            }
+          ]
+        },
+        "selectThreshold": 0.3,
+        "key": "key_name",
+        "type": "select",
+        "indexeddb": {
+          "filter": {}
+        },
+        "input": true
+      },
+      "text": {
+        "label": "label_name",
+        "labelPosition": "left-left",
+        "tableView": true,
+        "key": "key_name",
+        "type": "textfield",
+        "input": true,
+        "clearOnHide": false,
+        "defaultValue": "default_value"
+      }
+    },
+    "layouts": {
+      "well": {
+        "label": "label_name",
+        "tableView": false,
+        "key": "key_name",
+        "conditional": {
+          "show": "show_bool",
+          "when": "cond_key",
+          "eq": "cond_eq"
+        },
+        "type": "well",
+        "input": false,
+        "components": ["components"]
+      },
+      "panel": {
+        "title": "title_name",
+        "collapsible": true,
+        "tableView": false,
+        "key": "key_name",
+        "conditional": {
+          "show": "show_bool",
+          "when": "cond_key",
+          "eq": "cond_eq"
+        },
+        "type": "panel",
+        "label": "Panel",
+        "input": false,
+        "components": ["components"],
+        "collapsed": false
+      },
+      "tab": {
+        "label": "label_name",
+        "key": "key_name",
+        "components": ["components"]
+      },
+      "table": {
+        "label": "Table",
+        "cellAlignment": "left",
+        "tableView": false,
+        "key": "table",
+        "type": "table",
+        "numRows": 1,
+        "input": false,
+        "rows": [["row_components"]]
+      }
+    },
+    "wrap": {
+      "display": "form",
+      "settings": {
+        "pdf": {
+          "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
+          "src": "https://files.form.io/pdf/5692b91fd1028f01000407e3/file/1ec0f8ee-6685-5d98-a847-26f67b67d6f0"
+        }
+      },
+      "components": [
+        {
+          "label": "Reset All",
+          "action": "reset",
+          "showValidations": false,
+          "theme": "info",
+          "tableView": false,
+          "key": "resetAll",
+          "type": "button",
+          "input": true
+        },
+        {
+          "label": "Name of New Configuration",
+          "tableView": true,
+          "key": "nameOfNewConfiguration",
+          "type": "textfield",
+          "input": true,
+          "validate": {
+            "required": true
+          }
+        },
+        {
+          "label": "Tabs",
+          "components": ["components"],
+          "tableView": false,
+          "key": "tabs1",
+          "type": "tabs",
+          "input": false
+        },
+        {
+          "type": "button",
+          "label": "Submit",
+          "key": "submit",
+          "disableOnInvalid": true,
+          "input": true,
+          "tableView": false
+        }
+      ]
+    }
+  }
+}

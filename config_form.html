@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Algorithm Configuration</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script type="text/javascript" src="/js/lib/dummy.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/normalize.css" />
+
+    <link rel="stylesheet" type="text/css" href="/css/result-light.css" />
+
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/formiojs@latest/dist/formio.full.min.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://unpkg.com/formiojs@latest/dist/formio.full.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+
+    <style id="compiled-css" type="text/css"></style>
+    <style>
+      h1 {
+        padding: 1em;
+      }
+    </style>
+
+    <script id="insert"></script>
+  </head>
+  <body>
+    <h1>
+      <center>
+        New Configuration
+      </center>
+    </h1>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    />
+    <!--  <link rel='stylesheet' href='https://unpkg.com/formiojs@latest/dist/formio.full.min.css'>
+     -->
+    <div class="page-content">
+      <div class="container-fluid">
+        <div id="formio"></div>
+      </div>
+    </div>
+
+    <!-- TODO: Missing CoffeeScript 2 -->
+
+    <script type="text/javascript">
+
+      let myform = {
+  "display": "form",
+  "settings": {
+    "pdf": {
+      "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
+      "src": "https://files.form.io/pdf/5692b91fd1028f01000407e3/file/1ec0f8ee-6685-5d98-a847-26f67b67d6f0"
+    }
+  },
+  "components": [
+    {
+      "label": "Reset All",
+      "action": "reset",
+      "showValidations": false,
+      "theme": "info",
+      "tableView": false,
+      "key": "resetAll",
+      "type": "button",
+      "input": true
+    },
+    {
+      "label": "Name of New Configuration",
+      "tableView": true,
+      "key": "nameOfNewConfiguration",
+      "type": "textfield",
+      "input": true,
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Tabs",
+      "components": [
+        {
+          "label": "Misc",
+          "key": "misc",
+          "components": [
+            {
+              "label": "Default Misc",
+              "tableView": false,
+              "key": "def_misc",
+              "type": "checkbox",
+              "input": true,
+              "clearOnHide": false,
+              "defaultValue": false
+            },
+            {
+              "label": "Well Misc",
+              "tableView": false,
+              "key": "well_misc",
+              "conditional": {
+                "show": true,
+                "when": "def_misc",
+                "eq": false
+              },
+              "type": "well",
+              "input": false,
+              "components": [
+                {
+                  "label": "Buy Clock Countdown Amount",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "buy_clock_countdown_amount",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": 10,
+                  "tooltip": "^ int, the amount of seconds before buying is viable again"
+                },
+                {
+                  "label": "Dollar Risk",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "dollar_risk",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": -500,
+                  "tooltip": "^ negative integer, Amount of money lost that will trigger an immediate exit"
+                },
+                {
+                  "label": "Hard Stop",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "hard_stop",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": "09:40:00",
+                  "tooltip": "^ string, formatted as %H:%M:%S, time to force a trading stop."
+                },
+                {
+                  "label": "Ideal Volatility",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "ideal_volatility",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": 3,
+                  "tooltip": "^ integer, percentage value of ideal volatility"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Sim Settings",
+          "key": "sim_settings",
+          "components": [
+            {
+              "label": "Default Sim Settings",
+              "tableView": false,
+              "key": "def_sim_settings",
+              "type": "checkbox",
+              "input": true,
+              "clearOnHide": false,
+              "defaultValue": false
+            },
+            {
+              "label": "Well Sim Settings",
+              "tableView": false,
+              "key": "well_sim_settings",
+              "conditional": {
+                "show": true,
+                "when": "def_sim_settings",
+                "eq": false
+              },
+              "type": "well",
+              "input": false,
+              "components": [
+                {
+                  "label": "Execution Lag",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "execution_lag",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": 2,
+                  "tooltip": "^ integer, number of seconds required to wait before each fill"
+                },
+                {
+                  "label": "Execution Price Offset",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "execution_price_offset",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": 0.01,
+                  "tooltip": "^ price must exceed execution price by this amount to register a fill."
+                },
+                {
+                  "label": "Vol Min Chunk Cash",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "vol_min_chunk_cash",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": 500,
+                  "tooltip": "integer cash, minimum chunk for order to be broken up into in cash."
+                },
+                {
+                  "label": "Vol Offset Multiplier",
+                  "labelPosition": "left-left",
+                  "tableView": true,
+                  "key": "vol_offset_multiplier",
+                  "type": "textfield",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": 1.2,
+                  "tooltip": "^ Volume for execution needs to exceed the amount * this multiplier to register."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Buy Conditions",
+          "key": "buy_conditions",
+          "components": [
+            {
+              "label": "Default Buy Conditions",
+              "tableView": false,
+              "key": "def_buy_conditions",
+              "type": "checkbox",
+              "input": true,
+              "clearOnHide": false,
+              "defaultValue": false
+            },
+            {
+              "label": "Well Buy Conditions",
+              "tableView": false,
+              "key": "well_buy_conditions",
+              "conditional": {
+                "show": true,
+                "when": "def_buy_conditions",
+                "eq": false
+              },
+              "type": "well",
+              "input": false,
+              "components": [
+                {
+                  "label": "aggresive_average_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "aggresive_average_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Aggresive Average",
+                            "tableView": false,
+                            "key": "aggresive_average",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": false,
+                            "tooltip": "^ average follows the current price extremely close."
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "aggresive_average_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 2,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "aggresive_average",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "label": "drop_below_average_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "drop_below_average_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Drop Below Average",
+                            "tableView": false,
+                            "key": "drop_below_average",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": true,
+                            "tooltip": "^ buys based on current price, with no concern for how much the"
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "drop_below_average_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 1,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "drop_below_average",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Custom Parameters",
+                            "tableView": false,
+                            "key": "drop_below_average_custom",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": false,
+                            "conditional": {
+                              "show": true,
+                              "when": "drop_below_average",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "title": "Drop Below Average Parameters",
+                  "collapsible": true,
+                  "tableView": false,
+                  "key": "drop_below_average_params",
+                  "conditional": {
+                    "show": true,
+                    "when": "drop_below_average_custom",
+                    "eq": true
+                  },
+                  "type": "panel",
+                  "label": "Panel",
+                  "input": false,
+                  "components": [
+                    {
+                      "label": "Max Vola",
+                      "labelPosition": "left-left",
+                      "tableView": true,
+                      "key": "max_vola",
+                      "type": "textfield",
+                      "input": true,
+                      "clearOnHide": false,
+                      "defaultValue": 5,
+                      "tooltip": "^ maximum volatility drop to be considered for drop."
+                    },
+                    {
+                      "label": "Min Vola",
+                      "labelPosition": "left-left",
+                      "tableView": true,
+                      "key": "min_vola",
+                      "type": "textfield",
+                      "input": true,
+                      "clearOnHide": false,
+                      "defaultValue": 2.5,
+                      "tooltip": "^ minimum volatility to trigger a drop below average"
+                    }
+                  ],
+                  "collapsed": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Sell Conditions",
+          "key": "sell_conditions",
+          "components": [
+            {
+              "label": "Default Sell Conditions",
+              "tableView": false,
+              "key": "def_sell_conditions",
+              "type": "checkbox",
+              "input": true,
+              "clearOnHide": false,
+              "defaultValue": false
+            },
+            {
+              "label": "Well Sell Conditions",
+              "tableView": false,
+              "key": "well_sell_conditions",
+              "conditional": {
+                "show": true,
+                "when": "def_sell_conditions",
+                "eq": false
+              },
+              "type": "well",
+              "input": false,
+              "components": [
+                {
+                  "label": "dollar_risk_check_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "dollar_risk_check_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Dollar Risk Check",
+                            "tableView": false,
+                            "key": "dollar_risk_check",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": true,
+                            "tooltip": "^ checks the amount of money lost real and unreal and sees if it has exceeded the max risk (set in misc)"
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "dollar_risk_check_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 1,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "dollar_risk_check",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "label": "exposure_over_account_limit_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "exposure_over_account_limit_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Exposure Over Account Limit",
+                            "tableView": false,
+                            "key": "exposure_over_account_limit",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": true,
+                            "tooltip": "^ If more money is invested than allocated to the account, then sell."
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "exposure_over_account_limit_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 3,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "exposure_over_account_limit",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "label": "percentage_gain_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "percentage_gain_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Percentage Gain",
+                            "tableView": false,
+                            "key": "percentage_gain",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": true,
+                            "tooltip": "^ sells are triggered based on sum of positions percentage gain."
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "percentage_gain_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 4,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "percentage_gain",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Custom Parameters",
+                            "tableView": false,
+                            "key": "percentage_gain_custom",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": false,
+                            "conditional": {
+                              "show": true,
+                              "when": "percentage_gain",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "title": "Percentage Gain Parameters",
+                  "collapsible": true,
+                  "tableView": false,
+                  "key": "percentage_gain_params",
+                  "conditional": {
+                    "show": true,
+                    "when": "percentage_gain_custom",
+                    "eq": true
+                  },
+                  "type": "panel",
+                  "label": "Panel",
+                  "input": false,
+                  "components": [
+                    {
+                      "label": "Perc Gain",
+                      "labelPosition": "left-left",
+                      "tableView": true,
+                      "key": "perc_gain",
+                      "type": "textfield",
+                      "input": true,
+                      "clearOnHide": false,
+                      "defaultValue": 3,
+                      "tooltip": "^ integer, number of percentage points to trigger a sell"
+                    }
+                  ],
+                  "collapsed": false
+                },
+                {
+                  "label": "target_unreal_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "target_unreal_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Target Unreal",
+                            "tableView": false,
+                            "key": "target_unreal",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": true,
+                            "tooltip": "^ Sell when overall unreal hits a target amount"
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "target_unreal_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 5,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "target_unreal",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Custom Parameters",
+                            "tableView": false,
+                            "key": "target_unreal_custom",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": false,
+                            "conditional": {
+                              "show": true,
+                              "when": "target_unreal",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "title": "Target Unreal Parameters",
+                  "collapsible": true,
+                  "tableView": false,
+                  "key": "target_unreal_params",
+                  "conditional": {
+                    "show": true,
+                    "when": "target_unreal_custom",
+                    "eq": true
+                  },
+                  "type": "panel",
+                  "label": "Panel",
+                  "input": false,
+                  "components": [
+                    {
+                      "label": "Target Unreal Amount",
+                      "labelPosition": "left-left",
+                      "tableView": true,
+                      "key": "target_unreal_amount",
+                      "type": "textfield",
+                      "input": true,
+                      "clearOnHide": false,
+                      "defaultValue": 20,
+                      "tooltip": "^ integer, amount in dollars in unreal pl before selling gets triggered."
+                    }
+                  ],
+                  "collapsed": false
+                },
+                {
+                  "label": "timed_exit_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "timed_exit_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Timed Exit",
+                            "tableView": false,
+                            "key": "timed_exit",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": true,
+                            "tooltip": "^ sell everything and stop trading if past certain time"
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "timed_exit_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 2,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "timed_exit",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Custom Parameters",
+                            "tableView": false,
+                            "key": "timed_exit_custom",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": false,
+                            "conditional": {
+                              "show": true,
+                              "when": "timed_exit",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "title": "Timed Exit Parameters",
+                  "collapsible": true,
+                  "tableView": false,
+                  "key": "timed_exit_params",
+                  "conditional": {
+                    "show": true,
+                    "when": "timed_exit_custom",
+                    "eq": true
+                  },
+                  "type": "panel",
+                  "label": "Panel",
+                  "input": false,
+                  "components": [
+                    {
+                      "label": "Minute Offset",
+                      "labelPosition": "left-left",
+                      "tableView": true,
+                      "key": "minute_offset",
+                      "type": "textfield",
+                      "input": true,
+                      "clearOnHide": false,
+                      "defaultValue": 2,
+                      "tooltip": "^ positive int, number of minutes before the hard_stop setting found under MISC."
+                    }
+                  ],
+                  "collapsed": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tableView": false,
+      "key": "tabs1",
+      "type": "tabs",
+      "input": false
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}
+
+      Formio.createForm(document.getElementById("formio"), myform, {}).then(
+        function (form) {
+          // Defaults are provided as follows.
+          form.submission = {
+            data: {
+              dateTime: new Date("2019-10-31T00:00:00+02:00"),
+              textField: "asfdasdf",
+            },
+          };
+
+          // Register for the submit event to get the completed submission.
+          form.on("submit", function (submission) {
+
+            let today = new Date().toLocaleDateString("en-US")
+            today = today.toString().replace('/','_').replace('/','_')
+
+            let config = {
+  metaconfig: {
+    lock_defaults: submission.data.lock_defaults,
+    cut_prints: submission.data.cut_prints
+  },
+  misc: {
+    buy_clock_countdown_amount: submission.data.buy_clock_countdown_amount,
+    dollar_risk: submission.data.dollar_risk,
+    hard_stop: submission.data.hard_stop,
+    ideal_volatility: submission.data.ideal_volatility
+  },
+  buy_conditions: {
+    aggresive_average: {
+      active: submission.data.aggresive_average,
+      priority: submission.data.aggresive_average_priority
+    },
+    drop_below_average: {
+      active: submission.data.drop_below_average,
+      max_vola: submission.data.max_vola,
+      min_vola: submission.data.min_vola,
+      priority: submission.data.drop_below_average_priority
+    }
+  },
+  sell_conditions: {
+    dollar_risk_check: {
+      active: submission.data.dollar_risk_check,
+      priority: submission.data.dollar_risk_check_priority
+    },
+    exposure_over_account_limit: {
+      active: submission.data.exposure_over_account_limit,
+      priority: submission.data.exposure_over_account_limit_priority
+    },
+    percentage_gain: {
+      active: submission.data.percentage_gain,
+      perc_gain: submission.data.perc_gain,
+      priority: submission.data.percentage_gain_priority
+    },
+    target_unreal: {
+      active: submission.data.target_unreal,
+      priority: submission.data.target_unreal_priority,
+      target_unreal_amount: submission.data.target_unreal_amount
+    },
+    timed_exit: {
+      active: submission.data.timed_exit,
+      priority: submission.data.timed_exit_priority,
+      minute_offset: submission.data.minute_offset
+    }
+  },
+  sim_settings: {
+    execution_lag: submission.data.execution_lag,
+    execution_price_offset: submission.data.execution_price_offset,
+    vol_min_chunk_cash: submission.data.vol_min_chunk_cash,
+    vol_offset_multiplier: submission.data.vol_offset_multiplier
+  }
+};
+
+            config.meta_data = {
+
+              name: submission.data.nameOfNewConfiguration,
+              date: today,
+
+              }
+
+            console.log("Submission was made!", config);
+
+            function saveText(text, filename) {
+              var a = document.createElement("a");
+              a.setAttribute(
+                "href",
+                "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+              );
+              a.setAttribute("download", filename);
+              a.click();
+            }
+
+            // var obj = {a: "Hello", b: "World"};
+            saveText(JSON.stringify(config), today+'_'+submission.data.nameOfNewConfiguration+".json");
+
+            alert("Success! new configuration made: "+ config.meta_data.name);
+          });
+
+          // Everytime the form changes, this will fire.
+          form.on("change", function (changed) {
+            console.log("Form was changed", changed);
+          });
+        }
+      );
+      console.log(FormData);
+
+      //]]>
+    </script>
+
+    <script>
+      // tell the embed parent frame the height of the content
+      if (window.parent && window.parent.parent) {
+        window.parent.parent.postMessage(
+          [
+            "resultsFrame",
+            {
+              height: document.body.getBoundingClientRect().height,
+              slug: "v156bkqg",
+            },
+          ],
+          "*"
+        );
+      }
+
+      // always overwrite window.name, in case users try to set it manually
+      window.name = "result";
+    </script>
+  </body>
+</html>

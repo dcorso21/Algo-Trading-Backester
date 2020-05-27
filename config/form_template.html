@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Algorithm Configuration</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script type="text/javascript" src="/js/lib/dummy.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/normalize.css" />
+
+    <link rel="stylesheet" type="text/css" href="/css/result-light.css" />
+
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/formiojs@latest/dist/formio.full.min.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://unpkg.com/formiojs@latest/dist/formio.full.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+
+    <style id="compiled-css" type="text/css"></style>
+    <style>
+      h1 {
+        padding: 1em;
+      }
+    </style>
+
+    <script id="insert"></script>
+  </head>
+  <body>
+    <h1>
+      <center>
+        New Configuration
+      </center>
+    </h1>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    />
+    <!--  <link rel='stylesheet' href='https://unpkg.com/formiojs@latest/dist/formio.full.min.css'>
+     -->
+    <div class="page-content">
+      <div class="container-fluid">
+        <div id="formio"></div>
+      </div>
+    </div>
+
+    <!-- TODO: Missing CoffeeScript 2 -->
+
+    <script type="text/javascript">
+
+      //myform
+
+      Formio.createForm(document.getElementById("formio"), myform, {}).then(
+        function (form) {
+          // Defaults are provided as follows.
+          form.submission = {
+            data: {
+              dateTime: new Date("2019-10-31T00:00:00+02:00"),
+              textField: "asfdasdf",
+            },
+          };
+
+          // Register for the submit event to get the completed submission.
+          form.on("submit", function (submission) {
+
+            let today = new Date().toLocaleDateString("en-US")
+            today = today.toString().replace('/','_').replace('/','_')
+
+            let config = ;//submission_form;
+
+            config.meta_data = {
+
+              name: submission.data.nameOfNewConfiguration,
+              date: today,
+
+              }
+
+            console.log("Submission was made!", config);
+
+            function saveText(text, filename) {
+              var a = document.createElement("a");
+              a.setAttribute(
+                "href",
+                "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+              );
+              a.setAttribute("download", filename);
+              a.click();
+            }
+
+            // var obj = {a: "Hello", b: "World"};
+            saveText(JSON.stringify(config), today+'_'+submission.data.nameOfNewConfiguration+".json");
+
+            alert("Success! new configuration made: "+ config.meta_data.name);
+          });
+
+          // Everytime the form changes, this will fire.
+          form.on("change", function (changed) {
+            console.log("Form was changed", changed);
+          });
+        }
+      );
+      console.log(FormData);
+
+      //]]>
+    </script>
+
+    <script>
+      // tell the embed parent frame the height of the content
+      if (window.parent && window.parent.parent) {
+        window.parent.parent.postMessage(
+          [
+            "resultsFrame",
+            {
+              height: document.body.getBoundingClientRect().height,
+              slug: "v156bkqg",
+            },
+          ],
+          "*"
+        );
+      }
+
+      // always overwrite window.name, in case users try to set it manually
+      window.name = "result";
+    </script>
+  </body>
+</html>
