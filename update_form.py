@@ -42,7 +42,15 @@ def submission_dict(mydict, name):
 
 
 submission_form = json.loads(config_text)
+meta = submission_form.pop('metaconfig')
+
+tabs = submission_form.keys()
+defaults = {}
+for tab in tabs:
+    defaults[tab] = f'submission.data.def_{tab}'
+
 submission_form = submission_dict(submission_form, 'x')
+submission_form['defaults'] = defaults
 submission_form = json.dumps(submission_form, indent=2)
 submission_form = submission_form.replace('"', '')
 

@@ -5,10 +5,6 @@ master = {}
 metaconfig = {}
 misc = {}
 sim_settings = {}
-
-sell_cond_params = {}
-buy_cond_params = {}
-
 sell_conditions = []
 buy_conditions = []
 
@@ -37,19 +33,18 @@ def master_configure(config, mode, csv_file, batch_dir):
 
 
 def default_configuration():
-    global sell_cond_params, buy_cond_params, misc, sim_settings, master
+    global misc, sim_settings, master
 
     config_path = str(gl.directory / 'local_functions' /
                       'main' / 'config.json')
     with open(config_path, 'r') as f:
         config = f.read()
 
-    config = gl.json.loads(config)
+    master = gl.json.loads(config)
 
-    misc = config['misc']
-    sim_settings = config['sim_settings']
-    sell_cond_params = config['order_conditions']['sell_conditions']
-    buy_cond_params = config['order_conditions']['buy_conditions']
+    misc = master['misc']
+    sim_settings = master['sim_settings']
+    gl.config = master.copy()
 
 
 def reset_variables(mode, csv_file):
@@ -67,6 +62,9 @@ def reset_variables(mode, csv_file):
     ## }
     '''
     # endregion Docstring
+    global master
+    master = {}
+    gl.config = master.copy()
 
     def get_sim_df(csv_file):
         m = gl.pd.read_csv(csv_file)
@@ -212,67 +210,54 @@ def load_configuration(config):
     if config == 'default':
         return
     if config == 'last':
-        config = gl.manage_algo_config_repo('get_files')[0]
+        config = gl.get_downloaded_configs()[0]
     elif config == 'pick':
-        config = gl.manage_algo_config_repo('pick')
-
-    import json
-    config = json.loads(config.decoded_content)
-    gl.config = config
-
-    global misc, buy_cond_params, sell_cond_params, sim_settings
-
-    non_standard_fields = {
-        'sim_settings': sim_settings,
-    }
-
-    if master['meta_config']['lock_defaults'] == True:
-        if config['defaults']['everything']:
+        config = gl.pick_config_file()
+        if config == 'default':
             return
-        if config['defaults']['misc'] != True:
-            replace_fields(misc, config['master']['misc'])
-        for field in non_standard_fields.keys():
-            if field in config['defaults'].keys():
-                if config['defaults'][field] != True:
-                    replace_fields(non_standard_fields[field],
-                                   config['master'][field])
 
-        if config['defaults']['order_conditions'] != True:
-            if config['defaults']['buy_conditions'] != True:
-                replace_fields(buy_cond_params,
-                               config['master']['order_conditions']['buy_conditions'])
-            if config['defaults']['buy_conditions'] != True:
-                replace_fields(sell_cond_params,
-                               config['master']['order_conditions']['sell_conditions'])
-        return
+    # By now, the config object should be a filepath to the custom config. 
+    import json
+    with open(config, 'r') as f:
+        config = f.read()
+    raw_config = json.loads(config)
+    config = json.loads(config)
 
-    misc = config['master']['misc']
-    for field in non_standard_fields.keys():
-        if field in config['master'].keys():
-            replace_fields(non_standard_fields[field],
-                           config['master'][field])
+    global master
 
-    replace_fields(buy_cond_params,
-                   config['master']['order_conditions']['buy_conditions'])
-    replace_fields(sell_cond_params,
-                   config['master']['order_conditions']['sell_conditions'])
+    if master['metaconfig']['lock_defaults'] == True:
 
-    return
+        for field in config['defaults'].keys():
+            if field == True:
+                del config[field]
+
+        defaults = config.pop('defaults')
+        metadata = config.pop('metadata')
+
+    def replace_fields(config, master):
+            
+        for key in config.keys():
+            if (type(config[key]) == dict) and (key in master.keys()):
+                replace_fields(config[key], master[key])
+            else:
+                target_type = type(master[key])
+                master[key] = target_type(config[key])
+
+        return master
+
+    master = replace_fields(config, master)
+    master['defaults'] = defaults
+    master['metadata'] = metadata
+    gl.config = master.copy()
 
 
 def set_conditions():
     global buy_conditions, sell_conditions
 
     def get_active_conditions(conditions):
-        active = [(cond['priority'], cond)
+        active = [(conditions[cond]['priority'], cond)
                   for cond in conditions.keys() if conditions[cond]['active']]
         return [cond[1] for cond in sorted(active)]
 
-    sell_conditions = get_active_conditions(sell_cond_params)
-    buy_conditions = get_active_conditions(buy_cond_params)
-
-
-def replace_fields(def_values, new_values):
-    for key in new_values.keys():
-        def_values[key] = new_values[key]
-
+    sell_conditions = get_active_conditions(master['sell_conditions'])
+    buy_conditions = get_active_conditions(master['buy_conditions'])

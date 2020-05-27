@@ -51,7 +51,7 @@ b_current_config = ''
 b_csvs = []
 
 
-@ gl.save_on_error
+# @ gl.save_on_error
 def batch_test(reps=1, mode='multiple', stop_at=False,
                shuffle=True, config_setting='default',
                first_run=True, create_compare='config'):
@@ -116,8 +116,6 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
 
     #  <<< Trade >>>
     batch_loop(reps, mode)
-
-    print('\n---> BATCH COMPLETE')
 
     realized = round(float(b_frame.real_pl.sum()), 2)
     unrealized = round(float(b_frame.unreal_pl.sum()), 2)
@@ -190,13 +188,14 @@ def batch_loop(reps, mode):
     if mode == 'multiple':
         reps = 1
     reps = list(range(reps))
-    reps.reverse()
+    # reps.reverse()
 
     for csv in b_csvs:
 
         for rep in reps:
 
-            config = b_configs[rep-1]
+            config = b_configs[0]
+
             # 1) Trade the csv with the function `test_trade`
             file_name = gl.os.path.basename(csv).strip('.csv')
             gl.stock_pick = file_name
@@ -333,19 +332,28 @@ def get_batch_configs(config_setting, reps, first_run):
 
     global b_configs, b_current_config
 
+    def extract_name(config_path):
+        config_name = gl.os.path.basename(config_path)
+        config_name = config_name.rstrip('.json').replace('_', '.', 2).split('_', 1)[
+            1].replace('_', ' ').title()
+        return config_name
+
     if not first_run:
-        b_current_config = b_configs[reps]
+        del b_configs[0]
+        b_current_config = b_configs[0]
+        if b_current_config != 'default':
+            b_current_config = extract_name(b_current_config)
         return
 
     elif config_setting == 'default':
         b_configs = [config_setting]*reps
     elif config_setting == 'last':
-        b_configs = gl.manage_algo_config_repo('get_files')
+        b_configs = gl.get_downloaded_configs()
         b_configs = [b_configs[0]]*reps
 
     elif config_setting == 'pick':
-        configs = gl.manage_algo_config_repo('get_files')
-        gl.manage_algo_config_repo('get_df_view')
+        configs = gl.get_downloaded_configs()
+        gl.show_available_configurations()
         prompt = f'input {reps} indexes for files.Use -1 for default.'
         picks = input(prompt).split(',')
         picks = map(int, picks)
@@ -357,11 +365,11 @@ def get_batch_configs(config_setting, reps, first_run):
             else:
                 cs.append(configs[index])
         b_configs = cs
-        b_configs.reverse()
+        # b_configs.reverse()
 
-    b_current_config = b_configs[reps-1]
+    b_current_config = b_configs[0]
     if b_current_config != 'default':
-        b_current_config = b_current_config.name
+        b_current_config = extract_name(b_current_config)
 
 
 def calc_batch_time(reps):
@@ -382,7 +390,17 @@ def calc_batch_time(reps):
 
     # gl.datetime.datetime.datetime()
     start_time = gl.pd.to_datetime('09:30:00').timestamp()
-    end_time = gl.configure.misc['hard_stop']
+
+    if b_current_config == 'default':
+        path = str(gl.directory / 'local_functions' / 'main' / 'config.json')
+    else:
+        path = b_configs[reps-1]
+    with open(path, 'r') as f:
+        config = f.read()
+
+    config = gl.json.loads(config)
+    end_time = config['misc']['hard_stop']
+
     end_time = gl.pd.to_datetime(end_time).timestamp()
     minutes = (end_time - start_time) / 60
     mult = 1
@@ -683,7 +701,7 @@ def df_of_batches():
     config_names = []
     for c in configs:
         if not gl.os.path.exists(c):
-            config_names.append('no json found')
+            config_names.append('no configuration file found')
         else:
             with open(c, 'r') as f:
                 c = f.read()
@@ -694,9 +712,10 @@ def df_of_batches():
                     metadata = True
                     break
             if metadata:
-                config_names.append(c['metadata']['name'])
+                c_name = c['metadata']['name'].replace('_', ' ').title()
+                config_names.append(c_name)
             else:
-                config_names.append('no metadata found')
+                config_names.append('Default')
 
     def get_batch_number(batch_name):
         batch_name = batch_name.split(' ')[1]

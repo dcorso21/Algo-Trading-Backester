@@ -97,7 +97,7 @@ def sell_conditions(condition):
     - Item
     '''
     # endregion Docstring
-    s_params = gl.configure.sell_cond_params
+    s_params = gl.configure.master['sell_conditions']
 
     def dollar_risk_check():
         # region Docstring
@@ -214,7 +214,7 @@ def sell_conditions(condition):
         ## }
         '''
         # endregion Docstring
-        minute_off = s_params['timed_exit']['minute_off']
+        minute_off = s_params['timed_exit']['minute_offset']
         exit_time = gl.configure.misc['hard_stop']
         exit_time = gl.pd.to_datetime(exit_time)
         exit_time = (
@@ -325,7 +325,7 @@ def buy_conditions(condition):
     - Item
     '''
     # endregion Docstring
-    b_params = gl.configure.buy_cond_params
+    b_params = gl.configure.master['buy_conditions']
 
     def starting_position():
         # region Docstring
@@ -416,7 +416,7 @@ def buy_conditions(condition):
         '''
         # endregion Docstring
         current = gl.current
-        vola = gl.common.get_max_vola(gl.volas, .02)/4
+        vola = gl.common.get_max_vola(gl.volas, .02, 4)/4
         avg = gl.common.get_average()
         drop_percent = gl.common.get_inverse_perc(vola)
         if (gl.buy_clock <= 0) and (current['close'] <= avg * drop_percent):

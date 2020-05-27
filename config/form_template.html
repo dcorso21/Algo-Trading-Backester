@@ -79,7 +79,7 @@
 
             let config = ;//submission_form;
 
-            config.meta_data = {
+            config.metadata = {
 
               name: submission.data.nameOfNewConfiguration,
               date: today,
@@ -101,7 +101,7 @@
             // var obj = {a: "Hello", b: "World"};
             saveText(JSON.stringify(config), today+'_'+submission.data.nameOfNewConfiguration+".json");
 
-            alert("Success! new configuration made: "+ config.meta_data.name);
+            alert("Success! new configuration made: "+ submission.data.nameOfNewConfiguration);
           });
 
           // Everytime the form changes, this will fire.

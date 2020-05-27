@@ -888,10 +888,6 @@
             today = today.toString().replace('/','_').replace('/','_')
 
             let config = {
-  metaconfig: {
-    lock_defaults: submission.data.lock_defaults,
-    cut_prints: submission.data.cut_prints
-  },
   misc: {
     buy_clock_countdown_amount: submission.data.buy_clock_countdown_amount,
     dollar_risk: submission.data.dollar_risk,
@@ -940,10 +936,16 @@
     execution_price_offset: submission.data.execution_price_offset,
     vol_min_chunk_cash: submission.data.vol_min_chunk_cash,
     vol_offset_multiplier: submission.data.vol_offset_multiplier
+  },
+  defaults: {
+    misc: submission.data.def_misc,
+    buy_conditions: submission.data.def_buy_conditions,
+    sell_conditions: submission.data.def_sell_conditions,
+    sim_settings: submission.data.def_sim_settings
   }
 };
 
-            config.meta_data = {
+            config.metadata = {
 
               name: submission.data.nameOfNewConfiguration,
               date: today,
@@ -965,7 +967,7 @@
             // var obj = {a: "Hello", b: "World"};
             saveText(JSON.stringify(config), today+'_'+submission.data.nameOfNewConfiguration+".json");
 
-            alert("Success! new configuration made: "+ config.meta_data.name);
+            alert("Success! new configuration made: "+ submission.data.nameOfNewConfiguration);
           });
 
           // Everytime the form changes, this will fire.

@@ -1,0 +1,41 @@
+{
+  "misc": {
+    "buy_clock_countdown_amount": "7",
+    "dollar_risk": "-1000",
+    "hard_stop": "09:40:00",
+    "ideal_volatility": "4"
+  },
+  "buy_conditions": {
+    "aggresive_average": { "active": false, "priority": 2 },
+    "drop_below_average": {
+      "active": true,
+      "max_vola": "6",
+      "min_vola": "2",
+      "priority": 1
+    }
+  },
+  "sell_conditions": {
+    "dollar_risk_check": { "active": true, "priority": 1 },
+    "exposure_over_account_limit": { "active": true, "priority": 3 },
+    "percentage_gain": { "active": true, "perc_gain": 3, "priority": 4 },
+    "target_unreal": {
+      "active": true,
+      "priority": 5,
+      "target_unreal_amount": "15"
+    },
+    "timed_exit": { "active": true, "priority": 2, "minute_offset": 2 }
+  },
+  "sim_settings": {
+    "execution_lag": "1",
+    "execution_price_offset": 0.01,
+    "vol_min_chunk_cash": "350",
+    "vol_offset_multiplier": "1"
+  },
+  "defaults": {
+    "misc": false,
+    "buy_conditions": false,
+    "sell_conditions": false,
+    "sim_settings": false
+  },
+  "metadata": { "name": "Andreias_second_try", "date": "5_27_2020" }
+}
