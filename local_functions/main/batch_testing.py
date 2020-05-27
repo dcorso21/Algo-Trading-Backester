@@ -144,10 +144,11 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
         batch_test(reps=reps, mode='multiple',
                    stop_at=stop_at, shuffle=shuffle, config_setting=False, first_run=False)
 
-    b_csvs = []
-    if create_compare != False:
-        if num_of_batches > 1:
-            compare_batches(compare=create_compare)
+    else:
+        b_csvs = []
+        if create_compare != False:
+            if num_of_batches > 1:
+                compare_batches(compare=create_compare)
 
 
 def batch_loop(reps, mode):
