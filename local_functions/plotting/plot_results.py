@@ -247,7 +247,8 @@ def plot_batch_overview(batch_frame):
     fig.update_layout(
         template='plotly_dark',
         # title_text="Batch Results",
-        height=1200
+        height=1200,
+        showlegend=False
     )
 
     # fig.show()

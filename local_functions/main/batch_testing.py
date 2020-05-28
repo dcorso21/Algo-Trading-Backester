@@ -355,7 +355,7 @@ def get_batch_configs(config_setting, reps, first_run):
     elif config_setting == 'pick':
         configs = gl.get_downloaded_configs()
         gl.show_available_configurations()
-        prompt = f'input {reps} indexes for files.Use -1 for default.'
+        prompt = f'\ninput {reps} indexes for files.\nUse -1 for default.\nindexes:'
         picks = input(prompt).split(',')
         picks = map(int, picks)
         picks = list(picks)
@@ -395,7 +395,7 @@ def calc_batch_time(reps):
     if b_current_config == 'default':
         path = str(gl.directory / 'local_functions' / 'main' / 'config.json')
     else:
-        path = b_configs[reps-1]
+        path = b_configs[0]
     with open(path, 'r') as f:
         config = f.read()
 
