@@ -23,18 +23,18 @@ def analyse():
     # endregion Docstring
 
     # Skip Clause ---
-    # If feedback is false, dont run the function, return the blank df...
+    # If feedback is false, dont run the function, return the blank list...
     if gl.buy_lock == True:
         if len(gl.current_positions) == 0:
             gl.loop_feedback = False
-            return gl.pd.DataFrame()
+            return []
 
     # 1) Analyse Daily Chart - Only when there has been an update...
     if gl.current['close'] != gl.last['close']:
         gl.update_docs.update_files()
         # only necessary to evaluate if there are no current positions.
         if len(gl.current_positions) == 0:
-            day_pricing_eval()
+            day_eval()
 
     # 2) Build Orders
     orders = gl.order_eval.build_orders()
@@ -45,7 +45,7 @@ def analyse():
 '''----- Day Analysis -----'''
 
 
-def day_pricing_eval():
+def day_eval():
     # region Docstring
     '''
     # Day Pricing Evaluation
@@ -66,11 +66,18 @@ def day_pricing_eval():
     '''
     # endregion Docstring
 
+    # If more money has been lost than allowed, stop trading
     if gl.pl_ex['real'] <= gl.configure.misc['dollar_risk']:
         gl.chart_response = False
         gl.buy_lock = True
         return
 
+    # Volume Check
+    if gl.config['misc']['volume_check']:
+        if not day_volume_analysis_methods('worth_trading'):
+            gl.chart_response = False
+            return
+        
     pmeths = day_pricing_analysis_methods
 
     # if first 5 minutes check this function.
@@ -192,6 +199,19 @@ def day_pricing_analysis_methods(method):
         'closer_to_low_than_open': closer_to_low_than_open,
         'volatile_downtrend': volatile_downtrend,
         'bottom_of_candle': bottom_of_candle,
+    }
+
+    return methods[method]()
+
+
+def day_volume_analysis_methods(method):
+    def worth_trading():
+        if float(gl.volumes['minimum']) >= 100000:
+            return True
+        return False
+
+    methods = {
+        'worth_trading': worth_trading
     }
 
     return methods[method]()

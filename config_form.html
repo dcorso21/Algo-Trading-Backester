@@ -119,9 +119,14 @@
                 {
                   "label": "Buy Clock Countdown Amount",
                   "labelPosition": "left-left",
-                  "tableView": true,
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
                   "key": "buy_clock_countdown_amount",
-                  "type": "textfield",
+                  "type": "number",
                   "input": true,
                   "clearOnHide": false,
                   "defaultValue": 10,
@@ -130,9 +135,14 @@
                 {
                   "label": "Dollar Risk",
                   "labelPosition": "left-left",
-                  "tableView": true,
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
                   "key": "dollar_risk",
-                  "type": "textfield",
+                  "type": "number",
                   "input": true,
                   "clearOnHide": false,
                   "defaultValue": -500,
@@ -152,13 +162,28 @@
                 {
                   "label": "Ideal Volatility",
                   "labelPosition": "left-left",
-                  "tableView": true,
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
                   "key": "ideal_volatility",
-                  "type": "textfield",
+                  "type": "number",
                   "input": true,
                   "clearOnHide": false,
                   "defaultValue": 3,
                   "tooltip": "^ integer, percentage value of ideal volatility"
+                },
+                {
+                  "label": "Volume Check",
+                  "tableView": false,
+                  "key": "volume_check",
+                  "type": "checkbox",
+                  "input": true,
+                  "clearOnHide": false,
+                  "defaultValue": true,
+                  "tooltip": "checks to make sure that the minimum dvol is over $100,000"
                 }
               ]
             }
@@ -192,9 +217,14 @@
                 {
                   "label": "Execution Lag",
                   "labelPosition": "left-left",
-                  "tableView": true,
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
                   "key": "execution_lag",
-                  "type": "textfield",
+                  "type": "number",
                   "input": true,
                   "clearOnHide": false,
                   "defaultValue": 2,
@@ -203,9 +233,14 @@
                 {
                   "label": "Execution Price Offset",
                   "labelPosition": "left-left",
-                  "tableView": true,
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
                   "key": "execution_price_offset",
-                  "type": "textfield",
+                  "type": "number",
                   "input": true,
                   "clearOnHide": false,
                   "defaultValue": 0.01,
@@ -214,9 +249,14 @@
                 {
                   "label": "Vol Min Chunk Cash",
                   "labelPosition": "left-left",
-                  "tableView": true,
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
                   "key": "vol_min_chunk_cash",
-                  "type": "textfield",
+                  "type": "number",
                   "input": true,
                   "clearOnHide": false,
                   "defaultValue": 500,
@@ -225,9 +265,14 @@
                 {
                   "label": "Vol Offset Multiplier",
                   "labelPosition": "left-left",
-                  "tableView": true,
+                  "mask": false,
+                  "spellcheck": true,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
                   "key": "vol_offset_multiplier",
-                  "type": "textfield",
+                  "type": "number",
                   "input": true,
                   "clearOnHide": false,
                   "defaultValue": 1.2,
@@ -892,7 +937,8 @@
     buy_clock_countdown_amount: submission.data.buy_clock_countdown_amount,
     dollar_risk: submission.data.dollar_risk,
     hard_stop: submission.data.hard_stop,
-    ideal_volatility: submission.data.ideal_volatility
+    ideal_volatility: submission.data.ideal_volatility,
+    volume_check: submission.data.volume_check
   },
   buy_conditions: {
     aggresive_average: {
@@ -965,7 +1011,7 @@
             }
 
             // var obj = {a: "Hello", b: "World"};
-            saveText(JSON.stringify(config), today+'_'+submission.data.nameOfNewConfiguration+".json");
+            saveText(JSON.stringify(config, undefined, 2), today+'_'+submission.data.nameOfNewConfiguration+".json");
 
             alert("Success! new configuration made: "+ submission.data.nameOfNewConfiguration);
           });

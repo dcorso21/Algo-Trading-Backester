@@ -157,7 +157,7 @@ for key in config.keys():
 
     well_components = []
     for param in config[key].keys():
-        param_type = param_types[type(param)]
+        param_type = param_types[type(config[key][param])]
         component = forms['simple'][param_type].copy()
         component['defaultValue'] = config[key][param]
         component['tooltip'] = descript[key][param]
@@ -296,6 +296,11 @@ with open('config_form.html', 'w') as f:
     f.write(finished)
 
 print('form updated: config_form.html')
+
+from local_functions.main import global_vars as gl
+configs = gl.get_downloaded_configs()
+
+    
 
 
 # region UNUSED
