@@ -6,27 +6,43 @@ from pathlib2 import Path
 directory = Path(os.getcwd())
 config_folder = directory / 'config'
 
+
+# FORM ELEMENTS
 form_elements = str(config_folder / 'form_elements.json')
 with open(form_elements, 'r') as f:
     forms = f.read()
-
 forms = json.loads(forms)['master']
-current_config = str(directory / 'local_functions' / 'main' / 'config.json')
 
+
+# CURRENT CONFIG
+current_config = str(directory / 'local_functions' / 'main' / 'config.json')
 with open(current_config, 'r') as f:
     config_text = f.read()
-
-config_descriptions = str(
-    directory / 'local_functions' / 'main' / 'config_descriptions.json')
-
-with open(config_descriptions, 'r') as f:
-    descriptions = f.read()
-
-descript = json.loads(descriptions)
 config = json.loads(config_text)
 
 
+# CURRENT CONFIG DESCRIPTIONS
+config_descriptions = str(
+    directory / 'local_functions' / 'main' / 'config_descriptions.json')
+with open(config_descriptions, 'r') as f:
+    descriptions = f.read()
+descript = json.loads(descriptions)
+
+
 def submission_dict(mydict, name):
+    # region Docstring
+    '''
+    # Submission Dictionary
+    Takes the current configuration and creates a template for the submitted data. 
+
+    #### Returns dictionary of values for new configuration
+
+    ## Parameters:{
+    ####    `mydict`: dictionary to create submission values for
+    ####    `name`: dict name. because of the `active` field being named after the conditions in the form. 
+    ## }
+    '''
+    # endregion Docstring
     for field in mydict.keys():
         if type(mydict[field]) == dict:
             submission_dict(mydict[field], field)
@@ -41,52 +57,66 @@ def submission_dict(mydict, name):
     return mydict
 
 
+# CREATE SUBMISSION FORM
 submission_form = json.loads(config_text)
 meta = submission_form.pop('metaconfig')
-
 tabs = submission_form.keys()
 defaults = {}
 for tab in tabs:
     defaults[tab] = f'submission.data.def_{tab}'
-
 submission_form = submission_dict(submission_form, 'x')
 submission_form['defaults'] = defaults
 submission_form = json.dumps(submission_form, indent=2)
 submission_form = submission_form.replace('"', '')
 
-new_fields = []
+
+def update_descriptions(c, d):
+    def copy_fields(orig_dict, desc_dict, new_fields=[]):
+        # region Docstring
+        '''
+        # Copy Fields
+        Copies each field not in the description dictionary.
+
+        #### Returns description dict
+
+        ## Parameters:{
+        ####    `orig_dict`: dict to be copied from. 
+        ####    `desc_dict`: dict to be copied to. 
+        ####    `new_fields`: dict to be copied to. 
+        ## }
+        '''
+        # endregion Docstring
+        for field in orig_dict.keys():
+            if field not in desc_dict.keys():
+                desc_dict[field] = orig_dict[field]
+                new_fields.append(field)
+            else:
+                if field == desc_dict[field]:
+                    continue
+                elif type(orig_dict[field]) == dict:
+                    copy_fields(orig_dict[field], desc_dict[field], new_fields)
+
+        return desc_dict, new_fields
+
+    d, new_fields = copy_fields(c, d)
+
+    if len(new_fields) != 0:
+        d_updated = json.dumps(d, indent=2)
+        with open(config_descriptions, 'w') as f:
+            f.write(d_updated)
+        for field in new_fields:
+            print(field)
+        response = input(
+            '\nthe printed fields have been added to the description file. continue?\n[Y/n]:')
+        assert response.upper() == 'Y'
+        print('continuing')
+    else:
+        print('all fields accounted for')
+
+    return d
 
 
-def copy_fields(orig_dict, desc_dict):
-    global new_fields
-    for field in orig_dict.keys():
-        if field not in desc_dict.keys():
-            desc_dict[field] = orig_dict[field]
-            new_fields.append(field)
-        else:
-            if field == desc_dict[field]:
-                continue
-            elif type(orig_dict[field]) == dict:
-                copy_fields(orig_dict[field], desc_dict[field])
-
-    return desc_dict
-
-
-descript = copy_fields(config, descript)
-
-if len(new_fields) != 0:
-    descript = json.dumps(descript, indent=2)
-    with open(config_descriptions, 'w') as f:
-        f.write(descript)
-    for field in new_fields:
-        print(field)
-    response = input(
-        'the printed fields have been added to the description file. continue? [Y/n]')
-    assert response.upper() == 'Y'
-    print('continuing')
-else:
-    print('all fields accounted for')
-
+descript = update_descriptions(config, descript)
 
 meta = config.pop('metaconfig')
 
@@ -103,7 +133,7 @@ param_types = {
     str: 'text',
 }
 
-
+# CREATING NON-ORDER TABS
 tabs = []
 for key in config.keys():
     tab = forms['layouts']['tab'].copy()
@@ -140,18 +170,7 @@ for key in config.keys():
     tabs.append(tab)
 
 
-def make_selections(options):
-    values = []
-    for i in options:
-        value = {
-            'label': i,
-            'value': i,
-        }
-        values.append(value)
-    data = {'values': values}
-    return data
-
-
+# CREATING ORDER TABS
 for conds in order_conditions.keys():
     tab = forms['layouts']['tab'].copy()
     tab['key'] = conds
@@ -279,8 +298,19 @@ with open('config_form.html', 'w') as f:
 print('form updated: config_form.html')
 
 
-# print(myform)
+# region UNUSED
 
-# print('\n\n\n\n\n\n\n\n')
 
-# print(submission_form)
+# def make_selections(options):
+#     # DEPRECATED
+#     values = []
+#     for i in options:
+#         value = {
+#             'label': i,
+#             'value': i,
+#         }
+#         values.append(value)
+#     data = {'values': values}
+#     return data
+
+# endregion UNUSED
