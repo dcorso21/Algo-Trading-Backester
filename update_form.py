@@ -1,6 +1,6 @@
 import json
 import os
-from pathlib2 import Path
+from pathlib import Path
 
 
 directory = Path(os.getcwd())

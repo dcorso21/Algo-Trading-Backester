@@ -114,7 +114,7 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
     get_batch_dir()
 
     # <<< Get CSVs >>>
-    get_b_csvs(stop_at, shuffle, first_run)
+    get_b_csvs(stop_at, shuffle, first_run, inherit_csvs)
 
     #  <<< Starting Message >>>
     num_of_stocks = len(b_csvs)
@@ -259,13 +259,24 @@ def agg_time(duration, round_to_dec=2):
     return agg_time
 
 
-def get_b_csvs(stop_at, shuffle, first_run):
+def get_b_csvs(stop_at, shuffle, first_run, inherit_csvs):
 
     global b_csvs
+    path_to_json = Path.cwd() / 'results' / 'batch_csvs.json'
 
     if not first_run:
         return
 
+    if inherit_csvs != False:
+        if inherit_csvs == 'pick':
+            response = input('\ninherit csvs?\ninput [Y/n]:')
+            if response.upper() == 'Y':
+                inherit_csvs = True
+        if inherit_csvs == True:
+            with open(path_to_json, 'r') as f:
+                text = f.read()
+            b_csvs = gl.json.loads(text)
+            return
     # 1) Retrieve list of csvs in mkt_csvs folder.
     csv_list = glob.glob("mkt_csvs/*.csv")
 
@@ -277,6 +288,12 @@ def get_b_csvs(stop_at, shuffle, first_run):
         csv_list = csv_list[:stop_at]
 
     b_csvs = csv_list
+
+    text = gl.json.dumps(csv_list, indent=2)
+
+    with open(path_to_json, 'w') as f:
+        f.write(text)
+        f.close()
 
 
 def append_batch_frame(full_stock_name):
@@ -908,7 +925,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     color_dict = {}
     value = 70
     val_off = 7
-    hue_start = 75
+    # hue_start = 75
+    hue_start = 0
 
     res_colors = plotr.get_colors(
         hue_start_value=hue_start,
