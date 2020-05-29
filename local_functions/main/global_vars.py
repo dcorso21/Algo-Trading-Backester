@@ -19,24 +19,29 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 
-# Custom
-from local_functions.main import algo
-from local_functions.main import log_funcs
-from local_functions.main import configure
-from local_functions.analyse import analyse
-from local_functions.analyse import common
-from local_functions.analyse import order_eval
-from local_functions.analyse import order_tools
-from local_functions.analyse import update_docs
-from local_functions.account import account_info as account
-from local_functions.data_management import gather_data as gather
-from local_functions.data_management import stock_screening as screen
-from local_functions.data_management import historical_funcs as hist
-from local_functions.trade_funcs import sim_executions as sim_exe
-from local_functions.trade_funcs import trade_funcs
-from local_functions.plotting import plot_results as plotr
-from local_functions.plotting import candles
+
+
+
 from local_functions.plotting import api_chart
+from local_functions.plotting import candles
+from local_functions.plotting import plot_results as plotr
+from local_functions.trade_funcs import trade_funcs
+from local_functions.trade_funcs import sim_executions as sim_exe
+from local_functions.data_management import historical_funcs as hist
+from local_functions.data_management import stock_screening as screen
+from local_functions.data_management import gather_data as gather
+from local_functions.account import account_info as account
+from local_functions.analyse import update_docs
+from local_functions.analyse import order_tools
+from local_functions.analyse import order_eval
+from local_functions.analyse import common
+from local_functions.analyse import analyse
+from local_functions.main import configure
+from local_functions.main import log_funcs
+from local_functions.main import algo
+
+
+# Custom
 
 # endregion imports
 
@@ -88,24 +93,23 @@ volumes = 'dictionary'
 open_cancels = {}
 
 
-def save_dict_to_frame(dictionary, file_name):
+def save_dict_to_frame(dictionary):
     # region Docstring
     '''
     # Save Dictionary to Frame
-    Converts dictionary to DataFrame. then uses the `save_frame` function. 
+    Converts dictionary to DataFrame 
 
     ## Parameters:{
     ####    `dictionary`: dict to be converted 
-    ####    `file_name`: file name of dict
     ## }
     '''
     # endregion Docstring
     df = pd.DataFrame(dictionary, index=['value']).T
     df = df.reset_index().rename(columns={'index': 'type'})
-    save_frame(df, file_name)
+    return df
 
 
-def save_frame(df, file_name):
+def save_frame(df, file_name, path_to_file):
     # region Docstring
     '''
     # Save Frame
@@ -152,7 +156,7 @@ def save_frame(df, file_name):
     text = text.replace('^^^index_path^^^', index_path)
     text = text.replace('<!-- table_insert -->', table)
 
-    dst = directory / 'temp_assets' / f'{file_name}.html'
+    dst = path_to_file / f'{file_name}.html'
 
     with open(dst, 'x') as file:
         file.write(text)
@@ -236,7 +240,7 @@ def save_config(path_to_file):
     config = 'default'
 
 
-def save_all():
+def save_all(path_to_folder):
     '''
     ### Save All Files
     Once trading is done, save all global variables as csv files. 
@@ -263,24 +267,28 @@ def save_all():
         'log': log,
 
     }
-    clear_all_in_folder('temp_assets')
+
+    if not os.path.exists(path_to_folder):
+        os.makedirs(path_to_folder)
+
+    # clear_all_in_folder('temp_assets')
     if batch_dir == '':
-        save_config(directory / 'temp_assets')
+        save_config(path_to_folder)
+
     for file_name, file in zip(files.keys(), files.values()):
 
         if type(file) == dict:
-            save_dict_to_frame(file, file_name)
-        else:
-            save_frame(file, file_name)
+            file = save_dict_to_frame(file)
+
+        save_frame(file, file_name, path_to_folder)
 
     if len(mom_frame) != 0:
         update_docs.update_momentum()
-        html_path = str(directory / 'temp_assets' / 'mom_tracking.html')
         plotr.plot_momentum(mom_frame, current_frame,
-                            directory, batch_dir, csv_name)
+                            path_to_folder, batch_dir, csv_name)
     if len(filled_orders) != 0:
         plotr.plot_results(current_frame, filled_orders,
-                           batch_dir, directory, csv_name)
+                           batch_dir, path_to_folder, csv_name)
 
 
 def save_on_error(orig_func):
@@ -302,7 +310,7 @@ def save_on_error(orig_func):
         except:
             trace = traceback.format_exc()
             print('\n\nError Occurred\n')
-            save_all()
+            save_all(directory / 'temp_assets')
             print('global variables saved to temp_assets.\n')
             # print(trace)
             trace_path = directory / 'temp_assets' / 'trace.txt'

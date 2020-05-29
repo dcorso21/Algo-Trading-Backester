@@ -35,7 +35,7 @@ def test_trade(config='last', mode='csv', csv_file='first', batch_dir=False):
         if gl.loop_feedback == False:
             break
 
-    gl.save_all()
+    # gl.save_all()
 
     result = '\n{}: R: ${:.2f}, U: ${:.2}, @: {} ({})'
     duration = '{} s'.format(int(time.time() - start_time))

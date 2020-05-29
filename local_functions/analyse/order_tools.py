@@ -7,7 +7,6 @@ cancel_specs = {
 }
 
 renew_spec = {
-
     'once': 1,
     'standard': 3,
     'persistant': 5

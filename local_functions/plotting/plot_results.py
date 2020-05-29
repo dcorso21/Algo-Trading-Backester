@@ -1246,15 +1246,17 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
 
             plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
 
+
+            
             template_path = str(
-                html_path / 'batch_design' / 'plot_template.html')
+                Path.cwd() / 'batch_design' / 'plot_template.html')
 
             with open(template_path, 'r') as template:
                 text = template.read()
 
-            asset_path = str(html_path / 'batch_design' / 'assets')
+            asset_path = str(Path.cwd() / 'batch_design' / 'assets')
             index_path = str(batch_path / 'batch_index.html')
-            html_name = str(html_path / 'temp_assets' / 'daily_chart.html')
+            html_name = str(html_path / 'daily_chart.html')
 
             text = text.replace('^^^doc_name^^^', 'Daily Chart')
             text = text.replace('^^^csv_name^^^', csv_name)
@@ -1266,7 +1268,7 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
                 f.write(text)
 
 
-def plot_momentum(mom_frame, current_frame, directory, batch_path=None, csv_name=None):
+def plot_momentum(mom_frame, current_frame, path_to_folder, batch_path=None, csv_name=None):
     dfz = mom_frame
     df = current_frame
 
@@ -1336,16 +1338,17 @@ def plot_momentum(mom_frame, current_frame, directory, batch_path=None, csv_name
 
     plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
 
+    from pathlib import Path
     template_path = str(
-        directory / 'batch_design' / 'plot_template.html')
+        Path.cwd() / 'batch_design' / 'plot_template.html')
 
     with open(template_path, 'r') as template:
         text = template.read()
         template.close()
 
-    asset_path = str(directory / 'batch_design' / 'assets')
+    asset_path = str(Path.cwd() / 'batch_design' / 'assets')
     index_path = str(batch_path / 'batch_index.html')
-    html_name = str(directory / 'temp_assets' / 'mom_tracking.html')
+    html_name = str(path_to_folder / 'mom_tracking.html')
 
     text = text.replace('^^^doc_name^^^', 'Momentum Tracking')
     text = text.replace('^^^csv_name^^^', csv_name)

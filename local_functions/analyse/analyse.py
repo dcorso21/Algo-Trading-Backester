@@ -30,11 +30,14 @@ def analyse():
             return []
 
     # 1) Analyse Daily Chart - Only when there has been an update...
+    # 1) TODO : compare every entry, not just price
     if gl.current['close'] != gl.last['close']:
-        gl.update_docs.update_files()
+
         # only necessary to evaluate if there are no current positions.
         if len(gl.current_positions) == 0:
             day_eval()
+        else:
+            gl.update_docs.update_files()
 
     # 2) Build Orders
     orders = gl.order_eval.build_orders()
@@ -48,7 +51,7 @@ def analyse():
 def day_eval():
     # region Docstring
     '''
-    # Day Pricing Evaluation
+    # Day Evaluation
     Decides if it is a good time to place a starting position. 
 
     Updates the global variable `chart_response`
@@ -74,10 +77,15 @@ def day_eval():
 
     # Volume Check
     if gl.config['misc']['volume_check']:
-        if not day_volume_analysis_methods('worth_trading'):
-            gl.chart_response = False
-            return
-        
+        if len(gl.current_frame) >=2 :
+            if not day_volume_analysis_methods('worth_trading'):
+                gl.chart_response = False
+                gl.loop_feedback = False
+                gl.log_funcs.log('insufficient volume: trading stopped')
+                return
+
+    gl.update_docs.update_files()
+
     pmeths = day_pricing_analysis_methods
 
     # if first 5 minutes check this function.
@@ -206,7 +214,15 @@ def day_pricing_analysis_methods(method):
 
 def day_volume_analysis_methods(method):
     def worth_trading():
-        if float(gl.volumes['minimum']) >= 100000:
+        current_frame = gl.current_frame
+        current_frame['dvol'] = current_frame.close.values * \
+            current_frame.volume.values
+
+        dvol = current_frame.dvol.astype(float).tolist()
+        # don't want to base this on current minute.
+        del dvol[-1]
+
+        if min(dvol) >= 100000:
             return True
         return False
 

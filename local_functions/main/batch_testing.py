@@ -2,6 +2,9 @@ from local_functions.main import global_vars as gl
 from local_functions.main import algo
 import glob
 import time
+from pathlib import Path
+
+# region Global Vars
 
 
 starting_msg = '''\033[94m
@@ -50,11 +53,15 @@ b_configs = []
 b_current_config = ''
 b_csvs = []
 
+# endregion Global Vars
 
 # @ gl.save_on_error
+
+
 def batch_test(reps=1, mode='multiple', stop_at=False,
                shuffle=True, config_setting='default',
-               first_run=True, create_compare='config'):
+               first_run=True, create_compare='config',
+               inherit_csvs=False):
     # region Docstring
     '''
     # Batch Test
@@ -72,6 +79,10 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
 
     ####    `stop_at`: integer to cut off list at. Defaults to `False` which will enable entire list. 
     ####    `shuffle`: bool - defaults to `True`. 
+    ####    `config_setting`: pick shows a selection, default picks config.json
+    ####    `first_run`: true unless running recursively
+    ####    `create_compare`: config - compares with config as labels. also allows `date` and `time`
+    ####    `inherit_csvs`: config - compares with config as labels. also allows `date` and `time`
     - Means that list of stocks will be shuffled to randomize testing.  
 
     ## }
@@ -529,19 +540,20 @@ def save_documentation(full_stock_path):
 
     '''
     # endregion Docstring
-    import shutil
+    # import shutil
 
-    directory = gl.directory
-    src = directory / 'temp_assets'
-    dst = full_stock_path
-    move = shutil.copytree(src, dst)
+    # directory = gl.directory
+    # src = directory / 'temp_assets'
+    # dst = full_stock_path
+    # move = shutil.copytree(src, dst)
 
+    gl.save_all(full_stock_path)
     # save one config per directory.
     if not gl.os.path.exists(b_dir / 'config.json'):
         gl.save_config(b_dir)
 
 
-def get_batch_dir(subfolder=None):
+def get_batch_dir(subfolder=None, overwrite=False):
     # region Docstring
     '''
     # Get Batch String
@@ -571,6 +583,14 @@ def get_batch_dir(subfolder=None):
     if subfolder != None:
         today_results /= subfolder
     today_results /= today
+
+
+    if overwrite:
+        if os.path.exists(today_results):
+            # gets the most recent dir of today's results
+            b_dir = today_results / list(os.walk(today_results))[0][1][-1]
+            return         
+
 
     # 2) Number the batch based on number of previous batches in the current day's folder.
     b_num = 1
@@ -794,7 +814,7 @@ def html_batches_menu(df, menu_index=1, name='batch'):
                                      f' child{menu_index}',
                                      list_items)
         html_text += html
-        return html_text
+    return html_text
 
 
 def refresh_batches_html():
@@ -833,7 +853,8 @@ def refresh_batches_html():
         file.write(text)
 
 
-def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config'):
+def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False):
+    print('creating batch comparison')
     from local_functions.plotting import plot_results as plotr
     df = df_of_batches()
     links = df.pop('link')
@@ -965,10 +986,16 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config'):
     template = template.replace('^^^batches_link^^^', batches_link)
     template = template.replace('^^^doc_name^^^', 'Batch Compare')
 
-    get_batch_dir(subfolder='comparison')
+    get_batch_dir(subfolder='comparison', overwrite=overwrite)
 
     dest = b_dir / 'compare.html'
-    with open(dest, 'x') as f:
+
+    if overwrite:
+        file_mode = 'w'
+    else:
+        file_mode = 'x'
+
+    with open(dest, file_mode) as f:
         f.write(template)
 
     refresh_batches_html()
