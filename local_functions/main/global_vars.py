@@ -84,11 +84,57 @@ sup_res_frame = 'Dataframe'
 log = 'Dataframe'
 # endregion Frames
 
-current = 'dictionary'
-last = 'dictionary'
-pl_ex = 'dictionary'
-volas = 'dictionary'
-volumes = 'dictionary'
+current = {
+        'open': 'nan',
+        'high': 'nan',
+        'low': 'nan',
+        'close': 'nan',
+        'volume': 'nan',
+        'second': 'nan',
+        'minute': 'nan',
+        'ticker': 'nan'
+    }
+last = {
+        'open': 'nan',
+        'high': 'nan',
+        'low': 'nan',
+        'close': 'nan',
+        'volume': 'nan',
+        'second': 'nan',
+        'minute': 'nan',
+        'ticker': 'nan'
+    }
+pl_ex = {
+        'unreal': 0,
+        'min_unreal': 0,
+        'max_unreal': 0,
+        'real': 0,
+        'min_real': 0,
+        'max_real': 0,
+        'last_ex': 0,
+        'max_ex': 0
+    }
+volas = {
+        'differential': 'nan',
+        'current': 'nan',
+        'three_min': 'nan',
+        'five_min': 'nan',
+        'ten_min': 'nan',
+        'mean': 'nan'
+    }
+volumes = {
+        'safe_capital_limit': 'nan',
+        'differential': 'nan',
+        'mean': 'nan',
+        'minimum': 'nan',
+        'extrap_current': 'nan',
+        'three_min_mean': 'nan',
+        'three_min_min': 'nan',
+        'five_min_mean': 'nan',
+        'five_min_min': 'nan',
+        'ten_min_mean': 'nan',
+        'ten_min_min': 'nan',
+    }
 
 open_cancels = {}
 

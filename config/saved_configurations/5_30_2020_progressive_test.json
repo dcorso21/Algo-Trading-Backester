@@ -1,8 +1,4 @@
 {
-  "metaconfig": {
-    "lock_defaults": true,
-    "cut_prints": true
-  },
   "misc": {
     "buy_clock_countdown_amount": 10,
     "dollar_risk": -2000,
@@ -10,22 +6,21 @@
     "ideal_volatility": 3,
     "volume_check": true
   },
-
   "buy_conditions": {
     "aggresive_average": {
       "active": false,
       "priority": 2
     },
     "drop_below_average": {
-      "active": true,
+      "active": false,
       "max_vola": 5,
       "min_vola": 2.5,
       "priority": 1
     },
     "progressive": {
-      "active": false,
+      "active": true,
       "priority": 3,
-      "max_trend_duration": 3
+      "max_trend_duration": "9"
     }
   },
   "sell_conditions": {
@@ -58,5 +53,15 @@
     "execution_price_offset": 0.01,
     "vol_min_chunk_cash": 500,
     "vol_offset_multiplier": 1.2
+  },
+  "defaults": {
+    "misc": false,
+    "buy_conditions": false,
+    "sell_conditions": false,
+    "sim_settings": false
+  },
+  "metadata": {
+    "name": "progressive_test",
+    "date": "5_30_2020"
   }
 }

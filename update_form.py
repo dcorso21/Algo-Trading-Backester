@@ -33,13 +33,13 @@ def submission_dict(mydict, name):
     # region Docstring
     '''
     # Submission Dictionary
-    Takes the current configuration and creates a template for the submitted data. 
+    Takes the current configuration and creates a template for the submitted data.
 
     #### Returns dictionary of values for new configuration
 
     ## Parameters:{
     ####    `mydict`: dictionary to create submission values for
-    ####    `name`: dict name. because of the `active` field being named after the conditions in the form. 
+    ####    `name`: dict name. because of the `active` field being named after the conditions in the form.
     ## }
     '''
     # endregion Docstring
@@ -80,9 +80,9 @@ def update_descriptions(c, d):
         #### Returns description dict
 
         ## Parameters:{
-        ####    `orig_dict`: dict to be copied from. 
-        ####    `desc_dict`: dict to be copied to. 
-        ####    `new_fields`: dict to be copied to. 
+        ####    `orig_dict`: dict to be copied from.
+        ####    `desc_dict`: dict to be copied to.
+        ####    `new_fields`: dict to be copied to.
         ## }
         '''
         # endregion Docstring
@@ -300,7 +300,7 @@ print('form updated: config_form.html')
 from local_functions.main import global_vars as gl
 configs = gl.get_downloaded_configs()
 
-    
+
 
 
 # region UNUSED

@@ -65,35 +65,35 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
     # region Docstring
     '''
     # Batch Test
-    Function for doing testing in large chunks. 
+    Function for doing testing in large chunks.
 
-    Returns Nothing, but creates detailed folders in the results folder. 
+    Returns Nothing, but creates detailed folders in the results folder.
 
     ## Parameters:{
-    ####    `reps`: integer, number of repetitions. 
+    ####    `reps`: integer, number of repetitions.
     - Can either repeat the function recursively or repeat each stock. Depends on `mode`.
 
     ####    `mode`: 'internal' or 'multiple'
-    - 'internal' means that `reps` will repeat the same stock multiple times inside the same call of `batch_test` 
-    - 'multiple' means that `reps` will recursively loop back and call `batch_test` again. 
+    - 'internal' means that `reps` will repeat the same stock multiple times inside the same call of `batch_test`
+    - 'multiple' means that `reps` will recursively loop back and call `batch_test` again.
 
-    ####    `stop_at`: integer to cut off list at. Defaults to `False` which will enable entire list. 
-    ####    `shuffle`: bool - defaults to `True`. 
+    ####    `stop_at`: integer to cut off list at. Defaults to `False` which will enable entire list.
+    ####    `shuffle`: bool - defaults to `True`.
     ####    `config_setting`: pick shows a selection, default picks config.json
     ####    `first_run`: true unless running recursively
     ####    `create_compare`: config - compares with config as labels. also allows `date` and `time`
     ####    `inherit_csvs`: config - compares with config as labels. also allows `date` and `time`
-    - Means that list of stocks will be shuffled to randomize testing.  
+    - Means that list of stocks will be shuffled to randomize testing.
 
     ## }
 
     ## Process:
 
-    ### 1) Retrieve list of csvs in mkt_csvs folder. 
-    ### 2) Shuffle list to randomize sample set. 
+    ### 1) Retrieve list of csvs in mkt_csvs folder.
+    ### 2) Shuffle list to randomize sample set.
     ### 3) Estimate amount of time to take to execute batch with `calc_batch_time`.
-    ### 4) Test each file in file list. 
-    ### 5) Rename folder assets created 
+    ### 4) Test each file in file list.
+    ### 5) Rename folder assets created
     ### 6) Potentially recursively call function again
 
     '''
@@ -167,24 +167,24 @@ def batch_loop(reps, mode):
     '''
     # Batch Loop
 
-    Core of the process in the `batch_test` function. 
-    To be used for each csv file. 
+    Core of the process in the `batch_test` function.
+    To be used for each csv file.
 
     Returns an updated `batch_frame`
 
     ## Parameters:{
-    ####    `reps`: integer, repetitions, variable from `batch_test` function. 
-    ####    `file`: string, csv file name. 
-    ####    `path`: string, directory for saving files. 
+    ####    `reps`: integer, repetitions, variable from `batch_test` function.
+    ####    `file`: string, csv file name.
+    ####    `path`: string, directory for saving files.
     ####    `batch_frame`: DataFrame of each stock tested in `batch_test`
     ## }
 
     ## Process:
 
     ### 1) Trade the csv with the function `test_trade`
-    ### 2) Categorize traded results in subfolders of batch. 
-    ### 3) Save all temp_assets with `save_documentation` function. 
-    ### 4) Update Batch Frame with `append_batch_frame` function. 
+    ### 2) Categorize traded results in subfolders of batch.
+    ### 3) Save all temp_assets with `save_documentation` function.
+    ### 4) Update Batch Frame with `append_batch_frame` function.
 
     ## Notes:
     - Notes
@@ -236,14 +236,14 @@ def agg_time(duration, round_to_dec=2):
     # region Docstring
     '''
     # Aggregate Time
-    takes a duration in seconds and aggregates it into 
+    takes a duration in seconds and aggregates it into
     seconds, minutes or hours based on the number of seconds
 
     #### Returns string with the durating and increment. ex: '6 minutes'
 
     ## Parameters:{
-    ####    `duration`: int, amount of seconds 
-    ####    `round_to_dec`: int, amount decimals to round in final.  
+    ####    `duration`: int, amount of seconds
+    ####    `round_to_dec`: int, amount decimals to round in final.
     ## }
     '''
     # endregion Docstring
@@ -344,17 +344,17 @@ def get_batch_configs(config_setting, reps, first_run):
     # region Docstring
     '''
     # Pick Batch Configs
-    picks a configuration.json file for use from the github repo. 
+    picks a configuration.json file for use from the github repo.
 
-    redefines global variable `batch_configs` with a list of configs to use. 
+    redefines global variable `batch_configs` with a list of configs to use.
 
     ## Parameters:{
-    ####    `config_setting`: str, 
+    ####    `config_setting`: str,
     - 'pick' will ask for user to choose,
     - 'last' will select the most recent file,
     - 'default' will use the given settings in `configure.py`
 
-    ####    `reps`: number of repetitions, 
+    ####    `reps`: number of repetitions,
     ## }
     '''
     # endregion Docstring
@@ -404,14 +404,14 @@ def get_batch_configs(config_setting, reps, first_run):
 def calc_batch_time(reps):
     # region Docstring
     '''
-    # Calculate Batch Time 
-    function for estimating time it will take to run the `batch_test`.  
+    # Calculate Batch Time
+    function for estimating time it will take to run the `batch_test`.
 
-    prints the expected wait time. 
+    prints the expected wait time.
 
     ## Parameters:{
-    ####    `num_of_stocks`: integer, number of stocks in batch test. 
-    ####    `reps`: integer, number of repetitions in batch test. 
+    ####    `num_of_stocks`: integer, number of stocks in batch test.
+    ####    `reps`: integer, number of repetitions in batch test.
     ## }
 
     '''
@@ -445,7 +445,7 @@ def add_to_batch_index():
     # region Docstring
     '''
     # Add to Batch Index
-    Adds stock to batch index plot. 
+    Adds stock to batch index plot.
     '''
     # endregion Docstring
     global b_frame
@@ -546,13 +546,13 @@ def save_documentation(full_stock_path):
     # region Docstring
     '''
     # Save Documentation
-    Saves all files in the `temp_assets` folder to given path. 
-    In this case, the custom path is the one made for the batch test. 
+    Saves all files in the `temp_assets` folder to given path.
+    In this case, the custom path is the one made for the batch test.
 
-    returns nothing, but saves everything to the given path.  
+    returns nothing, but saves everything to the given path.
 
     ## Parameters:{
-    ####    `full_stock_path`: folder to save to.  
+    ####    `full_stock_path`: folder to save to.
     ## }
 
     '''
@@ -574,16 +574,16 @@ def get_batch_dir(subfolder=None, overwrite=False):
     # region Docstring
     '''
     # Get Batch String
-    Get name of new folder to put all of batch results. 
+    Get name of new folder to put all of batch results.
 
-    updates the global `b_num` and `b_path`   
+    updates the global `b_num` and `b_path`
 
     ## Process:
 
-    ### 1) Get current day's date to file the batch under. 
-    ### 2) Number the batch based on number of previous batches in the current day's folder. 
-    ### 3) Make Timestamp to be used in folder name. 
-    ### 4) Return Full Path. 
+    ### 1) Get current day's date to file the batch under.
+    ### 2) Number the batch based on number of previous batches in the current day's folder.
+    ### 3) Make Timestamp to be used in folder name.
+    ### 4) Return Full Path.
 
     '''
     # endregion Docstring
@@ -606,7 +606,7 @@ def get_batch_dir(subfolder=None, overwrite=False):
         if os.path.exists(today_results):
             # gets the most recent dir of today's results
             b_dir = today_results / list(os.walk(today_results))[0][1][-1]
-            return         
+            return
 
 
     # 2) Number the batch based on number of previous batches in the current day's folder.
@@ -628,12 +628,12 @@ def rename_folders(path):
     # region Docstring
     '''
     # Rename Folders
-    Renames batch folders with the number of stocks that fall into each category. 
+    Renames batch folders with the number of stocks that fall into each category.
 
     categories are: ['resolved', 'unresolved']
 
     ## Parameters:{
-    ####    `path`: path that folders are located in. 
+    ####    `path`: path that folders are located in.
     ## }
     '''
     # endregion Docstring
@@ -649,7 +649,7 @@ def folder_status():
     # region Docstring
     '''
     # Folder Status
-    Checks to see which folder the current batch test file will be allocated to 
+    Checks to see which folder the current batch test file will be allocated to
 
     Returns name of subfolder (str)
     '''
@@ -667,7 +667,7 @@ def add_to_batches_html():
     # region Docstring
     '''
     # Add to Batches Html
-    Checks to see if the current path is in the current `batches.html` file. 
+    Checks to see if the current path is in the current `batches.html` file.
     If not, will refresh the file with the `refresh_batches_html` function.
 
     #### Returns nothing
@@ -881,8 +881,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
         else:
             print(df)
         prompt = f'''
-            please specify the {num_to_compare} 
-            indexes of batches to compare. 
+            please specify the {num_to_compare}
+            indexes of batches to compare.
         '''
         response = input(prompt=prompt)
         indexes = list(map(int, response.split(',')))

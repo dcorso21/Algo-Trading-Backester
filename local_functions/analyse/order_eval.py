@@ -44,9 +44,11 @@ def build_orders():
     buy_orders = buy_eval()
 
     # combine orders
-    all_orders = sell_orders.append(buy_orders, sort=False)
-
-    return all_orders
+    if len(buy_orders) != 0:
+        all_orders = sell_orders.append(buy_orders, sort=False)
+        return all_orders
+    else:
+        return sell_orders
 
 
 def sell_eval():
@@ -235,6 +237,27 @@ def sell_conditions(condition):
         else:
             sells = gl.pd.DataFrame()
         return sells
+
+    def progressive_sell():
+        '''
+        Based on volatility, exposure, and   
+        '''
+
+        avg = gl.common.get_average()
+        current_trend = dict(gl.mom_frame.iloc[-1])
+
+        # if current_trend['duration'] >= 5
+        # Positive Branch
+        if gl.current['close'] > avg:
+
+            pass
+
+        # Risk Branch
+        else:
+            # Buy more... (not here)
+            # Or sell to rebalance
+
+            pass
 
     conditions = {
 
@@ -430,10 +453,40 @@ def buy_conditions(condition):
                 return buys
         return gl.pd.DataFrame()
 
+    def progressive():
+        '''
+        buy based on timing and momentum. 
+
+        '''
+        if len(gl.mom_frame) < 1:
+            return []
+        avg = gl.common.get_average()
+        v = gl.volas['mean']
+        current_trend = dict(gl.mom_frame.iloc[-1])
+
+        if gl.current['close'] >= avg:
+            return []
+
+        if current_trend['trend'] == 'downtrend':
+            import math
+            max_dur = b_params['progressive']['max_trend_duration']
+            n = (current_trend['duration']/max_dur)*100
+
+            perc_to_inv = min([1, math.log(n, 100)])
+            invested = gl.current_positions.cash.sum()
+            available = gl.account.get_available_capital()
+            cash = (available*perc_to_inv) - invested
+            if cash > .01*available:
+                pmeth = 'current_price'
+                buys = gl.order_tools.create_orders('BUY', cash, pmeth)
+                return buys
+        return []
+
     conditions = {
         'starting_position': starting_position,
         'drop_below_average': drop_below_average,
         'aggresive_average': aggresive_average,
+        'progressive': progressive,
     }
 
     return conditions[condition]()
