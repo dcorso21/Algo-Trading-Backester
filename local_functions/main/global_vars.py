@@ -1,4 +1,3 @@
-# region Modules
 # 3rd party
 from pathlib import Path
 from functools import wraps
@@ -60,7 +59,8 @@ sell_out = False
 chart_response = False
 buy_clock = 0
 buy_lock = False
-
+# list the starting strategy
+strategy='moderate'
 
 # CSV Trading
 batch_dir = ''
@@ -227,21 +227,18 @@ filepath = {
 def clear_all_in_folder(folder, confirm=False, print_complete=False):
     # region Docstring
     '''
-    # Clear Temp Assets
-    Deletes all items in the temp_assets folder. 
-
-    ## Process:
-
-    ### 1)
-
-    ## Notes:
-    - Notes
-
-    ## TO DO:
-    - Item
+    # Clear All in Folder
+    Clear all files in given folder 
+    
+    #### Returns nothing, clears folder.
+    
+    ## Parameters:{
+    ####    `folder`: name of folder
+    ####    `confirm`: ask before deleting contents
+    ####    `print_complete`: notify files have been deleted with a print statement.  
+    ## }
     '''
     # endregion Docstring
-
     if confirm:
         msg = f'Are you SURE you would like to clear all contents of "{folder}"?   Y/N'
         response = input(msg)
@@ -289,7 +286,7 @@ def save_config(path_to_file):
 def save_all(path_to_folder):
     '''
     ### Save All Files
-    Once trading is done, save all global variables as csv files. 
+    Once trading is done, save all global variables to appropriate dir.
     '''
     files = {
 
@@ -355,18 +352,18 @@ def save_on_error(orig_func):
             orig_func(*args, **kwargs)
         except:
             trace = traceback.format_exc()
-            print('\n\nError Occurred\n')
-            save_all(directory / 'temp_assets')
-            print('global variables saved to temp_assets.\n')
-            # print(trace)
-            trace_path = directory / 'temp_assets' / 'trace.txt'
-            with open(trace_path, 'x') as file:
-                file.writelines(trace)
-                # trace = file.readlines()
-                file.close()
-
-            trace = trace.split('\n')
-            simple_traceback(trace)
+            print('\n\nError Occurred\n') 
+            # save_all(directory / 'temp_assets')   
+            # print('global variables saved to temp_assets.\n') 
+            # # print(trace)    
+            trace_path = directory / 'temp_assets' / 'trace.txt'  
+            with open(trace_path, 'x') as file:   
+                file.writelines(trace)    
+                # trace = file.readlines()    
+                file.close()  
+            print('trace saved')
+            # trace = trace.split('\n')   
+            #    simple_traceback(trace)
     return wrapper
 
 
@@ -418,7 +415,7 @@ def simple_traceback(trace):
             print(df)
 
 
-def isnotebook():
+def isnotebook() -> bool:
     # region Docstring
     '''
     # Is Notebook
@@ -439,7 +436,7 @@ def isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def frame_to_html(df, df_name):
+def frame_to_html(df, df_name) -> str:
     # region Docstring
     '''
     # Frame to HTML
@@ -490,8 +487,19 @@ def frame_to_html(df, df_name):
     return table
 
 
-def get_downloaded_configs():
-
+def get_downloaded_configs() -> list:
+    # region Docstring
+    '''
+    # Get Downloaded Configurations
+    gets config.json files from the `Downloads/` folder
+    
+    #### Returns list of configs
+    
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
     downloads = Path.home() / 'Downloads'
     json_files = glob.glob(str(downloads / '*.json'))
     saved_path = Path.cwd()/'config'/'saved_configurations'
@@ -511,6 +519,14 @@ def get_downloaded_configs():
 
 
 def show_available_configurations():
+    # region Docstring
+    '''
+    # Show Available Configurations
+    gets all available config.json files and displays in a DF
+    
+    #### Returns nothing, prints table.
+    '''
+    # endregion Docstring
 
     configs = get_downloaded_configs()
 
@@ -536,7 +552,15 @@ def show_available_configurations():
         print(df)
 
 
-def pick_config_file():
+def pick_config_file() -> str:
+    # region Docstring
+    '''
+    # Pick Config File
+    Allows user to choose which config to use in testing. 
+    
+    #### Returns filepath of config file.
+    '''
+    # endregion Docstring
     show_available_configurations()
     prompt = 'input the number which corresponds with the desired configuration. -1 for default'
     response = input(prompt)
@@ -546,7 +570,7 @@ def pick_config_file():
         return get_downloaded_configs()[int(response)]
 
 
-def pull_df_from_html(filepath):
+def pull_df_from_html(filepath) -> 'df':
     with open(filepath, 'r') as file:
         text = file.read()
 
@@ -564,6 +588,18 @@ def pull_df_from_html(filepath):
 
 
 def clear_output(num_of_lines):
+    # region Docstring
+    '''
+    # Clear Output
+    Clears Print Output of the number of lines passed
+    
+    #### Returns nothing.   
+    
+    ## Parameters:{
+    ####    `num_of_lines`: number of lines to clear
+    ## }
+    '''
+    # endregion Docstring
     # if configure.cut_prints == False:
     #     return
     # elif isnotebook:
@@ -581,6 +617,19 @@ def clear_output(num_of_lines):
 
 
 def color_format(msg, color):
+    # region Docstring
+    '''
+    # Color Format
+    formats print output with color.    
+    
+    #### Returns message now wrapped in ANSI color codes. 
+    
+    ## Parameters:{
+    ####    `msg`: message to be printed. 
+    ####    `color`: desired color. 
+    ## }
+    '''
+    # endregion Docstring
 
     def prRed(msg): return("\033[91m {}\033[00m" .format(msg))
     def prGreen(msg): return("\033[92m {}\033[00m" .format(msg))

@@ -1,10 +1,10 @@
 {
   "misc": {
     "buy_clock_countdown_amount": 10,
-    "dollar_risk": -500,
+    "dollar_risk": -2000,
     "hard_stop": "10:40:00",
     "ideal_volatility": 3,
-    "volume_check": false
+    "volume_check": true
   },
   "buy_conditions": {
     "aggresive_average": {
@@ -12,15 +12,20 @@
       "priority": 2
     },
     "drop_below_average": {
-      "active": true,
+      "active": false,
       "max_vola": 5,
       "min_vola": 2.5,
       "priority": 1
+    },
+    "progressive": {
+      "active": true,
+      "priority": 3,
+      "max_trend_duration": 15
     }
   },
   "sell_conditions": {
     "dollar_risk_check": {
-      "active": true,
+      "active": false,
       "priority": 1
     },
     "exposure_over_account_limit": {
@@ -35,7 +40,7 @@
     "target_unreal": {
       "active": true,
       "priority": 5,
-      "target_unreal_amount": 20
+      "target_unreal_amount": "200"
     },
     "timed_exit": {
       "active": true,
@@ -51,12 +56,12 @@
   },
   "defaults": {
     "misc": false,
-    "buy_conditions": true,
-    "sell_conditions": true,
-    "sim_settings": true
+    "buy_conditions": false,
+    "sell_conditions": false,
+    "sim_settings": false
   },
   "metadata": {
-    "name": "without_vol_check",
-    "date": "5_28_2020"
+    "name": "reckless_progressive",
+    "date": "5_31_2020"
   }
 }

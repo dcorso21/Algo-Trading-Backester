@@ -470,15 +470,16 @@ def buy_conditions(condition):
         if current_trend['trend'] == 'downtrend':
             import math
             max_dur = b_params['progressive']['max_trend_duration']
-            n = (current_trend['duration']/max_dur)*100
-
-            perc_to_inv = min([1, math.log(n, 100)])
+            cur_dur = current_trend['duration']
+            perc_to_inv = (cur_dur**2/max_dur**2) 
             invested = gl.current_positions.cash.sum()
             available = gl.account.get_available_capital()
             cash = (available*perc_to_inv) - invested
             if cash > .01*available:
                 pmeth = 'current_price'
                 buys = gl.order_tools.create_orders('BUY', cash, pmeth)
+                ratio = f'{cur_dur}/{max_dur} ({perc_to_inv})'
+                gl.log_funcs.log(f'---> Progressive Buy Triggered. dur:{ratio}')
                 return buys
         return []
 
@@ -582,3 +583,5 @@ def bad_trade_conds():
         return True
 
     return False
+
+

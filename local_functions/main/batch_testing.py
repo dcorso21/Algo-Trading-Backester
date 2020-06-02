@@ -55,9 +55,8 @@ b_csvs = []
 
 # endregion Global Vars
 
-# @ gl.save_on_error
 
-
+@ gl.save_on_error
 def batch_test(reps=1, mode='multiple', stop_at=False,
                shuffle=True, config_setting='default',
                first_run=True, create_compare='config',
@@ -601,13 +600,11 @@ def get_batch_dir(subfolder=None, overwrite=False):
         today_results /= subfolder
     today_results /= today
 
-
     if overwrite:
         if os.path.exists(today_results):
             # gets the most recent dir of today's results
             b_dir = today_results / list(os.walk(today_results))[0][1][-1]
             return
-
 
     # 2) Number the batch based on number of previous batches in the current day's folder.
     b_num = 1
@@ -681,6 +678,18 @@ def add_to_batches_html():
 
 
 def df_of_comparisons():
+    # region Docstring
+    '''
+    # DF of Comparisons
+    Creates a df of available comparisons by looking at the `results` folder
+
+    #### Returns ex
+
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
 
     links = []
     path = gl.directory
@@ -727,6 +736,14 @@ def df_of_comparisons():
 
 
 def df_of_batches():
+    # region Docstring
+    '''
+    # DF of Batches
+    Creates a df of the available batches by looking at batches in results folder   
+
+    #### Returns df
+    '''
+    # endregion Docstring
     links = []
     configs = []
     path = gl.directory
@@ -794,6 +811,22 @@ def df_of_batches():
 
 
 def html_batches_menu(df, menu_index=1, name='batch'):
+    # region Docstring
+    '''
+    # HTML Batches Menu
+    Creates the html elements for the hover dropdown menus in the  `batches.html` file
+
+
+    #### Returns html text element to be inserted into html. 
+
+    ## Parameters:{
+    ####    `df`: dataframe with menu elements
+    ####    `df`: menu_index. At the time of writing, there is a batch menu and a comparison menu. T
+    #### he menu index creates new classes in css for custom 
+    ####    `name`: "batches" or "comparisons"
+    ## }
+    '''
+    # endregion Docstring
     if menu_index == 1:
         menu_index = ''
 
@@ -871,6 +904,23 @@ def refresh_batches_html():
 
 
 def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False):
+    # region Docstring
+    '''
+    # Compare Batches
+    Create a new comparison HTML file that will compare any number of batches. 
+
+    #### Returns nothing, creates a new html file in the results folder. 
+
+    ## Parameters:{
+    ####    `num_to_compare`: number of batches to compare
+    ####    `pick_most_recent`: defaults to true, else you will be presented with a df and pick
+    ####    `compare`: field to compare, defaults to config, but `date` and `time` are also available.
+    ####    `overwrite`: defaults to False, will overwrite last compare rather than starting a new one. 
+    ## }
+
+    '''
+    # endregion Docstring
+
     print('creating batch comparison')
     from local_functions.plotting import plot_results as plotr
     df = df_of_batches()
@@ -881,7 +931,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
         else:
             print(df)
         prompt = f'''
-            please specify the {num_to_compare}
+            please specify the {pick_most_recent}
+            please specify the {overwrite}
             indexes of batches to compare.
         '''
         response = input(prompt=prompt)
@@ -928,9 +979,8 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     # hue_start = 75
     hue_start = 0
 
-    res_colors = plotr.get_colors(
-        hue_start_value=hue_start,
-        num_of_colors=len(batch_names), v=value)
+    res_colors = plotr.get_colors(hue_start_value=hue_start,
+                                  num_of_colors=len(batch_names), v=value)
     unres_colors = plotr.get_colors(hue_start_value=hue_start - val_off,
                                     num_of_colors=len(batch_names), s=75 - val_off, v=value - val_off)
     color_values = ((r, u) for r, u in zip(res_colors, unres_colors))

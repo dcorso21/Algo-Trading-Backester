@@ -126,11 +126,11 @@ def new_box_plot(x_values, labels, jitter):
 
     Returns Trace.
 
-    # Parameters:{
-    # `x_values`: list, x values for scatter
-    # `labels`: list, text for hover of each point
-    # `jitter`: how much the scatter beside the box plot will be spread out.
-    # }
+    ### Parameters:{
+    #### `x_values`: list, x values for scatter
+    #### `labels`: list, text for hover of each point
+    #### `jitter`: how much the scatter beside the box plot will be spread out.
+    #### }
     '''
     # endregion Docstring
     box_plot = go.Box(x=x_values,
@@ -173,11 +173,11 @@ def plot_batch_overview(batch_frame):
     # Plot Batch Overview
     Creates a Plotly subplots figure shown on the batch index
 
-    Returns HTML of chart to be inserted in batch index.
+    ### Returns HTML of chart to be inserted in batch index.
 
-    # Parameters:{
-    # `batch_frame`: df of batch overview.
-    # }
+    ### Parameters:{
+    #### `batch_frame`: df of batch overview.
+    ### }
     '''
     # endregion Docstring
 
@@ -263,7 +263,7 @@ def get_orders(filled_orders):
     # Get Orders
     Convert `filled_orders` global variables to a df that is used in the trading charts. 
 
-    Returns dataframe of orders 
+    ### Returns dataframe of orders 
 
     ## Parameters:{
     ####    `filled_orders`: global variable df
@@ -281,9 +281,23 @@ def get_orders(filled_orders):
 
 
 def expand_mkt_data(m, o):
+    # region Docstring
     '''
-    expands upon market data, calculates pls and so forth.
+    # Expand Market Data
+    Expands upon the market data which adds the following:
+    - average 
+    - position
+    - PL real
+    - PL Unreal
+    
+    #### Returns DataFrame of Market Data
+    
+    ## Parameters:{
+    ####    `m`: market data df
+    ####    `o`: orders data df
+    ## }
     '''
+    # endregion Docstring
     # these functions are pretty self explanatory...
     m = append_avg(m, o)
     m = append_position(m, o)
@@ -1409,6 +1423,18 @@ def create_batch_compare_graph(categories, category_labels):
 
 
 def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=False):
+    # region Docstring
+    '''
+    # Get Colors
+    Gets Colors based on hsl. Converts and returns string in "rgb(x,x,x)" format 
+    
+    #### Returns ex
+    
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
     if hue_start_value == 'random':
         import random
         hue_start_value = random.randint(0, 360)
