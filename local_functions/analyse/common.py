@@ -1,7 +1,7 @@
 from local_functions.main import global_vars as gl
 
 
-def get_volatility(high_list, low_list):
+def get_volatility(high_list, low_list) -> list:
     # region Docstring
     '''
     ## Get Volatility
@@ -12,7 +12,7 @@ def get_volatility(high_list, low_list):
     # endregion Docstring
     highs = gl.np.array(high_list)
     lows = gl.np.array(low_list)
-    vola = gl.np.around((((highs - lows) / lows)*100),decimals=1)
+    vola = gl.np.around((((highs - lows) / lows)*100), decimals=1)
     return vola
 
 
@@ -50,7 +50,7 @@ def cash_to_shares(cash, price):
     return share_quantity
 
 
-def get_timestamp(minute, second):
+def get_timestamp(minute, second, integer=False):
     # region Docstring
     '''
     ## Get TimeStamp
@@ -71,7 +71,14 @@ def get_timestamp(minute, second):
     from datetime import datetime, timedelta
     time = datetime.strptime(minute, '%H:%M:%S')
     time = time+timedelta(seconds=second)
-    return time.strftime('%H:%M:%S')
+    time = time.strftime('%H:%M:%S')
+    if integer:
+        return gl.pd.to_datetime(time).timestamp()
+    return time
+
+
+def get_current_timestamp(integer=False):
+    return get_timestamp(gl.current['minute'], gl.current['second'], integer=integer)
 
 
 def get_average():
@@ -204,3 +211,50 @@ def all_rows(df):
     '''Shows a dataframe without cutting off all rows... Enter a DF.'''
     with gl.pd.option_context('display.max_rows', None, 'display.max_columns', None):
         display(df)
+
+
+def find_bounce_factor():
+    # region Docstring
+    '''
+    # Find Bounce Factor
+    Finds a number on a non-set scale w 
+
+    #### Returns ex
+
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
+    if len(gl.mom_frame) == 0:
+        return 0
+    ups = gl.mom_frame[gl.mom_frame['trend'] == 'uptrend'].volatility.mean()
+    downs = gl.mom_frame[gl.mom_frame['trend']
+                         == 'downtrend'].volatility.mean()
+    bounce_factor = (ups - downs) / gl.volas['mean']
+    return bounce_factor
+
+
+def mins_left():
+    hard_stop = gl.config['misc']['hard_stop']
+    hard_stop = gl.pd.to_datetime(hard_stop).timestamp()
+    current_time = gl.common.get_current_timestamp(integer=True)
+    secs_to_go = hard_stop - current_time
+    mins_to_go = secs_to_go / 60
+    return mins_to_go
+
+
+def investment_duration():
+    start_time = gl.current_positions.exe_time.values[-1]
+    start_time = gl.pd.to_datetime(start_time).timestamp()
+    current_time = gl.get_current_timestamp(integer=True)
+    duration = (current_time - start_time)/60
+    return duration
+
+
+def daily_return():
+    open_price = gl.current_frame.open.values[0]
+    current_price = gl.current['close']
+    ret = (current_price - open_price)/open_price
+    ret = ret * 100
+    return ret

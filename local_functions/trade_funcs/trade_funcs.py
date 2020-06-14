@@ -208,12 +208,18 @@ def check_cancel():
                                                                  potential_cancels.wait_duration,
                                                                  potential_cancels.index):
 
+        if cancel_spec == None:
+            continue
         # Example cancel_spec : r'p:%1,t:5'
         xptype = cancel_spec.split(',')[0].split(':')[1][0]
-        # x percent
-        xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
         # x time
         xtime = int(cancel_spec.split(',')[1].split(':')[1])
+        # x percent
+        xp = (cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
+        p_upper, p_lower = list(map(float, xp.split('/')))
+        if xptype == '%':
+            p_upper = exe_price + (exe_price*(p_upper*.01))
+            p_lower = exe_price - (exe_price*(p_lower*.01))
 
         cancel = False
         # Time Out
@@ -222,12 +228,12 @@ def check_cancel():
             for_cancellation.append(order_id)
 
         # Price Drop
-        elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
+        elif gl.current['close'] < p_lower:
             cancel = 'price drop'
             for_cancellation.append(order_id)
 
         # Price Spike
-        elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
+        elif gl.current['close'] > p_upper:
             cancel = 'price spike'
             for_cancellation.append(order_id)
 

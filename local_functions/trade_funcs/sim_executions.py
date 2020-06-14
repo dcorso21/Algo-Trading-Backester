@@ -1,6 +1,7 @@
 from local_functions.main import global_vars as gl
 
 
+
 def sim_execute_orders(new_orders, cancel_ids):
     # region Docstring
     '''

@@ -3,7 +3,8 @@ from local_functions.main import global_vars as gl
 ''' ----- Specification Dictionaries ----- '''
 # region Specification Dictionaries
 cancel_specs = {
-    'standard': r'p:%5,t:7'
+    'standard': r'p:%5/5,t:7',
+    'target': r'p:${},t:60'
 }
 
 renew_spec = {
@@ -137,6 +138,7 @@ def format_orders(orders):
 
     for row in orders.index:
         row = orders.iloc[row]
+        info = dict(row)
         order_id, trigger, buy_or_sell, cash_or_qty, p_method, auto_renew, cancel_spec, queue_spec = row
 
         exe_price = get_exe_price(p_method)
@@ -210,9 +212,10 @@ def get_exe_price(method):
         'bid': bid_price,
         'ask': ask_price,
         'extrapolate': extrapolate,
-        'current_price': current_price,
+        'current': current_price,
     }
 
+    if type(method) != str: return method
     return price_methods[method]()
 
 
@@ -237,3 +240,29 @@ def position_sizer():
 
     if safe_cap < avail_cap:
         safe_left = safe_cap - exposure
+
+
+def make_cancel_spec(ptype: str, p_upper: float, p_lower: float, seconds: int) -> str:
+    # region Docstring
+    '''
+    # Make Cancel Specification
+    formats the relevent data into a cancel spec compliant string. 
+
+    #### Returns string of cancel specification for order usage.
+
+    ## Parameters:{
+    ####    `ptype`: string, '$' for cash or '%' for percent
+    ####    `p_upper`: float, upper bound in price before cancellation
+    ####    `p_lower`: float, lower bound in price before cancellation
+    ####    `seconds`: int, number of seconds before cancellation
+    ## }
+    '''
+    # endregion Docstring
+    return f'p:{ptype}{p_upper}/{p_lower},t:{seconds}'
+
+
+
+def extrap_average(inv_dol:float, inv_avg:float, new_dol:float, new_price:float):
+    extrap_average = ((inv_dol*inv_avg) +
+                        (new_dol*new_price))/(inv_dol+new_dol)
+    return extrap_average

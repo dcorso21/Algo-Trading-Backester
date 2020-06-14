@@ -69,23 +69,33 @@ def day_eval():
     '''
     # endregion Docstring
 
-    # If more money has been lost than allowed, stop trading
+    # Rule out trading if unnacceptable amount is already lost. 
     if gl.pl_ex['real'] <= gl.configure.misc['dollar_risk']:
         gl.chart_response = False
         gl.buy_lock = True
+        gl.log_funcs.log('dollar risk hit: trading stopped')
         return
 
-    # Volume Check
+    # Rule Out trading if not enough Volume
     if gl.config['misc']['volume_check']:
-        if len(gl.current_frame) >=2 :
+        if len(gl.current_frame) < 2:
+            if not day_volume_analysis_methods('early_exrap'):
+                return
+        else:
             if not day_volume_analysis_methods('worth_trading'):
                 gl.chart_response = False
                 gl.loop_feedback = False
                 gl.log_funcs.log('insufficient volume: trading stopped')
                 return
+        
+    if gl.common.mins_left() < 15:
+        gl.chart_response = False
+        gl.loop_feedback = False
+        gl.log_funcs.log('insufficient time: trading stopped')
+        return 
+
 
     gl.update_docs.update_files()
-
     pmeths = day_pricing_analysis_methods
 
     # if first 5 minutes check this function.
@@ -213,6 +223,7 @@ def day_pricing_analysis_methods(method):
 
 
 def day_volume_analysis_methods(method):
+    dvol_min = 200000
     def worth_trading():
         current_frame = gl.current_frame
         current_frame['dvol'] = current_frame.close.values * \
@@ -222,12 +233,21 @@ def day_volume_analysis_methods(method):
         # don't want to base this on current minute.
         del dvol[-1]
 
-        if min(dvol) >= 100000:
+        if min(dvol) >= dvol_min:
+            return True
+        return False
+
+    def early_exrap():
+        sec = gl.current['second']
+        cur_dvol = gl.current_frame.volume.values[-1]*gl.current['close']
+        extrap = (cur_dvol/sec)*60
+        if extrap >= dvol_min:
             return True
         return False
 
     methods = {
-        'worth_trading': worth_trading
+        'worth_trading': worth_trading,
+        'early_extrap': early_exrap
     }
 
     return methods[method]()

@@ -47,6 +47,18 @@ def default_configuration():
     gl.config = master.copy()
 
 
+def get_sim_df(csv_file):
+    m = gl.pd.read_csv(csv_file)
+    m['open'] = m.open.astype(float)
+    m['high'] = m.high.astype(float)
+    m['low'] = m.low.astype(float)
+    m['close'] = m.close.astype(float)
+    m['volume'] = m.volume.astype(float).astype(int)
+    # Re-Order
+    m = m[['ticker', 'time', 'open', 'high', 'low', 'close', 'volume']]
+    return m
+
+
 def reset_variables(mode, csv_file):
     # region Docstring
     '''
@@ -65,17 +77,6 @@ def reset_variables(mode, csv_file):
     global master
     master = {}
     gl.config = master.copy()
-
-    def get_sim_df(csv_file):
-        m = gl.pd.read_csv(csv_file)
-        m['open'] = m.open.astype(float)
-        m['high'] = m.high.astype(float)
-        m['low'] = m.low.astype(float)
-        m['close'] = m.close.astype(float)
-        m['volume'] = m.volume.astype(float).astype(int)
-        # Re-Order
-        m = m[['ticker', 'time', 'open', 'high', 'low', 'close', 'volume']]
-        return m
 
     if mode == 'csv':
         gl.csv_indexes = []
@@ -216,7 +217,7 @@ def load_configuration(config):
         if config == 'default':
             return
 
-    # By now, the config object should be a filepath to the custom config. 
+    # By now, the config object should be a filepath to the custom config.
     import json
     with open(config, 'r') as f:
         config = f.read()
@@ -235,7 +236,7 @@ def load_configuration(config):
         metadata = config.pop('metadata')
 
     def replace_fields(config, master):
-            
+
         for key in config.keys():
             if (type(config[key]) == dict) and (key in master.keys()):
                 replace_fields(config[key], master[key])

@@ -88,7 +88,7 @@ def log_filled_and_open(new_fills):
         oids = gl.open_orders.order_id.tolist()
         oo = True
 
-    if oo or nf:
+    if nf:
         gl.log_funcs.log(f'new_fill_ids: {nfids}, still open: {oids}')
 
 

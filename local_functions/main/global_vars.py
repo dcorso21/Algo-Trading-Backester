@@ -1,3 +1,6 @@
+
+
+
 # 3rd party
 from pathlib import Path
 from functools import wraps
@@ -18,9 +21,6 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 
-
-
-
 from local_functions.plotting import api_chart
 from local_functions.plotting import candles
 from local_functions.plotting import plot_results as plotr
@@ -38,6 +38,9 @@ from local_functions.analyse import analyse
 from local_functions.main import configure
 from local_functions.main import log_funcs
 from local_functions.main import algo
+
+
+
 
 
 # Custom
@@ -61,6 +64,7 @@ buy_clock = 0
 buy_lock = False
 # list the starting strategy
 strategy='moderate'
+
 
 # CSV Trading
 batch_dir = ''
@@ -137,9 +141,9 @@ volumes = {
     }
 
 open_cancels = {}
+last_order_check = ['09:30:00', 1]
 
-
-def save_dict_to_frame(dictionary):
+def save_dict_to_frame(dictionary:dict) -> 'df':
     # region Docstring
     '''
     # Save Dictionary to Frame
@@ -155,7 +159,8 @@ def save_dict_to_frame(dictionary):
     return df
 
 
-def save_frame(df, file_name, path_to_file):
+
+def save_frame(df, file_name:str, path_to_file:Path):
     # region Docstring
     '''
     # Save Frame
@@ -224,7 +229,7 @@ filepath = {
 }
 
 
-def clear_all_in_folder(folder, confirm=False, print_complete=False):
+def clear_all_in_folder(folder:str, confirm=False, print_complete=False):
     # region Docstring
     '''
     # Clear All in Folder
@@ -352,19 +357,26 @@ def save_on_error(orig_func):
             orig_func(*args, **kwargs)
         except:
             trace = traceback.format_exc()
-            print('\n\nError Occurred\n') 
-            # save_all(directory / 'temp_assets')   
-            # print('global variables saved to temp_assets.\n') 
-            # # print(trace)    
-            trace_path = directory / 'temp_assets' / 'trace.txt'  
-            with open(trace_path, 'x') as file:   
-                file.writelines(trace)    
-                # trace = file.readlines()    
-                file.close()  
-            print('trace saved')
-            # trace = trace.split('\n')   
-            #    simple_traceback(trace)
+            colored_traceback(trace)
     return wrapper
+
+
+def colored_traceback(trace):
+
+    lines = trace.split('\n')
+    tracenotice = lines.pop(0)
+    empty = lines.pop(-1)
+    reason = lines.pop(-1)
+    lines.reverse()
+
+    file_info = lines[1::2]
+    code_info = lines[::2]
+
+
+    print('\n', color_format(reason, 'red'), '\n')
+    for fi, ci in zip(file_info, code_info):
+        print(color_format(ci, 'yellow'))
+        print(color_format(fi, 'cyan'))
 
 
 def simple_traceback(trace):

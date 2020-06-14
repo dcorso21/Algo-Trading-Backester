@@ -257,7 +257,7 @@ def plot_batch_overview(batch_frame):
     return html
 
 
-def get_orders(filled_orders):
+def get_orders(filled_orders) -> 'df':
     # region Docstring
     '''
     # Get Orders
@@ -1431,7 +1431,7 @@ def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=Fa
     #### Returns ex
     
     ## Parameters:{
-    ####    `param`:
+    ####    `hue_start_value`:
     ## }
     '''
     # endregion Docstring
