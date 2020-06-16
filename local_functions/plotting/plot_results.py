@@ -5,7 +5,6 @@ from plotly.subplots import make_subplots
 from pathlib import Path
 import os
 
-
 from local_functions.data_management import historical_funcs as hist
 
 
@@ -1466,3 +1465,33 @@ def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=Fa
         rgbs.append(f'rgb{rgb}')
 
     return rgbs
+
+def plot_second_data(df, stop_at):
+    df = df.head(stop_at)
+    fig = go.Figure()
+    x_start = 0
+    for index in df.index:
+        r = dict(df.iloc[index])
+        o, h, l, c = r['open'], r['high'], r['low'], r['close']
+        prices, volumes = hist.create_second_data(df, index, 'momentum')
+        prices = pd.Series(prices)
+        x_range = list(range(x_start, x_start+60))
+        fig.add_trace(go.Scatter(x=x_range, y=prices))
+        fig.add_shape(
+            type='rect',
+            x0=x_start,
+            x1=x_start+59,
+            y0=l,
+            y1=h,
+        )
+
+        fig.update_shapes(dict(xref='x', yref='y'))
+        x_start += 60
+
+
+    fig.update_layout(
+        # template='plotly_dark',
+        showlegend=False,
+        title_text=df.ticker.values[0],
+    )
+    fig.show()  

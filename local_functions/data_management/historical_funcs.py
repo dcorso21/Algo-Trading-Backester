@@ -235,9 +235,12 @@ def momentum_second_data(o, h, l, c):
     d2 = abs(val_one - val_two)
     d3 = abs(val_two - c)
     full_d = d1 + d2 + d3
-    d1 = int((d1 / full_d)*60)
-    d2 = int((d2 / full_d)*60)
-    d3 = 59 - d1 - d2
+    if full_d == 0:
+        d1, d2, d3 = 20,20,19
+    else:
+        d1 = int((d1 / full_d)*60)
+        d2 = int((d2 / full_d)*60)
+        d3 = 59 - d1 - d2
 
     prices = [o]
     prices = append_chunk(o, val_one, prices, d1)
@@ -299,4 +302,11 @@ def randomize_hl():
     return hl_order
 
 
-
+def get_random_sim_df():
+    import glob
+    import random
+    from local_functions.main import configure
+    csv_list = glob.glob("mkt_csvs/*.csv")
+    random.shuffle(csv_list)
+    chosen = csv_list[0]
+    return configure.get_sim_df(chosen)
