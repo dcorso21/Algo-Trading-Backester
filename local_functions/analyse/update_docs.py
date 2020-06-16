@@ -122,7 +122,7 @@ def update_volumes():
             if len(current_frame) >= 5:
                 volumes['five_min_mean'] = current_frame.tail(5).dvol.mean()
                 volumes['differential'] = (
-                    volumes['five_min_mean'] - current_frame.head(5).dvol.mean()) / current_frame.head(5).mean()
+                    volumes['five_min_mean'] - current_frame.head(5).dvol.mean()) / current_frame.head(5).dvol.mean()
                 volumes['five_min_min'] = current_frame.tail(5).dvol.min()
                 if len(current_frame) >= 10:
                     volumes['ten_min_mean'] = current_frame.tail(

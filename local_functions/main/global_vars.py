@@ -143,6 +143,10 @@ volumes = {
 open_cancels = {}
 last_order_check = ['09:30:00', 1]
 
+def current_price():
+    return current['close']
+
+
 def save_dict_to_frame(dictionary:dict) -> 'df':
     # region Docstring
     '''
@@ -157,7 +161,6 @@ def save_dict_to_frame(dictionary:dict) -> 'df':
     df = pd.DataFrame(dictionary, index=['value']).T
     df = df.reset_index().rename(columns={'index': 'type'})
     return df
-
 
 
 def save_frame(df, file_name:str, path_to_file:Path):

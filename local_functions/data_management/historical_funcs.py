@@ -123,7 +123,7 @@ def create_second_data(sim_df, index, mode='mixed'):
     h = float(row[3])
     l = float(row[4])
     c = float(row[5])
-    v = round(float(row[6]), 1)
+    v = int(float(row[6]))
 
     prices, volumes = create_second_data_2(o, h, l, c, v, mode)
     return prices, volumes  # , ticker, minute
@@ -151,62 +151,6 @@ def create_second_data_2(o, h, l, c, v, mode):
         prices = momentum_second_data(o, h, l, c)
 
     return prices, volumes
-
-
-def momentum_second_data(o, h, l, c):
-    prices = []
-    prices.append(o)
-
-    hl_order = {}
-    hl = [1, 2]
-
-    if c > o:
-        momentum = 'up'
-
-    elif c < o:
-        momentum = 'down'
-
-    else:
-        momentum = 'doji'
-
-    if momentum == 'down':
-        hl_order['high'] = hl[1]
-        hl_order['low'] = hl[0]
-    elif momentum == 'up':
-        hl_order['high'] = hl[0]
-        hl_order['low'] = hl[1]
-    elif momentum == 'doji':
-        random.shuffle(hl)
-        hl_order['high'] = hl[0]
-        hl_order['low'] = hl[1]
-
-    if hl_order['high'] == 1:
-        val_one = h
-        val_two = l
-    else:
-        val_one = l
-        val_two = h
-
-    # pick a number between 1 and 5
-    chances = random.randint(0, 6)
-    if chances == 5:
-        # pick a number between 1 and 58.
-        chunk_one = random.randint(5, 50)
-    else:
-        # pick a number between 10 and 39...
-        chunk_one = random.randint(10, 40)
-
-    prices = append_chunk(o, val_one, prices, chunk_one)
-
-    chunk_two = random.randint(5, 60 - len(prices))
-
-    prices = append_chunk(val_one, val_two, prices, chunk_two)
-
-    chunk_three = 60 - len(prices) - 1
-
-    prices = append_chunk(val_two, c, prices, chunk_three)
-
-    return prices
 
 
 def random_second_data(o, h, l, c, v):
@@ -276,18 +220,43 @@ def mixed_second_data(o, h, l, c, v):
     return prices
 
 
+def momentum_second_data(o, h, l, c):
+
+    if c > o:
+        val_one = l
+        val_two = h
+
+    else:
+        # dojis have same momentum as red candles
+        val_one = h
+        val_two = l
+
+    d1 = abs(o - val_one)
+    d2 = abs(val_one - val_two)
+    d3 = abs(val_two - c)
+    full_d = d1 + d2 + d3
+    d1 = int((d1 / full_d)*60)
+    d2 = int((d2 / full_d)*60)
+    d3 = 59 - d1 - d2
+
+    prices = [o]
+    prices = append_chunk(o, val_one, prices, d1)
+    prices = append_chunk(val_one, val_two, prices, d2)
+    prices = append_chunk(val_two, c, prices, d3)
+    return prices
+
+
 def append_chunk(first_value, last_value, main_list, middle_length):
+    if middle_length == 0:
+        # main_list.append(last_value)
+        return main_list
+    d = abs(first_value - last_value) / middle_length
+    if last_value < first_value:
+        d *= -1
 
-    chunk_list = []
-    for x in range(0, middle_length):
-        chunk_list.append(round(random.uniform(first_value, last_value), 3))
-
-    chunk_list = sorted(chunk_list)
-    if first_value > last_value:
-        chunk_list.reverse()
-
-    for x in chunk_list:
-        main_list.append(x)
+    for _ in range(1, middle_length):
+        first_value += d
+        main_list.append(round(first_value, 2))
 
     main_list.append(last_value)
     return main_list
@@ -328,3 +297,6 @@ def randomize_hl():
         hl_order['low'] = hl[1]
 
     return hl_order
+
+
+

@@ -197,6 +197,21 @@ def get_exe_price(method):
         # if candle green...
         exe_price = current['close'] + offset
         return exe_price
+    
+    def low_placement():
+        if len(gl.mom_frame) != 0:
+            cur_trend = gl.mom_frame.iloc[-1]
+            if cur_trend['trend'] == 'uptrend':
+                if gl.common.candle_is_green():
+                    return current_price()
+                else:
+                    return extrapolate()
+        # get low from last two minutes. 
+        nearby_low = gl.current_frame.tail(2).low.min()
+        dif = gl.current_price() - nearby_low
+        dif = dif / 3
+        price = round(nearby_low + dif, 2)
+        return price
 
     def bid_price():
         current_price = gl.current['close']
@@ -213,8 +228,9 @@ def get_exe_price(method):
         'ask': ask_price,
         'extrapolate': extrapolate,
         'current': current_price,
+        'low_placement': low_placement,
     }
-
+    # if instead of a method, a price is passed, simply return the price.
     if type(method) != str: return method
     return price_methods[method]()
 
@@ -259,7 +275,6 @@ def make_cancel_spec(ptype: str, p_upper: float, p_lower: float, seconds: int) -
     '''
     # endregion Docstring
     return f'p:{ptype}{p_upper}/{p_lower},t:{seconds}'
-
 
 
 def extrap_average(inv_dol:float, inv_avg:float, new_dol:float, new_price:float):

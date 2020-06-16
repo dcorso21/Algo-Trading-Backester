@@ -247,7 +247,7 @@ def mins_left():
 def investment_duration():
     start_time = gl.current_positions.exe_time.values[-1]
     start_time = gl.pd.to_datetime(start_time).timestamp()
-    current_time = gl.get_current_timestamp(integer=True)
+    current_time = gl.common.get_current_timestamp(integer=True)
     duration = (current_time - start_time)/60
     return duration
 
@@ -258,3 +258,16 @@ def daily_return():
     ret = (current_price - open_price)/open_price
     ret = ret * 100
     return ret
+
+
+def candle_is_green():
+    if gl.current['close'] > gl.current['open']:
+        return True
+    return False
+
+
+def current_trend():
+    if len(gl.mom_frame) == 0:
+        return None
+    else:
+        return dict(gl.mom_frame.iloc[-1])

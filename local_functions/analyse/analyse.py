@@ -41,6 +41,7 @@ def analyse():
 
     # 2) Build Orders
     orders = gl.order_eval.build_orders()
+    gl.log_funcs.log_sent_orders(orders)
 
     return orders
 

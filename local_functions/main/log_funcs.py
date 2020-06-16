@@ -46,7 +46,7 @@ def log(msg=''):
     gl.log = df
 
 
-def log_sent_orders(orders, buy_or_sell):
+def log_sent_orders(orders):
     # region Docstring
     '''
     # Log Sent Orders
@@ -63,19 +63,19 @@ def log_sent_orders(orders, buy_or_sell):
     }
     '''
     # endregion Docstring
-
     if len(orders) != 0:
-        cash_or_qty = orders.cash_or_qty.sum()
-
-        if buy_or_sell == 'BUY':
-            cash = cash_or_qty
-            qty = '~aprox {}'.format(int(cash / gl.current['close']))
-        else:
-            qty = cash_or_qty
-            cash = '~aprox {}'.format(round(qty * gl.current['close'], 2))
-
-        message = f'Signal to {buy_or_sell} {qty} shares (cash: {cash})'
-        gl.log_funcs.log(message)
+        orders = orders.reset_index()
+        for index in orders.index:
+            order = dict(orders.iloc[index])
+            buy_or_sell = order['buy_or_sell']
+            if buy_or_sell == 'BUY':
+                cash = order['cash_or_qty']
+                qty = '~{}'.format(int(cash / gl.current_price()))
+            else:
+                qty = order['cash_or_qty']
+                cash = '~{}'.format(round(qty * gl.current_price(), 2))
+            message = f'Signal to {buy_or_sell} {qty} shares (cash: {cash})'
+            gl.log_funcs.log(message)
 
 
 def log_filled_and_open(new_fills):

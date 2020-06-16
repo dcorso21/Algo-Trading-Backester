@@ -1,6 +1,9 @@
 from local_functions.main import global_vars as gl
 
 
+cancel_spec_time = 10
+
+
 def build_orders():
     # region Docstring
     '''
@@ -52,92 +55,103 @@ def order_below_avg():
 
     '''
     # endregion Docstring
-
-    max_dur = 10
+    max_dur = 5
 
     acct_size = gl.account.get_available_capital()
     amount_invested = gl.current_positions.cash.sum()
     cur_inv_perc = amount_invested/acct_size
-    cp = gl.current_positions
-    cf = gl.current_frame.reset_index(drop=True)
-    start_ind = cf[cf.time.str.startswith(
-        cp.exe_time.to_list()[-1][0:5])].index.values[0]
-    # print(cf)
-    # print(cf[cf.time == gl.current['minute']])
-    cur_ind = cf[cf.time == gl.current['minute']].index.tolist()[0]
-    cur_dur = cur_ind-start_ind
-
-    if cur_dur < 2:
-        return []
+    cur_dur = gl.common.investment_duration()
 
     # first minutes, protect average based on vola and num of minutes only
     if len(gl.mom_frame) == 0:
-        # if the current price is less than the average - avg_vola
-        if gl.current['close'] < (gl.common.get_average()*(1-(gl.volas['mean']*.01))):
-            trend_vola = gl.common.get_volatility([gl.current_frame.high.max()], [
-                                                  gl.current_frame.low.min()])[0]
-
-            target_perc = calc_target_perc(
-                cur_dur, max_dur, trend_vola)
-
-            if target_perc < cur_inv_perc*1.03:
-                return []
-            dol_to_inv = (target_perc*acct_size) - amount_invested
-            extrap_average = ((amount_invested*gl.common.get_average()) +
-                              (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
-
-            target_average = gl.current['close']*(1 + (gl.volas['mean']*.01))
-
-            if extrap_average > target_average:
-                # Potentially sell off or exit
-                return order_rebalance(target_average, target_perc)
-
-            buy_or_sell = 'BUY'
-            pmeth = 'current'
-            cash = dol_to_inv
-            cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                          p_upper=gl.volas['mean'],
-                                                          p_lower=gl.volas['mean'],
-                                                          seconds=30)
-
-            buy = gl.order_tools.create_orders(buy_or_sell='BUY',
-                                               cash_or_qty=cash,
-                                               price_method=pmeth,
-                                               cancel_spec=cancel_spec)
-
-            gl.log_funcs.log(
-                f'buying to average down. Target Perc: {target_perc}')
-            return buy
-        return []
+        return early_avg_in(cur_dur, max_dur)
 
     current_trend = dict(gl.mom_frame.iloc[-1])
-    target_perc = calc_target_perc(
-        cur_dur, max_dur, current_trend['volatility'])
+    dol_to_inv = calc_dol_to_inv(cur_dur,
+                                 max_dur,
+                                 current_trend['volatility'])
 
-    if target_perc < cur_inv_perc*1.03:
+    if dol_to_inv == 0:
         return []
-    dol_to_inv = (target_perc*acct_size) - amount_invested
+
+    # Price Extrap
     extrap_average = ((amount_invested*gl.common.get_average()) +
                       (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
 
     target_average = gl.current['close']*(1 + (gl.volas['mean']*.01))
     if extrap_average > target_average:
         # Potentially sell off or exit
-        return order_rebalance(target_average, target_perc)
+        return order_rebalance(target_average, dol_to_inv)
 
-    buy_or_sell = 'BUY'
-    pmeth = 'current'
+    buy_or_sell = 'BUY'  
+    pmeth = 'low_placement'
     cash = dol_to_inv
     cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
                                                   p_upper=gl.volas['mean'],
                                                   p_lower=gl.volas['mean'],
-                                                  seconds=60)
+                                                  seconds=cancel_spec_time)
 
+    target_perc = ((cash + amount_invested)/acct_size)*100
     gl.log_funcs.log(f'buying to average down. Target Perc: {target_perc}')
-    return gl.order_tools.create_orders(buy_or_sell='BUY', cash_or_qty=cash, price_method=pmeth, cancel_spec=cancel_spec)
+    return gl.order_tools.create_orders(buy_or_sell='BUY',
+                                        cash_or_qty=cash,
+                                        price_method=pmeth,
+                                        cancel_spec=cancel_spec)
 
 
-def calc_target_perc(cur_dur, max_dur, trend_vola):
+def order_above_avg():
+    amount_invested = gl.current_positions.cash.sum()
+    acct_size = gl.account.get_available_capital()
+    if amount_invested < .05 * acct_size:
+        gl.log_funcs.log(msg='Not enough invested to sell, holding.')
+        return []
+
+    def assess_safe_percent():
+        # region Docstring
+        '''
+        # Assess Safe Percent
+        Dials back the return to shoot for based on amount invested
+
+        #### Returns percentage. 
+        '''
+        # endregion Docstring
+        trans_threshold = gl.account.get_available_capital() / 3
+        inc = .05*gl.account.get_available_capital()
+        safe_perc = 1
+
+        if gl.pl_ex['last_ex'] >= trans_threshold:
+            over = gl.pl_ex['last_ex'] - trans_threshold
+            divs = over / inc
+            safe_perc = 1 - divs*.05
+        return safe_perc
+
+    exp_perc_return = (gl.volas['mean'] + gl.common.find_bounce_factor())*.01
+    target_percent_return = exp_perc_return * assess_safe_percent()
+    exp_cash_return = (exp_perc_return)*gl.pl_ex['last_ex']
+    target_cash_return = target_percent_return*gl.pl_ex['last_ex']
+
+    ex_price = gl.current['close'] * (1+target_percent_return)
+    qty = gl.current_positions.qty.sum()
+    upper_cancel = round(ex_price*(1+target_percent_return), 2)
+    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
+                                                  p_upper=upper_cancel,
+                                                  p_lower=gl.common.get_average(),
+                                                  seconds=cancel_spec_time*2)
+
+    sells = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                         cash_or_qty=qty,
+                                         price_method=ex_price,
+                                         cancel_spec=cancel_spec)
+    gl.log_funcs.log('>>> Selling Above Average')
+    return sells
+
+
+def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
+    if cur_dur < 1:
+        return 0
+
+    amount_invested = gl.current_positions.cash.sum()
+    acct_size = gl.account.get_available_capital()
 
     # PERC TO INV BASED ON Trend Length
     perc_to_inv = (cur_dur**2/max_dur**2)
@@ -149,12 +163,15 @@ def calc_target_perc(cur_dur, max_dur, trend_vola):
     extrap_vola = (extrap_vola+presumptive_vola)/2
 
     vola_perc = trend_vola**2 / extrap_vola**2
-
     target_perc = max([perc_to_inv, vola_perc])
-    return target_perc
+
+    dol_to_inv = (target_perc*acct_size) - amount_invested
+    if dol_to_inv < acct_size*.01:
+        return 0
+    return dol_to_inv
 
 
-def order_rebalance(target_average, target_perc):
+def order_rebalance(target_average, dol_to_inv):
     cp = gl.current_positions
     cp['avg'] = cp.qty*cp.exe_price
     options = gl.pd.DataFrame()
@@ -168,7 +185,7 @@ def order_rebalance(target_average, target_perc):
         available_cap = gl.account.get_available_capital()-cp.cash.sum()+freed_up
 
         rem_p = cp.head(len(cp)-orders)
-        dol_to_inv = target_perc*available_cap-rem_p.cash.sum()
+        dol_to_inv = dol_to_inv-rem_p.cash.sum()
 
         extrap_average = gl.order_tools.extrap_average(rem_p.cash.sum(),
                                                        rem_p.avg.sum(),
@@ -193,7 +210,7 @@ def order_rebalance(target_average, target_perc):
         cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
                                                       p_upper=gl.volas['mean'],
                                                       p_lower=gl.volas['mean'],
-                                                      seconds=7)
+                                                      seconds=cancel_spec_time)
 
         return gl.order_tools.create_orders('SELL', qty, 'current', cancel_spec=cancel_spec)
 
@@ -206,7 +223,7 @@ def order_rebalance(target_average, target_perc):
     cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
                                                   p_upper=gl.volas['mean'],
                                                   p_lower=gl.volas['mean'],
-                                                  seconds=7)
+                                                  seconds=cancel_spec_time)
 
     order = gl.order_tools.create_orders(buy_or_sell='BUY',
                                          cash_or_qty=cash,
@@ -215,12 +232,12 @@ def order_rebalance(target_average, target_perc):
 
     # Sell
     qty = cp.tail(int(option['orders'])).qty.sum()
-    pmeth = 'current'
+    pmeth = 'low_placement'
 
     cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
                                                   p_upper=gl.volas['mean'],
                                                   p_lower=gl.volas['mean'],
-                                                  seconds=7)
+                                                  seconds=cancel_spec_time)
     orders = order.append(
         gl.order_tools.create_orders(buy_or_sell='SELL',
                                      cash_or_qty=qty,
@@ -229,47 +246,6 @@ def order_rebalance(target_average, target_perc):
     )
     gl.log_funcs.log('rebalancing orders')
     return orders
-
-
-def order_above_avg():
-
-    def assess_safe_percent():
-        # region Docstring
-        '''
-        # Assess Safe Percent
-        Dials back the return to shoot for based on amount invested
-        
-        #### Returns percentage. 
-        '''
-        # endregion Docstring
-        trans_threshold = gl.account.get_available_capital() / 3
-        inc = .05*gl.account.get_available_capital()
-        safe_perc = 1
-
-        if gl.pl_ex['last_ex'] >= trans_threshold:
-            over = gl.pl_ex['last_ex'] - trans_threshold
-            divs = over / inc
-            safe_perc = 1 - divs*.05
-        return safe_perc
-
-    exp_perc_return = (gl.volas['mean'] + gl.common.find_bounce_factor())*.01
-    target_percent_return = exp_perc_return * assess_safe_percent()
-    exp_cash_return = (exp_perc_return)*gl.pl_ex['last_ex']
-    target_cash_return = target_percent_return*gl.pl_ex['last_ex']
-
-    ex_price = gl.current['close'] * (1+target_percent_return)
-    qty = gl.current_positions.qty.sum()
-    upper_cancel = ex_price*(1+target_percent_return)
-    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                p_upper=upper_cancel,
-                                                p_lower=gl.common.get_average(),
-                                                seconds=30)
-
-    sells = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                        cash_or_qty=qty,
-                                        price_method=ex_price,
-                                    cancel_spec=cancel_spec)
-    return sells
 
 
 def starting_position():
@@ -518,29 +494,33 @@ def sell_conditions():
             sells = gl.pd.DataFrame()
         return sells
 
-    def sell_at_breakeven():
+    def breakeven():
         if outlook_score() < 50:
             ex_price = gl.common.get_average()
             qty = gl.current_positions.qty.sum()
             upper_cancel = ex_price*(1+gl.volas['mean'])
             lower_cancel = ex_price*(1-gl.volas['mean'])
             cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                        p_upper=upper_cancel,
-                                                        p_lower=lower_cancel,
-                                                        seconds=30)
+                                                          p_upper=upper_cancel,
+                                                          p_lower=lower_cancel,
+                                                          seconds=cancel_spec_time)
 
             sells = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                                cash_or_qty=qty,
-                                                price_method=ex_price,
-                                                cancel_spec=cancel_spec)
+                                                 cash_or_qty=qty,
+                                                 price_method=ex_price,
+                                                 cancel_spec=cancel_spec)
+            gl.log_funcs.log(
+                f'selling to breakeven: outlook score: {outlook_score()}')
             return sells
         return []
+
     up_conds = {
         'percentage_gain': percentage_gain,
         'target_unreal': target_unreal,
     }
     down_conds = {
         'dollar_risk_check': dollar_risk_check,
+        'breakeven': breakeven,
     }
     universal_conds = {
         'exposure_over_account_limit': exposure_over_account_limit,
@@ -562,7 +542,6 @@ def sell_conditions():
             continue
         sells = relevant_conds[condition]()
         if len(sells) != 0:
-            gl.log_funcs.log_sent_orders(sells, 'SELL')
             break
     return sells
 
@@ -570,12 +549,12 @@ def sell_conditions():
 def new_eval_triggered():
     cp = gl.current_positions
     last_price = cp.exe_price.values[0]
-    upper_bound = last_price*(1+(gl.volas['mean']*.01))
+    # upper_bound = last_price*(1+(gl.volas['mean']*.01))
     lower_bound = last_price*(1-(gl.volas['mean']*.01))
-    if gl.current['close'] > upper_bound:
-        gl.log_funcs.log(msg='order eval triggered by price drop')
-        return True
-    elif gl.current['close'] < lower_bound:
+    # if gl.current['close'] > upper_bound:
+    #     gl.log_funcs.log(msg='order eval triggered by price drop')
+    #     return True
+    if gl.current['close'] < lower_bound:
         gl.log_funcs.log(msg='order eval triggered by price rise')
         return True
 
@@ -584,9 +563,9 @@ def new_eval_triggered():
     current_time = gl.common.get_timestamp(
         gl.current['minute'], gl.current['second'])
     current_time = gl.pd.to_datetime(current_time).timestamp()
-    last_trade_time = gl.pd.to_datetime(last_check_time).timestamp()
-    since_last_trade = current_time - last_trade_time
-    if since_last_trade > 30:
+    last_check_time = gl.pd.to_datetime(last_check_time).timestamp()
+    since_last_trade = current_time - last_check_time
+    if since_last_trade > gl.config['misc']['buy_clock_countdown_amount']:
         return True
     return False
 
@@ -602,37 +581,84 @@ def outlook_score():
     deduct = 0
 
     # Based on current duration of investment,
-    score +=1
+    score += 1
     inv_duration = gl.common.investment_duration()
     if inv_duration > 10:
         deduct -= 1
 
     # Based on current trend
-    score +=1
-    current_trend = dict(gl.mom_frame.iloc[-1])
-    if (current_trend['duration'] > 10) and (current_trend['trend'] == 'downtrend'):
-        deduct -= 1
+    score += 1
+    if len(gl.mom_frame) != 0:
+        current_trend = dict(gl.mom_frame.iloc[-1])
+        if (current_trend['duration'] > 10) and (current_trend['trend'] == 'downtrend'):
+            deduct -= 1
 
     # proximity to average.
     avg = gl.common.get_average()
     perc_from_avg = ((gl.current['close'] - avg)/avg)*100
 
-    score +=1
+    score += 1
     vola = gl.volas['mean']
     if len(gl.current_frame) >= 10:
         vola = gl.volas['ten_min']
     if perc_from_avg < (-1*vola):
         deduct -= 1
 
-    score +=1
+    score += 1
     cur_ret = gl.common.daily_return()
     if cur_ret < 0:
         deduct -= 1
 
-    score +=1
+    score += 1
     bounce_factor = gl.common.find_bounce_factor()
     if bounce_factor < 0:
         deduct -= 1
 
     return ((score + deduct)/score)*100
 
+
+def early_avg_in(cur_dur, max_dur):
+    trend_vola = gl.common.get_volatility([gl.current_frame.high.max()], [
+        gl.current_frame.low.min()])[0]
+
+    amount_invested = gl.current_positions.cash.sum()
+    acct_size = gl.account.get_available_capital()
+
+    dol_to_inv = calc_dol_to_inv(cur_dur,
+                                 max_dur,
+                                 trend_vola)
+
+    if dol_to_inv == 0:
+        return []
+
+    extrap_average = ((amount_invested*gl.common.get_average()) +
+                      (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
+
+    target_average = gl.current['close']*(1 + (gl.volas['mean']*.01))
+
+    if extrap_average > target_average:
+        # Potentially sell off or exit
+        return order_rebalance(target_average, dol_to_inv)
+
+    buy_or_sell = 'BUY'
+    pmeth = 'low_placement'
+    cash = dol_to_inv
+    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
+                                                  p_upper=gl.volas['mean'],
+                                                  p_lower=gl.volas['mean'],
+                                                  seconds=cancel_spec_time)
+
+    buy = gl.order_tools.create_orders(buy_or_sell='BUY',
+                                       cash_or_qty=cash,
+                                       price_method=pmeth,
+                                       cancel_spec=cancel_spec)
+
+    target_perc = ((cash + amount_invested)/acct_size)*100
+    gl.log_funcs.log(
+        f'early average down. Target Perc: {target_perc}')
+    return buy
+
+
+def ideal_avg():
+    
+    pass
