@@ -6,9 +6,12 @@
   "misc": {
     "buy_clock_countdown_amount": 7,
     "dollar_risk": -2000,
-    "hard_stop": "09:55:00",
+    "hard_stop": "10:00:00",
     "ideal_volatility": 3,
-    "volume_check": true
+    "volume_check": true,
+    "cancel_spec_time": 10,
+    "minimum_volume": 100000,
+    "lookahead_mins": 12
   },
 
   "buy_conditions": {
@@ -30,12 +33,16 @@
   },
   "sell_conditions": {
     "dollar_risk_check": {
-      "active": true,
+      "active": false,
       "priority": 1
     },
     "breakeven": {
       "active": true,
       "priority": 6
+    },
+    "quit_early": {
+      "active": true,
+      "priority": 1
     },
     "exposure_over_account_limit": {
       "active": true,

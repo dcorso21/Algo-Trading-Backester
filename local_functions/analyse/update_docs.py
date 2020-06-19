@@ -108,7 +108,8 @@ def update_volumes():
     with gl.pd.option_context('mode.chained_assignment', None):
         current_frame['dvol'] = current_frame.close.values * \
             current_frame.volume.values
-
+    
+    volumes['fail_check'] = len(current_frame[current_frame['dvol']< gl.config['misc']['minimum_volume']]) >= 3
     current_dvol = current['volume'] * current['close']
 
     volumes['extrap_current'] = (current_dvol / (current['second']+1))*60

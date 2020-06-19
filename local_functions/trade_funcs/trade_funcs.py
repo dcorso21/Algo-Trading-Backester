@@ -221,6 +221,8 @@ def check_cancel():
             p_upper = exe_price + (exe_price*(p_upper*.01))
             p_lower = exe_price - (exe_price*(p_lower*.01))
 
+        if order_id >= 25:
+            s = 10
         cancel = False
         # Time Out
         if duration >= xtime:

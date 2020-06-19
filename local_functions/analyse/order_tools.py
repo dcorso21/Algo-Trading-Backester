@@ -1,7 +1,12 @@
 from local_functions.main import global_vars as gl
 
+
+def cancel_spec_time():
+    return gl.configure.master['misc']['cancel_spec_time']
+
+
 ''' ----- Specification Dictionaries ----- '''
-# region Specification Dictionaries
+
 cancel_specs = {
     'standard': r'p:%5/5,t:7',
     'target': r'p:${},t:60'
@@ -12,14 +17,12 @@ renew_spec = {
     'standard': 3,
     'persistant': 5
 }
-# endregion Specification Dictionaries
 
 ''' ----- Order Functions ----- '''
-# region Order Functions
 
 
 def create_orders(buy_or_sell, cash_or_qty, price_method,
-                  auto_renew=0, cancel_spec=cancel_specs['standard'],
+                  auto_renew=0, cancel_spec='standard',
                   queue_spec='nan', parse=False):
     # region Docstring
     '''
@@ -142,8 +145,9 @@ def format_orders(orders):
         order_id, trigger, buy_or_sell, cash_or_qty, p_method, auto_renew, cancel_spec, queue_spec = row
 
         exe_price = get_exe_price(p_method)
-        timestamp = gl.common.get_timestamp(
-            gl.current['minute'], gl.current['second'])
+        if ':' not in cancel_spec:
+            cancel_spec = get_cancel_spec(cancel_spec, exe_price)
+        timestamp = gl.common.get_current_timestamp()
         if buy_or_sell == 'BUY':
             qty = int(cash_or_qty/exe_price)
             cash = round(qty * exe_price, 2)
@@ -166,7 +170,6 @@ def format_orders(orders):
         order = gl.pd.DataFrame(row)
         formatted = formatted.append(order, sort=False)
     return formatted
-# endregion Order Functions
 
 
 def get_exe_price(method):
@@ -197,19 +200,19 @@ def get_exe_price(method):
         # if candle green...
         exe_price = current['close'] + offset
         return exe_price
-    
+
     def low_placement():
-        if len(gl.mom_frame) != 0:
-            cur_trend = gl.mom_frame.iloc[-1]
-            if cur_trend['trend'] == 'uptrend':
-                if gl.common.candle_is_green():
-                    return current_price()
-                else:
-                    return extrapolate()
-        # get low from last two minutes. 
+        # if len(gl.mom_frame) != 0:
+        #     cur_trend = gl.mom_frame.iloc[-1]
+        #     if cur_trend['trend'] == 'uptrend':
+        #         if gl.common.candle_is_green():
+        #             return current_price()
+        #         else:
+        #             return extrapolate()
+        # get low from last two minutes.
         nearby_low = gl.current_frame.tail(2).low.min()
-        dif = gl.current_price() - nearby_low
-        dif = dif / 3
+        dif = abs(gl.current_price() - nearby_low)
+        dif = dif / 5
         price = round(nearby_low + dif, 2)
         return price
 
@@ -231,7 +234,8 @@ def get_exe_price(method):
         'low_placement': low_placement,
     }
     # if instead of a method, a price is passed, simply return the price.
-    if type(method) != str: return method
+    if type(method) != str:
+        return method
     return price_methods[method]()
 
 
@@ -277,7 +281,52 @@ def make_cancel_spec(ptype: str, p_upper: float, p_lower: float, seconds: int) -
     return f'p:{ptype}{p_upper}/{p_lower},t:{seconds}'
 
 
-def extrap_average(inv_dol:float, inv_avg:float, new_dol:float, new_price:float):
+def cancel_avg_down(pmeth):
+
+    pmeth_price = gl.order_tools.get_exe_price(pmeth)
+    spacer = gl.volas['mean']*.01*pmeth_price
+
+    p_upper = max([pmeth_price, gl.current_price()]) + spacer
+    p_lower = min([pmeth_price, gl.current_price()]) - spacer
+    cancel_spec = make_cancel_spec(ptype='$',
+                                   p_upper=p_upper,
+                                   p_lower=p_lower,
+                                   seconds=cancel_spec_time())
+    return cancel_spec
+
+
+def extrap_average(inv_dol: float, inv_avg: float, new_dol: float, new_price: float):
     extrap_average = ((inv_dol*inv_avg) +
-                        (new_dol*new_price))/(inv_dol+new_dol)
+                      (new_dol*new_price))/(inv_dol+new_dol)
     return extrap_average
+
+
+def get_cancel_spec(method, exe_price):
+    def standard_spec():
+        higher_price = max([gl.current_price(), exe_price])
+        lower_price = min([gl.current_price(), exe_price])
+        spacer = gl.volas['mean']*.01*lower_price
+        upper = higher_price + spacer
+        lower = lower_price - spacer
+        spec = make_cancel_spec(ptype='$',
+                         p_upper=upper,
+                         p_lower=lower,
+                         seconds=cancel_spec_time())
+        return spec
+    
+    def just_abv_avg():
+        higher_price = max([gl.current_price(), exe_price])
+        lower_price = gl.common.get_average()
+        spacer = gl.volas['mean']*.01*lower_price
+        upper = higher_price + spacer
+        spec = make_cancel_spec(ptype='$',
+                         p_upper=upper,
+                         p_lower=lower_price,
+                         seconds=cancel_spec_time())
+        return spec
+    
+    methods = {
+        'standard': standard_spec,
+        'just_abv_avg': standard_spec
+    }
+    return methods[method]()

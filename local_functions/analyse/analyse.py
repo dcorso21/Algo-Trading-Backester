@@ -89,7 +89,7 @@ def day_eval():
                 gl.log_funcs.log('insufficient volume: trading stopped')
                 return
         
-    if gl.common.mins_left() < 15:
+    if gl.common.mins_left() <= gl.config['misc']['lookahead_mins']:
         gl.chart_response = False
         gl.loop_feedback = False
         gl.log_funcs.log('insufficient time: trading stopped')
@@ -224,7 +224,7 @@ def day_pricing_analysis_methods(method):
 
 
 def day_volume_analysis_methods(method):
-    dvol_min = 200000
+    dvol_min = gl.config['misc']['minimum_volume']
     def worth_trading():
         current_frame = gl.current_frame
         current_frame['dvol'] = current_frame.close.values * \

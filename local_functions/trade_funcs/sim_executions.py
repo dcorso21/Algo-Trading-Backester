@@ -1,7 +1,6 @@
 from local_functions.main import global_vars as gl
 
 
-
 def sim_execute_orders(new_orders, cancel_ids):
     # region Docstring
     '''
@@ -48,7 +47,7 @@ def sim_execute_orders(new_orders, cancel_ids):
 
     if len(open_orders) == 0:
         gl.open_orders = open_orders
-        return gl.pd.DataFrame(), cancelled_orders
+        return [], cancelled_orders
 
     # Update the wait time. This is CRUCIAL.
     open_orders['wait_duration'] = open_orders.wait_duration + 1
@@ -65,12 +64,12 @@ def sim_execute_orders(new_orders, cancel_ids):
 
     # 4) Check Volume Requirement
     filled_orders, open_orders = vol_check(potential_fills, open_orders)
-
-    # 5) format filled.
-    current = gl.current
     gl.open_orders = open_orders
 
+    # 5) format filled.
+
     if len(filled_orders) != 0:
+        current = gl.current
         drop_columns = ['price_check', 'vol_start',
                         'wait_duration', 'cancel_spec']
         filled_orders = filled_orders.drop(drop_columns, axis=1).dropna()
@@ -130,6 +129,7 @@ def vol_check(potential_fills, open_orders):
     # for each potential fill.
     for index in potential_fills:
 
+        order_id = open_orders.at[index, 'order_id']
         exe_price = open_orders.at[index, 'exe_price']
         vol_start = open_orders.at[index, 'vol_start']
         qty = open_orders.at[index, 'qty']
@@ -182,15 +182,14 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
 
     if len(new_cancel_ids) == 0 and len(open_cancels) == 0:
         return []
-        # return gl.pd.DataFrame()
 
     open_orders = gl.open_orders
 
     # If there are no open orders, log any orders that were awaiting cancellation.
     if len(open_orders) == 0:
         if len(open_cancels.keys()) != 0:
-            gl.log_funcs.log(
-                msg=f'orders filled before cancellation: {list(open_cancels.keys())}')
+            # gl.log_funcs.log(
+            #     msg=f'orders filled before cancellation: {list(open_cancels.keys())}')
             gl.open_cancels = {}
             return []
 

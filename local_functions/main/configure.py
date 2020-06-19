@@ -1,7 +1,7 @@
 from local_functions.main import global_vars as gl
 
-master = {}
 
+master = {}
 metaconfig = {}
 misc = {}
 sim_settings = {}
@@ -262,3 +262,5 @@ def set_conditions():
 
     sell_conditions = get_active_conditions(master['sell_conditions'])
     buy_conditions = get_active_conditions(master['buy_conditions'])
+
+    # print(f'sell_conditions: {sell_conditions}')

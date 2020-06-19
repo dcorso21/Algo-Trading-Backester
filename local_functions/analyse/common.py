@@ -198,13 +198,14 @@ def update_ex():
     '''
     # endregion Docstring
 
-    ex = gl.current_positions.cash.sum()
+    ex = current_exposure()
     pl_ex = gl.pl_ex
     pl_ex['last_ex'] = ex
     if ex > pl_ex['max_ex']:
         pl_ex['max_ex'] = ex
 
     gl.pl_ex = pl_ex
+    gl.log_funcs.log(msg=f'Current Exposure: {ex}')
 
 
 def all_rows(df):
@@ -245,10 +246,11 @@ def mins_left():
 
 
 def investment_duration():
-    start_time = gl.current_positions.exe_time.values[-1]
-    start_time = gl.pd.to_datetime(start_time).timestamp()
+    started = gl.current_positions.exe_time.values[0]
+    start_time = gl.pd.to_datetime(started).timestamp()
     current_time = gl.common.get_current_timestamp(integer=True)
-    duration = (current_time - start_time)/60
+    seconds = current_time - start_time
+    duration = seconds/60
     return duration
 
 
@@ -271,3 +273,14 @@ def current_trend():
         return None
     else:
         return dict(gl.mom_frame.iloc[-1])
+
+
+def current_return():
+    avg = get_average()
+    dif = gl.current_price() - avg
+    ret = (dif / avg)*100
+    return ret
+
+
+def current_exposure():
+    return gl.current_positions.cash.sum()

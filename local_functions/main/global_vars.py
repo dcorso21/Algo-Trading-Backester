@@ -31,11 +31,11 @@ from local_functions.data_management import stock_screening as screen
 from local_functions.data_management import gather_data as gather
 from local_functions.account import account_info as account
 from local_functions.analyse import update_docs
+from local_functions.main import configure
 from local_functions.analyse import order_tools
 from local_functions.analyse import order_eval
 from local_functions.analyse import common
 from local_functions.analyse import analyse
-from local_functions.main import configure
 from local_functions.main import log_funcs
 from local_functions.main import algo
 
@@ -127,6 +127,7 @@ volas = {
         'mean': 'nan'
     }
 volumes = {
+        'fail_check':'bool',
         'safe_capital_limit': 'nan',
         'differential': 'nan',
         'mean': 'nan',
@@ -141,7 +142,7 @@ volumes = {
     }
 
 open_cancels = {}
-last_order_check = ['09:30:00', 1]
+last_order_check = ['09:30:00', 1, 'price']
 
 def current_price():
     return current['close']

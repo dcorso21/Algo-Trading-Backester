@@ -1,9 +1,6 @@
 from local_functions.main import global_vars as gl
 
 
-cancel_spec_time = 10
-
-
 def build_orders():
     # region Docstring
     '''
@@ -37,12 +34,16 @@ def build_orders():
     if new_eval_triggered() == False:
         return []
 
-    gl.last_order_check = [gl.current['minute'], gl.current['second']]
+    gl.last_order_check = [gl.current['minute'],
+                           gl.current['second'], gl.current_price()]
 
     if above_average():
         return order_above_avg()
     else:
         return order_below_avg()
+
+
+'''-------------------- Order Makers --------------------'''
 
 
 def order_below_avg():
@@ -55,7 +56,7 @@ def order_below_avg():
 
     '''
     # endregion Docstring
-    max_dur = 5
+    max_dur = 10
 
     acct_size = gl.account.get_available_capital()
     amount_invested = gl.current_positions.cash.sum()
@@ -64,12 +65,16 @@ def order_below_avg():
 
     # first minutes, protect average based on vola and num of minutes only
     if len(gl.mom_frame) == 0:
-        return early_avg_in(cur_dur, max_dur)
+        trend_vola = gl.common.get_volatility([gl.current_frame.high.max()], [
+            gl.current_frame.low.min()])[0]
+        # return early_avg_in(cur_dur, max_dur)
+    else:
+        current_trend = dict(gl.mom_frame.iloc[-1])
+        trend_vola = current_trend['volatility']
 
-    current_trend = dict(gl.mom_frame.iloc[-1])
     dol_to_inv = calc_dol_to_inv(cur_dur,
                                  max_dur,
-                                 current_trend['volatility'])
+                                 trend_vola)
 
     if dol_to_inv == 0:
         return []
@@ -79,39 +84,32 @@ def order_below_avg():
                       (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
 
     target_average = gl.current['close']*(1 + (gl.volas['mean']*.01))
-    if extrap_average > target_average:
-        # Potentially sell off or exit
-        return order_rebalance(target_average, dol_to_inv)
+    spacer = (gl.volas['mean'] / 3)*.01*gl.current_price()
+    if extrap_average > (target_average+spacer):
+        gl.log_funcs.log(msg='Average too far away, redirecting')
+        return order_rebalance(target_average)
 
-    buy_or_sell = 'BUY'  
+    buy_or_sell = 'BUY'
     pmeth = 'low_placement'
     cash = dol_to_inv
-    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                  p_upper=gl.volas['mean'],
-                                                  p_lower=gl.volas['mean'],
-                                                  seconds=cancel_spec_time)
 
     target_perc = ((cash + amount_invested)/acct_size)*100
-    gl.log_funcs.log(f'buying to average down. Target Perc: {target_perc}')
+    gl.log_funcs.log(f'>>> Average Down Triggered: Target Perc: {target_perc}')
     return gl.order_tools.create_orders(buy_or_sell='BUY',
                                         cash_or_qty=cash,
                                         price_method=pmeth,
-                                        cancel_spec=cancel_spec)
+                                        cancel_spec='standard')
 
 
 def order_above_avg():
     amount_invested = gl.current_positions.cash.sum()
     acct_size = gl.account.get_available_capital()
-    if amount_invested < .05 * acct_size:
-        gl.log_funcs.log(msg='Not enough invested to sell, holding.')
-        return []
 
     def assess_safe_percent():
         # region Docstring
         '''
         # Assess Safe Percent
         Dials back the return to shoot for based on amount invested
-
         #### Returns percentage. 
         '''
         # endregion Docstring
@@ -125,127 +123,48 @@ def order_above_avg():
             safe_perc = 1 - divs*.05
         return safe_perc
 
-    exp_perc_return = (gl.volas['mean'] + gl.common.find_bounce_factor())*.01
+    # Bounce Factor is weighted as 1/3 of volatility
+    exp_perc_return = (gl.volas['mean'] + gl.common.find_bounce_factor()*.33)
     target_percent_return = exp_perc_return * assess_safe_percent()
-    exp_cash_return = (exp_perc_return)*gl.pl_ex['last_ex']
-    target_cash_return = target_percent_return*gl.pl_ex['last_ex']
+
+    if amount_invested < .05 * acct_size and gl.common.investment_duration() < 1:
+        if gl.common.current_return() <= target_percent_return*1.5:
+            gl.log_funcs.log(msg='Not enough invested to sell, holding.')
+            return []
+
+    # exp_cash_return = (exp_perc_return)*gl.pl_ex['last_ex']
+    # target_cash_return = target_percent_return*gl.pl_ex['last_ex']
 
     ex_price = gl.current['close'] * (1+target_percent_return)
     qty = gl.current_positions.qty.sum()
-    upper_cancel = round(ex_price*(1+target_percent_return), 2)
-    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                  p_upper=upper_cancel,
-                                                  p_lower=gl.common.get_average(),
-                                                  seconds=cancel_spec_time*2)
 
     sells = gl.order_tools.create_orders(buy_or_sell='SELL',
                                          cash_or_qty=qty,
                                          price_method=ex_price,
-                                         cancel_spec=cancel_spec)
+                                         cancel_spec='just_abv_avg')
+
     gl.log_funcs.log('>>> Selling Above Average')
     return sells
 
 
-def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
-    if cur_dur < 1:
-        return 0
-
-    amount_invested = gl.current_positions.cash.sum()
+def order_rebalance(target_average):
+    # Close Avg
+    amt_inv = gl.common.current_exposure()
+    inv_dur = gl.common.investment_duration()
+    avg = gl.common.get_average()
     acct_size = gl.account.get_available_capital()
 
-    # PERC TO INV BASED ON Trend Length
-    perc_to_inv = (cur_dur**2/max_dur**2)
+    dol_to_inv = amt_inv*(avg - target_average) / \
+        (target_average - gl.current_price())
 
-    # PERC TO INV BASED ON Volatility
-    presumptive_vola = max_dur*gl.volas['mean']
-    extrap_vola = (trend_vola/cur_dur)*max_dur
-    # take the average of the two estimates.
-    extrap_vola = (extrap_vola+presumptive_vola)/2
-
-    vola_perc = trend_vola**2 / extrap_vola**2
-    target_perc = max([perc_to_inv, vola_perc])
-
-    dol_to_inv = (target_perc*acct_size) - amount_invested
-    if dol_to_inv < acct_size*.01:
-        return 0
-    return dol_to_inv
-
-
-def order_rebalance(target_average, dol_to_inv):
-    cp = gl.current_positions
-    cp['avg'] = cp.qty*cp.exe_price
-    options = gl.pd.DataFrame()
-
-    for orders in range(1, len(cp)+1):
-        s = cp.tail(orders)
-        avg_price = s.avg.sum()/s.qty.sum()
-        ret = (gl.current['close'] - avg_price) / avg_price
-        unreal = ret*s.cash.sum()
-        freed_up = unreal + s.cash.sum()
-        available_cap = gl.account.get_available_capital()-cp.cash.sum()+freed_up
-
-        rem_p = cp.head(len(cp)-orders)
-        dol_to_inv = dol_to_inv-rem_p.cash.sum()
-
-        extrap_average = gl.order_tools.extrap_average(rem_p.cash.sum(),
-                                                       rem_p.avg.sum(),
-                                                       dol_to_inv,
-                                                       gl.current['close'])
-
-        if target_average < extrap_average:
-            continue
-
-        else:
-            row = {
-                'orders': [orders],
-                'unreal': [unreal],
-                'dol_to_inv': [dol_to_inv],
-            }
-            row = gl.pd.DataFrame(row)
-            options = options.append(row, sort=False)
-
-    if len(options) == 0:
-        # sell all
-        qty = cp.qty.sum()
-        cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                      p_upper=gl.volas['mean'],
-                                                      p_lower=gl.volas['mean'],
-                                                      seconds=cancel_spec_time)
-
-        return gl.order_tools.create_orders('SELL', qty, 'current', cancel_spec=cancel_spec)
-
-    ind = options[options.unreal == options.unreal.max()].index.tolist()[0]
-    option = dict(options.iloc[ind])
-
-    # Buy
-    cash = option['dol_to_inv']
-    pmeth = 'current'
-    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                  p_upper=gl.volas['mean'],
-                                                  p_lower=gl.volas['mean'],
-                                                  seconds=cancel_spec_time)
+    if dol_to_inv > (acct_size - amt_inv):
+        return panic_out()
 
     order = gl.order_tools.create_orders(buy_or_sell='BUY',
-                                         cash_or_qty=cash,
-                                         price_method='current',
-                                         cancel_spec=cancel_spec)
-
-    # Sell
-    qty = cp.tail(int(option['orders'])).qty.sum()
-    pmeth = 'low_placement'
-
-    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                  p_upper=gl.volas['mean'],
-                                                  p_lower=gl.volas['mean'],
-                                                  seconds=cancel_spec_time)
-    orders = order.append(
-        gl.order_tools.create_orders(buy_or_sell='SELL',
-                                     cash_or_qty=qty,
-                                     price_method=pmeth,
-                                     cancel_spec=cancel_spec)
-    )
-    gl.log_funcs.log('rebalancing orders')
-    return orders
+                                         cash_or_qty=dol_to_inv,
+                                         price_method='low_placement')
+    gl.log_funcs.log('>>> Closing Gap on Average.')
+    return order
 
 
 def starting_position():
@@ -264,11 +183,212 @@ def starting_position():
     # endregion Docstring
     if gl.chart_response == True:
         cash = gl.account.get_available_capital() * .01
-        pmeth = 'ask'
+        pmeth = 'low_placement'
         buys = gl.order_tools.create_orders('BUY', cash, pmeth)
-        gl.log_funcs.log('---> Sending Starting Position.')
+        gl.log_funcs.log('>>> Sending Starting Position.')
         return buys
     return gl.pd.DataFrame()
+
+
+def panic_out():
+    pmeth = 'extrapolate'
+    qty = gl.current_positions.qty.sum()
+    order = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                         cash_or_qty=qty,
+                                         price_method=pmeth
+                                         )
+    gl.log_funcs.log(msg='>>> Panic Out Sell Trigerred')
+    return order
+
+
+def sell_conditions():
+    # region Docstring
+    '''
+    # Sell Conditions
+
+    #### Returns sell orders if conditions are met. 
+    '''
+    # endregion Docstring
+    s_params = gl.configure.master['sell_conditions']
+
+    def dollar_risk_check():
+        # region Docstring
+        '''
+        # Dollar Risk Check
+        ## Sell Condition 
+        Checks to see if the unreal and real add up to the risk amount noted in conditions. 
+        '''
+        # endregion Docstring
+        d_risk = gl.pl_ex['unreal'] + gl.pl_ex['unreal']
+        if d_risk <= gl.configure.misc['dollar_risk']:
+            everything = gl.current_positions.qty.sum()
+            pmeth = 'current'
+            sells = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                 cash_or_qty=everything,
+                                                 price_method=pmeth)
+            gl.log_funcs.log('>>> Dollar Risk Sell Triggered')
+            return sells
+        return []
+
+    def percentage_gain():
+        # region Docstring
+        '''
+        # Percentage_Gain
+        A Sell Condition function that will create a sell order based on a percentage gain of `current_positions` overall.  
+
+        Returns a DataFrame of Sell Orders. 
+        '''
+        # endregion Docstring
+        avg = gl.common.get_average()
+        perc = s_params['percentage_gain']['perc_gain']
+        if gl.current['close'] >= (avg * (1 + .01 * perc)):
+            # sell all
+            everything = gl.current_positions.qty.sum()
+            exe_price = 'bid'
+            sells = gl.order_tools.create_orders('SELL', everything, exe_price)
+            gl.log_funcs.log('>>> Percentage Gain Sell Triggered')
+            return sells
+        sells = gl.pd.DataFrame()
+        return sells
+
+    def target_unreal():
+        # region Docstring
+        '''
+        # Target_Unreal
+        ## Sell Condition 
+        Looks at current unreal PL and if it gets over a certain amount, creates sell order(s). 
+
+        Returns DataFrame of Sell Orders. 
+        '''
+        # endregion Docstring
+        target_unreal_amount = s_params['target_unreal']['target_unreal_amount']
+        unreal = gl.pl_ex['unreal']
+        if unreal >= target_unreal_amount:
+            if gl.common.investment_duration() < 5:
+                return
+            qty = gl.current_positions.qty.sum()
+            exe_price = 'bid'
+            sells = gl.order_tools.create_orders('SELL', qty, exe_price, auto_renew=5)
+            gl.log_funcs.log(f'>>> Target Unreal Sell Triggered')
+            return sells
+        return []
+
+    def exposure_over_account_limit():
+        # region Docstring
+        '''
+        # exposure_over_account_limit
+        # Sell Condition 
+        Looks at current exposure and if it gets over the account limit, creates sell order(s). 
+
+        Returns DataFrame of Sell Orders. 
+
+        # Parameters:{
+        # All Parametes are controlled in `local_functions.main.configure`
+        # }
+
+        '''
+        # endregion Docstring
+        available_capital = gl.account.get_available_capital()
+        exposure = gl.common.current_exposure()
+        if exposure > available_capital:
+            qty = int(gl.current_positions.qty.sum()/2)
+            exe_price = 'bid'
+            sells = gl.order_tools.create_orders('SELL', qty, exe_price)
+            gl.log_funcs.log(f'>>> Over-Exposure Sell Triggered')
+            return sells
+        return []
+
+    def timed_exit():
+        # region Docstring
+        '''
+        # Timed Exit
+        # Sell Condition
+        If the current minute is 11:00:00, then sell EVERYTHING. 
+
+        Returns a Sells DataFrame
+
+        # Parameters:{
+        # All Parametes are controlled in `local_functions.main.configure`
+        # }
+        '''
+        # endregion Docstring
+        minute_off = s_params['timed_exit']['minute_offset']
+        exit_time = gl.configure.misc['hard_stop']
+        exit_time = gl.pd.to_datetime(exit_time)
+        exit_time = (
+            exit_time - gl.datetime.timedelta(minutes=minute_off)).timestamp()
+
+        current_time = gl.current['minute']
+        current_time = gl.pd.to_datetime(current_time).timestamp()
+
+        if (current_time >= exit_time) or (gl.sell_out == True):
+            qty = gl.current_positions.qty.sum()
+            pmethod = 'bid'
+            sells = gl.order_tools.create_orders(
+                'SELL', qty, pmethod)
+
+            gl.log_funcs.log('Sell to Stop...')
+            gl.buy_lock = True
+            gl.sell_out = True
+            return sells
+        return []
+
+    def breakeven():
+        # If the outlook doesn't look good, and if the price is close to the average
+        spacer = gl.volas['mean']*.01*.3*gl.current_price()
+        if outlook_score() < 50 and abs(gl.current_price()-gl.common.get_average()) <= spacer:
+            ex_price = gl.common.get_average()
+            qty = gl.current_positions.qty.sum()
+            sells = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                 cash_or_qty=qty,
+                                                 price_method=ex_price)
+            gl.log_funcs.log(
+                f'>>> Breakeven Sell Triggered: outlook score: {outlook_score()}')
+            return sells
+        return []
+
+    def quit_early():
+        if outlook_score() == 0:
+            gl.log_funcs.log(
+                msg='>>> Quit Early Triggered, redirect to panic out')
+            return panic_out()
+        return []
+
+    up_conds = {
+        'percentage_gain': percentage_gain,
+        'target_unreal': target_unreal,
+        'breakeven': breakeven,
+    }
+    down_conds = {
+        'dollar_risk_check': dollar_risk_check,
+        'breakeven': breakeven,
+    }
+    universal_conds = {
+        'exposure_over_account_limit': exposure_over_account_limit,
+        'timed_exit': timed_exit,
+        'quit_early': quit_early,
+    }
+
+    relevant_conds = universal_conds
+    additional_conds = down_conds
+    if gl.current_price() > gl.common.get_average():
+        additional_conds = up_conds
+
+    for cond in additional_conds:
+        relevant_conds[cond] = additional_conds[cond]
+
+    approved_conds = gl.configure.sell_conditions
+
+    for condition in approved_conds:
+        if condition not in relevant_conds.keys():
+            continue
+        sells = relevant_conds[condition]()
+        if len(sells) != 0:
+            break
+    return sells
+
+
+'''-------------------- Other --------------------'''
 
 
 def check_auto_refresh():
@@ -363,203 +483,28 @@ def bad_trade_conds():
     return False
 
 
-def sell_conditions():
-    # region Docstring
-    '''
-    # Sell Conditions
-
-    #### Returns sell orders if conditions are met. 
-    '''
-    # endregion Docstring
-    s_params = gl.configure.master['sell_conditions']
-
-    def dollar_risk_check():
-        # region Docstring
-        '''
-        # Dollar Risk Check
-        ## Sell Condition 
-        Checks to see if the unreal and real add up to the risk amount noted in conditions. 
-        '''
-        # endregion Docstring
-        d_risk = gl.pl_ex['unreal'] + gl.pl_ex['unreal']
-        if d_risk <= gl.configure.misc['dollar_risk']:
-            everything = gl.current_positions.qty.sum()
-            exe_price = 'current'
-            sells = gl.order_tools.create_orders(
-                'SELL', everything, exe_price, auto_renew=5)
-            gl.log_funcs.log('----> dollar risk triggered, selling all.')
-            return sells
-        return []
-
-    def percentage_gain():
-        # region Docstring
-        '''
-        # Percentage_Gain
-        A Sell Condition function that will create a sell order based on a percentage gain of `current_positions` overall.  
-
-        Returns a DataFrame of Sell Orders. 
-        '''
-        # endregion Docstring
-        avg = gl.common.get_average()
-        perc = s_params['percentage_gain']['perc_gain']
-        if gl.current['close'] >= (avg * (1 + .01 * perc)):
-            # sell all
-            everything = gl.current_positions.qty.sum()
-            exe_price = 'bid'
-            sells = gl.order_tools.create_orders('SELL', everything, exe_price)
-            gl.log_funcs.log('----> over 3 perc gain triggered.')
-            return sells
-        sells = gl.pd.DataFrame()
-        return sells
-
-    def target_unreal():
-        # region Docstring
-        '''
-        # Target_Unreal
-        ## Sell Condition 
-        Looks at current unreal PL and if it gets over a certain amount, creates sell order(s). 
-
-        Returns DataFrame of Sell Orders. 
-        '''
-        # endregion Docstring
-        target_unreal_amount = s_params['target_unreal']['target_unreal_amount']
-        unreal = gl.pl_ex['unreal']
-        if unreal >= target_unreal_amount:
-            # sell all
-            qty = gl.current_positions.qty.sum()
-            exe_price = 'bid'
-            sells = gl.order_tools.create_orders('SELL', qty, exe_price)
-            gl.log_funcs.log(f'----> unreal hits trigger: {unreal}')
-            return sells
-        return []
-
-    def exposure_over_account_limit():
-        # region Docstring
-        '''
-        # exposure_over_account_limit
-        # Sell Condition 
-        Looks at current exposure and if it gets over the account limit, creates sell order(s). 
-
-        Returns DataFrame of Sell Orders. 
-
-        # Parameters:{
-        # All Parametes are controlled in `local_functions.main.configure`
-        # }
-
-        '''
-        # endregion Docstring
-        available_capital = gl.account.get_available_capital()
-        exposure = gl.pl_ex['last_ex']
-        if exposure > available_capital:
-            qty = int(gl.current_positions.qty.sum()/2)
-            exe_price = 'bid'
-            sells = gl.order_tools.create_orders('SELL', qty, exe_price)
-            gl.log_funcs.log(f'----> over-exposed ({exposure}) sell half.')
-            return sells
-        return []
-
-    def timed_exit():
-        # region Docstring
-        '''
-        # Timed Exit
-        # Sell Condition
-        If the current minute is 11:00:00, then sell EVERYTHING. 
-
-        Returns a Sells DataFrame
-
-        # Parameters:{
-        # All Parametes are controlled in `local_functions.main.configure`
-        # }
-        '''
-        # endregion Docstring
-        minute_off = s_params['timed_exit']['minute_offset']
-        exit_time = gl.configure.misc['hard_stop']
-        exit_time = gl.pd.to_datetime(exit_time)
-        exit_time = (
-            exit_time - gl.datetime.timedelta(minutes=minute_off)).timestamp()
-
-        current_time = gl.current['minute']
-        current_time = gl.pd.to_datetime(current_time).timestamp()
-
-        if (current_time >= exit_time) or (gl.sell_out == True):
-            qty = gl.current_positions.qty.sum()
-            pmethod = 'bid'
-            sells = gl.order_tools.create_orders(
-                'SELL', qty, pmethod, auto_renew=5)
-
-            gl.log_funcs.log('Sell to Stop...')
-            gl.buy_lock = True
-            gl.sell_out = True
-        else:
-            sells = gl.pd.DataFrame()
-        return sells
-
-    def breakeven():
-        if outlook_score() < 50:
-            ex_price = gl.common.get_average()
-            qty = gl.current_positions.qty.sum()
-            upper_cancel = ex_price*(1+gl.volas['mean'])
-            lower_cancel = ex_price*(1-gl.volas['mean'])
-            cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                          p_upper=upper_cancel,
-                                                          p_lower=lower_cancel,
-                                                          seconds=cancel_spec_time)
-
-            sells = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                                 cash_or_qty=qty,
-                                                 price_method=ex_price,
-                                                 cancel_spec=cancel_spec)
-            gl.log_funcs.log(
-                f'selling to breakeven: outlook score: {outlook_score()}')
-            return sells
-        return []
-
-    up_conds = {
-        'percentage_gain': percentage_gain,
-        'target_unreal': target_unreal,
-    }
-    down_conds = {
-        'dollar_risk_check': dollar_risk_check,
-        'breakeven': breakeven,
-    }
-    universal_conds = {
-        'exposure_over_account_limit': exposure_over_account_limit,
-        'timed_exit': timed_exit,
-    }
-
-    relevant_conds = universal_conds
-    additional_conds = down_conds
-    if gl.current['close'] > gl.common.get_average():
-        additional_conds = up_conds
-
-    for cond in additional_conds:
-        relevant_conds[cond] = additional_conds[cond]
-
-    approved_conds = gl.configure.sell_conditions
-
-    for condition in approved_conds:
-        if condition not in relevant_conds:
-            continue
-        sells = relevant_conds[condition]()
-        if len(sells) != 0:
-            break
-    return sells
-
-
 def new_eval_triggered():
     cp = gl.current_positions
-    last_price = cp.exe_price.values[0]
+    # If there is only a starting position, then keep on the lookout.
+    if len(cp) == 1:
+        return True
+
+    # last_price = cp.exe_price.values[0]
+    last_price = gl.last_order_check[-1]
+    if type(last_price) == str:
+        return True
     # upper_bound = last_price*(1+(gl.volas['mean']*.01))
     lower_bound = last_price*(1-(gl.volas['mean']*.01))
     # if gl.current['close'] > upper_bound:
-    #     gl.log_funcs.log(msg='order eval triggered by price drop')
+    # gl.log_funcs.log(msg='order eval triggered by price rise')
     #     return True
     if gl.current['close'] < lower_bound:
-        gl.log_funcs.log(msg='order eval triggered by price rise')
+        gl.log_funcs.log(msg='order eval triggered by price drop')
         return True
 
     # last_trade_time = cp.exe_time.values[0]
-    last_check_time = gl.common.get_timestamp(*gl.last_order_check)
+    minute, second = gl.last_order_check[0], gl.last_order_check[1]
+    last_check_time = gl.common.get_timestamp(minute, second)
     current_time = gl.common.get_timestamp(
         gl.current['minute'], gl.current['second'])
     current_time = gl.pd.to_datetime(current_time).timestamp()
@@ -579,6 +524,9 @@ def above_average() -> bool:
 def outlook_score():
     score = 0
     deduct = 0
+
+    if fail_flags():
+        return 0
 
     # Based on current duration of investment,
     score += 1
@@ -617,48 +565,39 @@ def outlook_score():
     return ((score + deduct)/score)*100
 
 
-def early_avg_in(cur_dur, max_dur):
-    trend_vola = gl.common.get_volatility([gl.current_frame.high.max()], [
-        gl.current_frame.low.min()])[0]
+def fail_flags():
+     # If volume has depleted significantly, then get out
+    if gl.volumes['fail_check'] == True:
+        return True
+    return False
 
-    amount_invested = gl.current_positions.cash.sum()
+
+def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
+    if cur_dur < .5:
+        return 0
+
+    amount_invested = gl.common.current_exposure()
     acct_size = gl.account.get_available_capital()
+    max_possible = round(acct_size - amount_invested, 2)
 
-    dol_to_inv = calc_dol_to_inv(cur_dur,
-                                 max_dur,
-                                 trend_vola)
+    exp = 2.5
 
-    if dol_to_inv == 0:
-        return []
+    # PERC TO INV BASED ON Trend Length
+    perc_to_inv = (cur_dur**exp/max_dur**exp)
 
-    extrap_average = ((amount_invested*gl.common.get_average()) +
-                      (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
+    # PERC TO INV BASED ON Volatility
+    presumptive_vola = max_dur*gl.volas['mean']
+    extrap_vola = (trend_vola/cur_dur)*max_dur
+    # take the average of the two estimates.
+    extrap_vola = (extrap_vola+presumptive_vola)/2
 
-    target_average = gl.current['close']*(1 + (gl.volas['mean']*.01))
+    vola_perc = trend_vola**exp / extrap_vola**exp
+    target_perc = max([perc_to_inv, vola_perc])
 
-    if extrap_average > target_average:
-        # Potentially sell off or exit
-        return order_rebalance(target_average, dol_to_inv)
+    dol_to_inv = (target_perc*acct_size) - amount_invested
+    dol_to_inv = min([dol_to_inv, max_possible])
 
-    buy_or_sell = 'BUY'
-    pmeth = 'low_placement'
-    cash = dol_to_inv
-    cancel_spec = gl.order_tools.make_cancel_spec(ptype='%',
-                                                  p_upper=gl.volas['mean'],
-                                                  p_lower=gl.volas['mean'],
-                                                  seconds=cancel_spec_time)
-
-    buy = gl.order_tools.create_orders(buy_or_sell='BUY',
-                                       cash_or_qty=cash,
-                                       price_method=pmeth,
-                                       cancel_spec=cancel_spec)
-
-    target_perc = ((cash + amount_invested)/acct_size)*100
-    gl.log_funcs.log(
-        f'early average down. Target Perc: {target_perc}')
-    return buy
-
-
-def ideal_avg():
-    
-    pass
+    minimum_dol_amount = max([.05 * amount_invested, acct_size*.01])
+    if dol_to_inv < minimum_dol_amount:
+        return 0
+    return dol_to_inv
