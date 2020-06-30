@@ -211,7 +211,10 @@ def update_ex():
 def all_rows(df):
     '''Shows a dataframe without cutting off all rows... Enter a DF.'''
     with gl.pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        display(df)
+        if gl.isnotebook:
+            display(df)
+        else:
+            print(df)
 
 
 def find_bounce_factor():

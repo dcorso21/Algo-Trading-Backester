@@ -158,10 +158,14 @@ def vol_check(potential_fills, open_orders):
 
         # Partial order fill.
         elif int(vol_passed / offset_multiplier) >= (min_chunk_cash / exe_price):
-            fill = open_orders[open_orders.index == index]
+            fill = dict(open_orders[open_orders.index == index].iloc[0])
             fill_qty = int(vol_passed / offset_multiplier)
-            with gl.pd.option_context('mode.chained_assignment', None):
-                fill['qty'] = fill_qty
+            # with gl.pd.option_context('mode.chained_assignment', None):
+            fill_cash = fill_qty * fill['exe_price']
+            cash_remainder = fill['cash'] - fill_cash
+            fill['cash'] = fill_cash
+            fill['qty'] = fill_qty
+            fill = gl.pd.DataFrame(fill, index=[0])
             filled_orders = filled_orders.append(fill, sort=False)
 
             # Redefine remainder of order
@@ -170,6 +174,7 @@ def vol_check(potential_fills, open_orders):
             open_orders.at[index, 'vol_start'] = f'{vminute},{vstart}'
             remainder = qty - fill_qty
             open_orders.at[index, 'qty'] = remainder
+            open_orders.at[index, 'cash'] = cash_remainder
 
     return filled_orders, open_orders
 

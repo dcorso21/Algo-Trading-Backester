@@ -903,6 +903,7 @@ def refresh_batches_html():
         file.write(text)
 
 
+@ gl.save_on_error
 def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False):
     # region Docstring
     '''
@@ -929,13 +930,13 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
         if gl.isnotebook():
             display(df)
         else:
-            print(df)
+            gl.common.all_rows(df)
         prompt = f'''
-            please specify the {pick_most_recent}
-            please specify the {overwrite}
-            indexes of batches to compare.
+            please specify the {num_to_compare} 
+            indexes of the batches to compare
+            separated by commas. 
         '''
-        response = input(prompt=prompt)
+        response = input(prompt)
         indexes = list(map(int, response.split(',')))
     else:
         indexes = list(range(num_to_compare))
@@ -957,7 +958,7 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
 
         return template.format(batches)
 
-    for_comparison = df.iloc[indexes]
+    for_comparison = df.iloc[indexes].reset_index(drop=True)
     compare_description = make_compare_description(for_comparison)
 
     used_configs = for_comparison.config.tolist()

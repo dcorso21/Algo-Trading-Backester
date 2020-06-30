@@ -603,6 +603,44 @@ def pull_df_from_html(filepath) -> 'df':
     return df
 
 
+def most_recent_results():
+    path = Path.cwd() / 'results'
+    for dir, folder, file in os.walk(path):
+        break
+    x = [i for i in sorted(folder) if i != 'comparison'][-1]
+    path = path / x
+    for dir, folder, file in os.walk(path):
+        break
+    x = [i for i in sorted(folder) if i != 'comparison'][-1]
+    path = path / x
+    full_path = (path / 'batch_index.html')
+    return pull_df_from_html(full_path)
+
+
+def save_worst_performers():
+    df = most_recent_results()
+    # print(df.columns)
+
+    df['net'] = df.real_pl + df.unreal_pl
+    worst_performers = df.sort_values(by='net', ascending=True).head(10).tick_date.to_list()
+
+    def fill_out_filepath(path):
+        path = path[0:-2]
+        print(path)
+        return f'mkt_csvs/{path}.csv'
+
+    worst_performers = [fill_out_filepath(i) for i in worst_performers]
+    worst_performers = json.dumps(worst_performers, indent=2)
+
+    path = Path.cwd() / 'results' / 'batch_csvs.json'
+
+    with open(path, 'w') as f:
+        f.write(worst_performers)
+        f.close()
+
+    print('Worst Performers Saved')
+
+
 def clear_output(num_of_lines):
     # region Docstring
     '''

@@ -1,6 +1,7 @@
 from local_functions.main import global_vars as gl
 
 
+
 def build_orders():
     # region Docstring
     '''
@@ -45,6 +46,8 @@ def build_orders():
 
 '''-------------------- Order Makers --------------------'''
 
+max_dur = 10
+
 
 def order_below_avg():
     # region Docstring
@@ -56,18 +59,16 @@ def order_below_avg():
 
     '''
     # endregion Docstring
-    max_dur = 10
 
     acct_size = gl.account.get_available_capital()
     amount_invested = gl.current_positions.cash.sum()
-    cur_inv_perc = amount_invested/acct_size
+    # cur_inv_perc = amount_invested/acct_size
     cur_dur = gl.common.investment_duration()
 
     # first minutes, protect average based on vola and num of minutes only
     if len(gl.mom_frame) == 0:
         trend_vola = gl.common.get_volatility([gl.current_frame.high.max()], [
             gl.current_frame.low.min()])[0]
-        # return early_avg_in(cur_dur, max_dur)
     else:
         current_trend = dict(gl.mom_frame.iloc[-1])
         trend_vola = current_trend['volatility']
@@ -79,11 +80,15 @@ def order_below_avg():
     if dol_to_inv == 0:
         return []
 
+    elif dol_to_inv == 'rebalance':
+        gl.log_funcs.log(msg='special circumstances, rebalancing now.')
+        return order_rebalance(target_avg())
+
     # Price Extrap
     extrap_average = ((amount_invested*gl.common.get_average()) +
                       (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
 
-    target_average = gl.current['close']*(1 + (gl.volas['mean']*.01))
+    target_average = target_avg()
     spacer = (gl.volas['mean'] / 3)*.01*gl.current_price()
     if extrap_average > (target_average+spacer):
         gl.log_funcs.log(msg='Average too far away, redirecting')
@@ -105,26 +110,9 @@ def order_above_avg():
     amount_invested = gl.current_positions.cash.sum()
     acct_size = gl.account.get_available_capital()
 
-    def assess_safe_percent():
-        # region Docstring
-        '''
-        # Assess Safe Percent
-        Dials back the return to shoot for based on amount invested
-        #### Returns percentage. 
-        '''
-        # endregion Docstring
-        trans_threshold = gl.account.get_available_capital() / 3
-        inc = .05*gl.account.get_available_capital()
-        safe_perc = 1
-
-        if gl.pl_ex['last_ex'] >= trans_threshold:
-            over = gl.pl_ex['last_ex'] - trans_threshold
-            divs = over / inc
-            safe_perc = 1 - divs*.05
-        return safe_perc
 
     # Bounce Factor is weighted as 1/3 of volatility
-    exp_perc_return = (gl.volas['mean'] + gl.common.find_bounce_factor()*.33)
+    exp_perc_return = (gl.volas['mean'] + gl.common.find_bounce_factor()*.33)*1.2
     target_percent_return = exp_perc_return * assess_safe_percent()
 
     if amount_invested < .05 * acct_size and gl.common.investment_duration() < 1:
@@ -157,7 +145,10 @@ def order_rebalance(target_average):
     dol_to_inv = amt_inv*(avg - target_average) / \
         (target_average - gl.current_price())
 
-    if dol_to_inv > (acct_size - amt_inv):
+    if dol_to_inv <= 0:
+        return []
+
+    elif dol_to_inv > (acct_size - amt_inv):
         return panic_out()
 
     order = gl.order_tools.create_orders(buy_or_sell='BUY',
@@ -171,14 +162,9 @@ def starting_position():
     # region Docstring
     '''
     # Starting Position
-    Creates buy order with one percent of available capital.  
+     Creates buy order with one percent of available capital.  
 
-    Returns buys DataFrame.
-
-    # Parameters:{
-    # All Parametes are controlled in `local_functions.main.configure`
-    # }
-
+    #### Returns buys DataFrame.
     '''
     # endregion Docstring
     if gl.chart_response == True:
@@ -268,7 +254,7 @@ def sell_conditions():
                 return
             qty = gl.current_positions.qty.sum()
             exe_price = 'bid'
-            sells = gl.order_tools.create_orders('SELL', qty, exe_price, auto_renew=5)
+            sells = gl.order_tools.create_orders('SELL', qty, exe_price, auto_renew=3)
             gl.log_funcs.log(f'>>> Target Unreal Sell Triggered')
             return sells
         return []
@@ -573,10 +559,17 @@ def fail_flags():
 
 
 def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
-    if cur_dur < .5:
-        return 0
+    # target_avg = target_avg()
+
+    low_est = 0
+    if cur_dur > 3:
+        low_est = calc_dol_to_inv(cur_dur - 2, max_dur, trend_vola)
+        if low_est == 'rebalance':
+            return 'rebalance'
 
     amount_invested = gl.common.current_exposure()
+    if amount_invested < low_est:
+        return 'rebalance'
     acct_size = gl.account.get_available_capital()
     max_possible = round(acct_size - amount_invested, 2)
 
@@ -585,9 +578,10 @@ def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
     # PERC TO INV BASED ON Trend Length
     perc_to_inv = (cur_dur**exp/max_dur**exp)
 
-    # PERC TO INV BASED ON Volatility
+    # PERC TO INV BASED ON Volatility 
     presumptive_vola = max_dur*gl.volas['mean']
     extrap_vola = (trend_vola/cur_dur)*max_dur
+
     # take the average of the two estimates.
     extrap_vola = (extrap_vola+presumptive_vola)/2
 
@@ -601,3 +595,32 @@ def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
     if dol_to_inv < minimum_dol_amount:
         return 0
     return dol_to_inv
+
+
+def target_avg():
+    price = gl.current_price()
+    return price + ((.01*gl.volas['mean'])/5)*price
+
+
+def assess_safe_percent():
+    # region Docstring
+    '''
+    # Assess Safe Percent
+    Dials back the return to shoot for based on amount invested
+    #### Returns percentage. 
+    '''
+    # endregion Docstring
+    trans_threshold = gl.account.get_available_capital() / 3
+    inv_dur = gl.common.investment_duration()
+    inc = .05*gl.account.get_available_capital()
+    safe_perc = 1
+
+    if gl.pl_ex['last_ex'] >= trans_threshold:
+        over = gl.pl_ex['last_ex'] - trans_threshold
+        divs = over / inc
+        safe_perc = 1 - divs*.05
+    if inv_dur > 3:
+        if inv_dur > max_dur:
+            return 0
+        safe_perc = safe_perc * (1 - (inv_dur/max_dur))
+    return safe_perc
