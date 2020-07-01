@@ -1,7 +1,6 @@
 from local_functions.main import global_vars as gl
 
 
-
 def build_orders():
     # region Docstring
     '''
@@ -110,9 +109,9 @@ def order_above_avg():
     amount_invested = gl.current_positions.cash.sum()
     acct_size = gl.account.get_available_capital()
 
-
     # Bounce Factor is weighted as 1/3 of volatility
-    exp_perc_return = (gl.volas['mean'] + gl.common.find_bounce_factor()*.33)*1.2
+    exp_perc_return = (gl.volas['mean'] +
+                       gl.common.find_bounce_factor()*.33)*2*.01
     target_percent_return = exp_perc_return * assess_safe_percent()
 
     if amount_invested < .05 * acct_size and gl.common.investment_duration() < 1:
@@ -120,10 +119,7 @@ def order_above_avg():
             gl.log_funcs.log(msg='Not enough invested to sell, holding.')
             return []
 
-    # exp_cash_return = (exp_perc_return)*gl.pl_ex['last_ex']
-    # target_cash_return = target_percent_return*gl.pl_ex['last_ex']
-
-    ex_price = gl.current['close'] * (1+target_percent_return)
+    ex_price = gl.common.get_average() * (1+target_percent_return)
     qty = gl.current_positions.qty.sum()
 
     sells = gl.order_tools.create_orders(buy_or_sell='SELL',
@@ -149,7 +145,16 @@ def order_rebalance(target_average):
         return []
 
     elif dol_to_inv > (acct_size - amt_inv):
-        return panic_out()
+        available_cap = acct_size - amt_inv
+        cap_to_sell = dol_to_inv - available_cap
+        shares_to_sell = cap_to_sell / gl.order_tools.get_exe_price('ask')
+        if shares_to_sell > gl.current_positions.qty.sum():
+            return panic_out()
+        gl.log_funcs.log('>>> Selling to Rebalance.')
+        order = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                             cash_or_qty=shares_to_sell,
+                                             price_method='ask')
+        return order
 
     order = gl.order_tools.create_orders(buy_or_sell='BUY',
                                          cash_or_qty=dol_to_inv,
@@ -177,13 +182,13 @@ def starting_position():
 
 
 def panic_out():
-    pmeth = 'extrapolate'
+    pmeth = 'bid'
     qty = gl.current_positions.qty.sum()
     order = gl.order_tools.create_orders(buy_or_sell='SELL',
                                          cash_or_qty=qty,
                                          price_method=pmeth
                                          )
-    gl.log_funcs.log(msg='>>> Panic Out Sell Trigerred')
+    gl.log_funcs.log(msg='>>> Panic Out Sell Triggered')
     return order
 
 
@@ -254,7 +259,8 @@ def sell_conditions():
                 return
             qty = gl.current_positions.qty.sum()
             exe_price = 'bid'
-            sells = gl.order_tools.create_orders('SELL', qty, exe_price, auto_renew=3)
+            sells = gl.order_tools.create_orders(
+                'SELL', qty, exe_price, auto_renew=3)
             gl.log_funcs.log(f'>>> Target Unreal Sell Triggered')
             return sells
         return []
@@ -319,6 +325,42 @@ def sell_conditions():
             return sells
         return []
 
+    def bad_differentials():
+        if gl.volumes['differential'] == 'nan':
+            return []
+        if gl.volumes['differential'] <= -.50:
+            gl.log_funcs.log('>>> Steep Volume Dropoff, redirect to sell')
+            gl.buy_lock = True
+            gl.sell_out = True
+            return panic_out()
+        elif gl.volas['differential'] <= -.50:
+            gl.log_funcs.log('>>> Steep Volatility Dropoff, redirect to sell')
+            gl.buy_lock = True
+            gl.sell_out = True
+            return panic_out()
+        else:
+            return []
+
+    def four_red_candles():
+        cf = gl.current_frame.tail(7)
+        cf = cf.drop(cf.index.values[-1])
+        cf['red_candle'] = 0
+        cf.loc[(cf.open.values > cf.close.values), 'red_candle'] = 1
+        result = cf.rolling(4).red_candle.sum().max()
+        if result >= 4 and gl.common.investment_duration() > 3:
+            gl.log_funcs.log('>>> Four red candles in a row. Reroute to sell')
+            qty = gl.current_positions.qty.sum()
+            ex_price = gl.common.get_average()
+            if gl.current_price() < gl.common.get_average():
+                ex_price = 'bid'
+            elif gl.current_price() > gl.common.get_average()*(1+gl.volas['mean']*.01):
+                ex_price = 'current'
+            sells = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                 cash_or_qty=qty,
+                                                 price_method=ex_price)
+            return sells
+        return []
+
     def breakeven():
         # If the outlook doesn't look good, and if the price is close to the average
         spacer = gl.volas['mean']*.01*.3*gl.current_price()
@@ -350,6 +392,8 @@ def sell_conditions():
         'breakeven': breakeven,
     }
     universal_conds = {
+        'four_red_candles': four_red_candles,
+        'bad_differentials': bad_differentials,
         'exposure_over_account_limit': exposure_over_account_limit,
         'timed_exit': timed_exit,
         'quit_early': quit_early,
@@ -578,7 +622,7 @@ def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
     # PERC TO INV BASED ON Trend Length
     perc_to_inv = (cur_dur**exp/max_dur**exp)
 
-    # PERC TO INV BASED ON Volatility 
+    # PERC TO INV BASED ON Volatility
     presumptive_vola = max_dur*gl.volas['mean']
     extrap_vola = (trend_vola/cur_dur)*max_dur
 

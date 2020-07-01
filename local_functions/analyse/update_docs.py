@@ -108,8 +108,9 @@ def update_volumes():
     with gl.pd.option_context('mode.chained_assignment', None):
         current_frame['dvol'] = current_frame.close.values * \
             current_frame.volume.values
-    
-    volumes['fail_check'] = len(current_frame[current_frame['dvol']< gl.config['misc']['minimum_volume']]) >= 3
+
+    volumes['fail_check'] = len(
+        current_frame[current_frame['dvol'] < gl.config['misc']['minimum_volume']]) >= 3
     current_dvol = current['volume'] * current['close']
 
     volumes['extrap_current'] = (current_dvol / (current['second']+1))*60
@@ -117,13 +118,14 @@ def update_volumes():
         volumes['mean'] = current_frame.dvol.mean()
         volumes['minimum'] = current_frame.dvol.min()
         volumes['safe_capital_limit'] = volumes['minimum'] / 4
+        # Differential is a percentage difference in volume from the first five minutes.
+        volumes['differential'] = (
+            current_frame.tail(5).dvol.mean() - current_frame.head(5).dvol.mean()) / current_frame.head(5).dvol.mean()
         if len(current_frame) >= 3:
             volumes['three_min_min'] = current_frame.tail(3).dvol.min()
             volumes['three_min_mean'] = current_frame.tail(3).dvol.mean()
             if len(current_frame) >= 5:
                 volumes['five_min_mean'] = current_frame.tail(5).dvol.mean()
-                volumes['differential'] = (
-                    volumes['five_min_mean'] - current_frame.head(5).dvol.mean()) / current_frame.head(5).dvol.mean()
                 volumes['five_min_min'] = current_frame.tail(5).dvol.min()
                 if len(current_frame) >= 10:
                     volumes['ten_min_mean'] = current_frame.tail(
@@ -145,22 +147,16 @@ def update_volas():
     cf['vola'] = gl.common.get_volatility(
         cf['high'], cf['low'])
 
-    # calculate volatilities for different time increments
-    cf['three_vola'] = cf.vola.rolling(3).mean()
-    cf['five_vola'] = cf.vola.rolling(5).mean()
-    cf['ten_vola'] = cf.vola.rolling(10).mean()
-
     volas = {
         'current': cf['vola'].tolist()[-1],
         'mean': cf.vola.mean(),
-        'three_min': cf['three_vola'].tolist()[-1],
-        'five_min': cf['five_vola'].tolist()[-1],
-        'ten_min': cf['ten_vola'].tolist()[-1],
+        'three_min': cf.tail(3).vola.mean(),
+        'five_min': cf.tail(5).vola.mean(),
+        'ten_min': cf.tail(10).vola.mean()
     }
 
-    if len(cf) > 5:
-        volas['differential'] = (cf.tail(5).vola.mean() -
-                                 cf.head(5).vola.mean()) / cf.head(5).vola.mean()
+    volas['differential'] = (cf.tail(5).vola.mean() -
+                             cf.head(5).vola.mean()) / cf.head(5).vola.mean()
 
     # set ideal volatility
 
@@ -236,6 +232,7 @@ def update_momentum():
         'hi': 'li',
         'li': 'hi'
     }
+
     # specifies a starting index.
     offset = 0
     fresh = True
@@ -271,6 +268,8 @@ def update_momentum():
         yin = mom_dict[yin]
         yang = mom_dict[yang]
 
+    dfz = fit_remainder(dfz)
+
     # 4) Replace old mom_frame with newly made one.
     if len(dfz) != 0:
 
@@ -299,6 +298,7 @@ def new_agg_list(df, last_offset):
 
     NOTE: I tested this with Numpy arrays, and this method is somehow faster. Do not know why.   
     '''
+    remaining_mins = len(df)-last_offset
 
     # ideally, these are the increments for aggregation.
     ideal_list = [5, 10, 15, 20, 25, 30]
@@ -306,12 +306,11 @@ def new_agg_list(df, last_offset):
     agg_list = []
     # this process looks at how many rows are left and adds to the list those which will fit in the remainder
     for x in ideal_list:
-        if int((len(df)-last_offset) / x) != 0:
+        if int((remaining_mins) / x) != 0:
             agg_list.append(x)
 
-    if len(agg_list) == 0:
-        if (len(df) - last_offset)/2 >= 2:
-            agglist = [2]
+    if len(agg_list) < 2:
+        agg_list.append(2)
 
     return agg_list
 
@@ -387,18 +386,31 @@ def append_mom_row(yin, offset, last_offset, df, dfz):
     if trend == 'uptrend':
         high = df[df.time == end_time].high.to_list()[0]
         low = df[df.time == start_time].low.to_list()[0]
-        color = '#fcba03'
     else:
         high = df[df.time == start_time].high.to_list()[0]
         low = df[df.time == end_time].low.to_list()[0]
-        color = '#e336a4'
 
-    row = gl.pd.DataFrame({'start_time': [start_time], 'end_time': [end_time], 'duration': [duration],
-                           'trend': [trend], 'high': [high], 'low': [low], 'color': [color]})
-
+    row = new_trend_row(start_time, end_time, duration, trend, high, low)
     dfz = dfz.append(row, sort=False)
-
     return dfz
+
+
+def new_trend_row(start_time, end_time, duration, trend, high, low):
+
+    if trend == 'downtrend':
+        color = '#e336a4'
+    else:
+        color = '#fcba03'
+
+    row = gl.pd.DataFrame({'start_time': [start_time],
+                           'end_time': [end_time],
+                           'duration': [duration],
+                           'trend': [trend],
+                           'high': [high],
+                           'low': [low],
+                           'color': [color]})
+
+    return row
 
 
 def pick_up_from_index(df, mom_df, mom_dict):
@@ -566,9 +578,63 @@ def aggregate_df(agg_num, df):
 
     return dfx
 
+
+def fit_remainder(mom_frame):
+    last_trend = dict(mom_frame.iloc[-1])
+    if last_trend['end_time'] == gl.current['minute']:
+        return mom_frame
+
+    cf = gl.current_frame.reset_index
+    last_ind = cf[cf.time == last_trend['end_time']].index.tolist()[0]
+    remainder_frame = cf.iloc[last_ind:]
+    low = remainder_frame.low.min()
+    low_ind = remainder_frame[remainder_frame.low == low].index.tolist()[0]
+    high = remainder_frame.high.max()
+    high_ind = remainder_frame[remainder_frame.high == high].index.tolist()[0]
+    price = gl.current_price()
+
+    if low < last_trend['low']:
+        lower = True
+    if high < last_trend['high']:
+        higher = True
+
+    if last_trend['trend'] == 'downtrend':
+        if lower:
+            last_trend['end_time'] = gl.current['minute']
+            last_trend['low'] = low
+        elif higher:
+            add_on = True
+            start_time = last_trend['end_time']
+            end_time = gl.current['minute']
+            duration = len(remainder_frame)+1
+            trend = 'uptrend'
+            new_trend = new_trend_row(
+                start_time, end_time, duration, trend, high, last_trend['low'])
+
+    elif last_trend['trend'] == 'uptrend':
+        if higher:
+            last_trend['end_time'] = gl.current['minute']
+            last_trend['high'] = high
+        elif lower:
+            add_on = True
+            start_time = last_trend['end_time']
+            end_time = gl.current['minute']
+            duration = len(remainder_frame)+1
+            trend = 'downtrend'
+            new_trend = new_trend_row(
+                start_time, end_time, duration, trend, last_trend['high'], low)
+
+    if add_on:
+        mom_frame = mom_frame.append(new_trend)
+    else:
+        mom_frame = mom_frame.drop(index=mom_frame.index.values[-1])
+        last_trend = gl.pd.DataFrame(last_trend)
+        mom_frame = mom_frame.append(last_trend)
+
+    return mom_frame
+
+
 # endregion Momentum
-
-
 '''----- Supports and Resistances -----'''
 # region Momentum
 

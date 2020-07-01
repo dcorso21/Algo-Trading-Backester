@@ -1421,7 +1421,7 @@ def create_batch_compare_graph(categories, category_labels):
     return html
 
 
-def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=False):
+def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=True):
     # region Docstring
     '''
     # Get Colors

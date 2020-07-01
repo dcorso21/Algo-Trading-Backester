@@ -211,10 +211,10 @@ def update_ex():
 def all_rows(df):
     '''Shows a dataframe without cutting off all rows... Enter a DF.'''
     with gl.pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        if gl.isnotebook:
-            display(df)
-        else:
-            print(df)
+        # if gl.isnotebook:
+        #     display(df)
+        # else:
+        print(df)
 
 
 def find_bounce_factor():
@@ -233,6 +233,8 @@ def find_bounce_factor():
     if len(gl.mom_frame) == 0:
         return 0
     ups = gl.mom_frame[gl.mom_frame['trend'] == 'uptrend'].volatility.mean()
+    if str(ups) == 'nan':
+        ups = 0
     downs = gl.mom_frame[gl.mom_frame['trend']
                          == 'downtrend'].volatility.mean()
     bounce_factor = (ups - downs) / gl.volas['mean']

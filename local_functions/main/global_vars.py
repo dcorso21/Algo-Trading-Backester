@@ -217,22 +217,6 @@ def save_frame(df, file_name:str, path_to_file:Path):
         file.write(text)
 
 
-filepath = {
-    'current': r'temp_assets\current.csv',
-    'pl_ex': r'temp_assets\pl_and_ex.csv',
-    'volas': r'temp_assets\volas.csv',
-    'current_frame': r'temp_assets\current_frame.csv',
-    'mom_frame': r'temp_assets\mom_frame.csv',
-    'sup_res_frame': r'temp_assets\supports_resistances.csv',
-    'current_positions': r'temp_assets\current_positions.csv',
-    'filled_orders': r'temp_assets\filled_orders.csv',
-    'open_orders': r'temp_assets\open_orders.csv',
-
-    'log': r'temp_assets\log.csv',
-    'efficiency_log': r'temp_assets\efficiency_log.csv',
-}
-
-
 def clear_all_in_folder(folder:str, confirm=False, print_complete=False):
     # region Docstring
     '''
@@ -297,6 +281,7 @@ def save_all(path_to_folder):
     ### Save All Files
     Once trading is done, save all global variables to appropriate dir.
     '''
+    extend_current_frame()
     files = {
 
         'current': current,
@@ -323,11 +308,11 @@ def save_all(path_to_folder):
     if not os.path.exists(path_to_folder):
         os.makedirs(path_to_folder)
 
-    # clear_all_in_folder('temp_assets')
     if batch_dir == '':
         save_config(path_to_folder)
 
     for file_name, file in zip(files.keys(), files.values()):
+
 
         if type(file) == dict:
             file = save_dict_to_frame(file)
@@ -586,6 +571,14 @@ def pick_config_file() -> str:
         return get_downloaded_configs()[int(response)]
 
 
+def extend_current_frame(mins=10):
+    global current_frame
+    current_frame = current_frame.reset_index(drop=True)
+    last_ind = current_frame.index.to_list()[-1]
+    current_frame = sim_df.iloc[0:last_ind+mins]
+    return
+
+
 def pull_df_from_html(filepath) -> 'df':
     with open(filepath, 'r') as file:
         text = file.read()
@@ -704,6 +697,20 @@ def color_format(msg, color):
     return colors[color](msg)
 # region Unused
 
+# filepath = {
+#     'current': r'temp_assets\current.csv',
+#     'pl_ex': r'temp_assets\pl_and_ex.csv',
+#     'volas': r'temp_assets\volas.csv',
+#     'current_frame': r'temp_assets\current_frame.csv',
+#     'mom_frame': r'temp_assets\mom_frame.csv',
+#     'sup_res_frame': r'temp_assets\supports_resistances.csv',
+#     'current_positions': r'temp_assets\current_positions.csv',
+#     'filled_orders': r'temp_assets\filled_orders.csv',
+#     'open_orders': r'temp_assets\open_orders.csv',
+
+#     'log': r'temp_assets\log.csv',
+#     'efficiency_log': r'temp_assets\efficiency_log.csv',
+# }
 
 # def csv_to_dict(file_path):
 #     # region Docstring

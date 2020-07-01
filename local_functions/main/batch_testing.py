@@ -199,7 +199,6 @@ def batch_loop(reps, mode):
     if mode == 'multiple':
         reps = 1
     reps = list(range(reps))
-    # reps.reverse()
 
     for csv in b_csvs:
 
@@ -556,12 +555,6 @@ def save_documentation(full_stock_path):
 
     '''
     # endregion Docstring
-    # import shutil
-
-    # directory = gl.directory
-    # src = directory / 'temp_assets'
-    # dst = full_stock_path
-    # move = shutil.copytree(src, dst)
 
     gl.save_all(full_stock_path)
     # save one config per directory.
@@ -746,10 +739,16 @@ def df_of_batches():
     # endregion Docstring
     links = []
     configs = []
+    stock_counts = []
     path = gl.directory
     results = str(path / 'results')
     for root, folder, files in gl.os.walk('results'):
         if 'batch_index.html' in files:
+            stock_count = 0
+            dirs = len(folder)
+            for r, folder, f in gl.os.walk(root):
+                stock_count += len(folder)
+            stock_counts.append(stock_count - dirs)
             configs.append(gl.os.path.join(root, 'config.json'))
             links.append(gl.os.path.join(root, 'batch_index.html'))
 
@@ -799,6 +798,7 @@ def df_of_batches():
         'date': dates,
         'batch_name': batch_names,
         'config': config_names,
+        'stock_count': stock_counts,
     }
 
     df = gl.pd.DataFrame(frame)
@@ -904,7 +904,7 @@ def refresh_batches_html():
 
 
 @ gl.save_on_error
-def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False):
+def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False, min_stock_in_batch=0):
     # region Docstring
     '''
     # Compare Batches
@@ -917,6 +917,7 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     ####    `pick_most_recent`: defaults to true, else you will be presented with a df and pick
     ####    `compare`: field to compare, defaults to config, but `date` and `time` are also available.
     ####    `overwrite`: defaults to False, will overwrite last compare rather than starting a new one. 
+    ####    `min_stock_in_batch`: minimum number of stocks shown in batch df when choosing for compare
     ## }
 
     '''
@@ -925,15 +926,16 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     print('creating batch comparison')
     from local_functions.plotting import plot_results as plotr
     df = df_of_batches()
+    df = df[df.stock_count >= min_stock_in_batch].reset_index(drop=True)
     links = df.pop('link')
     if pick_most_recent != True:
-        if gl.isnotebook():
-            display(df)
-        else:
-            gl.common.all_rows(df)
+        # if gl.isnotebook():
+        #     display(df)
+        # else:
+        gl.common.all_rows(df)
         prompt = f'''
-            please specify the {num_to_compare} 
-            indexes of the batches to compare
+            Please input however many  
+            indexes you would like to compare
             separated by commas. 
         '''
         response = input(prompt)
@@ -950,7 +952,7 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
         ul = '<ul>{}____{}--------------------------------->{}</ul>'
         batches = ''
         for index in df.index:
-            date, name, config = df.iloc[index]
+            date, name, config, stock_count = df.iloc[index]
             config = f'<strong>{config}</strong>'
             date = f'<strong>{date}</strong>'
             name = f'<strong>{name}</strong>'
@@ -977,7 +979,7 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     color_dict = {}
     value = 70
     val_off = 7
-    # hue_start = 75
+    # hue_start = 'random'
     hue_start = 0
 
     res_colors = plotr.get_colors(hue_start_value=hue_start,
@@ -1081,3 +1083,17 @@ def manage_batch_results(method):
         'delete': delete_all_results,
     }
     return methods[method]()
+
+
+def standard_year_test():
+    params = {
+        # 'stop_at': 15,                           # Default = False
+        'reps': 1,                              # Default = 1
+        # 'mode': 'internal',                   # Default = 'multiple'
+        'shuffle': False,                     # Default = True
+        # 'create_compare': True,              # Default = False
+        # 'config_setting': 'pick',                 # Default = 'default'
+        # 'first_run': False,                   # Default = True
+        # 'inherit_csvs':  True,
+    }
+    batch_test(**params)
