@@ -92,6 +92,54 @@ def log_filled_and_open(new_fills):
         gl.log_funcs.log(f'new_fill_ids: {nfids}, still open: {oids}')
 
 
+'''-------------------- Tracker --------------------'''
+
+
+def record_tracking(var, value):
+    time = gl.common.get_current_timestamp()
+    new_row = {
+        'time': [time],
+        'variable': [var],
+        'value': [value],
+    }
+
+    df = gl.pd.DataFrame(new_row)
+    df = gl.tracker.append(df, sort=False)
+
+    if len(df) == 1:
+        df.columns = new_row.keys()
+
+    gl.tracker = df
+
+
+def get_tracked_element(var):
+    t = gl.tracker
+    if len(t) == 0:
+        return None
+    t = t[t.time == gl.common.get_current_timestamp()]
+    if len(t) == 0:
+        return None
+    t = t[t.variable == var]
+    if len(t) == 0:
+        return None
+    return t.value.values[0]
+
+
+# Decorator Func
+def tracker(orig_func):
+    @ wraps(orig_func)
+    def wrapper(*args, **kwargs):
+
+        tracker_name = orig_func.__name__
+        response = gl.log_funcs.get_tracked_element(tracker_name)
+        if response != None:
+            return response
+        result = orig_func(*args, **kwargs)
+        record_tracking(var=tracker_name, value=result)
+        return result
+    return wrapper
+
+
 # region UNUSED
 
 

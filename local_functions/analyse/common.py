@@ -78,20 +78,30 @@ def get_timestamp(minute, second, integer=False):
 
 
 def get_current_timestamp(integer=False):
-    return get_timestamp(gl.current['minute'], gl.current['second'], integer=integer)
+    if integer:
+        return get_timestamp(gl.current['minute'], gl.current['second'], integer=integer)
+    sec = str(gl.current['second'])
+    if len(sec) == 1:
+        sec = f'0{sec}'
+    return gl.current['minute'][:6]+sec
 
 
-def get_average():
+def current_average(new_avg=False):
     # region Docstring
     '''
     ## Get Average
     Returns the average price of `current_positions`. 
     '''
     # endregion Docstring
-
-    df = gl.current_positions
-    avg = df.cash.sum() / df.qty.sum()
-    return avg
+    if new_avg:
+        df = gl.current_positions
+        avg = df.cash.sum() / df.qty.sum()
+        gl.log_funcs.record_tracking('average', avg)
+        return 
+    else:
+        tf = gl.tracking
+        avg = tf[tf['variable'] == 'average'].value.values[-1]
+        return avg
 
 
 def get_max_vola(volas, min_vola, max_vola):
@@ -217,7 +227,8 @@ def all_rows(df):
         print(df)
 
 
-def find_bounce_factor():
+@ gl.log_funcs.tracker
+def bounce_factor():
     # region Docstring
     '''
     # Find Bounce Factor
@@ -237,10 +248,11 @@ def find_bounce_factor():
         ups = 0
     downs = gl.mom_frame[gl.mom_frame['trend']
                          == 'downtrend'].volatility.mean()
-    bounce_factor = (ups - downs) / gl.volas['mean']
+    bounce_factor = ups/gl.volas['mean'] - downs/gl.volas['mean']
     return bounce_factor
 
 
+@ gl.log_funcs.tracker
 def mins_left():
     hard_stop = gl.config['misc']['hard_stop']
     hard_stop = gl.pd.to_datetime(hard_stop).timestamp()
@@ -250,6 +262,7 @@ def mins_left():
     return mins_to_go
 
 
+@ gl.log_funcs.tracker
 def investment_duration():
     started = gl.current_positions.exe_time.values[0]
     start_time = gl.pd.to_datetime(started).timestamp()
@@ -259,6 +272,16 @@ def investment_duration():
     return duration
 
 
+def dur_since_last_trade():
+    last_trade_time = gl.current_positions.exe_time.values[-1]
+    last_trade_stamp = gl.pd.to_datetime(last_trade_time).timestamp()
+    current_time = gl.common.get_current_timestamp(integer=True)
+    seconds = current_time - last_trade_stamp
+    duration = seconds/60
+    return duration
+
+
+@ gl.log_funcs.tracker
 def daily_return():
     open_price = gl.current_frame.open.values[0]
     current_price = gl.current['close']
@@ -280,8 +303,9 @@ def current_trend():
         return dict(gl.mom_frame.iloc[-1])
 
 
+@ gl.log_funcs.tracker
 def current_return():
-    avg = get_average()
+    avg = current_average()
     dif = gl.current_price() - avg
     ret = (dif / avg)*100
     return ret

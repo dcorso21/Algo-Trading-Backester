@@ -21,6 +21,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 
+from local_functions.main import log_funcs
 from local_functions.plotting import api_chart
 from local_functions.plotting import candles
 from local_functions.plotting import plot_results as plotr
@@ -36,7 +37,6 @@ from local_functions.analyse import order_tools
 from local_functions.analyse import order_eval
 from local_functions.analyse import common
 from local_functions.analyse import analyse
-from local_functions.main import log_funcs
 from local_functions.main import algo
 
 
@@ -86,6 +86,7 @@ current_frame = 'Dataframe'
 mom_frame = 'Dataframe'
 sup_res_frame = 'Dataframe'
 log = 'Dataframe'
+tracker = 'Dataframe'
 # endregion Frames
 
 current = {
@@ -217,7 +218,7 @@ def save_frame(df, file_name:str, path_to_file:Path):
         file.write(text)
 
 
-def clear_all_in_folder(folder:str, confirm=False, print_complete=False):
+def clear_all_in_folder(folder:str, confirm=False, print_complete=False, delete_dir= False):
     # region Docstring
     '''
     # Clear All in Folder
@@ -252,7 +253,15 @@ def clear_all_in_folder(folder:str, confirm=False, print_complete=False):
             print(f'Failed to delete {file_path}. Reason: {e}')
 
     if print_complete:
-        print(f'cleared contents of directory: "{folder}"')
+        print(f'\ncleared contents of directory: "{folder}"')
+
+    if delete_dir:
+        try:
+            shutil.rmtree(folder)
+            if print_complete:
+                print(f'\nfolder has been deleted: "{folder}"')
+        except Exception as e:
+            print(f'Failed to delete {folder}. Reason: {e}')
 
 
 def save_config(path_to_file):
@@ -326,9 +335,11 @@ def save_all(path_to_folder):
     if len(filled_orders) != 0:
         plotr.plot_results(current_frame, filled_orders,
                            batch_dir, path_to_folder, csv_name)
+    if len(tracker) != 0:
+        plotr.deep_tracking_plot(tracker, current_frame, filled_orders, cancelled_orders)
 
 
-def save_on_error(orig_func):
+def custom_traceback(orig_func):
     # region Docstring
     '''
     # Save on Error

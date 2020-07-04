@@ -56,7 +56,7 @@ b_csvs = []
 # endregion Global Vars
 
 
-@ gl.save_on_error
+@ gl.custom_traceback
 def batch_test(reps=1, mode='multiple', stop_at=False,
                shuffle=True, config_setting='default',
                first_run=True, create_compare='config',
@@ -903,7 +903,7 @@ def refresh_batches_html():
         file.write(text)
 
 
-@ gl.save_on_error
+@ gl.custom_traceback
 def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False, min_stock_in_batch=0):
     # region Docstring
     '''
@@ -1074,10 +1074,6 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     print('comparison created')
 
 
-def delete_all_results():
-    gl.clear_all_in_folder('results', confirm=True, print_complete=True)
-
-
 def manage_batch_results(method):
     methods = {
         'delete': delete_all_results,
@@ -1097,3 +1093,50 @@ def standard_year_test():
         # 'inherit_csvs':  True,
     }
     batch_test(**params)
+
+
+def delete_results(min_stock_count=20):
+    path = gl.directory
+    results = path / 'results'
+    batch_paths = []
+    step = 1
+    for root, folders, files in gl.os.walk(str(results)):
+        if step == 1:
+            dates = folders
+            step = 0
+        for folder in folders:
+            if 'batch' in folder:
+                batch_paths.append(gl.os.path.join(root, folder))
+
+    deleted_count = 0
+
+    for batch in batch_paths:
+        for root, folders, files in gl.os.walk(batch):
+            stock_count = 0
+            dirs = len(folders)
+            for r, folder, f in gl.os.walk(root):
+                if len(folder) == 0:
+                    continue
+                stock_count += len(folder)
+
+            stock_count -= dirs
+            if stock_count < min_stock_count:
+                gl.clear_all_in_folder(
+                    batch, confirm=False, print_complete=True, delete_dir=True)
+                deleted_count += 1
+            break
+
+    deleted_dates = 0
+    for date in dates:
+        date_folder = str(results / date)
+        for r, d, f in gl.os.walk(date_folder):
+            if len(d) == 0:
+                gl.clear_all_in_folder(
+                    date_folder, confirm=False, print_complete=True, delete_dir=True)
+                deleted_dates += 1
+            break
+
+    print(f'\nProcess Complete!\nDeleted Batches: {deleted_count}\nDeleted Folders: {deleted_dates}')
+    
+
+    

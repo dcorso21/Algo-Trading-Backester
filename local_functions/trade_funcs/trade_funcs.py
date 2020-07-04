@@ -127,6 +127,7 @@ def update_current_positions(new_fills):
             unrealized = 'skip'
         gl.common.update_pl(realized, unrealized)
     gl.common.update_ex()
+    gl.common.current_average(new_avg=True)
 
 
 def reset_buy_clock(new_fills):

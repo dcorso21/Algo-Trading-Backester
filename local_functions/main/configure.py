@@ -103,6 +103,7 @@ def reset_variables(mode, csv_file):
     gl.mom_frame = gl.pd.DataFrame()
     gl.sup_res_frame = gl.pd.DataFrame()
     gl.log = gl.pd.DataFrame()
+    gl.tracker = gl.pd.DataFrame()
 
     # PL and Exposure
     gl.sys.dont_write_bytecode = True
@@ -174,18 +175,6 @@ def reset_variables(mode, csv_file):
     }
 
     gl.volumes = volumes
-
-    # Logging Notes
-    # Log is now managed in global vars and log_funcs
-
-    # Logging Efficiency
-    # df = gl.pd.DataFrame()
-    # headers = gl.pd.Series(
-    #     ['minute', 'second', 'function', 'run_time'])
-
-    # df = df.append(headers, ignore_index=True)
-    # df = df.set_index(0)
-    # df.to_csv(gl.filepath['efficiency_log'], header=False)
 
     print('variables reset')
 

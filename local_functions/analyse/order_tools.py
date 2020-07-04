@@ -247,7 +247,7 @@ def position_sizer():
     volumes = gl.volumes
     current = gl.current
 
-    avg = gl.common.get_average()
+    avg = gl.common.current_average()
     exposure = gl.pl_ex['last_ex']
 
     avail_cap = gl.account.get_available_capital()
@@ -302,6 +302,7 @@ def extrap_average(inv_dol: float, inv_avg: float, new_dol: float, new_price: fl
 
 
 def get_cancel_spec(method, exe_price):
+
     def standard_spec():
         higher_price = max([gl.current_price(), exe_price])
         lower_price = min([gl.current_price(), exe_price])
@@ -309,24 +310,37 @@ def get_cancel_spec(method, exe_price):
         upper = higher_price + spacer
         lower = lower_price - spacer
         spec = make_cancel_spec(ptype='$',
-                         p_upper=upper,
-                         p_lower=lower,
-                         seconds=cancel_spec_time())
+                                p_upper=upper,
+                                p_lower=lower,
+                                seconds=cancel_spec_time())
         return spec
-    
+
     def just_abv_avg():
         higher_price = max([gl.current_price(), exe_price])
-        lower_price = gl.common.get_average()
+        lower_price = gl.common.current_average()
         spacer = gl.volas['mean']*.01*lower_price
         upper = higher_price + spacer
         spec = make_cancel_spec(ptype='$',
-                         p_upper=upper,
-                         p_lower=lower_price,
-                         seconds=cancel_spec_time())
+                                p_upper=upper,
+                                p_lower=lower_price,
+                                seconds=cancel_spec_time())
         return spec
-    
+
+    def linger20():
+        higher_price = max([gl.current_price(), exe_price])
+        lower_price = min([gl.current_price(), exe_price])
+        spacer = gl.volas['mean']*.01*lower_price
+        upper = higher_price + spacer
+        lower = lower_price - spacer
+        spec = make_cancel_spec(ptype='$',
+                                p_upper=upper,
+                                p_lower=lower,
+                                seconds=20)
+        return spec
+
     methods = {
         'standard': standard_spec,
-        'just_abv_avg': standard_spec
+        'just_abv_avg': standard_spec,
+        'linger20': linger20
     }
     return methods[method]()

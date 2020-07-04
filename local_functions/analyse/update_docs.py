@@ -268,11 +268,11 @@ def update_momentum():
         yin = mom_dict[yin]
         yang = mom_dict[yang]
 
-    dfz = fit_remainder(dfz)
 
     # 4) Replace old mom_frame with newly made one.
     if len(dfz) != 0:
 
+        dfz = fit_remainder(dfz)
         dfz['volatility'] = gl.common.get_volatility(
             dfz.high.astype(float), dfz.low.astype(float))
 
@@ -309,8 +309,8 @@ def new_agg_list(df, last_offset):
         if int((remaining_mins) / x) != 0:
             agg_list.append(x)
 
-    if len(agg_list) < 2:
-        agg_list.append(2)
+    # if len(agg_list) < 2:
+    #     agg_list.append(2)
 
     return agg_list
 
@@ -584,7 +584,7 @@ def fit_remainder(mom_frame):
     if last_trend['end_time'] == gl.current['minute']:
         return mom_frame
 
-    cf = gl.current_frame.reset_index
+    cf = gl.current_frame.reset_index()
     last_ind = cf[cf.time == last_trend['end_time']].index.tolist()[0]
     remainder_frame = cf.iloc[last_ind:]
     low = remainder_frame.low.min()
@@ -593,11 +593,15 @@ def fit_remainder(mom_frame):
     high_ind = remainder_frame[remainder_frame.high == high].index.tolist()[0]
     price = gl.current_price()
 
+    lower = False
+    higher = False
+    
     if low < last_trend['low']:
         lower = True
     if high < last_trend['high']:
         higher = True
 
+    add_on = False
     if last_trend['trend'] == 'downtrend':
         if lower:
             last_trend['end_time'] = gl.current['minute']
@@ -628,8 +632,8 @@ def fit_remainder(mom_frame):
         mom_frame = mom_frame.append(new_trend)
     else:
         mom_frame = mom_frame.drop(index=mom_frame.index.values[-1])
-        last_trend = gl.pd.DataFrame(last_trend)
-        mom_frame = mom_frame.append(last_trend)
+        last_trend = gl.pd.DataFrame(last_trend, index=[0])
+        mom_frame = mom_frame.append(last_trend, sort = False).reset_index(drop=True)
 
     return mom_frame
 

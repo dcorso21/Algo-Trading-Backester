@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import plotly.offline
 
 from pathlib import Path
 import os
@@ -288,9 +289,9 @@ def expand_mkt_data(m, o):
     - position
     - PL real
     - PL Unreal
-    
+
     #### Returns DataFrame of Market Data
-    
+
     ## Parameters:{
     ####    `m`: market data df
     ####    `o`: orders data df
@@ -1259,8 +1260,6 @@ def get_trading_charts(orders, mkt_data, e_frame, date, height, batch_path=None,
 
             plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
 
-
-            
             template_path = str(
                 Path.cwd() / 'batch_design' / 'plot_template.html')
 
@@ -1412,7 +1411,7 @@ def create_batch_compare_graph(categories, category_labels):
 
     fig.update_layout(
         template='plotly_dark',
-        sliders = sliders,
+        sliders=sliders,
         height=900
     )
 
@@ -1426,9 +1425,9 @@ def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=Tr
     '''
     # Get Colors
     Gets Colors based on hsl. Converts and returns string in "rgb(x,x,x)" format 
-    
+
     #### Returns ex
-    
+
     ## Parameters:{
     ####    `hue_start_value`:
     ## }
@@ -1466,32 +1465,131 @@ def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=Tr
 
     return rgbs
 
-def plot_second_data(df, stop_at):
+
+def plot_second_data(df, stop_at=390, y_axis='y'):
+    def create_time_axis(minute):
+        times = []
+        for sec in range(60):
+            sec = str(sec)
+            if len(sec) == 1:
+                sec = f'0{sec}'
+            t = minute[:6]+sec
+            times.append(t)
+        return times
+
     df = df.head(stop_at)
     fig = go.Figure()
     x_start = 0
+    times = []
     for index in df.index:
         r = dict(df.iloc[index])
         o, h, l, c = r['open'], r['high'], r['low'], r['close']
         prices, volumes = hist.create_second_data(df, index, 'momentum')
         prices = pd.Series(prices)
-        x_range = list(range(x_start, x_start+60))
-        fig.add_trace(go.Scatter(x=x_range, y=prices))
-        fig.add_shape(
-            type='rect',
-            x0=x_start,
-            x1=x_start+59,
-            y0=l,
-            y1=h,
-        )
-
-        fig.update_shapes(dict(xref='x', yref='y'))
+        x_range = create_time_axis(r['time'])
+        times.extend(x_range)
+        fig.add_trace(go.Scatter(x=x_range, y=prices,
+                                 yaxis=y_axis, showlegend=False))
+        # fig.add_shape(
+        #     type='rect',
+        #     x0=x_start,
+        #     x1=x_start+59,
+        #     y0=l,
+        #     y1=h,
+        #     xref='x',
+        #     yref=y_axis
+        # )
         x_start += 60
 
+    return fig
 
-    fig.update_layout(
-        # template='plotly_dark',
-        showlegend=False,
-        title_text=df.ticker.values[0],
+
+def new_yaxis(color, name, domain):
+    axis = go.layout.YAxis(
+        anchor="x",
+        autorange=True,
+        fixedrange=False,
+        domain=domain,
+        linecolor=color,
+        # mirror=True,
+        # showline=True,
+        side="left",
+        tickfont={"color": color},
+        tickmode="auto",
+        ticks="",
+        title=name,
+        titlefont={"color": color},
+        type="linear",
+        zeroline=True,
+        showgrid=True,
+        gridwidth=.6,
+        # gridcolor='#2b2b2b'
     )
-    fig.show()  
+    return axis
+
+
+def deep_tracking_plot(tracker, current_frame, filled_orders, cancelled_orders):
+    variables = set(tracker.variable.values)
+    domain_for_pricing = .6
+    domain_spacer = domain_for_pricing / len(variables)
+    layout = {}
+    
+    fig, layout = deep_pricing_chart(current_frame, filled_orders, cancelled_orders, len(variables), domain_for_pricing)
+
+
+    count = 0
+    for v in variables:
+        dfz = tracker[tracker.variable == v].sort_values(by='time')
+        y = dfz.value.values
+        x = dfz.time.values
+        yaxis = f'y{count}'
+        if count == 0:
+            yaxis = 'y'
+
+        trace = go.Scatter(x=x, y=y,
+                           line=dict(shape='hv', width=1.3),
+                           mode='lines', name=v, yaxis=yaxis, showlegend=False)
+
+        yaxis = f'yaxis{count}'
+        if count == 0:
+            yaxis = 'yaxis'
+        domain = [count*domain_spacer, (count + 1)*domain_spacer]
+        layout[yaxis] = new_yaxis('blue', v, domain)
+        count += 1
+        fig.add_trace(trace)
+
+    xaxis = go.layout.XAxis(
+        autorange=True,
+        fixedrange=False,
+        rangeslider=dict(
+            visible=False
+        ),
+        showgrid=True,
+    )
+
+    layout['xaxis'] = xaxis
+    fig.update_layout(**layout)
+    # plotly.offline.plot(fig)
+    plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
+
+    with open('test.html', 'w') as f:
+        f.write(plot)
+
+
+def deep_pricing_chart(current_frame, filled_orders, cancelled_orders, len_variables, domain_start):
+    # Pricing Data
+    yaxis = f'y{len_variables+1}' 
+    fig = plot_second_data(current_frame, y_axis=yaxis)
+
+    def deep_orders_overlay(fig, yaxis, filled_orders, cancelled_orders):
+        pass
+    
+    def deep_average_overlay(fig, yaxis, average_x, average_y):
+        pass
+
+
+    domain = [domain_start, 1]
+    yaxis = 'yaxis{}'.format(len_variables+1)
+    layout = {}
+    layout[yaxis] = new_yaxis('blue', 'Second Data', domain)
+    return fig, layout 

@@ -61,7 +61,6 @@ def order_below_avg():
 
     acct_size = gl.account.get_available_capital()
     amount_invested = gl.current_positions.cash.sum()
-    # cur_inv_perc = amount_invested/acct_size
     cur_dur = gl.common.investment_duration()
 
     # first minutes, protect average based on vola and num of minutes only
@@ -84,11 +83,13 @@ def order_below_avg():
         return order_rebalance(target_avg())
 
     # Price Extrap
-    extrap_average = ((amount_invested*gl.common.get_average()) +
+    extrap_average = ((amount_invested*gl.common.current_average()) +
                       (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
 
     target_average = target_avg()
-    spacer = (gl.volas['mean'] / 3)*.01*gl.current_price()
+    spacer_vola = max(
+        [gl.volas['mean'], gl.volas['current'], gl.volas['five_min']])
+    spacer = (spacer_vola)*.01*gl.current_price()
     if extrap_average > (target_average+spacer):
         gl.log_funcs.log(msg='Average too far away, redirecting')
         return order_rebalance(target_average)
@@ -111,15 +112,15 @@ def order_above_avg():
 
     # Bounce Factor is weighted as 1/3 of volatility
     exp_perc_return = (gl.volas['mean'] +
-                       gl.common.find_bounce_factor()*.33)*2*.01
-    target_percent_return = exp_perc_return * assess_safe_percent()
+                       gl.common.bounce_factor()*.33)*1.5*.01
+    target_percent_return = exp_perc_return * safe_percent()
 
     if amount_invested < .05 * acct_size and gl.common.investment_duration() < 1:
         if gl.common.current_return() <= target_percent_return*1.5:
             gl.log_funcs.log(msg='Not enough invested to sell, holding.')
             return []
 
-    ex_price = gl.common.get_average() * (1+target_percent_return)
+    ex_price = gl.common.current_average() * (1+target_percent_return)
     qty = gl.current_positions.qty.sum()
 
     sells = gl.order_tools.create_orders(buy_or_sell='SELL',
@@ -132,11 +133,14 @@ def order_above_avg():
 
 
 def order_rebalance(target_average):
-    # Close Avg
     amt_inv = gl.common.current_exposure()
     inv_dur = gl.common.investment_duration()
-    avg = gl.common.get_average()
+    avg = gl.common.current_average()
     acct_size = gl.account.get_available_capital()
+    available_cap = acct_size - amt_inv
+    if available_cap > amt_inv:
+        order = try_for_low(amt_inv)
+        return order
 
     dol_to_inv = amt_inv*(avg - target_average) / \
         (target_average - gl.current_price())
@@ -145,7 +149,6 @@ def order_rebalance(target_average):
         return []
 
     elif dol_to_inv > (acct_size - amt_inv):
-        available_cap = acct_size - amt_inv
         cap_to_sell = dol_to_inv - available_cap
         shares_to_sell = cap_to_sell / gl.order_tools.get_exe_price('ask')
         if shares_to_sell > gl.current_positions.qty.sum():
@@ -192,6 +195,14 @@ def panic_out():
     return order
 
 
+def try_for_low(dol_to_inv):
+    order = gl.order_tools.create_orders(buy_or_sell='BUY',
+                                         cash_or_qty=dol_to_inv,
+                                         price_method='low_placement',
+                                         cancel_spec='linger20')
+    return order
+
+
 def sell_conditions():
     # region Docstring
     '''
@@ -230,17 +241,16 @@ def sell_conditions():
         Returns a DataFrame of Sell Orders. 
         '''
         # endregion Docstring
-        avg = gl.common.get_average()
+        avg = gl.common.current_average()
         perc = s_params['percentage_gain']['perc_gain']
-        if gl.current['close'] >= (avg * (1 + .01 * perc)):
-            # sell all
+        target_price = avg * (1 + (.01 * perc))
+        if gl.current_price() >= target_price:
             everything = gl.current_positions.qty.sum()
             exe_price = 'bid'
             sells = gl.order_tools.create_orders('SELL', everything, exe_price)
             gl.log_funcs.log('>>> Percentage Gain Sell Triggered')
             return sells
-        sells = gl.pd.DataFrame()
-        return sells
+        return []
 
     def target_unreal():
         # region Docstring
@@ -341,31 +351,49 @@ def sell_conditions():
         else:
             return []
 
+    def out_of_steam():
+        if gl.common.dur_since_last_trade() < 1:
+            return []
+        if gl.common.bounce_factor() < 0:
+            if gl.volumes['minimum'] < gl.config['misc']['minimum_volume']:
+                gl.log_funcs.log(
+                    '>>> Out of Steam, bad volume and bounce factor, redirect to sell')
+                return panic_out()
+        return []
+
     def four_red_candles():
         cf = gl.current_frame.tail(7)
         cf = cf.drop(cf.index.values[-1])
         cf['red_candle'] = 0
         cf.loc[(cf.open.values > cf.close.values), 'red_candle'] = 1
-        result = cf.rolling(4).red_candle.sum().max()
-        if result >= 4 and gl.common.investment_duration() > 3:
-            gl.log_funcs.log('>>> Four red candles in a row. Reroute to sell')
-            qty = gl.current_positions.qty.sum()
-            ex_price = gl.common.get_average()
-            if gl.current_price() < gl.common.get_average():
-                ex_price = 'bid'
-            elif gl.current_price() > gl.common.get_average()*(1+gl.volas['mean']*.01):
-                ex_price = 'current'
-            sells = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                                 cash_or_qty=qty,
-                                                 price_method=ex_price)
-            return sells
+        four_red = cf.rolling(4).red_candle.sum().max()
+        if four_red >= 4:
+            four_red = True
+        
+        if four_red == True:
+            # See if the price is still going down 
+            if gl.current['low'] > gl.current_frame.tail(2).low.values[0]:
+                gl.log_funcs.log('>>> Four red candles in a row, waiting to see what happens')
+                return []
+            else:
+                gl.log_funcs.log('>>> Four red candles in a row. Reroute to sell')
+                qty = gl.current_positions.qty.sum()
+                ex_price = gl.common.current_average()
+                if not above_average():
+                    ex_price = 'bid'
+                elif gl.current_price() > gl.common.current_average()*(1+gl.volas['mean']*.01):
+                    ex_price = 'current'
+                sells = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                    cash_or_qty=qty,
+                                                    price_method=ex_price)
+                return sells
         return []
 
     def breakeven():
         # If the outlook doesn't look good, and if the price is close to the average
         spacer = gl.volas['mean']*.01*.3*gl.current_price()
-        if outlook_score() < 50 and abs(gl.current_price()-gl.common.get_average()) <= spacer:
-            ex_price = gl.common.get_average()
+        if outlook_score() < 50 and abs(gl.current_price()-gl.common.current_average()) <= spacer:
+            ex_price = gl.common.current_average()
             qty = gl.current_positions.qty.sum()
             sells = gl.order_tools.create_orders(buy_or_sell='SELL',
                                                  cash_or_qty=qty,
@@ -390,6 +418,7 @@ def sell_conditions():
     down_conds = {
         'dollar_risk_check': dollar_risk_check,
         'breakeven': breakeven,
+        'out_of_steam': out_of_steam,
     }
     universal_conds = {
         'four_red_candles': four_red_candles,
@@ -401,7 +430,7 @@ def sell_conditions():
 
     relevant_conds = universal_conds
     additional_conds = down_conds
-    if gl.current_price() > gl.common.get_average():
+    if gl.current_price() > gl.common.current_average():
         additional_conds = up_conds
 
     for cond in additional_conds:
@@ -546,7 +575,7 @@ def new_eval_triggered():
 
 
 def above_average() -> bool:
-    if gl.current['close'] > gl.common.get_average():
+    if gl.current['close'] > gl.common.current_average():
         return True
     return False
 
@@ -572,7 +601,7 @@ def outlook_score():
             deduct -= 1
 
     # proximity to average.
-    avg = gl.common.get_average()
+    avg = gl.common.current_average()
     perc_from_avg = ((gl.current['close'] - avg)/avg)*100
 
     score += 1
@@ -588,11 +617,12 @@ def outlook_score():
         deduct -= 1
 
     score += 1
-    bounce_factor = gl.common.find_bounce_factor()
+    bounce_factor = gl.common.bounce_factor()
     if bounce_factor < 0:
         deduct -= 1
 
-    return ((score + deduct)/score)*100
+    final_score = ((score + deduct)/score)*100
+    return final_score
 
 
 def fail_flags():
@@ -603,8 +633,8 @@ def fail_flags():
 
 
 def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
-    # target_avg = target_avg()
-
+    # Check to see if the exposure is on track.
+    # To do this, see what the exposure would have been 2 mins ago.
     low_est = 0
     if cur_dur > 3:
         low_est = calc_dol_to_inv(cur_dur - 2, max_dur, trend_vola)
@@ -646,7 +676,8 @@ def target_avg():
     return price + ((.01*gl.volas['mean'])/5)*price
 
 
-def assess_safe_percent():
+@ gl.log_funcs.tracker
+def safe_percent():
     # region Docstring
     '''
     # Assess Safe Percent
@@ -654,6 +685,7 @@ def assess_safe_percent():
     #### Returns percentage. 
     '''
     # endregion Docstring
+
     trans_threshold = gl.account.get_available_capital() / 3
     inv_dur = gl.common.investment_duration()
     inc = .05*gl.account.get_available_capital()
@@ -667,4 +699,5 @@ def assess_safe_percent():
         if inv_dur > max_dur:
             return 0
         safe_perc = safe_perc * (1 - (inv_dur/max_dur))
+    
     return safe_perc
