@@ -119,6 +119,7 @@ def update_current_positions(new_fills):
                     remainder = 0
 
     current_positions = buys
+    current_positions['cash'] = current_positions.qty*current_positions.exe_price
     gl.current_positions = current_positions
     if realized != 0:
         if len(current_positions) == 0:

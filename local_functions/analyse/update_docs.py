@@ -131,6 +131,11 @@ def update_volumes():
                     volumes['ten_min_mean'] = current_frame.tail(
                         10).dvol.mean()
                     volumes['ten_min_min'] = current_frame.tail(10).dvol.min()
+        
+        v_dict = volumes.copy()
+        v_dict['time'] = gl.common.get_current_timestamp()
+        row = gl.pd.DataFrame(v_dict, index=[0])
+        gl.volume_frame = gl.volume_frame.append(row, sort=False).reset_index(drop=True)
 
     gl.volumes = volumes
 

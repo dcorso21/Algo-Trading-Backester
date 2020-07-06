@@ -5,6 +5,7 @@ import plotly.offline
 
 from pathlib import Path
 import os
+import json
 
 from local_functions.data_management import historical_funcs as hist
 
@@ -1467,6 +1468,11 @@ def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=Tr
 
 
 def plot_second_data(df, stop_at=390, y_axis='y'):
+    if y_axis == 0:
+        y_axis = 'y'
+    else:
+        y_axis = f'y{y_axis}'
+
     def create_time_axis(minute):
         times = []
         for sec in range(60):
@@ -1485,23 +1491,57 @@ def plot_second_data(df, stop_at=390, y_axis='y'):
         r = dict(df.iloc[index])
         o, h, l, c = r['open'], r['high'], r['low'], r['close']
         prices, volumes = hist.create_second_data(df, index, 'momentum')
+        color = 'rgba(97, 97, 97, .5)'
+        if o < c:
+            # color = 'rgba(60, 122, 77, .5)'
+            color = '#002b18'
+        else:
+            # color = 'rgba(145, 57, 54, .5)'
+            color = '#2b0000'
         prices = pd.Series(prices)
         x_range = create_time_axis(r['time'])
         times.extend(x_range)
-        fig.add_trace(go.Scatter(x=x_range, y=prices,
-                                 yaxis=y_axis, showlegend=False))
-        # fig.add_shape(
-        #     type='rect',
-        #     x0=x_start,
-        #     x1=x_start+59,
-        #     y0=l,
-        #     y1=h,
-        #     xref='x',
-        #     yref=y_axis
-        # )
+        fig.add_shape(
+            type='rect',
+            layer='below',
+            line=dict(
+                color=color,
+                width=2,
+            ),
+            fillcolor=color,
+            x0=x_range[0],
+            x1=x_range[-1],
+            y0=o,
+            y1=c,
+            xref='x',
+            yref=y_axis,
+            # legendgroup='candles'
+        )
+        fig.add_shape(
+            type='rect',
+            layer='below',
+            line=dict(
+                color=color,
+                width=1,
+            ),
+            fillcolor=color,
+            x0=x_range[25],
+            x1=x_range[35],
+            y0=l,
+            y1=h,
+            xref='x',
+            yref=y_axis,
+            # legendgroup='candles'
+        )
+        fig.add_trace(go.Scatter(x=x_range,
+                                 y=prices,
+                                 yaxis=y_axis,
+                                 line_color='rgba(100, 100, 100, .4)',
+                                 legendgroup='candles',
+                                 showlegend=False))
         x_start += 60
 
-    return fig
+    return fig 
 
 
 def new_yaxis(color, name, domain):
@@ -1520,22 +1560,19 @@ def new_yaxis(color, name, domain):
         title=name,
         titlefont={"color": color},
         type="linear",
-        zeroline=True,
-        showgrid=True,
+        # zeroline=True,
+        showgrid=False,
         gridwidth=.6,
         # gridcolor='#2b2b2b'
     )
     return axis
 
 
-def deep_tracking_plot(tracker, current_frame, filled_orders, cancelled_orders):
+def deep_tracking_plot(gv):
+    domain_for_pricing = .5
+    fig, layout, tracker = deep_main_chart(gv, domain_for_pricing)
     variables = set(tracker.variable.values)
-    domain_for_pricing = .6
     domain_spacer = domain_for_pricing / len(variables)
-    layout = {}
-    
-    fig, layout = deep_pricing_chart(current_frame, filled_orders, cancelled_orders, len(variables), domain_for_pricing)
-
 
     count = 0
     for v in variables:
@@ -1564,11 +1601,14 @@ def deep_tracking_plot(tracker, current_frame, filled_orders, cancelled_orders):
         rangeslider=dict(
             visible=False
         ),
-        showgrid=True,
+        showgrid=False,
     )
 
     layout['xaxis'] = xaxis
+    layout['template'] = 'plotly_dark'
+    layout['height'] = 2000
     fig.update_layout(**layout)
+
     # plotly.offline.plot(fig)
     plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
 
@@ -1576,20 +1616,222 @@ def deep_tracking_plot(tracker, current_frame, filled_orders, cancelled_orders):
         f.write(plot)
 
 
-def deep_pricing_chart(current_frame, filled_orders, cancelled_orders, len_variables, domain_start):
-    # Pricing Data
-    yaxis = f'y{len_variables+1}' 
-    fig = plot_second_data(current_frame, y_axis=yaxis)
+def convert_log(log):
+    log = log.reset_index(drop=True)
+    from local_functions.analyse.common import make_timestamp
+    timestamps = []
+    for minute, second in zip(log.minute, log.second):
+        timestamps.append(make_timestamp(minute, second))
 
-    def deep_orders_overlay(fig, yaxis, filled_orders, cancelled_orders):
-        pass
-    
-    def deep_average_overlay(fig, yaxis, average_x, average_y):
-        pass
+    log['ts'] = timestamps
+    log_text = []
+    for ts in sorted(list(set(timestamps))):
+        messages = log[log['ts'] == ts].message.to_list()
+        messages = list(map(lambda x: str(x)+'<br>', messages))
+        message = ''
+        for m in messages:
+            message += m
+        log_text.append(message)
+
+    log_x = timestamps
+    log_y = [0] * len(timestamps)
+    return log_x, log_y, log_text
 
 
-    domain = [domain_start, 1]
-    yaxis = 'yaxis{}'.format(len_variables+1)
+def plot_log(log, fig, layout, yaxis, domain):
+    log_x, log_y, log_text = convert_log(log)
+    color = 'green'
+    symbol = 'x'
+    fig.add_trace(go.Scatter(x=log_x,
+                             y=log_y,
+                             yaxis=f'y{yaxis}',
+                             mode='markers',
+                            #  line_color=color,
+                             marker_symbol=symbol,
+                             # marker_size=size,
+                             text=log_text,
+                             showlegend=False))
+    # layout = {}
+    yaxis = f'yaxis{yaxis}'
+    layout[yaxis] = new_yaxis('green', 'log', domain)
+    return fig, layout
+
+
+def pricing_and_overlays(gv, domain):
+    # Extract Variables
+    tracker, average_df = extract_tracker_variable(tracker=gv.tracker, var='average')
+
+    yaxis = len(pd.unique(tracker.variable)) +1
+
+    fig = plot_second_data(df=gv.current_frame, y_axis=yaxis)
+
+    # Average 
+    fig = deep_average_overlay(fig=fig, yaxis=yaxis, average_df=average_df)
+
+    # Filled Orders
+    fig = deep_orders_overlay(fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.filled_orders)
+
+    # Cancelled Orders
+    fig = deep_orders_overlay(fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.cancelled_orders, cancel=True)
+
     layout = {}
-    layout[yaxis] = new_yaxis('blue', 'Second Data', domain)
-    return fig, layout 
+    yax = f'yaxis{yaxis}'
+    layout[yax] = new_yaxis('green', 'Candles', domain)
+    return fig, layout, tracker, yaxis
+
+
+def deep_main_chart(gv, domain_start):
+    # Domain Info
+    perc_for_candles = .85
+    domain_for_pricing = perc_for_candles*domain_start
+    domain = [1 - domain_for_pricing, 1]
+
+
+    '''-------------------- Pricing and Overlays --------------------'''
+    fig, layout, tracker, last_axis = pricing_and_overlays(gv=gv, domain=domain)
+
+    yaxis = last_axis + 1
+    # other_elements = 1
+    domain = [domain_start, 1 - domain_for_pricing]
+
+    '''-------------------- VOLUME --------------------'''
+    fig, layout = plot_volume(gv, fig, layout, yaxis, domain)
+    '''-------------------- LOG --------------------'''
+    # fig, layout = plot_log(gv.log, fig, layout, yaxis, domain)
+
+    return fig, layout, tracker
+
+
+def deep_average_overlay(fig, yaxis, average_df):
+    y_ax = f'y{yaxis}'
+    if yaxis == 0:
+        y_ax = 'y'
+    x_vals = average_df.time.values
+    y_vals = average_df.value.values
+    avgcolor = 'rgba(255,153,102,0.8)'  # '#ab4e1b'#'#6dbee3'
+    fig.add_trace(go.Scatter(x=x_vals, y=y_vals, line=dict(
+        color=avgcolor,
+        shape='hv', width=1.3,
+        dash="dash"), mode='lines',
+        name='average price', yaxis=y_ax))
+    
+    return fig
+
+
+def plot_volume(gv, fig, layout, yaxis, domain):
+    from local_functions.analyse.common import make_timestamp
+    vol_vals = gv.current_frame.volume.values*gv.current_frame.close.values
+    vol_colors = volume_colors(vol_vals) 
+    times = gv.current_frame.time.values
+    for vol, color, time in zip(vol_vals, vol_colors, times):
+
+        fig.add_shape(
+            type='rect',
+            layer='below',
+            line=dict(
+                color=color,
+                width=2,
+            ),
+            fillcolor=color,
+            x0=make_timestamp(time, 1),
+            x1=make_timestamp(time, 59),
+            y0=0,
+            y1=vol,
+            xref='x',
+            yref=f'y{yaxis}',
+            # legendgroup='candles'
+        )
+    
+    times = gv.volume_frame.pop('time')
+    for entry in gv.volume_frame.columns:
+        y_vals = gv.volume_frame[entry]
+        fig.add_trace(go.Scatter(x=times, y=y_vals, line=dict(
+            # color=avgcolor,
+            shape='hv', width=1.3), mode='lines',
+            name=entry, yaxis=f'y{yaxis}'))
+
+    yaxis = f'yaxis{yaxis}'
+    layout[yaxis] = new_yaxis('orange', 'Vol ($)', domain)
+    return fig, layout
+
+
+def deep_orders_overlay(fig, yaxis, order_specs, orders_df, cancel=False):
+    y_ax = f'y{yaxis}'
+    if yaxis == 0:
+        y_ax = 'y'
+
+    def convert_to_string_vals(dictionary):
+        for entry in dictionary.keys():
+            dictionary[entry] = str(dictionary[entry])
+        return dictionary
+    orders_df = orders_df.reset_index(drop=True)
+    for order in orders_df.index:
+        order = dict(orders_df.iloc[order])
+        if cancel:
+            symbol = 'circle'
+            size = 5
+        else:
+            symbol = 'diamond'
+            size = 10
+
+        if order['buy_or_sell'] == 'BUY':
+            color = 'rgba(51,204,255,0.5)'
+            if cancel:
+                color = 'rgba(25,100,125,0.5)'
+        else:
+            color = 'rgba(255,255,102,0.5)'
+            if cancel:
+                color = 'rgba(125,125,50,0.5)'
+        oid = int(str(order['order_id']).strip('x'))
+        spec = dict(order_specs[order_specs.order_id == oid].iloc[0])
+        x_vals = [order['send_time'], order['exe_time']]
+        y_vals = [order['exe_price']] * 2
+        spec_s = convert_to_string_vals(spec)
+        order_s = convert_to_string_vals(order)
+        send_text = json.dumps(spec_s, indent=2).replace('\n', '<br>')
+        exe_text = json.dumps(order_s, indent=2).replace('\n', '<br>')
+        texts = [send_text, exe_text]
+        fig.add_trace(go.Scatter(x=x_vals,
+                                 y=y_vals,
+                                 yaxis=y_ax,
+                                 line_color=color,
+                                 marker_symbol=symbol,
+                                 marker_size=size,
+                                 text=texts,
+                                 showlegend=False))
+    return fig
+
+
+def extract_tracker_variable(tracker, var):
+    tracker = tracker.reset_index(drop=True)
+    var = tracker[tracker['variable'] == var]
+    tracker = tracker.drop(var.index.to_list())
+    return tracker, var
+
+
+def volume_colors(vol_list):
+    dol_vol_cols = []
+    for y in vol_list:
+        if y < 10000:
+            dol_vol_cols.append('#7a7a7a')
+        elif (y >= 10000) and (y < 25000):
+            dol_vol_cols.append('#130933')
+        elif (y >= 25000) and (y < 50000):
+            dol_vol_cols.append('#0d1147')
+        elif (y >= 50000) and (y < 75000):
+            dol_vol_cols.append('#102f5b')
+        elif (y >= 75000) and (y < 100000):
+            dol_vol_cols.append('#145670')
+        elif (y >= 100000) and (y < 250000):
+            dol_vol_cols.append('#17847f')
+        elif (y >= 250000) and (y < 500000):
+            dol_vol_cols.append('#1b986a')
+        elif (y >= 500000) and (y < 1000000):
+            dol_vol_cols.append('#1fac4b')
+        elif (y >= 1000000) and (y < 1500000):
+            dol_vol_cols.append('#24c022')
+        elif (y >= 1500000) and (y < 200000):
+            dol_vol_cols.append('#60d426')
+        else:
+            dol_vol_cols.append('#a2db37')
+    return dol_vol_cols

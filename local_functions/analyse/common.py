@@ -80,10 +80,14 @@ def get_timestamp(minute, second, integer=False):
 def get_current_timestamp(integer=False):
     if integer:
         return get_timestamp(gl.current['minute'], gl.current['second'], integer=integer)
-    sec = str(gl.current['second'])
+    return make_timestamp(gl.current['minute'], gl.current['second'])
+
+
+def make_timestamp(minute:str, second:int):
+    sec = str(second)
     if len(sec) == 1:
         sec = f'0{sec}'
-    return gl.current['minute'][:6]+sec
+    return minute[:6]+sec
 
 
 def current_average(new_avg=False):
@@ -95,11 +99,14 @@ def current_average(new_avg=False):
     # endregion Docstring
     if new_avg:
         df = gl.current_positions
+        if len(df) == 0:
+            gl.log_funcs.record_tracking('average', 'nan')
+            return 
         avg = df.cash.sum() / df.qty.sum()
         gl.log_funcs.record_tracking('average', avg)
         return 
     else:
-        tf = gl.tracking
+        tf = gl.tracker
         avg = tf[tf['variable'] == 'average'].value.values[-1]
         return avg
 

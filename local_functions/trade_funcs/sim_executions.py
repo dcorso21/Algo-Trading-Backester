@@ -227,6 +227,7 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
             cancelled_ids)]
         cancelled_orders['status'] = [
             'successfully cancelled'] * len(cancelled_orders)
+        cancelled_orders['exe_time'] = [gl.common.get_current_timestamp()] * len(cancelled_orders)
         open_orders = open_orders[~ open_orders.order_id.isin(cancelled_ids)]
 
         gl.log_funcs.log(f'successfully cancelled: {cancelled_ids}')
