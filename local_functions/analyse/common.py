@@ -83,7 +83,7 @@ def get_current_timestamp(integer=False):
     return make_timestamp(gl.current['minute'], gl.current['second'])
 
 
-def make_timestamp(minute:str, second:int):
+def make_timestamp(minute: str, second: int):
     sec = str(second)
     if len(sec) == 1:
         sec = f'0{sec}'
@@ -101,10 +101,10 @@ def current_average(new_avg=False):
         df = gl.current_positions
         if len(df) == 0:
             gl.log_funcs.record_tracking('average', 'nan')
-            return 
+            return
         avg = df.cash.sum() / df.qty.sum()
         gl.log_funcs.record_tracking('average', avg)
-        return 
+        return
     else:
         tf = gl.tracker
         avg = tf[tf['variable'] == 'average'].value.values[-1]
@@ -179,31 +179,37 @@ def update_pl(real='skip', unreal='skip'):
     '''
     # endregion Docstring
 
-    pl_ex = gl.pl_ex
+    pl_ex = {}
+    time = get_current_timestamp()
     log = False
     if real != 'skip':
-        pl_ex['real'] += real
+        pl_ex['real'] = gl.pl_ex['real'] + real
+        log = True
 
-        if pl_ex['real'] > pl_ex['max_real']:
+        if pl_ex['real'] > gl.pl_ex['max_real']:
             pl_ex['max_real'] = pl_ex['real']
 
-        if pl_ex['real'] < pl_ex['min_real']:
+        if pl_ex['real'] < gl.pl_ex['min_real']:
             pl_ex['min_real'] = pl_ex['real']
-        log = True
 
     if unreal != 'skip':
         pl_ex['unreal'] = unreal
 
-        if pl_ex['unreal'] > pl_ex['max_unreal']:
+        if pl_ex['unreal'] > gl.pl_ex['max_unreal']:
             pl_ex['max_unreal'] = pl_ex['unreal']
 
-        if pl_ex['unreal'] < pl_ex['min_unreal']:
+        if pl_ex['unreal'] < gl.pl_ex['min_unreal']:
             pl_ex['min_unreal'] = pl_ex['unreal']
+
+    for entry in pl_ex.keys():
+        row = {'variable': entry, 'value': pl_ex[entry], 'time': time}
+        row = gl.pd.DataFrame(row, index=[len(gl.pl_ex_frame)])
+        gl.pl_ex_frame = gl.pl_ex_frame.append(row, sort=False)
+        gl.pl_ex[entry] = pl_ex[entry]
 
     if log:
         gl.log_funcs.log(
-            'Realized PL updated: {} Unreal : {}'.format(pl_ex['real'], pl_ex['unreal']))
-    gl.pl_ex = pl_ex
+            'Realized PL updated: {} Unreal : {}'.format(gl.pl_ex['real'], gl.pl_ex['unreal']))
 
 
 def update_ex():
@@ -214,14 +220,19 @@ def update_ex():
     Updates Exposure values in the global pl_ex dictionary. 
     '''
     # endregion Docstring
-
     ex = current_exposure()
-    pl_ex = gl.pl_ex
+    time = get_current_timestamp()
+    pl_ex = {}
     pl_ex['last_ex'] = ex
-    if ex > pl_ex['max_ex']:
+    if ex > gl.pl_ex['max_ex']:
         pl_ex['max_ex'] = ex
 
-    gl.pl_ex = pl_ex
+    for entry in pl_ex.keys():
+        row = {'variable': entry, 'value': pl_ex[entry], 'time': time}
+        row = gl.pd.DataFrame(row, index=[len(gl.pl_ex_frame)])
+        gl.pl_ex_frame = gl.pl_ex_frame.append(row, sort=False)
+        gl.pl_ex[entry] = pl_ex[entry]
+
     gl.log_funcs.log(msg=f'Current Exposure: {ex}')
 
 
@@ -249,7 +260,8 @@ def bounce_factor():
     '''
     # endregion Docstring
     if len(gl.mom_frame) == 0:
-        return 0
+        dr = daily_return()/gl.volas['mean']
+        return dr
     ups = gl.mom_frame[gl.mom_frame['trend'] == 'uptrend'].volatility.mean()
     if str(ups) == 'nan':
         ups = 0

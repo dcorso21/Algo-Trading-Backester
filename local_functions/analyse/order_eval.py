@@ -111,8 +111,8 @@ def order_above_avg():
     acct_size = gl.account.get_available_capital()
 
     # Bounce Factor is weighted as 1/3 of volatility
-    exp_perc_return = (gl.volas['mean'] +
-                       gl.common.bounce_factor()*.33)*1.5*.01
+    exp_perc_return = (gl.volas['mean']*.80 +
+                       gl.common.bounce_factor()*.33)*1*.01
     target_percent_return = exp_perc_return * safe_percent()
 
     if amount_invested < .05 * acct_size and gl.common.investment_duration() < 1:
@@ -120,7 +120,7 @@ def order_above_avg():
             gl.log_funcs.log(msg='Not enough invested to sell, holding.')
             return []
 
-    ex_price = gl.common.current_average() * (1+target_percent_return)
+    ex_price = round(gl.common.current_average() * (1+target_percent_return), 2)
     qty = gl.current_positions.qty.sum()
 
     sells = gl.order_tools.create_orders(buy_or_sell='SELL',

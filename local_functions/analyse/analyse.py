@@ -30,14 +30,11 @@ def analyse():
             return []
 
     # 1) Analyse Daily Chart - Only when there has been an update...
-    # 1) TODO : compare every entry, not just price
-    if gl.current['close'] != gl.last['close']:
-
+    if str(gl.current) != str(gl.last) or gl.current['second'] == 59:
         # only necessary to evaluate if there are no current positions.
+        gl.update_docs.update_files()
         if len(gl.current_positions) == 0:
             day_eval()
-        else:
-            gl.update_docs.update_files()
 
     # 2) Build Orders
     orders = gl.order_eval.build_orders()
@@ -80,7 +77,7 @@ def day_eval():
     # Rule Out trading if not enough Volume
     if gl.config['misc']['volume_check']:
         if len(gl.current_frame) < 2:
-            if not day_volume_analysis_methods('early_exrap'):
+            if not day_volume_analysis_methods('early_extrap'):
                 return
         else:
             if not day_volume_analysis_methods('worth_trading'):
@@ -241,7 +238,7 @@ def day_volume_analysis_methods(method):
     def early_exrap():
         sec = gl.current['second']
         cur_dvol = gl.current_frame.volume.values[-1]*gl.current['close']
-        extrap = (cur_dvol/sec)*60
+        extrap = (cur_dvol/(sec+1))*60
         if extrap >= dvol_min:
             return True
         return False

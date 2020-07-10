@@ -1541,7 +1541,7 @@ def plot_second_data(df, stop_at=390, y_axis='y'):
                                  showlegend=False))
         x_start += 60
 
-    return fig 
+    return fig
 
 
 def new_yaxis(color, name, domain):
@@ -1569,6 +1569,7 @@ def new_yaxis(color, name, domain):
 
 
 def deep_tracking_plot(gv):
+
     domain_for_pricing = .5
     fig, layout, tracker = deep_main_chart(gv, domain_for_pricing)
     variables = set(tracker.variable.values)
@@ -1610,69 +1611,82 @@ def deep_tracking_plot(gv):
     fig.update_layout(**layout)
 
     # plotly.offline.plot(fig)
-    plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
+    # plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
 
-    with open('test.html', 'w') as f:
-        f.write(plot)
-
-
-def convert_log(log):
-    log = log.reset_index(drop=True)
-    from local_functions.analyse.common import make_timestamp
-    timestamps = []
-    for minute, second in zip(log.minute, log.second):
-        timestamps.append(make_timestamp(minute, second))
-
-    log['ts'] = timestamps
-    log_text = []
-    for ts in sorted(list(set(timestamps))):
-        messages = log[log['ts'] == ts].message.to_list()
-        messages = list(map(lambda x: str(x)+'<br>', messages))
-        message = ''
-        for m in messages:
-            message += m
-        log_text.append(message)
-
-    log_x = timestamps
-    log_y = [0] * len(timestamps)
-    return log_x, log_y, log_text
+    # with open('test.html', 'w') as f:
+    #     f.write(plot)
+    fig.show()
 
 
 def plot_log(log, fig, layout, yaxis, domain):
+
+    def convert_log(log):
+        log = log.reset_index(drop=True)
+        from local_functions.analyse.common import make_timestamp
+        timestamps = []
+        for minute, second in zip(log.minute, log.second):
+            timestamps.append(make_timestamp(minute, second))
+
+        log['ts'] = timestamps
+        log_text = []
+        for ts in sorted(list(set(timestamps))):
+            messages = log[log['ts'] == ts].message.to_list()
+            messages = list(map(lambda x: str(x)+'<br>', messages))
+            message = ''
+            for m in messages:
+                message += m
+            log_text.append(message)
+
+        log_x = list(pd.unique(timestamps))
+        log_y = [0] * len(log_x)
+        return log_x, log_y, log_text
+
     log_x, log_y, log_text = convert_log(log)
-    color = 'green'
-    symbol = 'x'
+
+    color = '#e39842'
+    symbol = 'triangle-down-open'
     fig.add_trace(go.Scatter(x=log_x,
                              y=log_y,
                              yaxis=f'y{yaxis}',
                              mode='markers',
-                            #  line_color=color,
+                             marker_color=color,
                              marker_symbol=symbol,
-                             # marker_size=size,
+                             marker_size=10,
                              text=log_text,
                              showlegend=False))
-    # layout = {}
     yaxis = f'yaxis{yaxis}'
-    layout[yaxis] = new_yaxis('green', 'log', domain)
+    layout[yaxis] = new_yaxis(color, 'Log', domain)
     return fig, layout
 
 
 def pricing_and_overlays(gv, domain):
     # Extract Variables
-    tracker, average_df = extract_tracker_variable(tracker=gv.tracker, var='average')
+    tracker, average_df = extract_tracker_variable(
+        tracker=gv.tracker, var='average')
 
-    yaxis = len(pd.unique(tracker.variable)) +1
+    yaxis = len(pd.unique(tracker.variable)) + 1
 
+    print('Plotting Second Data')
     fig = plot_second_data(df=gv.current_frame, y_axis=yaxis)
 
-    # Average 
+    # Momentum
+    print('Plotting Momentum')
+    fig = deep_plot_momentum(fig=fig, yaxis=yaxis, gv=gv)
+
+    # Average
+    print('Plotting Average')
     fig = deep_average_overlay(fig=fig, yaxis=yaxis, average_df=average_df)
 
     # Filled Orders
-    fig = deep_orders_overlay(fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.filled_orders)
+    print('Plotting Filled Orders')
+    fig = deep_orders_overlay(
+        fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.filled_orders)
 
     # Cancelled Orders
-    fig = deep_orders_overlay(fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.cancelled_orders, cancel=True)
+    print('Plotting Cancelled Orders')
+    fig = deep_orders_overlay(
+        fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.cancelled_orders, cancel=True)
+
 
     layout = {}
     yax = f'yaxis{yaxis}'
@@ -1681,23 +1695,86 @@ def pricing_and_overlays(gv, domain):
 
 
 def deep_main_chart(gv, domain_start):
-    # Domain Info
-    perc_for_candles = .85
-    domain_for_pricing = perc_for_candles*domain_start
-    domain = [1 - domain_for_pricing, 1]
 
+    def create_pricing_domains(domain_start):
+        available_space = 1 - domain_start
+        # PL, Exposure, Log
+        overhead_space = .25*available_space
+        overhead_spacing = [.1, .45, .45]
+
+        pricing_space = .50*available_space
+
+        # Volume, Volatility
+        underneath_space = .25*available_space
+        underneath_spacing = [.5, .5]
+
+        under_domain = []
+        for perc in underneath_spacing:
+            spacer = underneath_space*perc
+            under_domain.append([domain_start, domain_start+spacer])
+            domain_start += spacer
+
+        spacer = pricing_space*1
+        pricing_domain = [domain_start, domain_start + spacer]
+        domain_start += spacer
+
+        over_domain = []
+        for perc in overhead_spacing:
+            spacer = overhead_space*perc
+            over_domain.append([domain_start, domain_start+spacer])
+            domain_start += spacer
+
+        return over_domain, pricing_domain, under_domain
+
+    over_domain, pricing_domain, under_domain = create_pricing_domains(
+        domain_start)
 
     '''-------------------- Pricing and Overlays --------------------'''
-    fig, layout, tracker, last_axis = pricing_and_overlays(gv=gv, domain=domain)
+    print('plotting pricing and overlays')
+    fig, layout, tracker, last_axis = pricing_and_overlays(
+        gv=gv, domain=pricing_domain)
 
     yaxis = last_axis + 1
-    # other_elements = 1
-    domain = [domain_start, 1 - domain_for_pricing]
+
+    '''-------------------- PL --------------------'''
+    print('plotting PL')
+    yaxis += 1
+    try:
+        fig, layout = plot_pl(gv, fig, layout, yaxis, over_domain[2])
+    except Exception as e:
+        print(e)
+
+    '''-------------------- EXPOSURE --------------------'''
+    print('plotting Exposure')
+    yaxis += 1
+    try:
+        fig, layout = plot_exposure(gv, fig, layout, yaxis, over_domain[1])
+    except Exception as e:
+        print(e)
+
+    '''-------------------- LOG --------------------'''
+    print('plotting Log')
+    yaxis += 1
+    try:
+        fig, layout = plot_log(gv.log, fig, layout, yaxis, over_domain[0])
+    except Exception as e:
+        print(e)
 
     '''-------------------- VOLUME --------------------'''
-    fig, layout = plot_volume(gv, fig, layout, yaxis, domain)
-    '''-------------------- LOG --------------------'''
-    # fig, layout = plot_log(gv.log, fig, layout, yaxis, domain)
+    print('plotting Volume')
+    yaxis += 1
+    try:
+        fig, layout = plot_volume(gv, fig, layout, yaxis, under_domain[0])
+    except Exception as e:
+        print(e)
+
+    '''-------------------- VOLATILITY --------------------'''
+    print('plotting Volatility')
+    yaxis += 1
+    try:
+        fig, layout = plot_volas(gv, fig, layout, yaxis, under_domain[1])
+    except Exception as e:
+        print(e)
 
     return fig, layout, tracker
 
@@ -1714,14 +1791,14 @@ def deep_average_overlay(fig, yaxis, average_df):
         shape='hv', width=1.3,
         dash="dash"), mode='lines',
         name='average price', yaxis=y_ax))
-    
+
     return fig
 
 
 def plot_volume(gv, fig, layout, yaxis, domain):
     from local_functions.analyse.common import make_timestamp
     vol_vals = gv.current_frame.volume.values*gv.current_frame.close.values
-    vol_colors = volume_colors(vol_vals) 
+    vol_colors = volume_colors(vol_vals)
     times = gv.current_frame.time.values
     for vol, color, time in zip(vol_vals, vol_colors, times):
 
@@ -1741,17 +1818,63 @@ def plot_volume(gv, fig, layout, yaxis, domain):
             yref=f'y{yaxis}',
             # legendgroup='candles'
         )
-    
+
     times = gv.volume_frame.pop('time')
+    times = list(map(lambda x: make_timestamp(x, 30), times))
+
+    extrap = gv.volume_frame.pop('extrap_current')
     for entry in gv.volume_frame.columns:
         y_vals = gv.volume_frame[entry]
+        if entry == 'mean':
+            color = 'orange'
+        else:
+            color = 'rgba(100, 100, 100, .5)'
         fig.add_trace(go.Scatter(x=times, y=y_vals, line=dict(
-            # color=avgcolor,
-            shape='hv', width=1.3), mode='lines',
+            color=color,
+            shape='linear', width=1.3), mode='lines',
             name=entry, yaxis=f'y{yaxis}'))
 
     yaxis = f'yaxis{yaxis}'
     layout[yaxis] = new_yaxis('orange', 'Vol ($)', domain)
+    return fig, layout
+
+
+def plot_volas(gv, fig, layout, yaxis, domain):
+    from local_functions.analyse.common import make_timestamp, get_volatility
+    highs, lows = gv.current_frame.high.values, gv.current_frame.low.values
+    volas = get_volatility(highs, lows)
+    times = gv.current_frame.time.values
+    times = list(map(lambda x: make_timestamp(x, 30), times))
+    colors = vola_colors(volas)
+
+    volatility_trace = go.Scatter(x=times,
+                                  y=volas,
+                                  mode='markers',
+                                  marker_color=colors,
+                                  marker_size=13,
+                                  marker_symbol='diamond-open-dot',
+                                  name='Volatility',
+                                  yaxis=f'y{yaxis}')
+
+    vf = gv.volas_frame
+    c = vf.pop('current')
+    times = vf.pop('time')
+    times = list(map(lambda x: make_timestamp(x, 30), times))
+    for entry in vf.columns:
+        y_vals = vf[entry]
+        if entry == 'mean':
+            color = 'orange'
+        else:
+            color = 'rgba(100, 100, 100, .5)'
+        fig.add_trace(go.Scatter(x=times, y=y_vals, line=dict(
+            # color=avgcolor,
+            shape='linear', color=color, width=1.3), mode='lines',
+            name=entry, yaxis=f'y{yaxis}'))
+
+    fig.add_trace(volatility_trace)
+
+    yaxis = f'yaxis{yaxis}'
+    layout[yaxis] = new_yaxis('orange', 'Vola (%)', domain)
     return fig, layout
 
 
@@ -1835,3 +1958,89 @@ def volume_colors(vol_list):
         else:
             dol_vol_cols.append('#a2db37')
     return dol_vol_cols
+
+
+def vola_colors(vola_list):
+    vola_cols = []
+    for b in vola_list:
+        if b < 1.0:
+            color = '#7a7a7a'
+        elif (b >= 1.0) and (b < 1.25):
+            color = '#32207a'
+        elif (b >= 1.25) and (b < 2.50):
+            color = '#294e8e'
+        elif (b >= 2.50) and (b < 5.0):
+            color = '#115e2f'
+        elif (b >= 5) and (b < 10):
+            color = '#39bd57'
+        elif (b >= 10) and (b < 20):
+            color = '#d0d61e'
+        else:
+            color = '#ffffff'
+        vola_cols.append(color)
+    return vola_cols
+
+
+def plot_pl(gv, fig, layout, yaxis, domain):
+    tracked = ['unreal', 'real']
+    colors = ['#e05875', '#e0b558']
+    for entry, color in zip(tracked, colors):
+        _, var_df = extract_tracker_variable(gv.pl_ex_frame, entry)
+        if len(var_df) == 0:
+            continue
+        y_values = var_df.value.tolist()
+        x_values = var_df.time.tolist()
+        if entry == 'real':
+            x_values.append(gv.current_frame.time.tolist()[-1])
+            y_values.append(y_values[-1])
+
+        fig.add_trace(go.Scatter(x=x_values, y=y_values, line=dict(
+            shape='hv', width=2, color=color), mode='lines',
+            name=entry, yaxis=f'y{yaxis}'))
+
+    yaxis = f'yaxis{yaxis}'
+    layout[yaxis] = new_yaxis(color, 'P&L', domain)
+    return fig, layout
+
+
+def plot_exposure(gv, fig, layout, yaxis, domain):
+    _, ex_df = extract_tracker_variable(gv.pl_ex_frame, 'last_ex')
+    y_values = ex_df.value.values
+    x_values = ex_df.time.values
+    color = '#367dbf'
+
+    fig.add_trace(go.Scatter(x=x_values, y=y_values, line=dict(
+        color=color,
+        shape='hv', width=1.3), fill='tozeroy', mode='lines',
+        name='Exposure', yaxis=f'y{yaxis}'))
+
+    yaxis = f'yaxis{yaxis}'
+    layout[yaxis] = new_yaxis(color, 'Exposure', domain)
+    return fig, layout
+
+
+def deep_plot_momentum(fig, yaxis, gv):
+    from local_functions.analyse.common import make_timestamp
+    mom_frame = gv.mom_frame
+    if len(mom_frame) == 0:
+        return fig
+
+    mom_frame['start_time'] = mom_frame.start_time.apply(lambda x: make_timestamp(x, 30))
+    mom_frame['end_time'] = mom_frame.end_time.apply(lambda x: make_timestamp(x, 30))
+    for index in gv.mom_frame.index:
+        row = dict(gv.mom_frame.iloc[index])
+        x_vals = [row['start_time'], row['end_time']]
+        if row['trend'] == 'uptrend':
+            y_vals = [row['low'], row['high']]
+        else:
+            y_vals = [row['high'], row['low']]
+
+        trace = go.Scatter(x=x_vals,
+                           y=y_vals,
+                           yaxis=f'y{yaxis}',
+                           mode='lines',
+                           line_color=row['color'],
+                           showlegend=False)
+
+        fig.add_trace(trace)
+    return fig

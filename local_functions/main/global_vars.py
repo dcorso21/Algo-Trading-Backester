@@ -40,9 +40,6 @@ from local_functions.analyse import analyse
 from local_functions.main import algo
 
 
-
-
-
 # Custom
 
 # endregion imports
@@ -79,6 +76,7 @@ batch_frame = 'Dataframe'
 order_specs = 'Dataframe'
 queued_orders = 'Dataframe'
 open_orders = 'Dataframe'
+pl_ex_frame = 'Dataframe'
 volume_frame = 'Dataframe'
 volas_frame = 'Dataframe'
 cancelled_orders = 'Dataframe'
@@ -150,24 +148,26 @@ last_order_check = ['09:30:00', 1, 'price']
 
 class GlobalV:
     def __init__(self):
-        self.current = current
-        self.last = last
-        self.pl_ex = pl_ex
-        self.volas = volas
-        self.volas_frame = volas_frame
-        self.volumes = volumes
-        self.volume_frame = volume_frame
-        self.order_specs = order_specs
-        self.queued_orders = queued_orders 
-        self.open_orders = open_orders 
-        self.cancelled_orders = cancelled_orders 
-        self.current_positions = current_positions 
-        self.filled_orders = filled_orders 
-        self.current_frame = current_frame 
-        self.mom_frame = mom_frame 
-        self.sup_res_frame = sup_res_frame 
-        self.log = log 
-        self.tracker = tracker 
+        self.current = current.copy()
+        self.last = last.copy()
+        self.pl_ex = pl_ex.copy()
+        self.pl_ex_frame = pl_ex_frame.copy()
+        self.volas = volas.copy()
+        self.volas_frame = volas_frame.copy()
+        self.volumes = volumes.copy()
+        self.volume_frame = volume_frame.copy()
+        self.order_specs = order_specs.copy()
+        self.queued_orders = queued_orders.copy() 
+        self.open_orders = open_orders.copy() 
+        self.cancelled_orders = cancelled_orders.copy() 
+        self.current_positions = current_positions.copy() 
+        self.filled_orders = filled_orders.copy() 
+        self.current_frame = current_frame.copy() 
+        self.mom_frame = mom_frame.copy() 
+        self.sup_res_frame = sup_res_frame.copy() 
+        self.log = log.copy() 
+        self.tracker = tracker.copy() 
+
 
 def current_price():
     return current['close']
@@ -346,21 +346,23 @@ def save_all(path_to_folder):
 
     for file_name, file in zip(files.keys(), files.values()):
 
-
         if type(file) == dict:
             file = save_dict_to_frame(file)
 
         save_frame(file, file_name, path_to_folder)
 
-    # if len(mom_frame) != 0:
-    #     update_docs.update_momentum()
-    #     plotr.plot_momentum(mom_frame, current_frame,
-    #                         path_to_folder, batch_dir, csv_name)
-    # if len(filled_orders) != 0:
-    #     plotr.plot_results(current_frame, filled_orders,
-    #                        batch_dir, path_to_folder, csv_name)
-    if len(tracker) != 0:
-        plotr.deep_tracking_plot(GlobalV())
+    if len(mom_frame) != 0:
+        # update_docs.update_momentum()
+        plotr.plot_momentum(mom_frame, current_frame,
+                            path_to_folder, batch_dir, csv_name)
+    if len(filled_orders) != 0:
+        plotr.plot_results(current_frame, filled_orders,
+                           batch_dir, path_to_folder, csv_name)
+
+
+def debug_plot():
+    extend_current_frame()
+    plotr.deep_tracking_plot(GlobalV())
 
 
 def custom_traceback(orig_func):
@@ -382,6 +384,7 @@ def custom_traceback(orig_func):
         except:
             trace = traceback.format_exc()
             colored_traceback(trace)
+            debug_plot()
     return wrapper
 
 
@@ -609,6 +612,7 @@ def pick_config_file() -> str:
 def extend_current_frame(mins=10):
     global current_frame
     current_frame = current_frame.reset_index(drop=True)
+    mins = min([mins, len(current_frame)])
     last_ind = current_frame.index.to_list()[-1]
     current_frame = sim_df.iloc[0:last_ind+mins]
     return
@@ -730,6 +734,15 @@ def color_format(msg, color):
         'cyan': prCyan,
     }
     return colors[color](msg)
+
+
+def tab_df(df):
+    from tabulate import tabulate
+    if type(df) == dict:
+        print(tabulate(df))
+    tablefmt = 'fancy_grid'
+    print(tabulate(df, headers=df.columns, tablefmt=tablefmt))
+
 # region Unused
 
 # filepath = {

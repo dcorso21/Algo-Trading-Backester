@@ -60,7 +60,8 @@ b_csvs = []
 def batch_test(reps=1, mode='multiple', stop_at=False,
                shuffle=True, config_setting='default',
                first_run=True, create_compare='config',
-               inherit_csvs=False):
+               inherit_csvs=False,
+               debug_plot=False):
     # region Docstring
     '''
     # Batch Test
@@ -125,7 +126,7 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
     print(msg)
 
     #  <<< Trade >>>
-    batch_loop(reps, mode)
+    batch_loop(reps, mode, debug_plot)
 
     realized = round(float(b_frame.real_pl.sum()), 2)
     unrealized = round(float(b_frame.unreal_pl.sum()), 2)
@@ -161,7 +162,7 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
                 compare_batches(compare=create_compare)
 
 
-def batch_loop(reps, mode):
+def batch_loop(reps, mode, debug_plot):
     # region Docstring
     '''
     # Batch Loop
@@ -223,6 +224,8 @@ def batch_loop(reps, mode):
             stock_and_rep = f'{file_name}_{rep}'
             stock_path = b_dir / subfolder / stock_and_rep
 
+            if debug_plot:
+                gl.debug_plot()
             save_documentation(stock_path)
             append_batch_frame(stock_and_rep)
 
@@ -274,6 +277,9 @@ def get_b_csvs(stop_at, shuffle, first_run, inherit_csvs):
             with open(path_to_json, 'r') as f:
                 text = f.read()
             b_csvs = gl.json.loads(text)
+            if stop_at != False:
+                b_csvs = b_csvs[:stop_at]
+
             return
     # 1) Retrieve list of csvs in mkt_csvs folder.
     csv_list = glob.glob("mkt_csvs/*.csv")
@@ -1136,7 +1142,5 @@ def delete_results(min_stock_count=20):
                 deleted_dates += 1
             break
 
-    print(f'\nProcess Complete!\nDeleted Batches: {deleted_count}\nDeleted Folders: {deleted_dates}')
-    
-
-    
+    print(
+        f'\nProcess Complete!\nDeleted Batches: {deleted_count}\nDeleted Folders: {deleted_dates}')

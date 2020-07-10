@@ -23,6 +23,7 @@ def update_files():
     update_return_and_pl()
     update_volumes()
     update_volas()
+    evaluate_sup_res_frame()
 
     if gl.current['second'] == 59:
         update_momentum()
@@ -61,13 +62,6 @@ def update_return_and_pl():
 
         current_positions['p_return'] = gl.np.around(
             (((gl.current['close'] - exe_prices) / exe_prices)*100), decimals=2)
-
-        # 1) Calculate percentage return for each position in the 'p_return' column
-        # ret = []
-        # for x in current_positions.exe_price:
-        #     ret.append(round(((gl.current['close'] - x)/x)*100, 1))
-
-        # current_positions['p_return'] = ret
 
         # 2) Calculate the unrealized profit/loss in the 'un_pl' column
         current_positions['un_pl'] = current_positions.cash.values * \
@@ -119,8 +113,11 @@ def update_volumes():
         volumes['minimum'] = current_frame.dvol.min()
         volumes['safe_capital_limit'] = volumes['minimum'] / 4
         # Differential is a percentage difference in volume from the first five minutes.
-        volumes['differential'] = (
-            current_frame.tail(5).dvol.mean() - current_frame.head(5).dvol.mean()) / current_frame.head(5).dvol.mean()
+        if volumes['mean'] == 0:
+            volumes['differential'] = 0
+        else:
+            volumes['differential'] = (
+                current_frame.tail(5).dvol.mean() - current_frame.head(5).dvol.mean()) / current_frame.head(5).dvol.mean()
         if len(current_frame) >= 3:
             volumes['three_min_min'] = current_frame.tail(3).dvol.min()
             volumes['three_min_mean'] = current_frame.tail(3).dvol.mean()
@@ -131,52 +128,56 @@ def update_volumes():
                     volumes['ten_min_mean'] = current_frame.tail(
                         10).dvol.mean()
                     volumes['ten_min_min'] = current_frame.tail(10).dvol.min()
-        
+
         v_dict = volumes.copy()
         v_dict['time'] = gl.common.get_current_timestamp()
-        row = gl.pd.DataFrame(v_dict, index=[0])
-        gl.volume_frame = gl.volume_frame.append(row, sort=False).reset_index(drop=True)
+        row = gl.pd.DataFrame(v_dict, index=[len(gl.volume_frame)])
+        gl.volume_frame = gl.volume_frame.append(row, sort=False)
 
     gl.volumes = volumes
 
 
 def update_volas():
+    # region Docstring
     '''
-    # Update Volatility Variable
-    Updates the global variable `volas`
+    # Update Volas
+    Updates the volas global variable
     '''
+    # endregion Docstring
 
-    cf = gl.current_frame
+    volas = gl.volas
+    volas['current'] = gl.common.get_volatility(
+        [gl.current['high']], [gl.current['low']])[0]
 
-    # make volatility column
-    cf['vola'] = gl.common.get_volatility(
-        cf['high'], cf['low'])
+    cf = gl.current_frame.drop(gl.current_frame.index[-1])
+    cf['vola'] = gl.common.get_volatility(cf['high'], cf['low'])
 
-    volas = {
-        'current': cf['vola'].tolist()[-1],
-        'mean': cf.vola.mean(),
-        'three_min': cf.tail(3).vola.mean(),
-        'five_min': cf.tail(5).vola.mean(),
-        'ten_min': cf.tail(10).vola.mean()
-    }
+    volas['mean'] = cf.vola.mean()
+    volas['three_min'] = cf.tail(3).vola.mean()
+    volas['five_min'] = cf.tail(5).vola.mean()
+    volas['ten_min'] = cf.tail(10).vola.mean()
 
-    volas['differential'] = (cf.tail(5).vola.mean() -
-                             cf.head(5).vola.mean()) / cf.head(5).vola.mean()
-
-    # set ideal volatility
-
-    ideal_vola = gl.configure.misc['ideal_volatility']
-
-    scaler = volas['five_min'] / ideal_vola
-
-    if scaler > 1:
-        scaler = 1 - (scaler - 1)
+    if volas['mean'] == 0:
+        volas['differential'] = 0
     else:
-        scaler = 1
+        volas['differential'] = (cf.tail(5).vola.mean() -
+                                 cf.head(5).vola.mean()) / cf.head(5).vola.mean()
 
-    volas['scaler'] = scaler
+    if gl.current['second'] == 59:
+        v_dict = volas.copy()
+        v_dict['time'] = gl.common.get_current_timestamp()
+        row = gl.pd.DataFrame(v_dict, index=[len(gl.volas_frame)])
+        gl.volas_frame = gl.volas_frame.append(row)
 
-    # save json file
+    if volas['scaler'] == 'nan':
+        ideal_vola = gl.configure.misc['ideal_volatility']
+        scaler = volas['five_min'] / ideal_vola
+        if scaler > 1:
+            scaler = 1 - (scaler - 1)
+        else:
+            scaler = 1
+        volas['scaler'] = scaler
+
     gl.volas = volas
 
 
@@ -221,9 +222,7 @@ def update_momentum():
 
     '''
     # endregion Docstring
-    # 1) Define Starting Variables. #####################################################
     df = gl.current_frame.reset_index(drop=True)
-    # don't do anything unless the df is at least 5 rows long.
     if len(df) < 5:
         return
 
@@ -272,7 +271,6 @@ def update_momentum():
         # reverse yin and yang.
         yin = mom_dict[yin]
         yang = mom_dict[yang]
-
 
     # 4) Replace old mom_frame with newly made one.
     if len(dfz) != 0:
@@ -505,7 +503,7 @@ def many_lengths(agg_list, offset, yin, yang, df):
         else:
             break
 
-    # 3) Once the next index is found, make sure that the 'Yang' Value is not superceded in the same period.
+    # 3) Once the next Yin index is found, make sure that the 'Yang' Value is not superceded in the same period.
     dfx = dfx[dfx[yang] == dfx[yang].tolist()[0]]
     return dfx, yin, yang
 
@@ -594,13 +592,13 @@ def fit_remainder(mom_frame):
     remainder_frame = cf.iloc[last_ind:]
     low = remainder_frame.low.min()
     low_ind = remainder_frame[remainder_frame.low == low].index.tolist()[0]
-    high = remainder_frame.high.max()
+    high = remainder_frame.drop(remainder_frame.index.to_list()[0]).high.max()
     high_ind = remainder_frame[remainder_frame.high == high].index.tolist()[0]
     price = gl.current_price()
 
     lower = False
     higher = False
-    
+
     if low < last_trend['low']:
         lower = True
     if high < last_trend['high']:
@@ -638,9 +636,11 @@ def fit_remainder(mom_frame):
     else:
         mom_frame = mom_frame.drop(index=mom_frame.index.values[-1])
         last_trend = gl.pd.DataFrame(last_trend, index=[0])
-        mom_frame = mom_frame.append(last_trend, sort = False).reset_index(drop=True)
+        mom_frame = mom_frame.append(
+            last_trend, sort=False).reset_index(drop=True)
 
     return mom_frame
+
 
 
 # endregion Momentum
@@ -730,11 +730,14 @@ def expand_on_resistances(resistances, min_duration=8):
 
         start = cf[cf.time == time].index.tolist()[0]
 
-        remainder = cf.iloc[start:, :]
+        remainder = cf.iloc[start:]
         higher = remainder[remainder.high.astype(float) > float(x)]
 
-        row = {'type': ['resistance'], 'start_time': [
-            time], 'duration': [len(remainder)], 'price': [x]}
+        row = {'type': ['resistance'],
+               'start_time': [time],
+               'status': ['active'],
+               'duration': [len(remainder)],
+               'price': [x]}
 
         # If the resistance hasn't been broken.
         if len(higher) == 0:
@@ -748,6 +751,7 @@ def expand_on_resistances(resistances, min_duration=8):
         # If the resistance has been broken but lasted at least the min_duration.
         if duration >= min_duration:
             row['duration'] = duration
+            row['status'] = 'broken'
             row = gl.pd.DataFrame(row)
             dfx = dfx.append(row, sort=False)
             continue
@@ -800,8 +804,11 @@ def expand_on_supports(supports, min_duration=8):
         remainder = cf.iloc[start:, :]
         lower = remainder[remainder.low.astype(float) < float(x)]
 
-        row = {'type': ['support'], 'start_time': [
-            time], 'duration': [len(remainder)], 'price': [x]}
+        row = {'type': ['support'],
+               'start_time': [time],
+               'status': ['active'],
+               'duration': [len(remainder)],
+               'price': [x]}
 
         # If the support hasn't been broken.
         if len(lower) == 0:
@@ -815,6 +822,7 @@ def expand_on_supports(supports, min_duration=8):
         # If the support has been broken but lasted at least the min_duration.
         if duration >= min_duration:
             row['duration'] = duration
+            row['status'] = 'broken'
             row = gl.pd.DataFrame(row)
             dfx = dfx.append(row, sort=False)
             continue
@@ -950,5 +958,21 @@ def get_supports(cent_range=3):
 
     # 3) return list
     return list(supports)
+
+def evaluate_sup_res_frame():
+    if len(gl.sup_res_frame) == 0:
+        return
+
+    srf = gl.sup_res_frame.reset_index(drop=True)
+
+    for index, price, typ in zip(srf.index, srf.price, srf.type):
+        if typ == 'support':
+            if gl.current['close'] < price:
+                srf.at[index, 'status'] == 'broken'
+        else:
+            if gl.current['close'] > price:
+                srf.at[index, 'status'] == 'broken'
+
+    gl.sup_res_frame = srf
 
 # endregion Momentum

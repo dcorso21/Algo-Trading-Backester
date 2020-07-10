@@ -2,6 +2,8 @@
 from local_functions.main import global_vars as gl
 import time
 
+debug_time = '09:38:40'
+
 
 def test_trade(config='last', mode='csv', csv_file='first', batch_dir=False):
     # region Docstring

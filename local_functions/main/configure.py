@@ -94,6 +94,7 @@ def reset_variables(mode, csv_file):
     gl.order_specs = gl.pd.DataFrame()
     gl.queued_orders = gl.pd.DataFrame()
     gl.open_orders = gl.pd.DataFrame()
+    gl.pl_ex_frame = gl.pd.DataFrame()
     gl.volume_frame = gl.pd.DataFrame()
     gl.volas_frame = gl.pd.DataFrame()
     gl.cancelled_orders = gl.pd.DataFrame()
@@ -157,7 +158,8 @@ def reset_variables(mode, csv_file):
         'three_min': 'nan',
         'five_min': 'nan',
         'ten_min': 'nan',
-        'mean': 'nan'
+        'mean': 'nan',
+        'scaler': 'nan'
     }
 
     gl.volas = volas

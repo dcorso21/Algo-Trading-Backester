@@ -23,11 +23,9 @@ def csv_refresh():
 
     '''
     # endregion Docstring
-
     sim_df = gl.sim_df
     current = gl.current
-    gl.last = current
-    last = gl.last
+    last = gl.last = current
     new_minute = False
     gl.buy_clock -= 1
 
@@ -44,9 +42,8 @@ def csv_refresh():
         gl.csv_indexes = indexes
         gl.sim_ticker = sim_df.at[first_ind, 'ticker']
         row = first_ind
-        minute = current['minute'] = sim_df.at[first_ind, 'time']
-        current['second'] = 0
-        # gl.log_funcs.log(f'^^^{minute}')
+        # minute = current['minute'] = sim_df.at[first_ind, 'time']
+        # current['second'] = 0
         new_minute = True
     else:
         row = gl.csv_indexes['current']
@@ -59,33 +56,32 @@ def csv_refresh():
             gl.loop_feedback = False
             return
 
-    # Continue Minute...
-    if last['second'] == 59:
-        new_minute = True
-    else:
-        minute = current['minute']
-        second = current['second'] + 1
+        if last['second'] == 59:
+            row = gl.csv_indexes['current'] = gl.csv_indexes['current'] + 1
+            new_minute = True
+        else:
+            # Continue Minute...
+            minute = current['minute']
+            second = current['second'] + 1
 
     # New Minute...
     if new_minute == True:
+        # Clone the current frame info from the last minute back
         gl.gather.clone_current_frame()
-        # Log end of last minute...
-        # gl.log_funcs.log(msg='minute complete')
-        # Go to next row.
-        row = gl.csv_indexes['current'] = gl.csv_indexes['current'] + 1
         gl.minute_prices, gl.minute_volumes = gl.hist.create_second_data(sim_df,
                                                                          row, mode='momentum')
         minute = sim_df.at[row, 'time']
         second = 0
         # New Minute
-        gl.sys.stdout.write(f'\rcurrent minute : {minute}')
+        min_display = minute[:5]
+        gl.sys.stdout.write(f'\rcurrent minute : {min_display}')
         gl.sys.stdout.flush()
 
     price = gl.minute_prices[second]
     volume = gl.minute_volumes[second]
     ticker = gl.sim_ticker
 
-    gl.gather.update_candle(price, volume, ticker, minute, second)
+    update_candle(price, volume, ticker, minute, second)
 
 
 def update_candle(price, volume, ticker, minute, second):
@@ -196,6 +192,8 @@ def clone_current_frame():
     '''
     # endregion Docstring
 
+    if gl.current['minute'] == 'nan':
+        return
     df = gl.sim_df
     ind = df[df.time == gl.current['minute']].index.tolist()[0]
-    gl.current_frame = df[:ind+1]
+    gl.current_frame = df[:ind+1].reset_index(drop=True)
