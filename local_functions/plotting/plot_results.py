@@ -1687,7 +1687,6 @@ def pricing_and_overlays(gv, domain):
     fig = deep_orders_overlay(
         fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.cancelled_orders, cancel=True)
 
-
     layout = {}
     yax = f'yaxis{yaxis}'
     layout[yax] = new_yaxis('green', 'Candles', domain)
@@ -2025,8 +2024,10 @@ def deep_plot_momentum(fig, yaxis, gv):
     if len(mom_frame) == 0:
         return fig
 
-    mom_frame['start_time'] = mom_frame.start_time.apply(lambda x: make_timestamp(x, 30))
-    mom_frame['end_time'] = mom_frame.end_time.apply(lambda x: make_timestamp(x, 30))
+    mom_frame['start_time'] = mom_frame.start_time.apply(
+        lambda x: make_timestamp(x, 30))
+    mom_frame['end_time'] = mom_frame.end_time.apply(
+        lambda x: make_timestamp(x, 30))
     for index in gv.mom_frame.index:
         row = dict(gv.mom_frame.iloc[index])
         x_vals = [row['start_time'], row['end_time']]
@@ -2044,3 +2045,42 @@ def deep_plot_momentum(fig, yaxis, gv):
 
         fig.add_trace(trace)
     return fig
+
+
+def testing_momentum(trend_frame, current_frame):
+    fig = go.Figure()
+    df = current_frame[::-1]
+    pricing = go.Candlestick(x=df.time,
+                             open=df.open, high=df.high,
+                             low=df.low, close=df.close,
+                             line_width=.5, increasing_line_color='#0fba51',
+                             decreasing_line_color='#b5091d',
+                             name="pricing",
+                             showlegend=True
+                             )
+
+    fig.add_trace(pricing)
+
+    def plot_trend(x_vals, y_vals):
+        trace = go.Scatter(x=x_vals, y=y_vals, mode='lines')
+        return trace
+
+    for index in trend_frame.index:
+        row = dict(trend_frame.iloc[index])
+        y_values, x_values = [], []
+        if 'pennant' in row['trend']:
+            y_values.extend(row['high'])
+            y_values.extend(row['low'])
+            times = [row['start_time'], row['end_time']]
+            x_values.extend(times)
+            x_values.extend(times)
+
+        else:
+            y_values.append(row['high'])
+            y_values.append(row['low'])
+            times = [row['start_time'], row['end_time']]
+            x_values.extend(times)
+
+        trace = plot_trend(x_values, y_values)
+        fig.add_trace(trace)
+    fig.show()

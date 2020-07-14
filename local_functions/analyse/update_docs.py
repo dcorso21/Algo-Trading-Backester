@@ -26,7 +26,7 @@ def update_files():
     evaluate_sup_res_frame()
 
     if gl.current['second'] == 59:
-        update_momentum()
+        update_mom_frame()
         if len(gl.mom_frame) != 0:
             update_supports_resistances()
 
@@ -185,6 +185,37 @@ def update_volas():
 # region Momentmu110
 
 
+def update_mom_frame():
+    gl.current_frame = gl.current_frame.reset_index(drop=True)
+    df = gl.current_frame
+    if len(df) < 5:
+        return
+    end_index = gl.current_frame.index.to_list()[-1]
+
+    cm = dict(df.iloc[-1])
+    # Green Candle
+    end_time = cm['time']
+    if cm['open'] < cm['close']:
+        yin = 'hi'
+    else:
+        yin = 'li'
+
+    mom_dict = {
+        'hi': 'li',
+        'li': 'hi'
+    }
+
+    mom_frame = gl.pd.DataFrame()
+    while True:
+        end_index, dfx = find_trend_start(end_index=end_index, yin=yin, yang=mom_dict[yin])
+        mom_frame = mom_frame.append(dfx, sort=False)
+        yin = mom_dict[yin]
+        if end_index == 0:
+            break
+
+    gl.mom_frame = mom_frame
+
+
 def update_momentum():
     # region Docstring
     '''
@@ -238,14 +269,14 @@ def update_momentum():
     }
 
     # specifies a starting index.
-    offset = 0
+    offset = gl.current_frame.index.to_list()[-1]
     fresh = True
     mom_df = gl.mom_frame
 
     # 2) Under certain conditions, pick up where last left off with global mom_frame.
-    if (len(df) > 15) and len(mom_df) > 3:
-        offset, yin, yang, mom_df = pick_up_from_index(df, mom_df, mom_dict)
-        fresh = False
+    # if (len(df) > 15) and len(mom_df) > 3:
+    #     offset, yin, yang, mom_df = pick_up_from_index(df, mom_df, mom_dict)
+    #     fresh = False
 
     last_offset = offset
     loop = True
@@ -453,93 +484,92 @@ def pick_up_from_index(df, mom_df, mom_dict):
     return offset, yin, yang, mom_df
 
 
-def many_lengths(agg_list, offset, yin, yang, df):
-    '''
-    # Many Lengths
-    Returns a DataFrame (dfx) of different aggregation periods with index ranges. 
+def find_trend_start(end_index, yin, yang):
 
-    ## Process:
+    # sf = gl.current_frame[:end_index]
+    # sf.
 
-    ### Start Clause:
-    If the `yin` variable passed equals 'start', it means that we are beginning 
-    in the first minute and need to see which way the momentum starts. 
 
-    The function bases the direction of the first momentum swing on whether the candle is red or green. 
 
-    ### 1) Loops through each value in aggregation list 
-    Passing the start and end indexes through the `simplify_candles()` function. This returns 
-    a one-row df each loop.   
 
-    ### 2) Each Row is added to a `dfx`, which is then returned.
 
-    ### 3) Once the next index is found, make sure that the `yang` Value is not superceded in the same period. 
-    - For example, if tracking an uptrend, We want to make sure that the price hasn't swung down before going to a new high.
-    If such a thing were to happen, this would constitute 2 quick momentum shifts instead of 1.
 
-    '''
 
-    # Start Clause:
-    if yin == 'start':
-        o = df.open.to_list()[0]
-        c = df.close.to_list()[0]
 
-        # if candle green
-        if o < c:
-            # yin is momentum, and its going up...
-            yin = 'hi'
-            yang = 'li'
-        elif c <= o:
-            yin = 'li'
-            yang = 'hi'
+
+
+
+
+
 
     dfx = gl.pd.DataFrame()
-    # 1) Loops through each value in aggregation list
-    for x in agg_list:
-        y = x + offset
-        if len(df) >= y:
-            row = simplify_candles(df, offset, y)
-            # 2) Each Row is added to a dfx, which is then returned.
-            dfx = dfx.append(row, sort=False)
-        else:
+    ideal_list = [3, 5, 10, 15, 30]
+    dfx = gl.pd.DataFrame()
+    for l in ideal_list:
+        start_index = end_index - l
+        if start_index < 2:
             break
+        dfz = simplify_candles(start_index=start_index, end_index=end_index)
+        dfx = dfx.append(dfz, sort=False)
 
     # 3) Once the next Yin index is found, make sure that the 'Yang' Value is not superceded in the same period.
     dfx = dfx[dfx[yang] == dfx[yang].tolist()[0]]
-    return dfx, yin, yang
+    spacer = 8
+    trend_start = dfx[yin].to_list()[0]
+    for index, high, low in zip(dfx[yin], dfx.h, dfx.l):
+        duration = trend_start - index
+        if spacer < duration:
+            break
+        trend_start = index
+        trend_high = high
+        trend_low = low
+        trend_duration = duration
+
+    # If the trend gets stuck on one minute, then just push it forward.  
+    if duration == 0:
+        return find_trend_start(end_index +1, yin, yang)
+    df = gl.current_frame
+    # Opposite because we are going backwards in time
+    trend_dict = {
+        'hi': 'downtrend',
+        'li': 'uptrend'
+    }
+    start_minute = df.at[int(trend_start), 'time']
+    end_minute = df.at[int(end_index), 'time']
+
+    trend = new_trend_row(start_time=start_minute,
+                          end_time=end_minute,
+                          duration=trend_duration,
+                          trend=trend_dict[yin],
+                          high=trend_high,
+                          low=trend_low)
+
+    return trend_start, trend
 
 
-def simplify_candles(df, start_index, end_index):
-    '''
-    ### Simplify Candles
-    Aggregates Candles based on the start and end index values of the DataFrame 
-
-    ---> Returns a one-row DataFrame with the ohlc values for the given range, 
-    as well as the indexes for the high and low values.  
-    '''
-
+def simplify_candles(start_index, end_index):
+    df = gl.current_frame
     df_slice = df.iloc[int(start_index):int(end_index+1), :]
 
-    if len(df_slice) != 0:
+    o = df_slice.open.tolist()[0]
+    oi = df_slice.index.tolist()[0]
 
-        o = df_slice.open.tolist()[0]
-        oi = df_slice.index.tolist()[0]
+    h = df_slice.drop(start_index).high.max()
+    hi = df_slice[df_slice['high'] == h].index.tolist()[0]
 
-        h = df_slice.drop(start_index).high.max()
-        hi = df_slice[df_slice['high'] == h].index.tolist()[0]
+    l = df_slice.drop(start_index).low.min()
+    li = df_slice[df_slice['low'] == l].index.tolist()[0]
 
-        l = df_slice.drop(start_index).low.min()
-        li = df_slice[df_slice['low'] == l].index.tolist()[0]
+    c = df_slice.close.tolist()[-1]
+    ci = df_slice.index.tolist()[-1]
 
-        c = df_slice.close.tolist()[-1]
-        ci = df_slice.index.tolist()[-1]
+    minute = [o, h, l, c, oi, hi, li, ci]
 
-        minute = [o, h, l, c, oi, hi, li, ci]
+    dfx = gl.pd.DataFrame(minute).T
+    dfx = dfx.rename(
+        columns={0: 'o', 1: 'h', 2: 'l', 3: 'c', 4: 'oi', 5: 'hi', 6: 'li', 7: 'ci'})
 
-        dfx = gl.pd.DataFrame(minute).T
-        dfx = dfx.rename(
-            columns={0: 'o', 1: 'h', 2: 'l', 3: 'c', 4: 'oi', 5: 'hi', 6: 'li', 7: 'ci'})
-
-        return dfx
+    return dfx
 
 
 def aggregate_df(agg_num, df):
@@ -640,7 +670,6 @@ def fit_remainder(mom_frame):
             last_trend, sort=False).reset_index(drop=True)
 
     return mom_frame
-
 
 
 # endregion Momentum
@@ -959,6 +988,7 @@ def get_supports(cent_range=3):
     # 3) return list
     return list(supports)
 
+
 def evaluate_sup_res_frame():
     if len(gl.sup_res_frame) == 0:
         return
@@ -976,3 +1006,100 @@ def evaluate_sup_res_frame():
     gl.sup_res_frame = srf
 
 # endregion Momentum
+
+
+
+def new_momentum():
+    path = "mkt_csvs/2017-10-10_KALV.csv"
+    end_index = 10
+    df = gl.configure.get_sim_df(path)[:end_index+1]
+    # df = gl.hist.get_random_sim_df()[:end_index+1]
+
+    low = df.at[end_index, 'low']
+
+    # Reverse the frame to start from last minute
+    df = df.iloc[::-1].reset_index(drop=True)
+
+    df['higher'] = df.rolling(2).high.apply(func=(
+        lambda x: (x[0] < x[1])
+    ), raw=True)
+
+    df['lower'] = df.rolling(2).low.apply(func=(
+        lambda x: (x[0] > x[1])
+    ), raw=True)
+
+    trends = []
+    for h, l in zip(df.higher, df.lower):
+        if h == 1 and l == 0:
+            trends.append('downtrend')
+        elif h == 1 and l == 1:
+            trends.append('pennant')
+        elif h == 0 and l == 1:
+            trends.append('uptrend')
+        elif h == 0 and l == 0:
+            trends.append('rpennant')
+        else:
+            trends.append('nan')
+
+    df['trend'] = trends
+    gl.tab_df(df)
+
+    cf, tf = identify_trends(df, gl.pd.DataFrame())
+    tf = tf.reset_index(drop=True)
+    highs, lows = [], []
+
+    for index in tf.index:
+        row = dict(tf.iloc[index])
+        start_high = df[df.time == row['start_time']].high.to_list()[0]
+        start_low = df[df.time == row['start_time']].low.to_list()[0]
+        end_high = df[df.time == row['end_time']].high.to_list()[0]
+        end_low = df[df.time == row['end_time']].low.to_list()[0]
+
+        if 'pennant' in row['trend']:
+            highs.append([start_high, end_high])
+            lows.append([start_low, end_low])
+        else:
+            if row['trend'] == 'uptrend':
+                highs.append(end_high)
+                lows.append(start_low)
+            elif row['trend'] == 'downtrend':
+                highs.append(start_high)
+                lows.append(end_low)
+
+    tf['high'] = highs
+    tf['low'] = lows
+    gl.tab_df(tf)
+    gl.plotr.testing_momentum(tf, df)
+
+
+
+def identify_trends(cf, tf):
+    cf = cf.reset_index(drop=True)
+    end_point = dict(cf.iloc[0])
+    # take the rest from that minute onwards
+    cf = cf.iloc[1:]
+    trend = cf.trend.to_list()[0]
+    count = 1
+    for t, time, index in zip(cf.trend, cf.time, cf.index):
+        count += 1
+        if t != trend:
+            if ('pennant' in trend) and (count < 3):
+                tf.at[-1, 'end_time'] = time
+                left = cf[index - 1:]
+                if len(left) > 1:
+                    cf, tf = identify_trends(left, tf)
+                return cf, tf
+
+            break
+    start_time, end_time = time, end_point['time']
+    row = {
+        'start_time': [start_time],
+        'end_time': [end_time],
+        'trend': [trend],
+    }
+    trend_info = gl.pd.DataFrame(row)
+    tf = tf.append(trend_info, sort=False)
+    left = cf[index - 1:]
+    if len(left) > 1:
+        cf, tf = identify_trends(left, tf)
+    return cf, tf

@@ -36,6 +36,12 @@ def red_green():
     return cf.r_g.tolist()  # returns list.
 
 
+def center_point():
+    cf = gl.current_frame   # copy frame
+    cf['center'] = cf.high.values - cf.low.values
+    return cf.center
+
+
 def cash_to_shares(cash, price):
     # region Docstring
     '''
