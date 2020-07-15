@@ -309,4 +309,5 @@ def get_random_sim_df():
     csv_list = glob.glob("mkt_csvs/*.csv")
     random.shuffle(csv_list)
     chosen = csv_list[0]
+    print(f'chosen stock: {chosen}')
     return configure.get_sim_df(chosen)

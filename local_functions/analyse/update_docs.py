@@ -1010,10 +1010,10 @@ def evaluate_sup_res_frame():
 
 
 def new_momentum():
-    path = "mkt_csvs/2017-10-10_KALV.csv"
-    end_index = 10
-    df = gl.configure.get_sim_df(path)[:end_index+1]
-    # df = gl.hist.get_random_sim_df()[:end_index+1]
+    path = "mkt_csvs/2017-08-10_HDSN.csv"
+    end_index = 390
+    # df = gl.configure.get_sim_df(path)[:end_index+1]
+    df = gl.hist.get_random_sim_df()[:end_index+1]
 
     low = df.at[end_index, 'low']
 
@@ -1021,11 +1021,11 @@ def new_momentum():
     df = df.iloc[::-1].reset_index(drop=True)
 
     df['higher'] = df.rolling(2).high.apply(func=(
-        lambda x: (x[0] < x[1])
+        lambda x: (x[0] <= x[1])
     ), raw=True)
 
     df['lower'] = df.rolling(2).low.apply(func=(
-        lambda x: (x[0] > x[1])
+        lambda x: (x[0] >= x[1])
     ), raw=True)
 
     trends = []
@@ -1042,9 +1042,10 @@ def new_momentum():
             trends.append('nan')
 
     df['trend'] = trends
-    gl.tab_df(df)
+    # gl.tab_df(df)
 
-    cf, tf = identify_trends(df, gl.pd.DataFrame())
+    cf, tf = identify_trends(df, gl.pd.DataFrame(), df)
+    # tf = fill_trend_gaps(df, tf)
     tf = tf.reset_index(drop=True)
     highs, lows = [], []
 
@@ -1065,41 +1066,116 @@ def new_momentum():
             elif row['trend'] == 'downtrend':
                 highs.append(start_high)
                 lows.append(end_low)
+            else:
+                highs.append('nan')
+                lows.append('nan')
 
     tf['high'] = highs
     tf['low'] = lows
-    gl.tab_df(tf)
+    # gl.tab_df(tf)
     gl.plotr.testing_momentum(tf, df)
 
 
-
-def identify_trends(cf, tf):
+def identify_trends(cf, tf, full_df):
     cf = cf.reset_index(drop=True)
     end_point = dict(cf.iloc[0])
     # take the rest from that minute onwards
     cf = cf.iloc[1:]
+    cf = cf.reset_index(drop=True)
     trend = cf.trend.to_list()[0]
     count = 1
+    last_time = end_point['time']
+    new_trend = True
     for t, time, index in zip(cf.trend, cf.time, cf.index):
-        count += 1
+        # If Trend has stopped
         if t != trend:
+            # If it a pennant trend, and has not been at least 3 mins
             if ('pennant' in trend) and (count < 3):
-                tf.at[-1, 'end_time'] = time
-                left = cf[index - 1:]
-                if len(left) > 1:
-                    cf, tf = identify_trends(left, tf)
-                return cf, tf
+                next_trend = end_point['trend'] 
+                extend = False
+                extension = {
+                    'pennant': 'uptrend',
+                    'rpennant': 'downtrend',
+                    'uptrend': 'downtrend',
+                    'downtrend': 'uptrend',
+                }
+                if len(tf) == 0:
+                    break
+                elif next_trend == extension[trend]:
+                    if next_trend == 'uptrend':
+                        if cf.at[index-1, 'high'] > full_df[full_df.time == tf.end_time.to_list()[-1]].high.to_list()[0]:
+                            trend = extension[next_trend]
+                        elif 'r' not in trend:
+                            trend = extension[next_trend]
+                        else:
+                            # Extend Trend
+                            tf = tf.reset_index(drop=True)
+                            tf.at[tf.index.to_list()[-1], 'start_time'] = last_time
+                            new_trend = False
+                    elif next_trend == 'downtrend':
+                        new_low = cf.at[index-1, 'low']
+                        next_low = full_df[full_df.time == tf.end_time.to_list()[-1]].low.to_list()[0]
+                        if new_low < next_low:
+                            trend = extension[next_trend]
+                        elif 'r' in trend:
+                            trend = extension[next_trend]
+                        else:
+                            # Extend Trend
+                            tf = tf.reset_index(drop=True)
+                            tf.at[tf.index.to_list()[-1], 'start_time'] = last_time
+                            new_trend = False
+                else:
+                    trend = extension[next_trend]
+
 
             break
-    start_time, end_time = time, end_point['time']
-    row = {
-        'start_time': [start_time],
-        'end_time': [end_time],
-        'trend': [trend],
-    }
-    trend_info = gl.pd.DataFrame(row)
-    tf = tf.append(trend_info, sort=False)
-    left = cf[index - 1:]
-    if len(left) > 1:
-        cf, tf = identify_trends(left, tf)
+        count += 1
+        last_time = time
+
+    # Continue Trend
+    extend = False
+    if len(tf) != 0:
+        next_trend = tf.trend.to_list()[-1]
+        if trend == next_trend:
+            if trend == 'uptrend':
+                new_trend_high = end_point['high']
+                next_trend_high = full_df[full_df.time == tf.end_time.to_list()[-1]].high.values[0]
+                if new_trend_high > next_trend_high:
+                    tf = tf.reset_index(drop=True)
+                    tf = tf.drop(tf.index.to_list()[-1])
+                    tf.at[tf.index.to_list()[-1], 'start_time'] = end_point['time']
+                else:
+                    extend = True
+            elif trend == 'downtrend':
+                new_trend_low = end_point['low']
+                next_trend_low = full_df[full_df.time == tf.end_time.to_list()[-1]].low.values[0]
+                if new_trend_low < next_trend_low:
+                    tf = tf.reset_index(drop=True)
+                    tf = tf.drop(tf.index.to_list()[-1])
+                    tf.at[tf.index.to_list()[-1], 'start_time'] = end_point['time']
+                else:
+                    extend = True
+            else:
+                extend = True
+
+    if extend:
+        tf = tf.reset_index(drop=True)
+        tf.at[tf.index.to_list()[-1], 'start_time'] = last_time
+        new_trend = False
+    
+    if new_trend:
+        row = {
+            'start_time': [last_time],
+            'end_time': [end_point['time']],
+            'trend': [trend],
+        }
+        trend_info = gl.pd.DataFrame(row)
+        tf = tf.append(trend_info, sort=False)
+        
+    if last_time == cf.time.to_list()[-1]:
+        return cf, tf
+    else:
+        left = cf[index -1:]
+        cf, tf = identify_trends(left, tf, full_df)
     return cf, tf
+        

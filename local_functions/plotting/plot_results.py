@@ -127,11 +127,11 @@ def new_box_plot(x_values, labels, jitter):
 
     Returns Trace.
 
-    ### Parameters:{
-    #### `x_values`: list, x values for scatter
-    #### `labels`: list, text for hover of each point
-    #### `jitter`: how much the scatter beside the box plot will be spread out.
-    #### }
+    # Parameters:{
+    # `x_values`: list, x values for scatter
+    # `labels`: list, text for hover of each point
+    # `jitter`: how much the scatter beside the box plot will be spread out.
+    # }
     '''
     # endregion Docstring
     box_plot = go.Box(x=x_values,
@@ -174,11 +174,11 @@ def plot_batch_overview(batch_frame):
     # Plot Batch Overview
     Creates a Plotly subplots figure shown on the batch index
 
-    ### Returns HTML of chart to be inserted in batch index.
+    # Returns HTML of chart to be inserted in batch index.
 
-    ### Parameters:{
-    #### `batch_frame`: df of batch overview.
-    ### }
+    # Parameters:{
+    # `batch_frame`: df of batch overview.
+    # }
     '''
     # endregion Docstring
 
@@ -262,13 +262,13 @@ def get_orders(filled_orders) -> 'df':
     # region Docstring
     '''
     # Get Orders
-    Convert `filled_orders` global variables to a df that is used in the trading charts. 
+    Convert `filled_orders` global variables to a df that is used in the trading charts.
 
-    ### Returns dataframe of orders 
+    # Returns dataframe of orders
 
-    ## Parameters:{
-    ####    `filled_orders`: global variable df
-    ## }
+    # Parameters:{
+    # `filled_orders`: global variable df
+    # }
 
     '''
     # endregion Docstring
@@ -286,17 +286,17 @@ def expand_mkt_data(m, o):
     '''
     # Expand Market Data
     Expands upon the market data which adds the following:
-    - average 
+    - average
     - position
     - PL real
     - PL Unreal
 
-    #### Returns DataFrame of Market Data
+    # Returns DataFrame of Market Data
 
-    ## Parameters:{
-    ####    `m`: market data df
-    ####    `o`: orders data df
-    ## }
+    # Parameters:{
+    # `m`: market data df
+    # `o`: orders data df
+    # }
     '''
     # endregion Docstring
     # these functions are pretty self explanatory...
@@ -311,15 +311,15 @@ def plot_results(current_frame, filled_orders, batch_path, directory, csv_name):
     # region Docstring
     '''
     # Plot Results
-    All in one function for creating daily chart html.  
+    All in one function for creating daily chart html.
 
-    ## Parameters:{
-    ####    `current_frame`: global variable df,
-    ####    `filled_orders`: global variable df,
-    ####    `batch_path`: global variable defined batch path
-    ####    `directory`: global variable defined directory
-    ####    `csv_name`: name of file traded
-    ## }
+    # Parameters:{
+    # `current_frame`: global variable df,
+    # `filled_orders`: global variable df,
+    # `batch_path`: global variable defined batch path
+    # `directory`: global variable defined directory
+    # `csv_name`: name of file traded
+    # }
     '''
     # endregion Docstring
     o = get_orders(filled_orders)
@@ -1425,13 +1425,13 @@ def get_colors(hue_start_value='random', num_of_colors=3, s=71, v=75, cut_div=Tr
     # region Docstring
     '''
     # Get Colors
-    Gets Colors based on hsl. Converts and returns string in "rgb(x,x,x)" format 
+    Gets Colors based on hsl. Converts and returns string in "rgb(x,x,x)" format
 
-    #### Returns ex
+    # Returns ex
 
-    ## Parameters:{
-    ####    `hue_start_value`:
-    ## }
+    # Parameters:{
+    # `hue_start_value`:
+    # }
     '''
     # endregion Docstring
     if hue_start_value == 'random':
@@ -2048,6 +2048,16 @@ def deep_plot_momentum(fig, yaxis, gv):
 
 
 def testing_momentum(trend_frame, current_frame):
+    def trend_colors(trend):
+        t_cols = {
+            'gap': 'red',
+            'uptrend': '#34d2eb',
+            'downtrend': '#eb347a',
+            'rpennant': '#eb9334',
+            'pennant': '#ccc250',
+        }
+        return t_cols[trend]
+    trend_frame['color'] = trend_frame.trend.apply(trend_colors)
     fig = go.Figure()
     df = current_frame[::-1]
     pricing = go.Candlestick(x=df.time,
@@ -2061,26 +2071,53 @@ def testing_momentum(trend_frame, current_frame):
 
     fig.add_trace(pricing)
 
-    def plot_trend(x_vals, y_vals):
-        trace = go.Scatter(x=x_vals, y=y_vals, mode='lines')
+    def plot_trend(x_vals, y_vals, color):
+        trace = go.Scatter(x=x_vals,
+                           y=y_vals,
+                           mode='markers+lines',
+                        #    fill='toself',
+                           line_color=color)
         return trace
 
     for index in trend_frame.index:
         row = dict(trend_frame.iloc[index])
+        if row['trend'] == 'gap':
+            continue
+        color = row['color']
+
         y_values, x_values = [], []
         if 'pennant' in row['trend']:
-            y_values.extend(row['high'])
-            y_values.extend(row['low'])
+            y_values.append(row['high'][0])
+            y_values.append(row['high'][1])
             times = [row['start_time'], row['end_time']]
             x_values.extend(times)
+            trace = plot_trend(x_values, y_values, color)
+            fig.add_trace(trace)
+            y_values, x_values = [], []
+            y_values.append(row['low'][0])
+            y_values.append(row['low'][1])
             x_values.extend(times)
+            trace = plot_trend(x_values, y_values, color)
+            fig.add_trace(trace)
 
         else:
             y_values.append(row['high'])
             y_values.append(row['low'])
+            if row['trend'] == 'uptrend':
+                y_values.reverse()
             times = [row['start_time'], row['end_time']]
             x_values.extend(times)
+            trace = plot_trend(x_values, y_values, color)
+            fig.add_trace(trace)
 
-        trace = plot_trend(x_values, y_values)
-        fig.add_trace(trace)
+    fig.update_layout(
+        template='plotly_dark',
+        showlegend=False,
+        xaxis = go.layout.XAxis(
+            showgrid=False,
+            rangeslider=dict(
+                visible=False,
+            ),
+        )
+    )
     fig.show()
