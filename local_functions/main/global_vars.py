@@ -739,7 +739,9 @@ def color_format(msg, color):
 def tab_df(df):
     from tabulate import tabulate
     if type(df) == dict:
-        print(tabulate(df))
+        df = json.dumps(df,indent=2)
+        print(df)
+        return
     tablefmt = 'fancy_grid'
     print(tabulate(df, headers=df.columns, tablefmt=tablefmt))
 

@@ -2047,7 +2047,7 @@ def deep_plot_momentum(fig, yaxis, gv):
     return fig
 
 
-def testing_momentum(trend_frame, current_frame):
+def testing_momentum(trend_frame, sup_res_frame, current_frame):
     def trend_colors(trend):
         t_cols = {
             'gap': 'red',
@@ -2059,7 +2059,7 @@ def testing_momentum(trend_frame, current_frame):
         return t_cols[trend]
     trend_frame['color'] = trend_frame.trend.apply(trend_colors)
     fig = go.Figure()
-    df = current_frame[::-1]
+    df = current_frame # [::-1]
     pricing = go.Candlestick(x=df.time,
                              open=df.open, high=df.high,
                              low=df.low, close=df.close,
@@ -2075,7 +2075,7 @@ def testing_momentum(trend_frame, current_frame):
         trace = go.Scatter(x=x_vals,
                            y=y_vals,
                            mode='markers+lines',
-                        #    fill='toself',
+                           #    fill='toself',
                            line_color=color)
         return trace
 
@@ -2113,11 +2113,40 @@ def testing_momentum(trend_frame, current_frame):
     fig.update_layout(
         template='plotly_dark',
         showlegend=False,
-        xaxis = go.layout.XAxis(
+        xaxis=go.layout.XAxis(
             showgrid=False,
             rangeslider=dict(
                 visible=False,
             ),
         )
     )
+    fig = plot_sup_res(sup_res_frame, current_frame, fig)
     fig.show()
+
+
+def plot_sup_res(sup_res_frame, current_frame, fig):
+    sup_res_frame['color'] = 'rgba(235, 125, 52, .5)'
+    sup_res_frame.loc[sup_res_frame.type == 'resistance', 'color'] = 'rgba(34, 161, 159, .5)'
+    for status in ['broken', 'active']:
+        srf = sup_res_frame[sup_res_frame.status == status]
+        srf = srf.reset_index(drop=True)
+        for index in srf.index:
+            row = srf.iloc[index]
+            line_items = {'color': row['color']}
+
+            if status == 'broken':
+                end_time_index = current_frame[current_frame.time == row['start_time']].index.to_list()[
+                    0]
+                end_time = current_frame.at[end_time_index +
+                                            row['duration'], 'time']
+                line_items['dash']= 'dash'
+                line_items['width']= .5
+            else:
+                end_time = current_frame.time.to_list()[-1]
+
+            y_vals = [row['price']]*2
+            x_vals = [row['start_time'], end_time]
+            fig.add_trace(go.Scatter(x=x_vals, y=y_vals,
+                                     mode='lines',
+                                     line=dict(**line_items)))
+    return fig

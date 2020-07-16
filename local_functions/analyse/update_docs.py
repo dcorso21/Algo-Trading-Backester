@@ -182,7 +182,6 @@ def update_volas():
 
 
 '''----- Momentum -----'''
-# region Momentmu110
 
 
 def update_mom_frame():
@@ -207,7 +206,8 @@ def update_mom_frame():
 
     mom_frame = gl.pd.DataFrame()
     while True:
-        end_index, dfx = find_trend_start(end_index=end_index, yin=yin, yang=mom_dict[yin])
+        end_index, dfx = find_trend_start(
+            end_index=end_index, yin=yin, yang=mom_dict[yin])
         mom_frame = mom_frame.append(dfx, sort=False)
         yin = mom_dict[yin]
         if end_index == 0:
@@ -489,19 +489,6 @@ def find_trend_start(end_index, yin, yang):
     # sf = gl.current_frame[:end_index]
     # sf.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     dfx = gl.pd.DataFrame()
     ideal_list = [3, 5, 10, 15, 30]
     dfx = gl.pd.DataFrame()
@@ -525,9 +512,9 @@ def find_trend_start(end_index, yin, yang):
         trend_low = low
         trend_duration = duration
 
-    # If the trend gets stuck on one minute, then just push it forward.  
+    # If the trend gets stuck on one minute, then just push it forward.
     if duration == 0:
-        return find_trend_start(end_index +1, yin, yang)
+        return find_trend_start(end_index + 1, yin, yang)
     df = gl.current_frame
     # Opposite because we are going backwards in time
     trend_dict = {
@@ -672,9 +659,7 @@ def fit_remainder(mom_frame):
     return mom_frame
 
 
-# endregion Momentum
 '''----- Supports and Resistances -----'''
-# region Momentum
 
 
 def update_supports_resistances():
@@ -718,275 +703,205 @@ def update_supports_resistances():
     gl.sup_res_frame = resistances.append(supports, sort=False)
 
 
-def expand_on_resistances(resistances, min_duration=8):
-    # region Docstring
-    '''
-    # Expand on Resistances
-    takes list of resistances and refines them down based on duration
+def expand_on_supports(supports, current_frame, mom_frame, min_duration=8):
 
-    returns a dataframe of resistances with the start time, duration and price.  
+    cf = current_frame
 
-    ## Parameters:{
-    ####    `resistances`: list of resistance prices. 
-    ####    `min_duration`: integer specifying how many minutes a resistance must hold to qualify. 
-    ## }
-
-    ## Process:
-
-    ### 1) 
-
-    ## Notes:
-    - Notes
-
-    ## TO DO:
-    - Perhaps it would be possible to have several different 
-    types of resistances to designate by duration. 
-    '''
-    # endregion Docstring
-
-    mom_frame = gl.mom_frame
-    cf = gl.current_frame
-
-    dfx = gl.pd.DataFrame()
-    for x in resistances:
-
-        row = mom_frame[mom_frame.high == x].head(1)
-        index = row.index.tolist()[0]
-        if row.at[index, 'trend'] == 'uptrend':
-            time = row.at[index, 'end_time']
+    def trend_start(element, x):
+        if type(element) == list:
+            if x in element:
+                return True
         else:
-            time = row.at[index, 'start_time']
-
-        start = cf[cf.time == time].index.tolist()[0]
-
-        remainder = cf.iloc[start:]
-        higher = remainder[remainder.high.astype(float) > float(x)]
-
-        row = {'type': ['resistance'],
-               'start_time': [time],
-               'status': ['active'],
-               'duration': [len(remainder)],
-               'price': [x]}
-
-        # If the resistance hasn't been broken.
-        if len(higher) == 0:
-            row = gl.pd.DataFrame(row)
-            dfx = dfx.append(row, sort=False)
-            continue
-
-        next_high_index = higher.index.tolist()[0]
-        duration = next_high_index - start
-
-        # If the resistance has been broken but lasted at least the min_duration.
-        if duration >= min_duration:
-            row['duration'] = duration
-            row['status'] = 'broken'
-            row = gl.pd.DataFrame(row)
-            dfx = dfx.append(row, sort=False)
-            continue
-
-    if len(dfx) != 0:
-        dfx = dfx.sort_values(by='start_time')
-    return dfx
-
-
-def expand_on_supports(supports, min_duration=8):
-    # region Docstring
-    '''
-    # Expand on Supports
-    takes list of supports and refines them down based on duration
-
-    returns a dataframe of supports with the start time, duration and price.  
-
-    ## Parameters:{
-    ####    `supports`: list of support prices. 
-    ####    `min_duration`: integer specifying how many minutes a support must hold to qualify. 
-    ## }
-
-    ## Process:
-
-    ### 1) 
-
-    ## Notes:
-    - Notes
-
-    ## TO DO:
-    - Perhaps it would be possible to have several different 
-    types of supports to designate by duration. 
-    '''
-    # endregion Docstring
-    mom_frame = gl.mom_frame
-    cf = gl.current_frame
+            if x == element:
+                return True
+        return False
 
     dfx = gl.pd.DataFrame()
     for x in supports:
+        mf = mom_frame
+        # first, find the trends that have the given support as a low
+        mf['finder'] = mf.low.apply(func=(
+            lambda element:
+            trend_start(element, x)
+        )
+        )
 
-        row = mom_frame[mom_frame.low == x].head(1)
-        index = row.index.tolist()[0]
-        if row.at[index, 'trend'] == 'downtrend':
-            time = row.at[index, 'end_time']
-        else:
-            time = row.at[index, 'start_time']
+        mf = mf[mf.finder == True]
+        start_times = mf.start_time.to_list()
+        start_times.extend(mf.end_time.to_list())
 
-        start = cf[cf.time == time].index.tolist()[0]
+        # trends can overlap in the starting and ending minutes, just take one per  minute
+        mf = mf[~mf.end_time.isin(mf.start_time.to_list())]
+        mf = mf.reset_index(drop=True)
 
-        remainder = cf.iloc[start:, :]
-        lower = remainder[remainder.low.astype(float) < float(x)]
+        last_start = -1 * min_duration
+        count = 0
+        for index in mf.index:
+            # last_index = index
+            row = dict(mf.iloc[index])
+            time = row['start_time']
+            if row['trend'] not in ['rpennant', 'uptrend']:
+                time = row['end_time']
 
-        row = {'type': ['support'],
-               'start_time': [time],
-               'status': ['active'],
-               'duration': [len(remainder)],
-               'price': [x]}
+            time = cf[cf.low == x].time.to_list()[count]
+            while True:
+                if time not in start_times:
+                    count += 1
+                    time = cf[cf.low == x].time.to_list()[count]
+                else:
+                    break
+            count += 1
+            start = cf[cf.time == time].index.tolist()[0]
+            # If there are duplicates of the same price, make sure they are at least x apart
+            if abs(start - last_start) < min_duration:
+                continue
+            last_start = start
 
-        # If the support hasn't been broken.
-        if len(lower) == 0:
-            row = gl.pd.DataFrame(row)
-            dfx = dfx.append(row, sort=False)
-            continue
+            remainder = cf.iloc[start:]
+            lower = remainder[remainder.low.astype(float) < float(x)]
 
-        next_low_index = lower.index.tolist()[0]
-        duration = next_low_index - start
+            row = {'type': ['support'],
+                   'start_time': [time],
+                   'status': ['active'],
+                   'duration': [len(remainder)],
+                   'price': [x]}
 
-        # If the support has been broken but lasted at least the min_duration.
-        if duration >= min_duration:
-            row['duration'] = duration
-            row['status'] = 'broken'
-            row = gl.pd.DataFrame(row)
-            dfx = dfx.append(row, sort=False)
-            continue
+            # If the resistance hasn't been broken.
+            if len(lower) == 0:
+                row = gl.pd.DataFrame(row)
+                dfx = dfx.append(row, sort=False)
+                continue
+
+            next_low_index = lower.index.tolist()[0]
+            duration = next_low_index - start
+
+            # If the resistance has been broken but lasted at least the min_duration.
+            if duration >= 3:
+                row['duration'] = duration
+                row['status'] = 'broken'
+                row = gl.pd.DataFrame(row)
+                dfx = dfx.append(row, sort=False)
 
     if len(dfx) != 0:
         dfx = dfx.sort_values(by='start_time')
     return dfx
 
 
-def get_resistances(cent_range=5):
-    # region Docstring
-    '''
-    # Get Resistances
-    Make a list of price resistances based on `mom_frame` variable  
+def expand_on_sup_res(price_type, significant_prices, current_frame, mom_frame, min_duration=8):
+    significant_prices = set(sorted(significant_prices))
+    cf = current_frame
+    if price_type == 'resistance':
+        column = 'high'
+    elif price_type == 'support':
+        column = 'low'
 
-    Returns a list of prices (resistances)
+    def trend_start(element, x):
+        if type(element) == list:
+            if x in element:
+                return True
+        else:
+            if x == element:
+                return True
+        return False
 
-    ## Parameters:{
-    ####    `cent_range`: int, number of cents to use as a buffer 
-    ####                to ensure multiple resistances aren't right next to each other.  
-    ## }
+    dfx = gl.pd.DataFrame()
+    for x in significant_prices:
+        mf = mom_frame
+        mf['finder'] = mf[column].apply(func=(
+            lambda element:
+            trend_start(element, x)
+        )
+        )
 
-    ## Process:
+        mf = mf[mf.finder == True]
+        mf = mf[~mf.end_time.isin(mf.start_time.to_list())]
+        mf = mf.reset_index(drop=True)
+        last_start = -1 * min_duration
 
-    ### 1) Get list of 'highs' from the `mom_frame` global variable. 
-    - Ensure there are no duplicates. 
+        count = 0
+        for index in mf.index:
+            row = dict(mf.iloc[index])
+            time = row['start_time']
+            if price_type == 'resistance':
+                if row['trend'] in ['rpennant', 'uptrend']:
+                    time = row['end_time']
+            elif price_type == 'support':
+                if row['trend'] not in ['rpennant', 'uptrend']:
+                    time = row['end_time']
 
-    ### 2) Iterate through each resistance and evaluate whether it should count as a new resistance
-    - If it is below a current resistance in the cent range, it will be discarded
-    - If it is above a current resistance in the cent range, the old resistance will be discarded
+            time = cf[cf[column] == x].time.to_list()[count]
+            count += 1
+            start = cf[cf.time == time].index.tolist()[0]
+            if abs(start - last_start) < min_duration:
+                continue
+            last_start = start
 
-    ### 3) Return a list of resistances.  
+            remainder = cf.iloc[start:]
+            if price_type == 'resistance':
+                overs = remainder[remainder[column].astype(float) > float(x)]
+            elif price_type == 'support':
+                overs = remainder[remainder[column].astype(float) < float(x)]
 
-    ## Notes:
-    - A high will only be added as a resistance if it is higher than one known in the same cent range
-    or if it is isolated on its own. 
+            row = {'type': [price_type],
+                   'start_time': [time],
+                   'status': ['active'],
+                   'duration': [len(remainder)],
+                   'price': [x]}
 
-    ## TO DO:
-    - Item
-    '''
-    # endregion Docstring
+            # If the resistance hasn't been broken.
+            if len(overs) == 0:
+                row = gl.pd.DataFrame(row)
+                dfx = dfx.append(row, sort=False)
+                continue
 
-    df = gl.mom_frame
-    # 1) Get list of 'highs' from the `mom_frame` global variable.
-    highs = set(df[df.high >= gl.current['close']].high.to_list())
+            next_over_index = overs.index.tolist()[0]
+            duration = next_over_index - start
 
-    resistances = set()
+            # If the resistance has been broken but lasted at least the min_duration.
+            if duration >= 3:
+                row['duration'] = duration
+                row['status'] = 'broken'
+                row = gl.pd.DataFrame(row)
+                dfx = dfx.append(row, sort=False)
 
-    # 2) Iterate through each resistance and evaluate whether it should count as a new resistance
-    for high in highs:
-
-        # if no other resistances have been evaluated, add it to the set.
-        if len(resistances) == 0:
-            resistances.add(high)
-            continue
-
-        nearby_resistance = [resist for resist in resistances if abs(
-            resist - high) <= cent_range*.01]
-
-        # if there are no nearby matches, it is a new resistance.
-        if len(nearby_resistance) == 0:
-            resistances.add(high)
-            continue
-
-        # if it is higher than the nearby one, replace old one.
-        if high > nearby_resistance[0]:
-            resistances.discard(nearby_resistance[0])
-            resistances.add(high)
-
-    # 3) return list
-    return list(resistances)
+    if len(dfx) != 0:
+        dfx = dfx.sort_values(by='start_time')
+    return dfx
 
 
-def get_supports(cent_range=3):
-    # region Docstring
-    '''
-    # Get supports
-    Make a list of price supports based on `mom_frame` variable  
-
-    Returns a list of prices (supports)
-
-    ## Parameters:{
-    ####    `cent_range`: int, number of cents to use as a buffer 
-    ####                to ensure multiple supports aren't right next to each other.  
-    ## }
-
-    ## Process:
-
-    ### 1) Get list of 'highs' from the `mom_frame` global variable. 
-    - Ensure there are no duplicates. 
-
-    ### 2) Iterate through each support and evaluate whether it should count as a new support
-    - If it is above a current support in the cent range, it will be discarded
-    - If it is below a current support in the cent range, the old support will be discarded
-
-    ### 3) Return a list of supports.  
-
-    ## Notes:
-    - A high will only be added as a support if it is higher than one known in the same cent range
-    or if it is isolated on its own. 
-
-    ## TO DO:
-    - Item
-    '''
-    # endregion Docstring
-
-    mom_frame = gl.mom_frame
-    # 1) Get list of 'highs' from the `mom_frame` global variable.
-    lows = set(mom_frame[mom_frame.low <= gl.current['close']].low.to_list())
-
-    supports = set()
+def get_significant_prices(price_type, pot_prices, cent_range=3):
+    significant = set()
 
     # 2) Iterate through each resistance and evaluate whether it should count as a new resistance
-    for low in lows:
+    for price in pot_prices:
 
         # if no other resistances have been evaluated, add it to the set.
-        if len(supports) == 0:
-            supports.add(low)
+        if len(significant) == 0:
+            significant.add(price)
             continue
 
-        nearby_support = [support for support in supports if abs(
-            support - low) <= cent_range*.01]
+        nearby_support = [support for support in significant if abs(
+            support - price) <= cent_range*.01]
 
         # if there are no nearby matches, it is a new support.
         if len(nearby_support) == 0:
-            supports.add(low)
+            significant.add(price)
             continue
 
         # if it is lower than the nearby one, replace old one.
-        if low > nearby_support[0]:
-            supports.discard(nearby_support[0])
-            supports.add(low)
+        replace = False
+        if price_type == 'support':
+            if price < nearby_support[0]:
+                replace = True
+        elif price_type == 'resistance':
+            if price > nearby_support[0]:
+                replace = True
+        if replace:
+            significant.discard(nearby_support[0])
+            significant.add(price)
 
     # 3) return list
-    return list(supports)
+    return list(significant)
 
 
 def evaluate_sup_res_frame():
@@ -1005,17 +920,10 @@ def evaluate_sup_res_frame():
 
     gl.sup_res_frame = srf
 
-# endregion Momentum
+'''-------------------- Momentum Again --------------------'''
 
-
-
-def new_momentum():
-    path = "mkt_csvs/2017-08-10_HDSN.csv"
-    end_index = 390
-    # df = gl.configure.get_sim_df(path)[:end_index+1]
-    df = gl.hist.get_random_sim_df()[:end_index+1]
-
-    low = df.at[end_index, 'low']
+def new_momentum(current_frame):
+    df = current_frame
 
     # Reverse the frame to start from last minute
     df = df.iloc[::-1].reset_index(drop=True)
@@ -1073,7 +981,8 @@ def new_momentum():
     tf['high'] = highs
     tf['low'] = lows
     # gl.tab_df(tf)
-    gl.plotr.testing_momentum(tf, df)
+    mom_frame = tf.sort_values(by='start_time')
+    return mom_frame
 
 
 def identify_trends(cf, tf, full_df):
@@ -1091,7 +1000,7 @@ def identify_trends(cf, tf, full_df):
         if t != trend:
             # If it a pennant trend, and has not been at least 3 mins
             if ('pennant' in trend) and (count < 3):
-                next_trend = end_point['trend'] 
+                next_trend = end_point['trend']
                 extend = False
                 extension = {
                     'pennant': 'uptrend',
@@ -1110,11 +1019,13 @@ def identify_trends(cf, tf, full_df):
                         else:
                             # Extend Trend
                             tf = tf.reset_index(drop=True)
-                            tf.at[tf.index.to_list()[-1], 'start_time'] = last_time
+                            tf.at[tf.index.to_list()[-1],
+                                  'start_time'] = last_time
                             new_trend = False
                     elif next_trend == 'downtrend':
                         new_low = cf.at[index-1, 'low']
-                        next_low = full_df[full_df.time == tf.end_time.to_list()[-1]].low.to_list()[0]
+                        next_low = full_df[full_df.time ==
+                                           tf.end_time.to_list()[-1]].low.to_list()[0]
                         if new_low < next_low:
                             trend = extension[next_trend]
                         elif 'r' in trend:
@@ -1122,11 +1033,11 @@ def identify_trends(cf, tf, full_df):
                         else:
                             # Extend Trend
                             tf = tf.reset_index(drop=True)
-                            tf.at[tf.index.to_list()[-1], 'start_time'] = last_time
+                            tf.at[tf.index.to_list()[-1],
+                                  'start_time'] = last_time
                             new_trend = False
                 else:
                     trend = extension[next_trend]
-
 
             break
         count += 1
@@ -1139,7 +1050,8 @@ def identify_trends(cf, tf, full_df):
         if trend == next_trend:
             if trend == 'uptrend':
                 new_trend_high = end_point['high']
-                next_trend_high = full_df[full_df.time == tf.end_time.to_list()[-1]].high.values[0]
+                next_trend_high = full_df[full_df.time ==
+                                          tf.end_time.to_list()[-1]].high.values[0]
                 if new_trend_high > next_trend_high:
                     tf = tf.reset_index(drop=True)
                     tf = tf.drop(tf.index.to_list()[-1])
@@ -1148,7 +1060,8 @@ def identify_trends(cf, tf, full_df):
                     extend = True
             elif trend == 'downtrend':
                 new_trend_low = end_point['low']
-                next_trend_low = full_df[full_df.time == tf.end_time.to_list()[-1]].low.values[0]
+                next_trend_low = full_df[full_df.time ==
+                                         tf.end_time.to_list()[-1]].low.values[0]
                 if new_trend_low < next_trend_low:
                     tf = tf.reset_index(drop=True)
                     tf = tf.drop(tf.index.to_list()[-1])
@@ -1162,7 +1075,7 @@ def identify_trends(cf, tf, full_df):
         tf = tf.reset_index(drop=True)
         tf.at[tf.index.to_list()[-1], 'start_time'] = last_time
         new_trend = False
-    
+
     if new_trend:
         row = {
             'start_time': [last_time],
@@ -1171,11 +1084,11 @@ def identify_trends(cf, tf, full_df):
         }
         trend_info = gl.pd.DataFrame(row)
         tf = tf.append(trend_info, sort=False)
-        
+
     if last_time == cf.time.to_list()[-1]:
         return cf, tf
     else:
-        left = cf[index -1:]
+        left = cf[index - 1:]
         cf, tf = identify_trends(left, tf, full_df)
     return cf, tf
-        
+
