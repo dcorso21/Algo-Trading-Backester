@@ -37,10 +37,29 @@ def analyse():
             day_eval()
 
     # 2) Build Orders
+    set_trade_mode()
     orders = gl.order_eval.build_orders()
     gl.log_funcs.log_sent_orders(orders)
 
     return orders
+
+def set_trade_mode():
+    if len(gl.current_frame) <= 5:
+        strategy = 'mkt_open_chaos'
+    else:
+        if str(gl.close_sup_res[0]) == 'nan':
+            strategy = 'free_fall'
+        elif str(gl.close_sup_res[1]) == 'nan':
+            strategy = 'breakout_to_new_highs'
+        else:
+            strategy = 'consolidating'
+    
+    if strategy != gl.strategy:
+        gl.log_funcs.log(f'New Trade Mode: {strategy}')
+    
+    gl.strategy = strategy
+
+
 
 
 '''----- Day Analysis -----'''

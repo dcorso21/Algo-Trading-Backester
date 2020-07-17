@@ -45,7 +45,7 @@ def build_orders():
 
 '''-------------------- Order Makers --------------------'''
 
-max_dur = 10
+max_dur = 30 
 
 
 def order_below_avg():
@@ -647,7 +647,7 @@ def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
     acct_size = gl.account.get_available_capital()
     max_possible = round(acct_size - amount_invested, 2)
 
-    exp = 2.5
+    exp = 1.7
 
     # PERC TO INV BASED ON Trend Length
     perc_to_inv = (cur_dur**exp/max_dur**exp)

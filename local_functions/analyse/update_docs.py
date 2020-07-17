@@ -165,7 +165,7 @@ def update_volas():
 
 def update_momentum():
     if gl.current['second'] != 59 or len(gl.current_frame) < 2:
-        return 
+        return
 
     df = gl.current_frame
 
@@ -226,10 +226,12 @@ def update_momentum():
     tf['low'] = lows
     # gl.tab_df(tf)
     mom_frame = tf.sort_values(by='start_time')
-    mom_frame['volatility'] = gl.common.get_volatility(mom_frame.high, mom_frame.low, convert=True)
+    mom_frame['volatility'] = gl.common.get_volatility(
+        mom_frame.high, mom_frame.low, convert=True)
     durations = []
     for start_time, end_time in zip(mom_frame.start_time, mom_frame.end_time):
-        durations.append(gl.common.get_duration(start_time, end_time, convert_to_timestamp=True))
+        durations.append(gl.common.get_duration(
+            start_time, end_time, convert_to_timestamp=True))
     mom_frame['duration'] = durations
     gl.mom_frame = mom_frame
 
@@ -390,18 +392,19 @@ def update_supports_resistances():
                                            current_frame=df,
                                            mom_frame=mf)
 
-
     gl.sup_res_frame = sup.append(res, sort=False)
 
     if len(res) == 0:
         closest_res = float('nan')
     else:
-        closest_res = res[res['status'] == 'active'].price.min()
+        closest_res = res[(res['status'] == 'active') &
+                          (res['start_time'] != gl.current['minute'])].price.min()
 
     if len(sup) == 0:
         closest_sup = float('nan')
     else:
-        closest_sup = sup[sup['status'] == 'active'].price.max()
+        closest_sup = sup[(sup['status'] == 'active') &
+                          (sup['start_time'] != gl.current['minute'])].price.max()
 
     gl.close_sup_res = [closest_sup, closest_res]
 
