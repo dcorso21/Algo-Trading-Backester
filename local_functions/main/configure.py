@@ -179,6 +179,7 @@ def reset_variables(mode, csv_file):
     }
 
     gl.volumes = volumes
+    gl.close_sup_res = [float('nan'), float('nan')]
 
     print('variables reset')
 

@@ -1669,6 +1669,10 @@ def pricing_and_overlays(gv, domain):
     print('Plotting Second Data')
     fig = plot_second_data(df=gv.current_frame, y_axis=yaxis)
 
+    # Sup Res 
+    print('Plotting Supports and Resistances')
+    fig = deep_sup_res_plot(fig=fig, yaxis=yaxis, gv=gv)
+
     # Momentum
     print('Plotting Momentum')
     fig = deep_plot_momentum(fig=fig, yaxis=yaxis, gv=gv)
@@ -2020,34 +2024,6 @@ def plot_exposure(gv, fig, layout, yaxis, domain):
 
 def deep_plot_momentum(fig, yaxis, gv):
     from local_functions.analyse.common import make_timestamp
-    mom_frame = gv.mom_frame
-    if len(mom_frame) == 0:
-        return fig
-
-    mom_frame['start_time'] = mom_frame.start_time.apply(
-        lambda x: make_timestamp(x, 30))
-    mom_frame['end_time'] = mom_frame.end_time.apply(
-        lambda x: make_timestamp(x, 30))
-    for index in gv.mom_frame.index:
-        row = dict(gv.mom_frame.iloc[index])
-        x_vals = [row['start_time'], row['end_time']]
-        if row['trend'] == 'uptrend':
-            y_vals = [row['low'], row['high']]
-        else:
-            y_vals = [row['high'], row['low']]
-
-        trace = go.Scatter(x=x_vals,
-                           y=y_vals,
-                           yaxis=f'y{yaxis}',
-                           mode='lines',
-                           line_color=row['color'],
-                           showlegend=False)
-
-        fig.add_trace(trace)
-    return fig
-
-
-def testing_momentum(trend_frame, sup_res_frame, current_frame):
     def trend_colors(trend):
         t_cols = {
             'gap': 'red',
@@ -2057,30 +2033,22 @@ def testing_momentum(trend_frame, sup_res_frame, current_frame):
             'pennant': '#ccc250',
         }
         return t_cols[trend]
-    trend_frame['color'] = trend_frame.trend.apply(trend_colors)
-    fig = go.Figure()
-    df = current_frame # [::-1]
-    pricing = go.Candlestick(x=df.time,
-                             open=df.open, high=df.high,
-                             low=df.low, close=df.close,
-                             line_width=.5, increasing_line_color='#0fba51',
-                             decreasing_line_color='#b5091d',
-                             name="pricing",
-                             showlegend=True
-                             )
-
-    fig.add_trace(pricing)
+    mom_frame = gv.mom_frame
+    df = gv.current_frame  # [::-1]
+    mom_frame['color'] = mom_frame.trend.apply(trend_colors)
+    mom_frame['start_time'] = mom_frame.start_time.apply(lambda x: make_timestamp(x,30))
+    mom_frame['end_time'] = mom_frame.end_time.apply(lambda x: make_timestamp(x,30))
 
     def plot_trend(x_vals, y_vals, color):
         trace = go.Scatter(x=x_vals,
                            y=y_vals,
                            mode='markers+lines',
-                           #    fill='toself',
+                           yaxis=f'y{yaxis}',
                            line_color=color)
         return trace
 
-    for index in trend_frame.index:
-        row = dict(trend_frame.iloc[index])
+    for index in mom_frame.index:
+        row = dict(mom_frame.iloc[index])
         if row['trend'] == 'gap':
             continue
         color = row['color']
@@ -2110,23 +2078,16 @@ def testing_momentum(trend_frame, sup_res_frame, current_frame):
             trace = plot_trend(x_values, y_values, color)
             fig.add_trace(trace)
 
-    fig.update_layout(
-        template='plotly_dark',
-        showlegend=False,
-        xaxis=go.layout.XAxis(
-            showgrid=False,
-            rangeslider=dict(
-                visible=False,
-            ),
-        )
-    )
-    fig = plot_sup_res(sup_res_frame, current_frame, fig)
-    fig.show()
+    return fig
 
 
-def plot_sup_res(sup_res_frame, current_frame, fig):
-    sup_res_frame['color'] = 'rgba(235, 125, 52, .5)'
-    sup_res_frame.loc[sup_res_frame.type == 'resistance', 'color'] = 'rgba(34, 161, 159, .5)'
+def deep_sup_res_plot(fig, yaxis, gv):
+    from local_functions.analyse.common import make_timestamp
+    sup_res_frame = gv.sup_res_frame
+    current_frame = gv.current_frame
+    sup_res_frame['color'] = 'rgba(235, 125, 52, .2)'
+    sup_res_frame.loc[sup_res_frame.type ==
+                      'resistance', 'color'] = 'rgba(34, 161, 159, .2)'
     for status in ['broken', 'active']:
         srf = sup_res_frame[sup_res_frame.status == status]
         srf = srf.reset_index(drop=True)
@@ -2139,14 +2100,17 @@ def plot_sup_res(sup_res_frame, current_frame, fig):
                     0]
                 end_time = current_frame.at[end_time_index +
                                             row['duration'], 'time']
-                line_items['dash']= 'dash'
-                line_items['width']= .5
+                line_items['dash'] = 'dot'
+                line_items['width'] = .5
             else:
                 end_time = current_frame.time.to_list()[-1]
 
             y_vals = [row['price']]*2
             x_vals = [row['start_time'], end_time]
+            x_vals = list(map(lambda x: make_timestamp(x,30), x_vals))
             fig.add_trace(go.Scatter(x=x_vals, y=y_vals,
                                      mode='lines',
+                                     yaxis=f'y{yaxis}',
                                      line=dict(**line_items)))
     return fig
+

@@ -1,6 +1,4 @@
 
-
-
 # 3rd party
 from pathlib import Path
 from functools import wraps
@@ -145,6 +143,7 @@ volumes = {
 
 open_cancels = {}
 last_order_check = ['09:30:00', 1, 'price']
+close_sup_res = ['closest_support', 'closest_resistance']
 
 class GlobalV:
     def __init__(self):
@@ -351,10 +350,10 @@ def save_all(path_to_folder):
 
         save_frame(file, file_name, path_to_folder)
 
-    if len(mom_frame) != 0:
-        # update_docs.update_momentum()
-        plotr.plot_momentum(mom_frame, current_frame,
-                            path_to_folder, batch_dir, csv_name)
+    # if len(mom_frame) != 0:
+    #     # update_docs.update_momentum()
+    #     plotr.plot_momentum(mom_frame, current_frame,
+    #                         path_to_folder, batch_dir, csv_name)
     if len(filled_orders) != 0:
         plotr.plot_results(current_frame, filled_orders,
                            batch_dir, path_to_folder, csv_name)

@@ -1,7 +1,7 @@
 from local_functions.main import global_vars as gl
 
 
-def get_volatility(high_list, low_list) -> list:
+def get_volatility(high_list, low_list, convert=False) -> list:
     # region Docstring
     '''
     ## Get Volatility
@@ -10,6 +10,17 @@ def get_volatility(high_list, low_list) -> list:
     returns numpy array of volatilities. 
     '''
     # endregion Docstring
+    if convert:
+        def convert_high(high):
+            if type(high) == list:
+                return max(high)
+            return high
+        def convert_low(low):
+            if type(low) == list:
+                return min(low)
+            return low
+        high_list = [convert_high(high) for high in high_list]
+        low_list = [convert_low(low) for low in low_list]
     highs = gl.np.array(high_list)
     lows = gl.np.array(low_list)
     vola = gl.np.around((((highs - lows) / lows)*100), decimals=1)
@@ -291,8 +302,16 @@ def mins_left():
 def investment_duration():
     started = gl.current_positions.exe_time.values[0]
     start_time = gl.pd.to_datetime(started).timestamp()
-    current_time = gl.common.get_current_timestamp(integer=True)
-    seconds = current_time - start_time
+    current_time = get_current_timestamp(integer=True)
+    duration = get_duration(start_time, current_time)
+    return duration
+
+
+def get_duration(start, end, convert_to_timestamp=False):
+    if convert_to_timestamp:
+        start = gl.pd.to_datetime(start).timestamp()
+        end = gl.pd.to_datetime(end).timestamp()
+    seconds = end - start
     duration = seconds/60
     return duration
 
