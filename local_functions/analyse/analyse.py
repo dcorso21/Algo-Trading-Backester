@@ -45,17 +45,18 @@ def analyse():
 
 def set_trade_mode():
     if len(gl.current_frame) <= 5:
-        strategy = 'mkt_open_chaos'
+        strategy = 'market_open_chaos'
     else:
         if str(gl.close_sup_res[0]) == 'nan':
             strategy = 'free_fall'
         elif str(gl.close_sup_res[1]) == 'nan':
             strategy = 'breakout_to_new_highs'
         else:
-            strategy = 'consolidating'
-    
+            strategy = 'consolidate'
+
     if strategy != gl.strategy:
         gl.log_funcs.log(f'New Trade Mode: {strategy}')
+        gl.new_strategy = True
     
     gl.strategy = strategy
 

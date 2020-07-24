@@ -2,7 +2,7 @@ from local_functions.main import global_vars as gl
 
 
 def update_files():
-
+    gl.sec_mom = update_second_momentum()
     update_return_and_pl()
     update_volumes()
     update_volas()
@@ -161,6 +161,33 @@ def update_volas():
 
 
 '''----- Momentum -----'''
+
+@ gl.log_funcs.tracker
+def update_second_momentum():
+    sec_mom = gl.sec_mom
+    last = gl.last['close']
+    current = gl.current['close']
+    if last == 'nan':
+        return 0
+
+    if sec_mom == 0:
+        if current > last:
+            sec_mom = 1
+        elif current < last:
+            sec_mom = -1
+    elif sec_mom < 0:
+        if current <= last:
+            sec_mom -= 1
+        else:
+            sec_mom = 0
+    else:
+        if current >= last:
+            sec_mom += 1
+        else:
+            sec_mom = 0
+    return sec_mom
+
+
 
 
 def update_momentum():

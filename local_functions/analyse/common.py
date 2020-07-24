@@ -288,7 +288,7 @@ def bounce_factor():
     return bounce_factor
 
 
-@ gl.log_funcs.tracker
+# @ gl.log_funcs.tracker
 def mins_left():
     hard_stop = gl.config['misc']['hard_stop']
     hard_stop = gl.pd.to_datetime(hard_stop).timestamp()

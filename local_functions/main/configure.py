@@ -90,6 +90,7 @@ def reset_variables(mode, csv_file):
     gl.buy_lock = False
     gl.sell_out = False
     gl.chart_response = False
+    gl.sec_mom = 0
 
     gl.order_specs = gl.pd.DataFrame()
     gl.queued_orders = gl.pd.DataFrame()

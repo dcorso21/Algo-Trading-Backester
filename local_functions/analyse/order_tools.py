@@ -202,18 +202,13 @@ def get_exe_price(method):
         return exe_price
 
     def low_placement():
-        # if len(gl.mom_frame) != 0:
-        #     cur_trend = gl.mom_frame.iloc[-1]
-        #     if cur_trend['trend'] == 'uptrend':
-        #         if gl.common.candle_is_green():
-        #             return current_price()
-        #         else:
-        #             return extrapolate()
-        # get low from last two minutes.
-        nearby_low = gl.current_frame.tail(2).low.min()
-        dif = abs(gl.current_price() - nearby_low)
-        dif = dif / 5
-        price = round(nearby_low + dif, 2)
+        if gl.sec_mom <= 0:
+            nearby_low = gl.current_frame.tail(2).low.min()
+            dif = abs(gl.current_price() - nearby_low)
+            dif = dif / 5
+            price = round(nearby_low + dif, 2)
+        else:
+            price = ask_price()
         return price
 
     def bid_price():
@@ -222,9 +217,7 @@ def get_exe_price(method):
         return bid
 
     def ask_price():
-        current_price = gl.current['close']
-        ask = current_price + .01
-        return ask
+        return gl.current_price() + .01
 
     price_methods = {
         'bid': bid_price,
