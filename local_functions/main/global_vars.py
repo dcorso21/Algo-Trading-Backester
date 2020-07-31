@@ -58,8 +58,8 @@ chart_response = False
 buy_clock = 0
 buy_lock = False
 # list the starting strategy
-new_strategy = False
-strategy='moderate'
+strategy = 'strat_name'
+strategy_mode='consolidate'
 # seconds that momentum is going in the same direction. 
 # Negative means that the momentum is down
 sec_mom = 0

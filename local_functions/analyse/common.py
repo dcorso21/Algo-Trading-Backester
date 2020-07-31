@@ -357,3 +357,8 @@ def current_return():
 
 def current_exposure():
     return gl.current_positions.cash.sum()
+
+
+def stop_trading():
+    gl.chart_response = False
+    gl.buy_lock = True

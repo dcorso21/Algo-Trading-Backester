@@ -173,11 +173,6 @@ def format_orders(orders):
 
 
 def get_exe_price(method):
-    '''
-    # Get Execution Price
-
-    master function for retrieving an execution price for any given order. 
-    '''
 
     def current_price():
         return gl.current['close']
@@ -212,12 +207,14 @@ def get_exe_price(method):
         return price
 
     def bid_price():
-        current_price = gl.current['close']
-        bid = current_price - .01
-        return bid
+        price = gl.current_price()
+        spacer = (price*.01) / 4
+        return price - spacer
 
     def ask_price():
-        return gl.current_price() + .01
+        price = gl.current_price()
+        spacer = (price*.01) / 4
+        return price + spacer
 
     price_methods = {
         'bid': bid_price,

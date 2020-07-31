@@ -128,7 +128,10 @@ def update_volas():
     volas['current'] = gl.common.get_volatility(
         [gl.current['high']], [gl.current['low']])[0]
 
-    cf = gl.current_frame.drop(gl.current_frame.index[-1])
+    cf = gl.current_frame
+    if len(gl.current_frame) == 0:
+        cf = cf.drop(gl.current_frame.index[-1])
+
     cf['vola'] = gl.common.get_volatility(cf['high'], cf['low'])
 
     volas['mean'] = cf.vola.mean()

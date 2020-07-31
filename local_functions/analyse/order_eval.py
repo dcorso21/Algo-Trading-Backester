@@ -2,15 +2,6 @@ from local_functions.main import global_vars as gl
 
 
 def build_orders():
-    # region Docstring
-    '''
-    # Build Orders
-    Evaluates Position Data and creates orders for execution
-
-    #### Returns dataframe or empty list
-
-    '''
-    # endregion Docstring
     # If there are cancelled orders qualified for refresh,
     # deal with them first
     refreshed = check_auto_refresh()
@@ -20,6 +11,16 @@ def build_orders():
     # Skip Clause:
     if bad_trade_conds():
         return []
+
+    if gl.new_strategy_mode:
+        strategy_modes = {
+            'market_open_chaos': market_open_chaos,
+            'consolidate': consolidate,
+            'breakout_to_new_highs': breakout_to_new_highs,
+            'free_fall': free_fall,
+        }
+        strategy_modes[gl.strategy_mode]()
+        gl.new_strategy_mode = False
 
     # if no positions, enter now.
     if len(gl.current_positions) == 0:
@@ -35,16 +36,6 @@ def build_orders():
         return []
 
 
-    if gl.new_strategy:
-        strategies = {
-            'market_open_chaos': market_open_chaos,
-            'consolidate': consolidate,
-            'breakout_to_new_highs': breakout_to_new_highs,
-            'free_fall': free_fall,
-            }
-        strategies[gl.strategy]()
-        gl.new_strategy = False
-
     if strat_exceptions():
         return []
     if above_average():
@@ -57,14 +48,15 @@ def build_orders():
 
 strat_vars = {
     'strat_conds': [],
-    'max_dur':'int',
+    'max_dur': 'int',
     'soft_cap_limit': 1,
 }
+
 
 def market_open_chaos():
     global strat_vars
     strat_vars = {
-        'strat_conds':[],
+        'strat_conds': [],
         'max_dur': 10,
         'soft_cap_limit': .2,
     }
@@ -73,17 +65,16 @@ def market_open_chaos():
 def free_fall():
     global strat_vars
     strat_vars = {
-        'strat_conds':['pos_sec_mom'],
+        'strat_conds': ['pos_sec_mom'],
         'max_dur': 10,
         'soft_cap_limit': .2,
     }
 
 
-
 def breakout_to_new_highs():
     global strat_vars
     strat_vars = {
-        'strat_conds':['pos_sec_mom'],
+        'strat_conds': ['pos_sec_mom'],
         'max_dur': 10,
         'soft_cap_limit': .5,
     }
@@ -92,7 +83,7 @@ def breakout_to_new_highs():
 def consolidate():
     global strat_vars
     strat_vars = {
-        'strat_conds':['pos_sec_mom'],
+        'strat_conds': ['pos_sec_mom'],
         'max_dur': 10,
         'soft_cap_limit': .2,
     }
@@ -107,7 +98,7 @@ def strat_exceptions():
     for s in strat_vars['strat_conds']:
         if st_conds[s]:
             return True
-    
+
     return False
 
 
@@ -132,7 +123,7 @@ def look_to_avg_down():
 
     '''
     # endregion Docstring
-    return look_to_rebalance() #######################################################
+    return look_to_rebalance()
 
     acct_size = gl.account.get_available_capital()
     amount_invested = gl.current_positions.cash.sum()
@@ -232,23 +223,9 @@ def look_to_rebalance():
 
 
 def sell_conditions():
-    # region Docstring
-    '''
-    # Sell Conditions
-
-    #### Returns sell orders if conditions are met. 
-    '''
-    # endregion Docstring
     s_params = gl.configure.master['sell_conditions']
 
     def dollar_risk_check():
-        # region Docstring
-        '''
-        # Dollar Risk Check
-        ## Sell Condition 
-        Checks to see if the unreal and real add up to the risk amount noted in conditions. 
-        '''
-        # endregion Docstring
         d_risk = gl.pl_ex['unreal'] + gl.pl_ex['unreal']
         if d_risk <= gl.configure.misc['dollar_risk']:
             everything = gl.current_positions.qty.sum()
@@ -261,14 +238,6 @@ def sell_conditions():
         return []
 
     def percentage_gain():
-        # region Docstring
-        '''
-        # Percentage_Gain
-        A Sell Condition function that will create a sell order based on a percentage gain of `current_positions` overall.  
-
-        Returns a DataFrame of Sell Orders. 
-        '''
-        # endregion Docstring
         avg = gl.common.current_average()
         perc = s_params['percentage_gain']['perc_gain']
         target_price = avg * (1 + (.01 * perc))
@@ -281,15 +250,6 @@ def sell_conditions():
         return []
 
     def target_unreal():
-        # region Docstring
-        '''
-        # Target_Unreal
-        ## Sell Condition 
-        Looks at current unreal PL and if it gets over a certain amount, creates sell order(s). 
-
-        Returns DataFrame of Sell Orders. 
-        '''
-        # endregion Docstring
         target_unreal_amount = s_params['target_unreal']['target_unreal_amount']
         unreal = gl.pl_ex['unreal']
         if unreal >= target_unreal_amount:
@@ -304,20 +264,6 @@ def sell_conditions():
         return []
 
     def exposure_over_account_limit():
-        # region Docstring
-        '''
-        # exposure_over_account_limit
-        # Sell Condition 
-        Looks at current exposure and if it gets over the account limit, creates sell order(s). 
-
-        Returns DataFrame of Sell Orders. 
-
-        # Parameters:{
-        # All Parametes are controlled in `local_functions.main.configure`
-        # }
-
-        '''
-        # endregion Docstring
         available_capital = gl.account.get_available_capital()
         exposure = gl.common.current_exposure()
         if exposure > available_capital:
@@ -329,19 +275,6 @@ def sell_conditions():
         return []
 
     def timed_exit():
-        # region Docstring
-        '''
-        # Timed Exit
-        # Sell Condition
-        If the current minute is 11:00:00, then sell EVERYTHING. 
-
-        Returns a Sells DataFrame
-
-        # Parameters:{
-        # All Parametes are controlled in `local_functions.main.configure`
-        # }
-        '''
-        # endregion Docstring
         minute_off = s_params['timed_exit']['minute_offset']
         exit_time = gl.configure.misc['hard_stop']
         exit_time = gl.pd.to_datetime(exit_time)
@@ -608,11 +541,10 @@ def bad_trade_conds():
 
 
 def new_eval_triggered():
-    cp = gl.current_positions
     # If there is only a starting position, then keep on the lookout.
-    if len(cp) == 1:
-        reset_last_order_check()
-        return True
+    # if len(gl.current_positions) == 1:
+    #     reset_last_order_check()
+    #     return True
 
     # If there hasn't been an order check yet, then it will be a str
     # Then reset last order check
@@ -620,37 +552,36 @@ def new_eval_triggered():
     if type(last_price) == str:
         reset_last_order_check()
         return True
+
     # upper_bound = last_price*(1+(gl.volas['mean']*.01))
     lower_bound = last_price*(1-(gl.volas['mean']*.01))
-    # if gl.current['close'] > upper_bound:
-    # gl.log_funcs.log(msg='order eval triggered by price rise')
-    #     return True
-    if gl.current['close'] < lower_bound:
-        gl.log_funcs.log(msg='order eval triggered by price drop')
+
+    if gl.current_price() < lower_bound:
+        gl.log_funcs.log(msg='order eval triggered by price swing')
         reset_last_order_check()
         return True
 
-    # last_trade_time = cp.exe_time.values[0]
-    minute, second = gl.last_order_check[0], gl.last_order_check[1]
-    last_check_time = gl.common.get_timestamp(minute, second)
-    current_time = gl.common.get_timestamp(
-        gl.current['minute'], gl.current['second'])
-    current_time = gl.pd.to_datetime(current_time).timestamp()
-    last_check_time = gl.pd.to_datetime(last_check_time).timestamp()
+    minute, second, _ = gl.last_order_check
+    last_check_time = gl.common.get_timestamp(minute, second, integer=True)
+    current_time = gl.common.get_current_timestamp(integer=True)
     since_last_trade = current_time - last_check_time
+
     if since_last_trade > gl.config['misc']['buy_clock_countdown_amount']:
         reset_last_order_check()
         return True
+
     return False
 
 
 def reset_last_order_check():
     gl.last_order_check = [gl.current['minute'],
-                           gl.current['second'], gl.current_price()]
+                           gl.current['second'],
+                           gl.current_price()
+                           ]
 
 
 def above_average() -> bool:
-    if gl.current['close'] > gl.common.current_average():
+    if gl.current_price() > gl.common.current_average():
         return True
     return False
 
@@ -748,8 +679,7 @@ def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
 
 def target_avg():
     price = gl.current_price()
-
-    return price + ((.01*gl.volas['mean'])/5)*price
+    return price + ((.01*gl.volas['mean'])/10)*price
 
 
 @ gl.log_funcs.tracker
