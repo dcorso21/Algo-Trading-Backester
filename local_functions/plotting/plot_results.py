@@ -1664,6 +1664,8 @@ def pricing_and_overlays(gv, domain):
     tracker, average_df = extract_tracker_variable(
         tracker=gv.tracker, var='average')
 
+
+
     yaxis = len(pd.unique(tracker.variable)) + 1
 
     print('Plotting Second Data')
@@ -2082,6 +2084,8 @@ def deep_plot_momentum(fig, yaxis, gv):
 
 
 def deep_sup_res_plot(fig, yaxis, gv):
+    if len(gv.sup_res_frame) == 0:
+        return fig
     from local_functions.analyse.common import make_timestamp
     sup_res_frame = gv.sup_res_frame
     current_frame = gv.current_frame

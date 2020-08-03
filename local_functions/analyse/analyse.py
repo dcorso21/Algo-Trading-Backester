@@ -8,73 +8,96 @@ def analyse():
             gl.loop_feedback = False
             return []
 
-    # 1) Analyse Daily Chart - Only when there has been an update...
     if (str(gl.current) != str(gl.last)) | (gl.current['second'] == 59):
         gl.update_docs.update_files()
-        # only necessary to evaluate if there are no current positions.
-        if len(gl.current_positions) == 0:
-            day_eval()
 
-    # 2) Build Orders
-    set_strategy_mode()
-    orders = gl.order_eval.build_orders()
-    gl.log_funcs.log_sent_orders(orders)
+    orders = eval_orders()
 
     return orders
 
 
-def set_strategy_mode():
-    new_strategy_mode = False
-    if len(gl.current_frame) <= 5:
-        mode = 'market_open_chaos'
-    else:
-        if str(gl.close_sup_res[0]) == 'nan':
-            mode = 'free_fall'
-        elif str(gl.close_sup_res[1]) == 'nan':
-            mode = 'breakout_to_new_highs'
-        else:
-            mode = 'consolidate'
-    if mode != gl.strategy_mode:
-        gl.log_funcs.log(f'New Trade Mode: {mode}')
-        new_strategy_mode = True
-    gl.strategy_mode = mode
-
-    if new_strategy_mode:
-        strategy_modes = {
-            'market_open_chaos': market_open_chaos,
-            'consolidate': consolidate,
-            'breakout_to_new_highs': breakout_to_new_highs,
-            'free_fall': free_fall,
-        }
-        strategy_modes[gl.strategy_mode]()
 
 
 '''----- Day Analysis -----'''
+def eval_orders():
+    if not gl.common.actively_trading():
+        return look_for_entry()
+    else:
+        return order_builder()
 
 
-def day_eval():
+def order_builder():
+    modes = gl.strategy['modes']
+    for mode in modes.keys():
+        if mode['check']():
+            adds = mode['instructions']['add']
+            sells = mode['instructions']['sell']
+            for add in adds:
+                if add['cond']:
+                    return gl.order_tools.create_orders(**add['order']) 
+            for sell in sells:
+                if sell['cond']:
+                    return gl.order_tools.create_orders(**sell['order']) 
+    return []
+
+
+def look_for_entry():
     if good_time_to_stop():
         gl.common.stop_trading()
-        return
+        return []
+    
+    return strat_eval()
 
-    strat_eval()
 
 def strat_eval():
     def bounce_found():
-        if sequential_candles('red', 4, 4):
-            if gl.current['open'] < gl.current_price():
-                return True
-        return False
+        if sequential_candles('red', 4, 4) and gl.current['open'] < gl.current_price():
+            settings = {
+                'name': 'bounce_found',
+                'starting_position': dict(buy_or_sell='SELL',
+                                            cash_or_qty='everything',
+                                            price_method='current'),
+                'modes': {}
+            }
+            settings['modes']['above_avg'] = {
+                'check': (lambda: gl.current_price() > gl.common.current_average()),
+                'instructions': {
+                    'add': [],
+                    'sell': [
+                        {
+                            # Sell at Profit
+                            'cond': (lambda: gl.common.current_return() > 3),
+                            'order': dict(buy_or_sell='SELL',
+                                          cash_or_qty='everything',
+                                          price_method='current')
+                        }
+                    ]}}
+
+            settings['modes']['below_avg'] = {
+                'check': (lambda: gl.current_price() <= gl.common.current_average()),
+                'instructions': {
+                    'add': [],
+                    'sell': [
+                        {
+                            # Sell at Risk
+                            'cond': (lambda: gl.common.current_return() < -1.5),
+                            'order': dict(buy_or_sell='SELL',
+                                          cash_or_qty='everything',
+                                          price_method='current')
+                        }
+                    ]}}
+
+            return settings
+        return {}
 
     strategies = [bounce_found]
-    strategy_names = {
-        'bounce_found': bounce_found
-    }
     for s in strategies:
-        if s():
-            gl.strategy = strategy_names[s]
+        s = s()
+        if len(s) != 0:
+            gl.strategy = s
             gl.chart_response = True
-            return
+            return gl.order_tools.create_orders(**s['starting_position'])
+    return []
 
 
 def pricing_evaluations(method):
@@ -99,7 +122,7 @@ def pricing_evaluations(method):
         last_index = mom_frame.index.to_list()[-1]
         trend = mom_frame.at[last_index, 'trend']
         vola = mom_frame.at[last_index, 'volatility']
-        if (trend == 'downtrend') and (vola > 5): 
+        if (trend == 'downtrend') and (vola > 5):
             # gl.logging.info('chart looks good via vola_downtrend')
             return True
         return False
@@ -128,21 +151,23 @@ def pricing_evaluations(method):
 
     return methods[method]()
 
+
 def sequential_candles(color, num_candles, min_period, exponential=False, include_current=False):
     cf = gl.current_frame.tail(min_period)
     if not include_current:
         cf = cf.drop(cf.index.values[-1])
         if len(cf) == 0:
-            return False 
+            return False
     cf['seq'] = 0
     if color == 'red':
         cf.loc[(cf.open.values > cf.close.values), 'seq'] = 1
     else:
-       cf.loc[(cf.open.values < cf.close.values), 'seq'] = 1
-    max_seq = cf.rolling(num_candles).red_candle.sum().max()
+        cf.loc[(cf.open.values < cf.close.values), 'seq'] = 1
+    max_seq = cf.rolling(num_candles).seq.sum().max()
     if max_seq >= num_candles:
         return True
     return False
+
 
 def day_volume_analysis_methods(method):
     dvol_min = gl.config['misc']['minimum_volume']
@@ -200,4 +225,66 @@ def good_time_to_stop():
         return True
     return False
 
+
 '''----- Year Analysis -----'''
+
+# def set_strategy_mode():
+#     new_strategy_mode = False
+#     if len(gl.current_frame) <= 5:
+#         mode = 'market_open_chaos'
+#     else:
+#         if str(gl.close_sup_res[0]) == 'nan':
+#             mode = 'free_fall'
+#         elif str(gl.close_sup_res[1]) == 'nan':
+#             mode = 'breakout_to_new_highs'
+#         else:
+#             mode = 'consolidate'
+#     if mode != gl.strategy_mode:
+#         gl.log_funcs.log(f'New Trade Mode: {mode}')
+#         new_strategy_mode = True
+#     gl.strategy_mode = mode
+
+#     if new_strategy_mode:
+#         init_strategy_mode(mode)
+
+
+# def init_strategy_mode(mode):
+#     def market_open_chaos():
+#         strat_vars = {
+#             'strat_conds': [],
+#             'max_dur': 10,
+#             'soft_cap_limit': .2,
+#         }
+#         gl.config['strat_vars'] = strat_vars
+
+#     def free_fall():
+#         strat_vars = {
+#             'strat_conds': ['pos_sec_mom'],
+#             'max_dur': 10,
+#             'soft_cap_limit': .2,
+#         }
+#         gl.config['strat_vars'] = strat_vars
+
+#     def breakout_to_new_highs():
+#         strat_vars = {
+#             'strat_conds': ['pos_sec_mom'],
+#             'max_dur': 10,
+#             'soft_cap_limit': .5,
+#         }
+#         gl.config['strat_vars'] = strat_vars
+
+#     def consolidate():
+#         strat_vars = {
+#             'strat_conds': ['pos_sec_mom'],
+#             'max_dur': 10,
+#             'soft_cap_limit': .2,
+#         }
+#         gl.config['strat_vars'] = strat_vars
+
+#     strategy_modes = {
+#         'market_open_chaos': market_open_chaos,
+#         'consolidate': consolidate,
+#         'breakout_to_new_highs': breakout_to_new_highs,
+#         'free_fall': free_fall,
+#     }
+#     strategy_modes[strat]

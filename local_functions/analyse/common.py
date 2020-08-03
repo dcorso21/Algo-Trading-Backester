@@ -362,3 +362,9 @@ def current_exposure():
 def stop_trading():
     gl.chart_response = False
     gl.buy_lock = True
+
+
+def actively_trading():
+    if len(gl.current_positions) != 0:
+        return True
+    return False

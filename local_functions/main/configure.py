@@ -107,7 +107,11 @@ def reset_variables(mode, csv_file):
     gl.mom_frame = gl.pd.DataFrame()
     gl.sup_res_frame = gl.pd.DataFrame()
     gl.log = gl.pd.DataFrame()
-    gl.tracker = gl.pd.DataFrame()
+    gl.tracker = gl.pd.DataFrame({
+        'time': [],
+        'variable': [],
+        'value': [],
+    })
 
     # PL and Exposure
     gl.sys.dont_write_bytecode = True

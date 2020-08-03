@@ -12,15 +12,6 @@ def build_orders():
     if bad_trade_conds():
         return []
 
-    if gl.new_strategy_mode:
-        strategy_modes = {
-            'market_open_chaos': market_open_chaos,
-            'consolidate': consolidate,
-            'breakout_to_new_highs': breakout_to_new_highs,
-            'free_fall': free_fall,
-        }
-        strategy_modes[gl.strategy_mode]()
-        gl.new_strategy_mode = False
 
     # if no positions, enter now.
     if len(gl.current_positions) == 0:
@@ -46,49 +37,6 @@ def build_orders():
 
 '''-------------------- Strategies --------------------'''
 
-strat_vars = {
-    'strat_conds': [],
-    'max_dur': 'int',
-    'soft_cap_limit': 1,
-}
-
-
-def market_open_chaos():
-    global strat_vars
-    strat_vars = {
-        'strat_conds': [],
-        'max_dur': 10,
-        'soft_cap_limit': .2,
-    }
-
-
-def free_fall():
-    global strat_vars
-    strat_vars = {
-        'strat_conds': ['pos_sec_mom'],
-        'max_dur': 10,
-        'soft_cap_limit': .2,
-    }
-
-
-def breakout_to_new_highs():
-    global strat_vars
-    strat_vars = {
-        'strat_conds': ['pos_sec_mom'],
-        'max_dur': 10,
-        'soft_cap_limit': .5,
-    }
-
-
-def consolidate():
-    global strat_vars
-    strat_vars = {
-        'strat_conds': ['pos_sec_mom'],
-        'max_dur': 10,
-        'soft_cap_limit': .2,
-    }
-
-
 def strat_exceptions():
     st_conds = {
         'pos_sec_mom': gl.sec_mom > 0,
@@ -106,9 +54,8 @@ def strat_exceptions():
 
 
 def starting_position():
-    cash = gl.account.get_available_capital() * .01
-    pmeth = 'low_placement'
-    buys = gl.order_tools.create_orders('BUY', cash, pmeth)
+    order = gl.strategy['starting_position']
+    buys = gl.order_tools.create_orders(**order)
     gl.log_funcs.log('>>> Sending Starting Position.')
     return buys
 
