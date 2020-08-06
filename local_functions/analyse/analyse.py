@@ -16,10 +16,12 @@ def analyse():
     return orders
 
 
-
-
 '''----- Day Analysis -----'''
+
+
 def eval_orders():
+    if len(gl.open_orders) != 0:
+        return []
     if not gl.common.actively_trading():
         return look_for_entry()
     else:
@@ -27,17 +29,12 @@ def eval_orders():
 
 
 def order_builder():
+    hub = gl.strategy['hub']
     modes = gl.strategy['modes']
-    for mode in modes.keys():
-        if mode['check']():
-            adds = mode['instructions']['add']
-            sells = mode['instructions']['sell']
-            for add in adds:
-                if add['cond']:
-                    return gl.order_tools.create_orders(**add['order']) 
-            for sell in sells:
-                if sell['cond']:
-                    return gl.order_tools.create_orders(**sell['order']) 
+    for mode in modes:
+        response = hub(mode)
+        if len(response) != 0:
+            return response
     return []
 
 
@@ -45,58 +42,17 @@ def look_for_entry():
     if good_time_to_stop():
         gl.common.stop_trading()
         return []
-    
+
     return strat_eval()
 
 
 def strat_eval():
-    def bounce_found():
-        if sequential_candles('red', 4, 4) and gl.current['open'] < gl.current_price():
-            settings = {
-                'name': 'bounce_found',
-                'starting_position': dict(buy_or_sell='SELL',
-                                            cash_or_qty='everything',
-                                            price_method='current'),
-                'modes': {}
-            }
-            settings['modes']['above_avg'] = {
-                'check': (lambda: gl.current_price() > gl.common.current_average()),
-                'instructions': {
-                    'add': [],
-                    'sell': [
-                        {
-                            # Sell at Profit
-                            'cond': (lambda: gl.common.current_return() > 3),
-                            'order': dict(buy_or_sell='SELL',
-                                          cash_or_qty='everything',
-                                          price_method='current')
-                        }
-                    ]}}
-
-            settings['modes']['below_avg'] = {
-                'check': (lambda: gl.current_price() <= gl.common.current_average()),
-                'instructions': {
-                    'add': [],
-                    'sell': [
-                        {
-                            # Sell at Risk
-                            'cond': (lambda: gl.common.current_return() < -1.5),
-                            'order': dict(buy_or_sell='SELL',
-                                          cash_or_qty='everything',
-                                          price_method='current')
-                        }
-                    ]}}
-
-            return settings
-        return {}
-
-    strategies = [bounce_found]
-    for s in strategies:
-        s = s()
-        if len(s) != 0:
-            gl.strategy = s
+    strategies = gl.order_eval.strategies
+    for s in strategies.values():
+        if s('pattern_found'):
+            gl.strategy = s('settings')
             gl.chart_response = True
-            return gl.order_tools.create_orders(**s['starting_position'])
+            return s('starting_position')
     return []
 
 
@@ -153,11 +109,15 @@ def pricing_evaluations(method):
 
 
 def sequential_candles(color, num_candles, min_period, exponential=False, include_current=False):
-    cf = gl.current_frame.tail(min_period)
+    if len(gl.current_frame) < num_candles:
+        return False
+    cf = gl.current_frame
+    cf = cf.reset_index(drop=True)
     if not include_current:
         cf = cf.drop(cf.index.values[-1])
-        if len(cf) == 0:
+        if len(cf) < num_candles:
             return False
+    cf = cf.tail(min_period)
     cf['seq'] = 0
     if color == 'red':
         cf.loc[(cf.open.values > cf.close.values), 'seq'] = 1

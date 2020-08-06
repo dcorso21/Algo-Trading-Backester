@@ -440,7 +440,7 @@ def update_supports_resistances():
 
 
 def expand_on_sup_res(price_type, significant_prices, current_frame, mom_frame, min_duration=8):
-    cf = current_frame
+    cf = current_frame.reset_index(drop=True)
     if price_type == 'resistance':
         column = 'high'
     elif price_type == 'support':
@@ -449,9 +449,6 @@ def expand_on_sup_res(price_type, significant_prices, current_frame, mom_frame, 
     dfx = gl.pd.DataFrame()
     for price, time in significant_prices:
         start = cf[cf.time == time].index.tolist()[0]
-        # if abs(start - last_start) < min_duration:
-        #     continue
-        # last_start = start
 
         remainder = cf.iloc[start:]
         if price_type == 'resistance':

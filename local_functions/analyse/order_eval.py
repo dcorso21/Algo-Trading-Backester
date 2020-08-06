@@ -1,6 +1,176 @@
 from local_functions.main import global_vars as gl
 
 
+'''-------------------- Bounce Found --------------------'''
+
+
+def bounce_found_hub(method):
+    profit_perc = 1.5
+    loss_perc = -.75
+
+    def pattern_found() -> bool:
+        num_candles = 6
+        red_candles = sequential_candles(
+            color='red', num_candles=num_candles, min_period=num_candles)
+        current_green_candle = gl.current['open'] < gl.current_price()
+        positive_second_momentum = gl.sec_mom > 0
+        not_first_secs = gl.current['second'] > 30
+        return (red_candles & current_green_candle & positive_second_momentum & not_first_secs)
+
+    def settings() -> dict:
+        settings = {
+            'name': 'bounce_found',
+            'hub': bounce_found_hub,
+            'modes': ['red_candle', 'above_avg', 'below_avg']
+        }
+        return settings
+
+    def starting_position():
+        return gl.order_tools.create_orders(buy_or_sell='BUY',
+                                            cash_or_qty=3000,
+                                            price_method='ask')
+
+    def red_candle_mode():
+        current_red_candle = gl.current['close'] < gl.current['open']
+        longer_inv = gl.common.investment_duration() > 1
+        if current_red_candle & longer_inv:
+            return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                cash_or_qty='everything',
+                                                price_method='bid')
+        return []
+
+    def above_avg_mode():
+        def profit_check() -> bool:
+            threshold_profit = gl.common.current_return() > realistic_return(profit_perc)
+            if threshold_profit:
+                alt_price = gl.order_tools.get_exe_price('bid')
+                price = perc_ret_price(realistic_return(profit_perc))
+                price = max(price, alt_price)
+                return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                    cash_or_qty='everything',
+                                                    price_method=price)
+            return []
+
+        if above_average():
+            paths = [profit_check]
+            for path in paths:
+                response = path()
+                if len(response) != 0:
+                    return response
+        return []
+
+    def below_avg_mode():
+        def loss_check():
+            down_by_loss_perc = gl.common.current_return() < realistic_return(loss_perc)
+            if down_by_loss_perc:
+                alt_price = gl.order_tools.get_exe_price('bid')
+                price = perc_ret_price(realistic_return(loss_perc))
+                price = min(price, alt_price)
+                return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                    cash_or_qty='everything',
+                                                    price_method=price)
+            return []
+
+        if not above_average():
+            return loss_check()
+        return []
+
+    methods = {
+        # Main
+        'pattern_found': pattern_found,
+        'settings': settings,
+        'starting_position': starting_position,
+        # Modes
+        'red_candle': red_candle_mode,
+        'above_avg': above_avg_mode,
+        'below_avg': below_avg_mode,
+    }
+
+    return methods[method]()
+
+
+def new_strategy_hub(method):
+    def pattern_found() -> bool:
+
+
+        substantial_downtrend = gl.trend_analysis()
+        
+
+        if substantial_downtrend:
+            pass
+
+    def settings() -> dict:
+        settings = {
+            'name': 'strat_name',
+            'hub': new_strategy_hub,
+            'modes': []
+        }
+        return settings
+
+    def starting_position():
+        return gl.order_tools.create_orders(buy_or_sell='BUY',
+                                            cash_or_qty=3000,
+                                            price_method='ask')
+
+    def trade_mode():
+        pass
+
+    methods = {
+        # Main
+        'pattern_found': pattern_found,
+        'settings': settings,
+        'starting_position': starting_position,
+        # Modes
+    }
+
+
+strategies = {'bounce_found': bounce_found_hub}
+
+'''-------------------- Other --------------------'''
+
+def trend_analysis(trend_type, min_vola, min_duration):
+    trend = gl.common.current_trend()
+    correct_trend = trend['trend'] != trend_type
+    good_duration = trend['duration'] < min_duration
+    good_vola = trend['min_vola'] < min_vola
+    if correct_trend and good_duration and good_vola:
+        return True
+    return False
+
+
+def realistic_return(perc):
+    '''## Takes a target perc gain and scales it to avg volatility'''
+    id_vola = gl.config['misc']['ideal_volatility']
+    return (gl.volas['mean'] / id_vola)*perc
+
+
+def perc_ret_price(perc):
+    avg = gl.common.current_average()
+    spacer = perc*.01*avg
+    return avg + spacer
+
+
+def sequential_candles(color, num_candles, min_period, exponential=False, include_current=False):
+    if len(gl.current_frame) < num_candles:
+        return False
+    cf = gl.current_frame
+    cf = cf.reset_index(drop=True)
+    if not include_current:
+        cf = cf.drop(cf.index.values[-1])
+        if len(cf) < num_candles:
+            return False
+    cf = cf.tail(min_period)
+    cf['seq'] = 0
+    if color == 'red':
+        cf.loc[(cf.open.values > cf.close.values), 'seq'] = 1
+    else:
+        cf.loc[(cf.open.values < cf.close.values), 'seq'] = 1
+    max_seq = cf.rolling(num_candles).seq.sum().max()
+    if max_seq >= num_candles:
+        return True
+    return False
+
+
 def build_orders():
     # If there are cancelled orders qualified for refresh,
     # deal with them first
@@ -11,7 +181,6 @@ def build_orders():
     # Skip Clause:
     if bad_trade_conds():
         return []
-
 
     # if no positions, enter now.
     if len(gl.current_positions) == 0:
@@ -26,28 +195,12 @@ def build_orders():
     if new_eval_triggered() == False:
         return []
 
-
     if strat_exceptions():
         return []
     if above_average():
         return look_to_profit()
     else:
         return look_to_avg_down()
-
-
-'''-------------------- Strategies --------------------'''
-
-def strat_exceptions():
-    st_conds = {
-        'pos_sec_mom': gl.sec_mom > 0,
-        'neg_sec_mom': gl.sec_mom < 0,
-    }
-
-    for s in strat_vars['strat_conds']:
-        if st_conds[s]:
-            return True
-
-    return False
 
 
 '''-------------------- Order Makers --------------------'''
@@ -528,9 +681,7 @@ def reset_last_order_check():
 
 
 def above_average() -> bool:
-    if gl.current_price() > gl.common.current_average():
-        return True
-    return False
+    return gl.current_price() > gl.common.current_average()
 
 
 def outlook_score():
@@ -635,7 +786,7 @@ def safe_percent():
     '''
     # Assess Safe Percent
     Dials back the return to shoot for based on amount invested
-    #### Returns percentage. 
+    # Returns percentage. 
     '''
     # endregion Docstring
 

@@ -52,6 +52,11 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
     '''
     # endregion Docstring
     # Parse Clause:
+
+    if type(cash_or_qty) == str:
+        if cash_or_qty == 'everything':
+            cash_or_qty = gl.current_positions.qty.sum()
+
     if parse == False:
         return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec)
 

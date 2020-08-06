@@ -1987,6 +1987,8 @@ def vola_colors(vola_list):
 
 
 def plot_pl(gv, fig, layout, yaxis, domain):
+    if len(gv.pl_ex_frame) == 0:
+        return fig, layout
     tracked = ['unreal', 'real']
     colors = ['#e05875', '#e0b558']
     for entry, color in zip(tracked, colors):
@@ -2009,6 +2011,8 @@ def plot_pl(gv, fig, layout, yaxis, domain):
 
 
 def plot_exposure(gv, fig, layout, yaxis, domain):
+    if len(gv.pl_ex_frame) == 0:
+        return fig, layout
     _, ex_df = extract_tracker_variable(gv.pl_ex_frame, 'last_ex')
     y_values = ex_df.value.values
     x_values = ex_df.time.values
