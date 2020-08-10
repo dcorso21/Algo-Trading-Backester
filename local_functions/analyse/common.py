@@ -15,6 +15,7 @@ def get_volatility(high_list, low_list, convert=False) -> list:
             if type(high) == list:
                 return max(high)
             return high
+
         def convert_low(low):
             if type(low) == list:
                 return min(low)
@@ -98,6 +99,12 @@ def get_current_timestamp(integer=False):
     if integer:
         return get_timestamp(gl.current['minute'], gl.current['second'], integer=integer)
     return make_timestamp(gl.current['minute'], gl.current['second'])
+
+
+def get_last_timestamp(integer=False):
+    if integer:
+        return get_timestamp(gl.last['minute'], gl.last['second'], integer=integer)
+    return make_timestamp(gl.last['minute'], gl.last['second'])
 
 
 def make_timestamp(minute: str, second: int):
@@ -288,7 +295,6 @@ def bounce_factor():
     return bounce_factor
 
 
-# @ gl.log_funcs.tracker
 def mins_left():
     hard_stop = gl.config['misc']['hard_stop']
     hard_stop = gl.pd.to_datetime(hard_stop).timestamp()
@@ -356,15 +362,102 @@ def current_return():
 
 
 def current_exposure():
+    '''Amount of Money currently invested'''
     return gl.current_positions.cash.sum()
 
 
 def stop_trading():
+    '''Ends trading for the day'''
     gl.chart_response = False
     gl.buy_lock = True
 
 
 def actively_trading():
+    '''Returns True if currently entered in positions.'''
     if len(gl.current_positions) != 0:
         return True
     return False
+
+
+def available_capital():
+    '''Returns available capital that isn't being utilized yet.'''
+    return gl.account.get_available_capital() - gl.current_positions.cash.sum()
+
+
+def hard_stop_time(integer=True):
+    exit_time = gl.config['misc']['hard_stop']
+    exit_time = gl.pd.to_datetime(exit_time)
+    if integer:
+        return exit_time.timestamp()
+    return exit_time
+
+
+def soft_stop_time(check=True):
+    minute_off = 2
+    minute_off = minute_off * 60
+    exit_time = hard_stop_time()
+    soft_stop = exit_time - minute_off
+    if check:
+        if soft_stop <= get_current_timestamp(integer=True):
+            return True
+        else:
+            return False
+    return soft_stop
+
+
+'''-------------------- Weighting --------------------'''
+
+
+@ gl.log_funcs.tracker
+def volume_weighting():
+    ideal_volume = gl.config['misc']['minimum_volume']*10
+    perc = gl.volumes['mean'] / ideal_volume
+    perc = min(1, perc)
+    # perc = max(.50, perc)
+    return perc
+
+
+@ gl.log_funcs.tracker
+def volatility_weighting():
+    ideal_volatility = gl.config['misc']['ideal_volatility']
+    perc = gl.volas['mean'] / ideal_volatility
+    perc = min(1, perc)
+    # perc = max(.50, perc)
+    return perc
+
+
+@ gl.log_funcs.tracker
+def inv_duration_weighting():
+    max_duration = 10
+    inv_dur = gl.common.investment_duration()
+    perc = inv_dur**2 / max_duration**2
+    perc = min(1, perc)
+    # 0 is selling at average
+    if perc == 1:
+        return 0
+    perc = gl.common.get_inverse_perc(perc)
+    return perc
+
+
+@ gl.log_funcs.tracker
+def inv_exposure_weighting():
+    max_ex = gl.account.get_available_capital()
+    current_ex = gl.common.current_exposure()
+    perc = current_ex**2 / max_ex**2
+    perc = min(1, perc)
+    # 0 is selling at average
+    if perc == 1:
+        return 0
+    perc = gl.common.get_inverse_perc(perc)
+    return perc
+
+
+@ gl.log_funcs.tracker
+def all_weighted_perc():
+    volume = volume_weighting()
+    vola = volatility_weighting()
+    inv_dur = inv_duration_weighting()
+    inv_exp = inv_exposure_weighting()
+    final = (volume + vola + inv_dur + inv_exp) / 4
+    # final = min(volume, vola, inv_dur, inv_exp)
+    return final

@@ -97,17 +97,35 @@ def log_filled_and_open(new_fills):
 
 def record_tracking(var, value):
     time = gl.common.get_current_timestamp()
+
     new_row = {
         'time': [time],
         'variable': [var],
         'value': [value],
     }
-
     df = gl.pd.DataFrame(new_row)
-    df = gl.tracker.append(df, sort=False)
+
 
     if len(df) == 1:
         df.columns = new_row.keys()
+    
+    if (value == 'nan') and (var == 'average'):
+        tracker = gl.tracker
+        last_val = tracker[tracker['variable'] == var].value.to_list()[-1]
+        
+        time = gl.common.get_last_timestamp()
+        trailing_row = {
+            'time': [time],
+            'variable': [var],
+            'value': [last_val],
+        }
+        trailing = gl.pd.DataFrame(trailing_row)
+        df = trailing.append(df, sort=False)
+
+    df = gl.tracker.append(df, sort=False)
+
+
+
 
     gl.tracker = df
 
@@ -117,8 +135,8 @@ def get_tracked_element(var):
     if len(t) == 0:
         return None
     t = t[t.time == gl.common.get_current_timestamp()]
-    if len(t) == 0:
-        return None
+    # if len(t) == 0:
+    #     return None
     t = t[t.variable == var]
     if len(t) == 0:
         return None

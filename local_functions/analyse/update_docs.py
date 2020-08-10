@@ -191,8 +191,6 @@ def update_second_momentum():
     return sec_mom
 
 
-
-
 def update_momentum():
     if gl.current['second'] != 59 or len(gl.current_frame) < 2:
         return

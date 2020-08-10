@@ -1,6 +1,5 @@
 from local_functions.main import global_vars as gl
 
-
 '''-------------------- Bounce Found --------------------'''
 
 
@@ -89,31 +88,133 @@ def bounce_found_hub(method):
     return methods[method]()
 
 
-def new_strategy_hub(method):
+def soaking_up_hub(method):
     def pattern_found() -> bool:
-
-
-        substantial_downtrend = gl.trend_analysis()
-        
-
-        if substantial_downtrend:
-            pass
+        current_trend = gl.common.current_trend()
+        if current_trend == None:
+            return False
+        min_vola = realistic_return(2*gl.config['misc']['ideal_volatility'])
+        substantial_downtrend = trend_analysis(trend_type='downtrend',
+                                               min_vola=min_vola,
+                                               min_duration=2)
+        if type(current_trend['low']) == list:
+            current_trend['low'] = min(current_trend['low'])
+        lower_price = current_trend['low'] > gl.current_price()
+        downwards_mom = gl.sec_mom < 0
+        pattern_found = substantial_downtrend and downwards_mom and lower_price
+        if pattern_found:
+            return True
+        return False
 
     def settings() -> dict:
         settings = {
             'name': 'strat_name',
-            'hub': new_strategy_hub,
-            'modes': []
+            'hub': soaking_up_hub,
+            'modes': ['safe_exit', 'look_for_profit', 'look_to_avg']
         }
         return settings
 
     def starting_position():
+        cash = gl.account.get_available_capital()*.01
         return gl.order_tools.create_orders(buy_or_sell='BUY',
-                                            cash_or_qty=3000,
+                                            cash_or_qty=cash,
                                             price_method='ask')
 
-    def trade_mode():
-        pass
+    def safe_exits_mode():
+        def soft_timeout_exit():
+            sell = False
+            if gl.sell_out:
+                sell = True
+            else: 
+                if gl.common.soft_stop_time():
+                    sell = True
+            
+            if sell:
+                gl.log_funcs.log('>>> Out of time, selling indiscriminately')
+                gl.buy_lock = True
+                gl.sell_out = True
+                sells = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                    cash_or_qty='everything',
+                                                    price_method='bid')
+                return sells
+            return []
+
+        return soft_timeout_exit()
+
+    def look_for_profit_mode():
+        if not above_average():
+            return []
+        if failed_bounce():
+            return standard_sell_all()
+        target_return = gl.common.all_weighted_perc(
+        )*gl.config['misc']['ideal_volatility']*1.5
+        # target_return = realistic_return(gl.config['misc']['ideal_volatility'])
+        over_target_return = target_return < gl.common.current_return()
+        if over_target_return:
+            return standard_sell_all()
+        return []
+
+    def look_to_avg_mode():
+        '''-------------------- methods --------------------'''
+        def look_to_rebalance():
+            target_average = target_avg()
+            if str(target_average) == 'nan':
+                return []
+
+            def dol_to_inv():
+                amt_inv = gl.common.current_exposure()
+                avg = gl.common.current_average()
+                acct_size = gl.account.get_available_capital()
+                available_cap = acct_size - amt_inv
+
+                dol_to_inv = amt_inv*(avg - target_average) / \
+                    (target_average - gl.current_price())
+
+                # If not enough to bother, just return...
+                if dol_to_inv <= acct_size * .01:
+                    return 0
+                return dol_to_inv
+
+            if not new_eval_triggered():
+                return []
+            cash = dol_to_inv()
+            available_cap = gl.common.available_capital()
+            account_cap = gl.account.get_available_capital()
+
+            if cash == 0:
+                return []
+
+            # If enough capital
+            elif cash <= available_cap:
+                gl.log_funcs.log('>>> Closing Gap on Average.')
+                order = gl.order_tools.create_orders(buy_or_sell='BUY',
+                                                     cash_or_qty=cash,
+                                                     price_method='low_placement')
+                return order
+
+            # If not enough capital
+            elif cash > available_cap:
+                if available_cap < account_cap*.01:
+                    return []
+                cap_to_sell = cash - available_cap
+                shares_to_sell = cap_to_sell / \
+                    gl.order_tools.get_exe_price('ask')
+                if shares_to_sell > gl.current_positions.qty.sum():
+                    return all_in()
+                gl.log_funcs.log('>>> Selling to Rebalance.')
+                order = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                     cash_or_qty=shares_to_sell,
+                                                     price_method='ask')
+                return order
+            return []
+
+        if above_average():
+            return []
+        avg_out_of_reach = abs(gl.common.current_return()) > gl.volas['mean'] / 1.5
+        significant_time_passed = gl.common.investment_duration() > .33  # around 20 secs
+        if avg_out_of_reach and significant_time_passed:
+            return look_to_rebalance()
+        return []
 
     methods = {
         # Main
@@ -121,18 +222,49 @@ def new_strategy_hub(method):
         'settings': settings,
         'starting_position': starting_position,
         # Modes
+        'safe_exit': safe_exits_mode,
+        'look_for_profit': look_for_profit_mode,
+        'look_to_avg': look_to_avg_mode,
+    }
+    return methods[method]()
+
+
+def strategies():
+    return {
+        # 'bounce_found': bounce_found_hub,
+        'soaking_up': soaking_up_hub,
     }
 
 
-strategies = {'bounce_found': bounce_found_hub}
+'''-------------------- Evaluation --------------------'''
 
-'''-------------------- Other --------------------'''
+
+@ gl.log_funcs.tracker
+def safe_percent():
+    trans_threshold = gl.account.get_available_capital() / 3
+    inv_dur = gl.common.investment_duration()
+    inc = .05*gl.account.get_available_capital()
+    safe_perc = 1
+
+    if gl.pl_ex['last_ex'] >= trans_threshold:
+        over = gl.pl_ex['last_ex'] - trans_threshold
+        divs = over / inc
+        safe_perc = 1 - divs*.05
+    if inv_dur > 3:
+        if inv_dur > strat_vars['max_dur']:
+            return 0
+        safe_perc = safe_perc * (1 - (inv_dur/strat_vars['max_dur']))
+
+    return safe_perc
+
 
 def trend_analysis(trend_type, min_vola, min_duration):
     trend = gl.common.current_trend()
-    correct_trend = trend['trend'] != trend_type
-    good_duration = trend['duration'] < min_duration
-    good_vola = trend['min_vola'] < min_vola
+    if trend == None:
+        return False
+    correct_trend = trend['trend'] == trend_type
+    good_duration = trend['duration'] >= min_duration
+    good_vola = trend['volatility'] >= min_vola
     if correct_trend and good_duration and good_vola:
         return True
     return False
@@ -142,6 +274,41 @@ def realistic_return(perc):
     '''## Takes a target perc gain and scales it to avg volatility'''
     id_vola = gl.config['misc']['ideal_volatility']
     return (gl.volas['mean'] / id_vola)*perc
+
+
+'''-------------------- Order Funcs --------------------'''
+
+
+def size_in():
+    target_avg()
+
+
+def standard_sell_all():
+    return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                        cash_or_qty='everything',
+                                        price_method='bid')
+
+
+def all_in():
+    cash = gl.common.available_capital()
+    order = gl.order_tools.create_orders(buy_or_sell='BUY',
+                                         cash_or_qty=cash,
+                                         price_method='ask'
+                                         )
+    gl.log_funcs.log(msg='All In!')
+    return order
+
+
+def panic_out():
+    order = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                         cash_or_qty='everything',
+                                         price_method='bid'
+                                         )
+    gl.log_funcs.log(msg='>>> Panic Out Sell Triggered')
+    return order
+
+
+'''-------------------- Order Funcs --------------------'''
 
 
 def perc_ret_price(perc):
@@ -213,57 +380,6 @@ def starting_position():
     return buys
 
 
-def look_to_avg_down():
-    # region Docstring
-    '''
-    # Order Below Average
-    Decides whether or not to place an order in the case that the price is below the current average.
-
-    # Returns sell orders df or empty list.
-
-    '''
-    # endregion Docstring
-    return look_to_rebalance()
-
-    acct_size = gl.account.get_available_capital()
-    amount_invested = gl.current_positions.cash.sum()
-    cur_dur = gl.common.investment_duration()
-
-    # first minutes, protect average based on vola and num of minutes only
-    if len(gl.mom_frame) == 0:
-        trend_vola = gl.common.get_volatility([gl.current_frame.high.max()], [
-            gl.current_frame.low.min()])[0]
-    else:
-        current_trend = dict(gl.mom_frame.iloc[-1])
-        trend_vola = current_trend['volatility']
-
-    dol_to_inv = calc_dol_to_inv(cur_dur,
-                                 strat_vars['max_dur'],
-                                 trend_vola)
-
-    if dol_to_inv == 0:
-        return []
-
-    elif dol_to_inv == 'rebalance':
-        gl.log_funcs.log(msg='special circumstances, rebalancing now.')
-        return look_to_rebalance()
-
-    # Price Extrap
-    extrap_average = ((amount_invested*gl.common.current_average()) +
-                      (dol_to_inv*gl.current['close']))/(dol_to_inv+amount_invested)
-
-    if extrap_avg_too_far_away(extrap_average):
-        gl.log_funcs.log(msg='Average too far away, redirecting')
-        return look_to_rebalance()
-
-    target_perc = ((cash + amount_invested)/acct_size)*100
-    gl.log_funcs.log(f'>>> Average Down Triggered: Target Perc: {target_perc}')
-    return gl.order_tools.create_orders(buy_or_sell='BUY',
-                                        cash_or_qty=dol_to_inv,
-                                        price_method='low_placement',
-                                        cancel_spec='standard')
-
-
 def look_to_profit():
     amount_invested = gl.current_positions.cash.sum()
     acct_size = gl.account.get_available_capital()
@@ -286,40 +402,6 @@ def look_to_profit():
 
     gl.log_funcs.log('>>> Selling Above Average')
     return sells
-
-
-def look_to_rebalance():
-    target_average = target_avg()
-    if str(target_average) == 'nan':
-        return []
-    amt_inv = gl.common.current_exposure()
-    inv_dur = gl.common.investment_duration()
-    avg = gl.common.current_average()
-    acct_size = gl.account.get_available_capital()
-    available_cap = acct_size - amt_inv
-
-    dol_to_inv = amt_inv*(avg - target_average) / \
-        (target_average - gl.current_price())
-
-    if dol_to_inv <= acct_size * .01:
-        return []
-
-    elif dol_to_inv > available_cap:
-        cap_to_sell = dol_to_inv - available_cap
-        shares_to_sell = cap_to_sell / gl.order_tools.get_exe_price('ask')
-        if shares_to_sell > gl.current_positions.qty.sum():
-            return panic_out()
-        gl.log_funcs.log('>>> Selling to Rebalance.')
-        order = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                             cash_or_qty=shares_to_sell,
-                                             price_method='ask')
-        return order
-
-    order = gl.order_tools.create_orders(buy_or_sell='BUY',
-                                         cash_or_qty=dol_to_inv,
-                                         price_method='low_placement')
-    gl.log_funcs.log('>>> Closing Gap on Average.')
-    return order
 
 
 def sell_conditions():
@@ -529,17 +611,6 @@ def extrap_avg_too_far_away(extrap_average):
     return extrap_average > (target_average+spacer)
 
 
-def panic_out():
-    pmeth = 'bid'
-    qty = gl.current_positions.qty.sum()
-    order = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                         cash_or_qty=qty,
-                                         price_method=pmeth
-                                         )
-    gl.log_funcs.log(msg='>>> Panic Out Sell Triggered')
-    return order
-
-
 def try_for_low(dol_to_inv):
     order = gl.order_tools.create_orders(buy_or_sell='BUY',
                                          cash_or_qty=dol_to_inv,
@@ -641,20 +712,14 @@ def bad_trade_conds():
 
 
 def new_eval_triggered():
-    # If there is only a starting position, then keep on the lookout.
-    # if len(gl.current_positions) == 1:
-    #     reset_last_order_check()
-    #     return True
 
-    # If there hasn't been an order check yet, then it will be a str
-    # Then reset last order check
     last_price = gl.last_order_check[-1]
     if type(last_price) == str:
         reset_last_order_check()
         return True
 
     # upper_bound = last_price*(1+(gl.volas['mean']*.01))
-    lower_bound = last_price*(1-(gl.volas['mean']*.01))
+    lower_bound = last_price*(1-(gl.volas['mean']*.01)/4)
 
     if gl.current_price() < lower_bound:
         gl.log_funcs.log(msg='order eval triggered by price swing')
@@ -777,31 +842,21 @@ def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
 
 def target_avg():
     price = gl.current_price()
-    return price + ((.01*gl.volas['mean'])/10)*price
+    return price + ((.01*gl.volas['mean'])/5)*price
 
 
-@ gl.log_funcs.tracker
-def safe_percent():
-    # region Docstring
-    '''
-    # Assess Safe Percent
-    Dials back the return to shoot for based on amount invested
-    # Returns percentage. 
-    '''
-    # endregion Docstring
+def failed_bounce():
+    if len(gl.mom_frame) < 2:
+        return False
+    downtrend = dict(gl.mom_frame.iloc[-2])
+    bounce = dict(gl.mom_frame.iloc[-1])
 
-    trans_threshold = gl.account.get_available_capital() / 3
-    inv_dur = gl.common.investment_duration()
-    inc = .05*gl.account.get_available_capital()
-    safe_perc = 1
+    small_bounce = bounce['volatility'] < downtrend['volatility']/2
+    downward_sec_mom = gl.sec_mom < 0
+    if type(bounce['high']) == list:
+        bounce['high'] = max(bounce['high'])
+    lower_price = gl.current_price() < bounce['high']
+    failed_b= small_bounce and downward_sec_mom and lower_price
+    return failed_b
 
-    if gl.pl_ex['last_ex'] >= trans_threshold:
-        over = gl.pl_ex['last_ex'] - trans_threshold
-        divs = over / inc
-        safe_perc = 1 - divs*.05
-    if inv_dur > 3:
-        if inv_dur > strat_vars['max_dur']:
-            return 0
-        safe_perc = safe_perc * (1 - (inv_dur/strat_vars['max_dur']))
-
-    return safe_perc
+        

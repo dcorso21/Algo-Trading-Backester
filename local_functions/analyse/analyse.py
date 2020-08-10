@@ -47,7 +47,7 @@ def look_for_entry():
 
 
 def strat_eval():
-    strategies = gl.order_eval.strategies
+    strategies = gl.order_eval.strategies()
     for s in strategies.values():
         if s('pattern_found'):
             gl.strategy = s('settings')

@@ -194,11 +194,12 @@ def plot_batch_overview(batch_frame):
                                         )
                         )
 
-    not_traded = batch_frame[batch_frame.min_unreal == 0]
-    not_traded = not_traded[not_traded.max_unreal == 0]
-    traded = batch_frame.drop(not_traded.index.tolist())
-    resolved = traded[traded.unreal_pl == 0]
-    unresolved = traded.drop(resolved.index.tolist())
+    not_traded = batch_frame[batch_frame.status == 'untraded']
+    resolved = batch_frame[batch_frame.status == 'resolved']
+    unresolved = batch_frame[batch_frame.status == 'unresolved']
+    # traded = batch_frame.drop(not_traded.index.tolist())
+    # resolved = traded[traded.unreal_pl == 0]
+    # unresolved = traded.drop(resolved.index.tolist())
 
     unres_color, not_color, res_color = get_colors(num_of_colors=3,
                                                    hue_start_value=289,
@@ -222,9 +223,10 @@ def plot_batch_overview(batch_frame):
             fig, 3, 3, resolved.real_pl, resolved.avg_vola, resolved.tick_date, res_color)
 
     if len(unresolved) != 0:
+        unresolved['pl'] = unresolved.real_pl + unresolved.unreal_pl
         unresolved_progress = new_line_plot(
             x_values=list(range(len(unresolved))),
-            y_values=unresolved.real_pl.cumsum(),
+            y_values=unresolved.pl.cumsum(),
             text=unresolved.tick_date,
             color=unres_color,
             name='Unresolved Profit')
@@ -1664,14 +1666,12 @@ def pricing_and_overlays(gv, domain):
     tracker, average_df = extract_tracker_variable(
         tracker=gv.tracker, var='average')
 
-
-
     yaxis = len(pd.unique(tracker.variable)) + 1
 
     print('Plotting Second Data')
     fig = plot_second_data(df=gv.current_frame, y_axis=yaxis)
 
-    # Sup Res 
+    # Sup Res
     print('Plotting Supports and Resistances')
     fig = deep_sup_res_plot(fig=fig, yaxis=yaxis, gv=gv)
 
@@ -1681,7 +1681,8 @@ def pricing_and_overlays(gv, domain):
 
     # Average
     print('Plotting Average')
-    fig = deep_average_overlay(fig=fig, yaxis=yaxis, average_df=average_df)
+    fig = deep_average_overlay(
+        gv=gv, fig=fig, yaxis=yaxis, average_df=average_df)
 
     # Filled Orders
     print('Plotting Filled Orders')
@@ -1784,12 +1785,17 @@ def deep_main_chart(gv, domain_start):
     return fig, layout, tracker
 
 
-def deep_average_overlay(fig, yaxis, average_df):
+def deep_average_overlay(gv, fig, yaxis, average_df):
     y_ax = f'y{yaxis}'
     if yaxis == 0:
         y_ax = 'y'
-    x_vals = average_df.time.values
-    y_vals = average_df.value.values
+    x_vals = average_df.time.tolist()
+    y_vals = average_df.value.tolist()
+    if len(y_vals) != 0 and y_vals[-1] != 'nan':
+        from local_functions.analyse.common import make_timestamp
+        y_vals.append(y_vals[-1])
+        last_time = make_timestamp(minute=gv.current_frame.time.values[-1], second=59)
+        x_vals.append(last_time)
     avgcolor = 'rgba(255,153,102,0.8)'  # '#ab4e1b'#'#6dbee3'
     fig.add_trace(go.Scatter(x=x_vals, y=y_vals, line=dict(
         color=avgcolor,
@@ -1894,39 +1900,42 @@ def deep_orders_overlay(fig, yaxis, order_specs, orders_df, cancel=False):
         return dictionary
     orders_df = orders_df.reset_index(drop=True)
     for order in orders_df.index:
-        order = dict(orders_df.iloc[order])
-        if cancel:
-            symbol = 'circle'
-            size = 5
-        else:
-            symbol = 'diamond'
-            size = 10
+        try:
+            order = dict(orders_df.iloc[order])
+            if cancel:
+                symbol = 'circle'
+                size = 5
+            else:
+                symbol = 'diamond'
+                size = 10
 
-        if order['buy_or_sell'] == 'BUY':
-            color = 'rgba(51,204,255,0.5)'
-            if cancel:
-                color = 'rgba(25,100,125,0.5)'
-        else:
-            color = 'rgba(255,255,102,0.5)'
-            if cancel:
-                color = 'rgba(125,125,50,0.5)'
-        oid = int(str(order['order_id']).strip('x'))
-        spec = dict(order_specs[order_specs.order_id == oid].iloc[0])
-        x_vals = [order['send_time'], order['exe_time']]
-        y_vals = [order['exe_price']] * 2
-        spec_s = convert_to_string_vals(spec)
-        order_s = convert_to_string_vals(order)
-        send_text = json.dumps(spec_s, indent=2).replace('\n', '<br>')
-        exe_text = json.dumps(order_s, indent=2).replace('\n', '<br>')
-        texts = [send_text, exe_text]
-        fig.add_trace(go.Scatter(x=x_vals,
-                                 y=y_vals,
-                                 yaxis=y_ax,
-                                 line_color=color,
-                                 marker_symbol=symbol,
-                                 marker_size=size,
-                                 text=texts,
-                                 showlegend=False))
+            if order['buy_or_sell'] == 'BUY':
+                color = 'rgba(51,204,255,0.5)'
+                if cancel:
+                    color = 'rgba(25,100,125,0.5)'
+            else:
+                color = 'rgba(255,255,102,0.5)'
+                if cancel:
+                    color = 'rgba(125,125,50,0.5)'
+            oid = int(str(order['order_id']).strip('x'))
+            spec = dict(order_specs[order_specs.order_id == oid].iloc[0])
+            x_vals = [order['send_time'], order['exe_time']]
+            y_vals = [order['exe_price']] * 2
+            spec_s = convert_to_string_vals(spec)
+            order_s = convert_to_string_vals(order)
+            send_text = json.dumps(spec_s, indent=2).replace('\n', '<br>')
+            exe_text = json.dumps(order_s, indent=2).replace('\n', '<br>')
+            texts = [send_text, exe_text]
+            fig.add_trace(go.Scatter(x=x_vals,
+                                    y=y_vals,
+                                    yaxis=y_ax,
+                                    line_color=color,
+                                    marker_symbol=symbol,
+                                    marker_size=size,
+                                    text=texts,
+                                    showlegend=False))
+        except:
+            print('>>> Order Not Plotted')
     return fig
 
 
@@ -2030,6 +2039,7 @@ def plot_exposure(gv, fig, layout, yaxis, domain):
 
 def deep_plot_momentum(fig, yaxis, gv):
     from local_functions.analyse.common import make_timestamp
+
     def trend_colors(trend):
         t_cols = {
             'gap': 'red',
@@ -2040,10 +2050,15 @@ def deep_plot_momentum(fig, yaxis, gv):
         }
         return t_cols[trend]
     mom_frame = gv.mom_frame
+    if len(mom_frame) == 0:
+        return fig
+        expression
     df = gv.current_frame  # [::-1]
     mom_frame['color'] = mom_frame.trend.apply(trend_colors)
-    mom_frame['start_time'] = mom_frame.start_time.apply(lambda x: make_timestamp(x,30))
-    mom_frame['end_time'] = mom_frame.end_time.apply(lambda x: make_timestamp(x,30))
+    mom_frame['start_time'] = mom_frame.start_time.apply(
+        lambda x: make_timestamp(x, 30))
+    mom_frame['end_time'] = mom_frame.end_time.apply(
+        lambda x: make_timestamp(x, 30))
 
     def plot_trend(x_vals, y_vals, color):
         trace = go.Scatter(x=x_vals,
@@ -2115,10 +2130,9 @@ def deep_sup_res_plot(fig, yaxis, gv):
 
             y_vals = [row['price']]*2
             x_vals = [row['start_time'], end_time]
-            x_vals = list(map(lambda x: make_timestamp(x,30), x_vals))
+            x_vals = list(map(lambda x: make_timestamp(x, 30), x_vals))
             fig.add_trace(go.Scatter(x=x_vals, y=y_vals,
                                      mode='lines',
                                      yaxis=f'y{yaxis}',
                                      line=dict(**line_items)))
     return fig
-
