@@ -304,7 +304,6 @@ def mins_left():
     return mins_to_go
 
 
-@ gl.log_funcs.tracker
 def investment_duration():
     started = gl.current_positions.exe_time.values[0]
     start_time = gl.pd.to_datetime(started).timestamp()
@@ -443,12 +442,9 @@ def inv_duration_weighting():
 def inv_exposure_weighting():
     max_ex = gl.account.get_available_capital()
     current_ex = gl.common.current_exposure()
-    perc = current_ex**2 / max_ex**2
+    perc = current_ex**1.2 / max_ex**1.2
     perc = min(1, perc)
-    # 0 is selling at average
-    if perc == 1:
-        return 0
-    perc = gl.common.get_inverse_perc(perc)
+    perc = 1 - perc
     return perc
 
 
@@ -457,7 +453,9 @@ def all_weighted_perc():
     volume = volume_weighting()
     vola = volatility_weighting()
     inv_dur = inv_duration_weighting()
+
     inv_exp = inv_exposure_weighting()
-    final = (volume + vola + inv_dur + inv_exp) / 4
+    final = (volume + vola + inv_dur) / 3
+    final = min(inv_exp , final)
     # final = min(volume, vola, inv_dur, inv_exp)
     return final

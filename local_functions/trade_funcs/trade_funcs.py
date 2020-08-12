@@ -142,15 +142,9 @@ def queue_order_center(orders):
 
     if len(q_orders) != 0:
         q_orders = q_orders.reset_index(drop=True)
-
         drop_indexes = []
         for row in q_orders.index:
             qs = q_orders.at[row, 'queue_spec']
-
-            # Redundant check.
-            # if qs == None:
-            #     drop_indexes.append(row)
-            #     continue
 
             if qs[0:4] == 'time':
                 qs = int(qs.split(':')[1]) - 1
@@ -162,13 +156,13 @@ def queue_order_center(orders):
             elif qs[0:4] == 'fill':
                 # 'x' here is a character passed on the last partition of any order.
                 # Because of partial fills, multiple filled orders may have the same name.
-                order_id = str(qs.split(':')[1])+'x'
+                order_id = str(q_orders.at[row, 'order_id'])+'x'
                 if len(gl.filled_orders) != 0:
                     if order_id in gl.filled_orders.order_id.tolist():
                         ready = ready.append(q_orders.iloc[row], sort=False)
                         drop_indexes.append(row)
 
-        q_orders.drop(drop_indexes)
+        q_orders = q_orders.drop(drop_indexes)
 
     for_q = gl.pd.DataFrame()
     if len(orders) != 0:
@@ -181,8 +175,9 @@ def queue_order_center(orders):
     ready = gl.pd.DataFrame()
     if len(orders) != 0:
         ready = orders[orders['queue_spec'] == 'nan']
+        ready = gl.order_tools.format_orders(ready)
 
-    return gl.order_tools.format_orders(ready)
+    return ready
 
 
 def check_cancel():

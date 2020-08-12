@@ -56,15 +56,17 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
     if type(cash_or_qty) == str:
         if cash_or_qty == 'everything':
             cash_or_qty = gl.current_positions.qty.sum()
+        elif cash_or_qty == 'half':
+            cash_or_qty = int(gl.current_positions.qty.sum() / 2)
 
     if parse == False:
         return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec)
 
     # 1) Define chunk size in cash and make convert to shares if order is a sell.
-    chunk = 5000
+    chunk = 700
     # convert chunk to shares if order is sell.
     if buy_or_sell == 'SELL':
-        chunk = (chunk / gl.current['close'])
+        chunk = int(chunk / gl.current_price())
 
     # If the chunk is greater than the order, don't bother parsing.
     if cash_or_qty <= chunk:
@@ -213,7 +215,7 @@ def get_exe_price(method):
 
     def bid_price():
         price = gl.current_price()
-        spacer = (price*.01) / 4
+        spacer = (price*.01) / 3
         return price - spacer
 
     def ask_price():

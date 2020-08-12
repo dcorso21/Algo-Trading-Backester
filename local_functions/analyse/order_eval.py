@@ -101,8 +101,9 @@ def soaking_up_hub(method):
             current_trend['low'] = min(current_trend['low'])
         lower_price = current_trend['low'] > gl.current_price()
         downwards_mom = gl.sec_mom < 0
-        pattern_found = substantial_downtrend and downwards_mom and lower_price
-        if pattern_found:
+        pattern_1 = substantial_downtrend and downwards_mom and lower_price
+        pattern_2 = falling_open()
+        if pattern_1 or pattern_2:
             return True
         return False
 
@@ -125,33 +126,67 @@ def soaking_up_hub(method):
             sell = False
             if gl.sell_out:
                 sell = True
-            else: 
+            else:
                 if gl.common.soft_stop_time():
                     sell = True
-            
+
             if sell:
                 gl.log_funcs.log('>>> Out of time, selling indiscriminately')
                 gl.buy_lock = True
                 gl.sell_out = True
                 sells = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                                    cash_or_qty='everything',
-                                                    price_method='bid')
+                                                     cash_or_qty='everything',
+                                                     price_method='bid')
                 return sells
             return []
 
-        return soft_timeout_exit()
+        def bounce_exit():
+            new_inv = gl.common.investment_duration() > 1.5
+            low_ex = gl.common.current_exposure() > gl.account.get_available_capital()*.05
+            no_recent_trade = gl.common.dur_since_last_trade() > 45
+            if failed_bounce() and new_inv and low_ex and no_recent_trade:
+                gl.log_funcs.log('>>> Failed Bounce: Selling Half')
+                return standard_sell_all()
+            return []
+
+        def dollar_risk():
+            unreal = gl.pl_ex['unreal']
+            real = gl.pl_ex['real']
+            combined = unreal + real
+            risk = gl.config['misc']['dollar_risk']
+            if unreal <= risk or combined <= risk:
+                gl.log_funcs.log('>>> Dollar Risk Hit, Selling and Stopping')
+                gl.buy_lock = True
+                gl.sell_out = True
+                return standard_sell_all()
+            return []
+
+        for func in [soft_timeout_exit, dollar_risk, bounce_exit]:
+            response = func()
+            if len(response) != 0:
+                return response
+        return []
 
     def look_for_profit_mode():
         if not above_average():
             return []
-        if failed_bounce():
-            return standard_sell_all()
-        target_return = gl.common.all_weighted_perc(
-        )*gl.config['misc']['ideal_volatility']*1.5
+
+        @ gl.log_funcs.tracker
+        def soak_target_ret():
+            weighting = gl.common.all_weighted_perc()
+            aim_perc = gl.config['misc']['ideal_volatility']*1.5
+            t_ret = aim_perc*weighting
+            return t_ret
+        if make_back_losses_possible():
+            gl.log_funcs.log('>>> Capitalizing on Chance to regain losses.')
+            return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                cash_or_qty='everything',
+                                                price_method='bid')
         # target_return = realistic_return(gl.config['misc']['ideal_volatility'])
-        over_target_return = target_return < gl.common.current_return()
+        over_target_return = soak_target_ret() < gl.common.current_return()
         if over_target_return:
-            return standard_sell_all()
+            gl.log_funcs.log('>>> Target Gain met, attempting sell')
+            return parsed_out_all()
         return []
 
     def look_to_avg_mode():
@@ -210,9 +245,11 @@ def soaking_up_hub(method):
 
         if above_average():
             return []
-        avg_out_of_reach = abs(gl.common.current_return()) > gl.volas['mean'] / 1.5
-        significant_time_passed = gl.common.investment_duration() > .33  # around 20 secs
-        if avg_out_of_reach and significant_time_passed:
+        id_vola = gl.volas['mean']
+        avg_out_of_reach = abs(gl.common.current_return()
+                               ) > id_vola / 1.5
+        significant_time_passed = gl.common.dur_since_last_trade() > gl.config['misc']['buy_clock_countdown_amount']
+        if avg_out_of_reach or significant_time_passed:
             return look_to_rebalance()
         return []
 
@@ -278,6 +315,15 @@ def realistic_return(perc):
 
 '''-------------------- Order Funcs --------------------'''
 
+def parsed_out_all():
+    order = gl.order_tools.create_orders(buy_or_sell='SELL',
+                                        cash_or_qty='everything',
+                                        price_method='bid',
+                                        queue_spec='fill',
+                                        parse=True)
+    return order
+
+
 
 def size_in():
     target_avg()
@@ -286,6 +332,12 @@ def size_in():
 def standard_sell_all():
     return gl.order_tools.create_orders(buy_or_sell='SELL',
                                         cash_or_qty='everything',
+                                        price_method='bid')
+
+
+def standard_sell_half():
+    return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                        cash_or_qty='half',
                                         price_method='bid')
 
 
@@ -840,6 +892,7 @@ def calc_dol_to_inv(cur_dur, max_dur, trend_vola):
     return dol_to_inv
 
 
+@ gl.log_funcs.tracker
 def target_avg():
     price = gl.current_price()
     return price + ((.01*gl.volas['mean'])/5)*price
@@ -856,7 +909,23 @@ def failed_bounce():
     if type(bounce['high']) == list:
         bounce['high'] = max(bounce['high'])
     lower_price = gl.current_price() < bounce['high']
-    failed_b= small_bounce and downward_sec_mom and lower_price
+    failed_b = small_bounce and downward_sec_mom and lower_price
     return failed_b
 
-        
+
+def make_back_losses_possible():
+    some_lost = gl.pl_ex['real'] < 0
+    if some_lost:
+        able_to_make_up = gl.pl_ex['unreal'] > abs(gl.pl_ex['real'])
+        return able_to_make_up
+    return False
+
+
+def falling_open():
+    mins = len(gl.current_frame)
+    if (mins >= 6) or (mins < 3):
+        return False
+    no_supports = str(gl.close_sup_res[0]) == 'nan'
+    below_last_low = gl.current['low'] < gl.current_frame.at[1, 'low']
+    falling = no_supports and below_last_low
+    return falling

@@ -646,7 +646,8 @@ def most_recent_results():
     path = path / x
     for dir, folder, file in os.walk(path):
         break
-    x = [i for i in sorted(folder) if i != 'comparison'][-1]
+    x = sorted([(int(i.split('_')[1]), i) for i in folder if i != 'comparison'])
+    x = x[-1][-1]
     path = path / x
     full_path = (path / 'batch_index.html')
     return pull_df_from_html(full_path)
@@ -654,7 +655,6 @@ def most_recent_results():
 
 def save_worst_performers():
     df = most_recent_results()
-    # print(df.columns)
 
     df['net'] = df.real_pl + df.unreal_pl
     worst_performers = df.sort_values(by='net', ascending=True).head(10).tick_date.to_list()
@@ -665,15 +665,19 @@ def save_worst_performers():
         return f'mkt_csvs/{path}.csv'
 
     worst_performers = [fill_out_filepath(i) for i in worst_performers]
-    worst_performers = json.dumps(worst_performers, indent=2)
+    save_stocklist_to_batchcsvs(worst_performers)
+    print('Worst Performers Saved')
 
+
+
+def save_stocklist_to_batchcsvs(list_of_csvs):
+    list_of_csvs = json.dumps(list_of_csvs, indent=2)
     path = Path.cwd() / 'results' / 'batch_csvs.json'
 
     with open(path, 'w') as f:
-        f.write(worst_performers)
+        f.write(list_of_csvs)
         f.close()
 
-    print('Worst Performers Saved')
 
 
 def clear_output(num_of_lines):

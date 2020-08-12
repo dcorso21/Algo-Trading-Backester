@@ -1666,6 +1666,11 @@ def pricing_and_overlays(gv, domain):
     tracker, average_df = extract_tracker_variable(
         tracker=gv.tracker, var='average')
 
+    t_avg_df = []
+    if 'target_avg' in tracker.variable.tolist():
+        tracker, t_avg_df = extract_tracker_variable(
+            tracker=gv.tracker, var='target_avg')
+
     yaxis = len(pd.unique(tracker.variable)) + 1
 
     print('Plotting Second Data')
@@ -1683,6 +1688,11 @@ def pricing_and_overlays(gv, domain):
     print('Plotting Average')
     fig = deep_average_overlay(
         gv=gv, fig=fig, yaxis=yaxis, average_df=average_df)
+
+    if len(t_avg_df) != 0:
+        print('Plotting Target Average')
+        fig = deep_target_avg_overlay(
+            gv=gv, fig=fig, yaxis=yaxis, t_avg_df=t_avg_df)
 
     # Filled Orders
     print('Plotting Filled Orders')
@@ -1794,7 +1804,8 @@ def deep_average_overlay(gv, fig, yaxis, average_df):
     if len(y_vals) != 0 and y_vals[-1] != 'nan':
         from local_functions.analyse.common import make_timestamp
         y_vals.append(y_vals[-1])
-        last_time = make_timestamp(minute=gv.current_frame.time.values[-1], second=59)
+        last_time = make_timestamp(
+            minute=gv.current_frame.time.values[-1], second=59)
         x_vals.append(last_time)
     avgcolor = 'rgba(255,153,102,0.8)'  # '#ab4e1b'#'#6dbee3'
     fig.add_trace(go.Scatter(x=x_vals, y=y_vals, line=dict(
@@ -1803,6 +1814,27 @@ def deep_average_overlay(gv, fig, yaxis, average_df):
         dash="dash"), mode='lines',
         name='average price', yaxis=y_ax))
 
+    return fig
+
+
+def deep_target_avg_overlay(gv, fig, yaxis, t_avg_df):
+    y_ax = f'y{yaxis}'
+    if yaxis == 0:
+        y_ax = 'y'
+    x_vals = t_avg_df.time.tolist()
+    y_vals = t_avg_df.value.tolist()
+    if len(y_vals) != 0 and y_vals[-1] != 'nan':
+        from local_functions.analyse.common import make_timestamp
+        y_vals.append(y_vals[-1])
+        last_time = make_timestamp(
+            minute=gv.current_frame.time.values[-1], second=59)
+        x_vals.append(last_time)
+    avgcolor = 'rgba(116,69,119,0.8)'  # '#ab4e1b'#'#6dbee3'
+    fig.add_trace(go.Scatter(x=x_vals, y=y_vals, line=dict(
+        color=avgcolor,
+        shape='hv', width=1.3,
+        dash="dot"), mode='lines',
+        name='target_avg', yaxis=y_ax))
     return fig
 
 
@@ -1927,13 +1959,13 @@ def deep_orders_overlay(fig, yaxis, order_specs, orders_df, cancel=False):
             exe_text = json.dumps(order_s, indent=2).replace('\n', '<br>')
             texts = [send_text, exe_text]
             fig.add_trace(go.Scatter(x=x_vals,
-                                    y=y_vals,
-                                    yaxis=y_ax,
-                                    line_color=color,
-                                    marker_symbol=symbol,
-                                    marker_size=size,
-                                    text=texts,
-                                    showlegend=False))
+                                     y=y_vals,
+                                     yaxis=y_ax,
+                                     line_color=color,
+                                     marker_symbol=symbol,
+                                     marker_size=size,
+                                     text=texts,
+                                     showlegend=False))
         except:
             print('>>> Order Not Plotted')
     return fig
