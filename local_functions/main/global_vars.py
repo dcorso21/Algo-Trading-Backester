@@ -1,4 +1,3 @@
-
 # 3rd party
 from pathlib import Path
 from functools import wraps
@@ -37,7 +36,6 @@ from local_functions.analyse import common
 from local_functions.analyse import analyse
 from local_functions.main import algo
 
-
 # Custom
 
 # endregion imports
@@ -59,8 +57,8 @@ buy_clock = 0
 buy_lock = False
 # list the starting strategy
 strategy = 'strat_name'
-strategy_mode='consolidate'
-# seconds that momentum is going in the same direction. 
+strategy_mode = 'consolidate'
+# seconds that momentum is going in the same direction.
 # Negative means that the momentum is down
 sec_mom = 0
 
@@ -93,61 +91,62 @@ tracker = 'Dataframe'
 
 
 current = {
-        'open': 'nan',
-        'high': 'nan',
-        'low': 'nan',
-        'close': 'nan',
-        'volume': 'nan',
-        'second': 'nan',
-        'minute': 'nan',
-        'ticker': 'nan'
-    }
+    'open': 'nan',
+    'high': 'nan',
+    'low': 'nan',
+    'close': 'nan',
+    'volume': 'nan',
+    'second': 'nan',
+    'minute': 'nan',
+    'ticker': 'nan'
+}
 last = {
-        'open': 'nan',
-        'high': 'nan',
-        'low': 'nan',
-        'close': 'nan',
-        'volume': 'nan',
-        'second': 'nan',
-        'minute': 'nan',
-        'ticker': 'nan'
-    }
+    'open': 'nan',
+    'high': 'nan',
+    'low': 'nan',
+    'close': 'nan',
+    'volume': 'nan',
+    'second': 'nan',
+    'minute': 'nan',
+    'ticker': 'nan'
+}
 pl_ex = {
-        'unreal': 0,
-        'min_unreal': 0,
-        'max_unreal': 0,
-        'real': 0,
-        'min_real': 0,
-        'max_real': 0,
-        'last_ex': 0,
-        'max_ex': 0
-    }
+    'unreal': 0,
+    'min_unreal': 0,
+    'max_unreal': 0,
+    'real': 0,
+    'min_real': 0,
+    'max_real': 0,
+    'last_ex': 0,
+    'max_ex': 0
+}
 volas = {
-        'differential': 'nan',
-        'current': 'nan',
-        'three_min': 'nan',
-        'five_min': 'nan',
-        'ten_min': 'nan',
-        'mean': 'nan'
-    }
+    'differential': 'nan',
+    'current': 'nan',
+    'three_min': 'nan',
+    'five_min': 'nan',
+    'ten_min': 'nan',
+    'mean': 'nan'
+}
 volumes = {
-        'fail_check':'bool',
-        'safe_capital_limit': 'nan',
-        'differential': 'nan',
-        'mean': 'nan',
-        'minimum': 'nan',
-        'extrap_current': 'nan',
-        'three_min_mean': 'nan',
-        'three_min_min': 'nan',
-        'five_min_mean': 'nan',
-        'five_min_min': 'nan',
-        'ten_min_mean': 'nan',
-        'ten_min_min': 'nan',
-    }
+    'fail_check': 'bool',
+    'safe_capital_limit': 'nan',
+    'differential': 'nan',
+    'mean': 'nan',
+    'minimum': 'nan',
+    'extrap_current': 'nan',
+    'three_min_mean': 'nan',
+    'three_min_min': 'nan',
+    'five_min_mean': 'nan',
+    'five_min_min': 'nan',
+    'ten_min_mean': 'nan',
+    'ten_min_min': 'nan',
+}
 
 open_cancels = {}
 last_order_check = ['09:30:00', 1, 'price']
 close_sup_res = ['closest_support', 'closest_resistance']
+
 
 class GlobalV:
     def __init__(self):
@@ -160,23 +159,23 @@ class GlobalV:
         self.volumes = volumes.copy()
         self.volume_frame = volume_frame.copy()
         self.order_specs = order_specs.copy()
-        self.queued_orders = queued_orders.copy() 
-        self.open_orders = open_orders.copy() 
-        self.cancelled_orders = cancelled_orders.copy() 
-        self.current_positions = current_positions.copy() 
-        self.filled_orders = filled_orders.copy() 
-        self.current_frame = current_frame.copy() 
-        self.mom_frame = mom_frame.copy() 
-        self.sup_res_frame = sup_res_frame.copy() 
-        self.log = log.copy() 
-        self.tracker = tracker.copy() 
+        self.queued_orders = queued_orders.copy()
+        self.open_orders = open_orders.copy()
+        self.cancelled_orders = cancelled_orders.copy()
+        self.current_positions = current_positions.copy()
+        self.filled_orders = filled_orders.copy()
+        self.current_frame = current_frame.copy()
+        self.mom_frame = mom_frame.copy()
+        self.sup_res_frame = sup_res_frame.copy()
+        self.log = log.copy()
+        self.tracker = tracker.copy()
 
 
 def current_price():
     return current['close']
 
 
-def save_dict_to_frame(dictionary:dict) -> 'df':
+def save_dict_to_frame(dictionary: dict) -> 'df':
     # region Docstring
     '''
     # Save Dictionary to Frame
@@ -192,7 +191,7 @@ def save_dict_to_frame(dictionary:dict) -> 'df':
     return df
 
 
-def save_frame(df, file_name:str, path_to_file:Path):
+def save_frame(df, file_name: str, path_to_file: Path):
     # region Docstring
     '''
     # Save Frame
@@ -245,14 +244,14 @@ def save_frame(df, file_name:str, path_to_file:Path):
         file.write(text)
 
 
-def clear_all_in_folder(folder:str, confirm=False, print_complete=False, delete_dir= False):
+def clear_all_in_folder(folder: str, confirm=False, print_complete=False, delete_dir=False):
     # region Docstring
     '''
     # Clear All in Folder
     Clear all files in given folder 
-    
+
     #### Returns nothing, clears folder.
-    
+
     ## Parameters:{
     ####    `folder`: name of folder
     ####    `confirm`: ask before deleting contents
@@ -318,54 +317,63 @@ def save_all(path_to_folder):
     Once trading is done, save all global variables to appropriate dir.
     '''
     extend_current_frame()
-    files = {
+    # files = {
 
-        'current': current,
-        'pl_ex': pl_ex,
-        'volas': volas,
-        'volumes': volumes,
+    #     'current': current,
+    #     'pl_ex': pl_ex,
+    #     'volas': volas,
+    #     'volumes': volumes,
 
-        'current_frame': current_frame,
-        'mom_frame': mom_frame,
-        'sup_res_frame': sup_res_frame,
+    #     'current_frame': current_frame,
+    #     'mom_frame': mom_frame,
+    #     'sup_res_frame': sup_res_frame,
 
+    #     'order_specs': order_specs,
+    #     'queued_orders': queued_orders,
+    #     'cancelled_orders': cancelled_orders,
+    #     'open_orders': open_orders,
+    #     'current_positions': current_positions,
+    #     'filled_orders': filled_orders,
 
-        'order_specs': order_specs,
-        'queued_orders': queued_orders,
-        'cancelled_orders': cancelled_orders,
-        'open_orders': open_orders,
-        'current_positions': current_positions,
-        'filled_orders': filled_orders,
+    #     'log': log,
 
-        'log': log,
+    # }
 
-    }
+    # if not os.path.exists(path_to_folder):
+    #     os.makedirs(path_to_folder)
 
-    if not os.path.exists(path_to_folder):
-        os.makedirs(path_to_folder)
+    # if batch_dir == '':
+    #     save_config(path_to_folder)
 
-    if batch_dir == '':
-        save_config(path_to_folder)
+    # for file_name, file in zip(files.keys(), files.values()):
 
-    for file_name, file in zip(files.keys(), files.values()):
+    #     if type(file) == dict:
+    #         file = save_dict_to_frame(file)
 
-        if type(file) == dict:
-            file = save_dict_to_frame(file)
-
-        save_frame(file, file_name, path_to_folder)
+    #     save_frame(file, file_name, path_to_folder)
 
     # if len(mom_frame) != 0:
     #     # update_docs.update_momentum()
     #     plotr.plot_momentum(mom_frame, current_frame,
     #                         path_to_folder, batch_dir, csv_name)
-    if len(filled_orders) != 0:
-        plotr.plot_results(current_frame, filled_orders,
-                           batch_dir, path_to_folder, csv_name)
+    # if len(filled_orders) != 0:
+    #     plotr.plot_results(current_frame=current_frame,
+    #                        filled_orders=filled_orders,
+    #                        batch_path=batch_dir,
+    #                        directory=path_to_folder,
+    #                        csv_name=csv_name)
+    debug_plot(path_to_folder=path_to_folder,
+               batch_path=batch_dir,
+               csv_name=csv_name)
 
 
-def debug_plot():
+def debug_plot(path_to_folder=None, batch_path=None, csv_name=None, show=True):
     extend_current_frame()
-    plotr.deep_tracking_plot(GlobalV())
+    plotr.deep_tracking_plot(gv=GlobalV(),
+                             path_to_folder=path_to_folder,
+                             batch_path=batch_path,
+                             csv_name=csv_name,
+                             show=show)
 
 
 def custom_traceback(orig_func):
@@ -401,7 +409,6 @@ def colored_traceback(trace):
 
     file_info = lines[1::2]
     code_info = lines[::2]
-
 
     print('\n', color_format(reason, 'red'), '\n')
     for fi, ci in zip(file_info, code_info):
@@ -534,9 +541,9 @@ def get_downloaded_configs() -> list:
     '''
     # Get Downloaded Configurations
     gets config.json files from the `Downloads/` folder
-    
+
     #### Returns list of configs
-    
+
     ## Parameters:{
     ####    `param`:
     ## }
@@ -565,7 +572,7 @@ def show_available_configurations():
     '''
     # Show Available Configurations
     gets all available config.json files and displays in a DF
-    
+
     #### Returns nothing, prints table.
     '''
     # endregion Docstring
@@ -599,7 +606,7 @@ def pick_config_file() -> str:
     '''
     # Pick Config File
     Allows user to choose which config to use in testing. 
-    
+
     #### Returns filepath of config file.
     '''
     # endregion Docstring
@@ -646,7 +653,8 @@ def most_recent_results():
     path = path / x
     for dir, folder, file in os.walk(path):
         break
-    x = sorted([(int(i.split('_')[1]), i) for i in folder if i != 'comparison'])
+    x = sorted([(int(i.split('_')[1]), i)
+                for i in folder if i != 'comparison'])
     x = x[-1][-1]
     path = path / x
     full_path = (path / 'batch_index.html')
@@ -657,7 +665,8 @@ def save_worst_performers():
     df = most_recent_results()
 
     df['net'] = df.real_pl + df.unreal_pl
-    worst_performers = df.sort_values(by='net', ascending=True).head(10).tick_date.to_list()
+    worst_performers = df.sort_values(
+        by='net', ascending=True).head(10).tick_date.to_list()
 
     def fill_out_filepath(path):
         path = path[0:-2]
@@ -669,7 +678,6 @@ def save_worst_performers():
     print('Worst Performers Saved')
 
 
-
 def save_stocklist_to_batchcsvs(list_of_csvs):
     list_of_csvs = json.dumps(list_of_csvs, indent=2)
     path = Path.cwd() / 'results' / 'batch_csvs.json'
@@ -679,15 +687,14 @@ def save_stocklist_to_batchcsvs(list_of_csvs):
         f.close()
 
 
-
 def clear_output(num_of_lines):
     # region Docstring
     '''
     # Clear Output
     Clears Print Output of the number of lines passed
-    
+
     #### Returns nothing.   
-    
+
     ## Parameters:{
     ####    `num_of_lines`: number of lines to clear
     ## }
@@ -714,9 +721,9 @@ def color_format(msg, color):
     '''
     # Color Format
     formats print output with color.    
-    
+
     #### Returns message now wrapped in ANSI color codes. 
-    
+
     ## Parameters:{
     ####    `msg`: message to be printed. 
     ####    `color`: desired color. 
@@ -746,7 +753,7 @@ def color_format(msg, color):
 def tab_df(df):
     from tabulate import tabulate
     if type(df) == dict:
-        df = json.dumps(df,indent=2)
+        df = json.dumps(df, indent=2)
         print(df)
         return
     tablefmt = 'fancy_grid'

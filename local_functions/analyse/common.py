@@ -269,30 +269,6 @@ def all_rows(df):
         print(df)
 
 
-@ gl.log_funcs.tracker
-def bounce_factor():
-    # region Docstring
-    '''
-    # Find Bounce Factor
-    Finds a number on a non-set scale w 
-
-    #### Returns ex
-
-    ## Parameters:{
-    ####    `param`:
-    ## }
-    '''
-    # endregion Docstring
-    if len(gl.mom_frame) == 0:
-        dr = daily_return()/gl.volas['mean']
-        return dr
-    ups = gl.mom_frame[gl.mom_frame['trend'] == 'uptrend'].volatility.mean()
-    if str(ups) == 'nan':
-        ups = 0
-    downs = gl.mom_frame[gl.mom_frame['trend']
-                         == 'downtrend'].volatility.mean()
-    bounce_factor = ups/gl.volas['mean'] - downs/gl.volas['mean']
-    return bounce_factor
 
 
 def mins_left():
@@ -328,6 +304,37 @@ def dur_since_last_trade():
     seconds = current_time - last_trade_stamp
     duration = seconds/60
     return duration
+
+
+def dur_since_last_buy():
+    buys = gl.current_positions
+    buys = buys[buys.buy_or_sell == 'BUY']
+    if len(buys) == 0:
+        return 0
+    last_trade_time = buys.exe_time.values[-1]
+    last_trade_stamp = gl.pd.to_datetime(last_trade_time).timestamp()
+    current_time = gl.common.get_current_timestamp(integer=True)
+    seconds = current_time - last_trade_stamp
+    duration = seconds/60
+    return duration
+
+
+def sec_since_last_fill(order_id):
+    fills = gl.filled_orders
+    last_fill = fills[fills.order_id == order_id].exe_time.to_list()[-1]
+    last_fill = gl.pd.to_datetime(last_fill).timestamp()
+    current_time = get_current_timestamp(integer=True)
+    seconds = current_time - last_fill
+    return seconds
+
+
+def exposure_share_count():
+    return gl.current_positions.qty.sum()
+
+
+def current_exposure_perc():
+    perc = current_exposure() / gl.account.get_available_capital()
+    return perc
 
 
 @ gl.log_funcs.tracker
@@ -404,6 +411,14 @@ def soft_stop_time(check=True):
     return soft_stop
 
 
+def orders_open_or_waiting():
+    open_orders = len(gl.open_orders) != 0
+    queued_orders = len(gl.queued_orders) != 0
+    if open_orders or queued_orders:
+        return True
+    return False
+
+
 '''-------------------- Weighting --------------------'''
 
 
@@ -456,6 +471,50 @@ def all_weighted_perc():
 
     inv_exp = inv_exposure_weighting()
     final = (volume + vola + inv_dur) / 3
-    final = min(inv_exp , final)
+    # final = min(inv_exp, final)
     # final = min(volume, vola, inv_dur, inv_exp)
     return final
+
+@ gl.log_funcs.tracker
+def bounce_factor():
+    # region Docstring
+    '''
+    # Find Bounce Factor
+    Finds a number on a non-set scale w 
+
+    #### Returns ex
+
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
+    def convert_to_weight(factor):
+        sway = .20
+        max_abs = 5
+        perc = abs(final_bounce) / 5
+        perc = min(1, perc)
+        weight = perc*sway
+        if final_bounce < 0:
+            weight *= -1
+        return weight
+
+    if len(gl.current_frame) <= 10:
+        return 1
+    if len(gl.mom_frame) == 0:
+        dr = daily_return()/gl.volas['mean']
+        bounce_factor = convert_to_weight(dr)
+        return bounce_factor
+    
+    ups = gl.mom_frame[gl.mom_frame['trend'].isin(['rpennant','uptrend'])].volatility.mean()
+    if str(ups) == 'nan':
+        ups = 0
+    downs = gl.mom_frame[gl.mom_frame['trend']
+                         == 'downtrend'].volatility.mean()
+    if str(downs) == 'nan':
+        downs = 0
+    bounce_factor = ups/gl.volas['mean'] - downs/gl.volas['mean']
+    bounce_factor_2 = daily_return()/gl.volas['mean']
+    final_bounce = 1 + (bounce_factor + bounce_factor_2)/2
+    final_bounce = convert_to_weight(final_bounce)
+    return final_bounce

@@ -514,17 +514,17 @@ def save_batch_index():
 
     plot = gl.plotr.plot_batch_overview(b_frame)
 
-    # def link_to_log(tick_date, path):
-    #     for root, dirs, files in gl.os.walk(path):
-    #         if tick_date in dirs:
-    #             root = gl.os.path.basename(root)
-    #             link = str(gl.Path(root) / tick_date / 'log.html')
-    #             break
-    #     return f'<a href="{link}">{tick_date}</a>'
+    def link_to_debug(tick_date, path):
+        for root, dirs, files in gl.os.walk(path):
+            if tick_date in dirs:
+                root = gl.os.path.basename(root)
+                link = str(gl.Path(root) / tick_date / 'debug_plot.html')
+                break
+        return f'<a href="{link}">{tick_date}</a>'
 
     batch_table = gl.frame_to_html(b_frame, 'batch_frame')
-    # for ticker in b_frame.tick_date:
-    #     batch_table = batch_table.replace(ticker, link_to_log(ticker, b_dir))
+    for ticker in b_frame.tick_date:
+        batch_table = batch_table.replace(ticker, link_to_debug(ticker, b_dir))
 
     batches_link = str(gl.directory / 'batches.html')
 
@@ -562,7 +562,7 @@ def save_documentation(full_stock_path):
     '''
     # endregion Docstring
 
-    # gl.save_all(full_stock_path)
+    gl.save_all(full_stock_path)
     # save one config per directory.
     if not gl.os.path.exists(b_dir / 'config.json'):
         gl.save_config(b_dir)

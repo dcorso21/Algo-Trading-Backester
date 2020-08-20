@@ -63,7 +63,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
         return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec)
 
     # 1) Define chunk size in cash and make convert to shares if order is a sell.
-    chunk = 700
+    chunk = max([700, gl.common.current_exposure()/5])
     # convert chunk to shares if order is sell.
     if buy_or_sell == 'SELL':
         chunk = int(chunk / gl.current_price())
@@ -77,7 +77,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
             buy_or_sell, chunk, price_method, auto_renew, cancel_spec, queue_spec)
 
         # Divs is number of orders not including a remainder.
-        divs = (cash_or_qty // chunk)-1
+        divs = int((cash_or_qty // chunk)-1)
         cashes = [chunk]*divs
         # add the remainder to divs.
         if (cash_or_qty % chunk) != 0:
@@ -97,7 +97,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
                 order = fill_out_order(
                     buy_or_sell, cash, price_method, auto_renew, cancel_spec, q_spec)
                 orders = orders.append(order, sort=False)
-                return orders
+            return orders
 
         # Create parses based on time
         if parse[0:4] == 'time':
@@ -106,7 +106,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
                 order = fill_out_order(
                     buy_or_sell, cash, price_method, auto_renew, cancel_spec, q_spec)
                 orders = orders.append(order, sort=False)
-                return orders
+            return orders
 
 
 def fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec):
@@ -147,31 +147,28 @@ def format_orders(orders):
     formatted = gl.pd.DataFrame()
 
     for row in orders.index:
-        row = orders.iloc[row]
-        info = dict(row)
-        order_id, trigger, buy_or_sell, cash_or_qty, p_method, auto_renew, cancel_spec, queue_spec = row
-
-        exe_price = get_exe_price(p_method)
-        if ':' not in cancel_spec:
-            cancel_spec = get_cancel_spec(cancel_spec, exe_price)
+        info = dict(orders.iloc[row])
+        exe_price = get_exe_price(info['price_method'])
+        if ':' not in info['cancel_spec']:
+            info['cancel_spec'] = get_cancel_spec(info['cancel_spec'], exe_price)
         timestamp = gl.common.get_current_timestamp()
-        if buy_or_sell == 'BUY':
-            qty = int(cash_or_qty/exe_price)
-            cash = round(qty * exe_price, 2)
+        if info['buy_or_sell'] == 'BUY':
+            info['qty'] = int(info['cash_or_qty']/exe_price)
+            info['cash'] = round(info['qty'] * exe_price, 2)
 
-        if buy_or_sell == 'SELL':
-            qty = cash_or_qty
-            cash = round(qty * exe_price, 2)
+        elif info['buy_or_sell'] == 'SELL':
+            info['qty'] = info['cash_or_qty']
+            info['cash'] = round(info['qty'] * exe_price, 2)
 
         row = {'ticker': [gl.current['ticker']],
-               'order_id': [order_id],
+               'order_id': [int(info['order_id'])],
                'send_time': [timestamp],
-               'buy_or_sell': [buy_or_sell],
-               'cash': [cash],
-               'qty': [qty],
+               'buy_or_sell': [info['buy_or_sell']],
+               'cash': [info['cash']],
+               'qty': [info['qty']],
                'exe_price': [exe_price],
-               'auto_renew': [auto_renew],
-               'cancel_spec': [cancel_spec],
+               'auto_renew': [info['auto_renew']],
+               'cancel_spec': [info['cancel_spec']],
                }
 
         order = gl.pd.DataFrame(row)
@@ -199,7 +196,7 @@ def get_exe_price(method):
             offset = (current_vola * .01) * current['close']
             exe_price = current['close'] - offset
             return exe_price
-        # if candle green...
+        # if candle is green...
         exe_price = current['close'] + offset
         return exe_price
 
@@ -218,6 +215,21 @@ def get_exe_price(method):
         spacer = (price*.01) / 3
         return price - spacer
 
+    def double_bid():
+        price = gl.current_price()
+        spacer = (price*.01) / 3
+        return price - spacer - spacer
+
+    def safe_bid():
+        price = gl.current_price()
+        spacer = (price*.01) / 3
+        bid = price - spacer
+        avg = gl.common.current_average()
+        price = round(max([bid, avg]),2)
+        if price < avg:
+            price = round(price+.01, 2)
+        return price
+
     def ask_price():
         price = gl.current_price()
         spacer = (price*.01) / 4
@@ -225,15 +237,19 @@ def get_exe_price(method):
 
     price_methods = {
         'bid': bid_price,
+        'double_bid': double_bid,
+        'safe_bid': safe_bid,
         'ask': ask_price,
         'extrapolate': extrapolate,
         'current': current_price,
         'low_placement': low_placement,
     }
     # if instead of a method, a price is passed, simply return the price.
-    if type(method) != str:
-        return method
-    return price_methods[method]()
+    if type(method) == str:
+        method = price_methods[method]()
+    
+    method = round(method, 2)
+    return method
 
 
 def position_sizer():

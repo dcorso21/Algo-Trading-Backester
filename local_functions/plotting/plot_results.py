@@ -315,13 +315,13 @@ def plot_results(current_frame, filled_orders, batch_path, directory, csv_name):
     # Plot Results
     All in one function for creating daily chart html.
 
-    # Parameters:{
-    # `current_frame`: global variable df,
-    # `filled_orders`: global variable df,
-    # `batch_path`: global variable defined batch path
-    # `directory`: global variable defined directory
-    # `csv_name`: name of file traded
-    # }
+    ### Parameters:{
+    ### `current_frame`: global variable df,
+    ### `filled_orders`: global variable df,
+    ### `batch_path`: global variable defined batch path
+    ### `directory`: global variable defined directory
+    ### `csv_name`: name of file traded
+    ### }
     '''
     # endregion Docstring
     o = get_orders(filled_orders)
@@ -1570,7 +1570,7 @@ def new_yaxis(color, name, domain):
     return axis
 
 
-def deep_tracking_plot(gv):
+def deep_tracking_plot(gv, path_to_folder, batch_path, csv_name, show):
 
     domain_for_pricing = .5
     fig, layout, tracker = deep_main_chart(gv, domain_for_pricing)
@@ -1612,12 +1612,29 @@ def deep_tracking_plot(gv):
     layout['height'] = 2000
     fig.update_layout(**layout)
 
-    # plotly.offline.plot(fig)
-    # plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
+    if show:
+        fig.show()
 
-    # with open('test.html', 'w') as f:
-    #     f.write(plot)
-    fig.show()
+    if path_to_folder != None:
+        plot = fig.to_html(include_plotlyjs='cdn', full_html=False)
+        template_path = str(
+            Path.cwd() / 'batch_design' / 'plot_template.html')
+
+        with open(template_path, 'r') as template:
+            text = template.read()
+
+        asset_path = str(Path.cwd() / 'batch_design' / 'assets')
+        index_path = str(batch_path / 'batch_index.html')
+        html_name = str(path_to_folder / 'debug_plot.html')
+
+        text = text.replace('^^^doc_name^^^', 'Debug Plot')
+        text = text.replace('^^^csv_name^^^', csv_name)
+        text = text.replace('^^^asset_path^^^', asset_path)
+        text = text.replace('^^^index_path^^^', index_path)
+        text = text.replace('^^^plot^^^', plot)
+
+        with open(html_name, 'x') as f:
+            f.write(text)
 
 
 def plot_log(log, fig, layout, yaxis, domain):

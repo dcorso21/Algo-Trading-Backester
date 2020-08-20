@@ -182,12 +182,12 @@ def update_second_momentum():
         if current <= last:
             sec_mom -= 1
         else:
-            sec_mom = 0
+            sec_mom = +1
     else:
         if current >= last:
             sec_mom += 1
         else:
-            sec_mom = 0
+            sec_mom = -1
     return sec_mom
 
 

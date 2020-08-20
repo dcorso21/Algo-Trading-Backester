@@ -121,12 +121,12 @@ def update_current_positions(new_fills):
     current_positions = buys
     current_positions['cash'] = current_positions.qty*current_positions.exe_price
     gl.current_positions = current_positions
-    if realized != 0:
-        if len(current_positions) == 0:
-            unrealized = 0
-        else:
-            unrealized = 'skip'
-        gl.common.update_pl(realized, unrealized)
+    # if realized != 0:
+    if len(current_positions) == 0:
+        unrealized = 0
+    else:
+        unrealized = 'skip'
+    gl.common.update_pl(realized, unrealized)
     gl.common.update_ex()
     gl.common.current_average(new_avg=True)
 
@@ -137,8 +137,9 @@ def reset_buy_clock(new_fills):
 
 
 def queue_order_center(orders):
-
     q_orders = gl.queued_orders
+    ready = gl.pd.DataFrame()
+    already_dropped_ids = []
 
     if len(q_orders) != 0:
         q_orders = q_orders.reset_index(drop=True)
@@ -156,11 +157,22 @@ def queue_order_center(orders):
             elif qs[0:4] == 'fill':
                 # 'x' here is a character passed on the last partition of any order.
                 # Because of partial fills, multiple filled orders may have the same name.
-                order_id = str(q_orders.at[row, 'order_id'])+'x'
+                order_id = qs[5:]+'x'
+                order_id_no_x = int(qs[5:])
                 if len(gl.filled_orders) != 0:
+                    # If filled 
                     if order_id in gl.filled_orders.order_id.tolist():
                         ready = ready.append(q_orders.iloc[row], sort=False)
                         drop_indexes.append(row)
+                    # If cancelled 
+                    elif order_id_no_x in gl.cancelled_orders.order_id.to_list():
+                        drop_indexes.append(row)
+                        already_dropped_ids.append(q_orders.at[row, 'order_id'])
+                    # If domino order from previous queued. 
+                    elif order_id_no_x in already_dropped_ids:
+                        drop_indexes.append(row)
+                        already_dropped_ids.append(q_orders.at[row, 'order_id'])
+                        
 
         q_orders = q_orders.drop(drop_indexes)
 
@@ -172,11 +184,11 @@ def queue_order_center(orders):
 
     gl.queued_orders = q_orders
 
-    ready = gl.pd.DataFrame()
     if len(orders) != 0:
-        ready = orders[orders['queue_spec'] == 'nan']
-        ready = gl.order_tools.format_orders(ready)
+        immediately_ready = orders[orders['queue_spec'] == 'nan']
+        ready = ready.append(immediately_ready, sort=False)
 
+    ready = gl.order_tools.format_orders(ready)
     return ready
 
 
@@ -222,6 +234,11 @@ def check_cancel():
             s = 10
         cancel = False
         # Time Out
+        # If the order is filling, give it more time. 
+        if len(gl.filled_orders) != 0:
+            partial_fill = order_id in gl.filled_orders.order_id.to_list()
+            if partial_fill:
+                duration = gl.common.sec_since_last_fill(order_id)
         if duration >= xtime:
             cancel = 'time out'
             for_cancellation.append(order_id)

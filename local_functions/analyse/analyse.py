@@ -20,7 +20,7 @@ def analyse():
 
 
 def eval_orders():
-    if len(gl.open_orders) != 0:
+    if gl.common.orders_open_or_waiting():
         return []
     if not gl.common.actively_trading():
         return look_for_entry()
@@ -196,7 +196,7 @@ def good_time_to_stop():
 #         if str(gl.close_sup_res[0]) == 'nan':
 #             mode = 'free_fall'
 #         elif str(gl.close_sup_res[1]) == 'nan':
-#             mode = 'breakout_to_new_highs'
+#         parsed_sellout_to_new_highs'
 #         else:
 #             mode = 'consolidate'
 #     if mode != gl.strategy_mode:
@@ -215,8 +215,7 @@ def good_time_to_stop():
 #             'max_dur': 10,
 #             'soft_cap_limit': .2,
 #         }
-#         gl.config['strat_vars'] = strat_vars
-
+#         gl.config['strat_varparsed_sell
 #     def free_fall():
 #         strat_vars = {
 #             'strat_conds': ['pos_sec_mom'],

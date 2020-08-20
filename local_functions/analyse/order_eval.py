@@ -111,7 +111,7 @@ def soaking_up_hub(method):
         settings = {
             'name': 'strat_name',
             'hub': soaking_up_hub,
-            'modes': ['safe_exit', 'look_for_profit', 'look_to_avg']
+            'modes': ['safe_exit', 'look_for_profit', 'look_to_avg', 'quick_invest']
         }
         return settings
 
@@ -141,15 +141,18 @@ def soaking_up_hub(method):
             return []
 
         def bounce_exit():
-            new_inv = gl.common.investment_duration() > 1.5
-            low_ex = gl.common.current_exposure() > gl.account.get_available_capital()*.05
-            no_recent_trade = gl.common.dur_since_last_trade() > 45
-            if failed_bounce() and new_inv and low_ex and no_recent_trade:
+            matured_inv = gl.common.investment_duration() > 1.5
+            low_ex = gl.common.current_exposure_perc() > .03
+            no_recent_trade = gl.common.dur_since_last_trade() > .75
+            failed_b = failed_bounce()
+            if failed_b and matured_inv and low_ex and no_recent_trade:
                 gl.log_funcs.log('>>> Failed Bounce: Selling Half')
-                return standard_sell_all()
+                return panic_out()
             return []
 
         def dollar_risk():
+            if gl.common.dur_since_last_buy() < 1:
+                return []
             unreal = gl.pl_ex['unreal']
             real = gl.pl_ex['real']
             combined = unreal + real
@@ -158,10 +161,16 @@ def soaking_up_hub(method):
                 gl.log_funcs.log('>>> Dollar Risk Hit, Selling and Stopping')
                 gl.buy_lock = True
                 gl.sell_out = True
-                return standard_sell_all()
+                return parsed_sell()
             return []
 
-        for func in [soft_timeout_exit, dollar_risk, bounce_exit]:
+        def trailing_stop():
+            if (gl.pl_ex['unreal'] > 200) and (gl.sec_mom < 0):
+                gl.log_funcs.log('>>> Preserving Unreal Gains, Trailing Stop')
+                return standard_sell_all(pmeth='double_bid')
+            return []
+
+        for func in [soft_timeout_exit, dollar_risk, bounce_exit, trailing_stop]:
             response = func()
             if len(response) != 0:
                 return response
@@ -174,19 +183,24 @@ def soaking_up_hub(method):
         @ gl.log_funcs.tracker
         def soak_target_ret():
             weighting = gl.common.all_weighted_perc()
-            aim_perc = gl.config['misc']['ideal_volatility']*1.5
-            t_ret = aim_perc*weighting
+            aim_perc = gl.config['misc']['ideal_volatility']
+            bounce_weighting = gl.common.bounce_factor()
+            t_ret = aim_perc*weighting*bounce_weighting
             return t_ret
         if make_back_losses_possible():
-            gl.log_funcs.log('>>> Capitalizing on Chance to regain losses.')
-            return gl.order_tools.create_orders(buy_or_sell='SELL',
-                                                cash_or_qty='everything',
-                                                price_method='bid')
+            if gl.pl_ex['real'] < -50:
+                gl.log_funcs.log(
+                    '>>> Capitalizing on Chance to regain losses.')
+                return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                                    cash_or_qty='everything',
+                                                    price_method='safe_bid')
         # target_return = realistic_return(gl.config['misc']['ideal_volatility'])
+        target_return = soak_target_ret()
+        target_price = target_return*gl.common.current_average()+gl.common.current_average()
         over_target_return = soak_target_ret() < gl.common.current_return()
         if over_target_return:
             gl.log_funcs.log('>>> Target Gain met, attempting sell')
-            return parsed_out_all()
+            return tailored_profit(target_price)
         return []
 
     def look_to_avg_mode():
@@ -224,7 +238,7 @@ def soaking_up_hub(method):
                 gl.log_funcs.log('>>> Closing Gap on Average.')
                 order = gl.order_tools.create_orders(buy_or_sell='BUY',
                                                      cash_or_qty=cash,
-                                                     price_method='low_placement')
+                                                     price_method='ask')
                 return order
 
             # If not enough capital
@@ -248,9 +262,25 @@ def soaking_up_hub(method):
         id_vola = gl.volas['mean']
         avg_out_of_reach = abs(gl.common.current_return()
                                ) > id_vola / 1.5
-        significant_time_passed = gl.common.dur_since_last_trade() > gl.config['misc']['buy_clock_countdown_amount']
+        significant_time_passed = gl.common.dur_since_last_trade(
+        ) > gl.config['misc']['buy_clock_countdown_amount']
         if avg_out_of_reach or significant_time_passed:
             return look_to_rebalance()
+        return []
+
+    def quick_invest():
+        if promising_upswing():
+            cap_limit = gl.account.get_available_capital()
+            desired_ex = cap_limit / 2
+            current_ex = gl.common.current_exposure()
+            cash = desired_ex - current_ex
+            if cash <= cap_limit*.01:
+                return []
+            gl.log_funcs.log(msg='>>> Promising Upswing')
+            print('upswing')
+            return gl.order_tools.create_orders(buy_or_sell='BUY',
+                                                cash_or_qty=cash,
+                                                price_method='ask')
         return []
 
     methods = {
@@ -262,6 +292,7 @@ def soaking_up_hub(method):
         'safe_exit': safe_exits_mode,
         'look_for_profit': look_for_profit_mode,
         'look_to_avg': look_to_avg_mode,
+        'quick_invest': quick_invest,
     }
     return methods[method]()
 
@@ -315,24 +346,42 @@ def realistic_return(perc):
 
 '''-------------------- Order Funcs --------------------'''
 
-def parsed_out_all():
+
+def tailored_profit(target_price):
+    ex_perc = gl.common.current_exposure_perc()
+    if ex_perc > .75:
+        price = (target_price + gl.current_price())/2
+        all_shares = gl.common.exposure_share_count()
+        part_1 = int((2/3)*all_shares)
+        part_2 = int(all_shares - part_1)
+        order_1 = precise_sell(qty=part_1, pmeth=price)
+        order_2 = parsed_sell(qty=part_2, pmeth='safe_bid')
+        orders = order_1.append(order_2, sort=False)
+        return orders
+    if gl.sec_mom > 0:
+        order = parsed_sell(pmeth='safe_bid')
+        return order
+    return standard_sell_all(pmeth='safe_bid')
+
+
+def parsed_sell(qty='everything', pmeth='bid'):
     order = gl.order_tools.create_orders(buy_or_sell='SELL',
-                                        cash_or_qty='everything',
-                                        price_method='bid',
-                                        queue_spec='fill',
-                                        parse=True)
+                                         cash_or_qty=qty,
+                                         price_method=pmeth,
+                                         parse='fill')
     return order
 
 
+def precise_sell(qty, pmeth):
+    return gl.order_tools.create_orders(buy_or_sell='SELL',
+                                        cash_or_qty=qty,
+                                        price_method=pmeth)
 
-def size_in():
-    target_avg()
 
-
-def standard_sell_all():
+def standard_sell_all(pmeth='bid'):
     return gl.order_tools.create_orders(buy_or_sell='SELL',
                                         cash_or_qty='everything',
-                                        price_method='bid')
+                                        price_method=pmeth)
 
 
 def standard_sell_half():
@@ -354,7 +403,7 @@ def all_in():
 def panic_out():
     order = gl.order_tools.create_orders(buy_or_sell='SELL',
                                          cash_or_qty='everything',
-                                         price_method='bid'
+                                         price_method='double_bid'
                                          )
     gl.log_funcs.log(msg='>>> Panic Out Sell Triggered')
     return order
@@ -903,14 +952,24 @@ def failed_bounce():
         return False
     downtrend = dict(gl.mom_frame.iloc[-2])
     bounce = dict(gl.mom_frame.iloc[-1])
-
-    small_bounce = bounce['volatility'] < downtrend['volatility']/2
-    downward_sec_mom = gl.sec_mom < 0
+    if bounce['trend'] == 'pennant':
+        hv = bounce['high'][1]
+        lv = bounce['low'][1]
+        bounce['volatility'] = gl.common.get_volatility([hv], [lv])[0]
     if type(bounce['high']) == list:
         bounce['high'] = max(bounce['high'])
+    small_bounce = bounce['volatility'] < (downtrend['volatility']/2)
+    downward_sec_mom = gl.sec_mom < 0
     lower_price = gl.current_price() < bounce['high']
     failed_b = small_bounce and downward_sec_mom and lower_price
     return failed_b
+
+
+def promising_upswing():
+    upwards_swing = gl.sec_mom > 0
+    is_uptrend = gl.common.current_trend()['trend'] == 'uptrend'
+    breakout = gl.close_sup_res[1] == float('nan')
+    return upwards_swing and is_uptrend and breakout
 
 
 def make_back_losses_possible():
