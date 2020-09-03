@@ -491,13 +491,13 @@ def bounce_factor():
     # endregion Docstring
     def convert_to_weight(factor):
         sway = .20
-        max_abs = 5
-        perc = abs(final_bounce) / 5
-        perc = min(1, perc)
-        weight = perc*sway
-        if final_bounce < 0:
-            weight *= -1
-        return weight
+        max_fact = 2
+        min_fact = 0
+        fac = max(min_fact, min(max_fact, abs(factor)))
+        fac = (fac / max_fact)*sway
+        if factor < 0: 
+            fac *= -1
+        return 1 + fac
 
     if len(gl.current_frame) <= 10:
         return 1

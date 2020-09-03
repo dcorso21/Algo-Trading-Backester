@@ -61,6 +61,8 @@ strategy_mode = 'consolidate'
 # seconds that momentum is going in the same direction.
 # Negative means that the momentum is down
 sec_mom = 0
+# price, Cents per second
+sec_mom_slope = [0,0]
 
 
 # CSV Trading
@@ -339,11 +341,11 @@ def save_all(path_to_folder):
 
     # }
 
-    # if not os.path.exists(path_to_folder):
-    #     os.makedirs(path_to_folder)
+    if not os.path.exists(path_to_folder):
+        os.makedirs(path_to_folder)
 
-    # if batch_dir == '':
-    #     save_config(path_to_folder)
+    if batch_dir == '':
+        save_config(path_to_folder)
 
     # for file_name, file in zip(files.keys(), files.values()):
 
@@ -364,7 +366,8 @@ def save_all(path_to_folder):
     #                        csv_name=csv_name)
     debug_plot(path_to_folder=path_to_folder,
                batch_path=batch_dir,
-               csv_name=csv_name)
+               csv_name=csv_name,
+               show=False)
 
 
 def debug_plot(path_to_folder=None, batch_path=None, csv_name=None, show=True):

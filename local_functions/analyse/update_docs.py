@@ -3,6 +3,7 @@ from local_functions.main import global_vars as gl
 
 def update_files():
     gl.sec_mom = update_second_momentum()
+    gl.sec_mom_slope = update_sec_mom_slope()
     update_return_and_pl()
     update_volumes()
     update_volas()
@@ -189,6 +190,20 @@ def update_second_momentum():
         else:
             sec_mom = -1
     return sec_mom
+
+@ gl.log_funcs.tracker
+def update_sec_mom_slope():
+    if gl.sec_mom == 0:
+        return [gl.current_price(), 0]
+    sec_mom = gl.sec_mom
+    slope = gl.sec_mom_slope
+    if sec_mom in [-1, 1]:
+        if gl.current['second'] == 0:
+            slope[0] = gl.current['close']
+        else:
+            slope[0] = gl.last['close']
+    slope[1] = abs(gl.current_price()-slope[0]) / abs(sec_mom)
+    return slope
 
 
 def update_momentum():

@@ -1690,34 +1690,34 @@ def pricing_and_overlays(gv, domain):
 
     yaxis = len(pd.unique(tracker.variable)) + 1
 
-    print('Plotting Second Data')
+    # print('Plotting Second Data')
     fig = plot_second_data(df=gv.current_frame, y_axis=yaxis)
 
     # Sup Res
-    print('Plotting Supports and Resistances')
+    # print('Plotting Supports and Resistances')
     fig = deep_sup_res_plot(fig=fig, yaxis=yaxis, gv=gv)
 
     # Momentum
-    print('Plotting Momentum')
+    # print('Plotting Momentum')
     fig = deep_plot_momentum(fig=fig, yaxis=yaxis, gv=gv)
 
     # Average
-    print('Plotting Average')
+    # print('Plotting Average')
     fig = deep_average_overlay(
         gv=gv, fig=fig, yaxis=yaxis, average_df=average_df)
 
     if len(t_avg_df) != 0:
-        print('Plotting Target Average')
+        # print('Plotting Target Average')
         fig = deep_target_avg_overlay(
             gv=gv, fig=fig, yaxis=yaxis, t_avg_df=t_avg_df)
 
     # Filled Orders
-    print('Plotting Filled Orders')
+    # print('Plotting Filled Orders')
     fig = deep_orders_overlay(
         fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.filled_orders)
 
     # Cancelled Orders
-    print('Plotting Cancelled Orders')
+    # print('Plotting Cancelled Orders')
     fig = deep_orders_overlay(
         fig=fig, yaxis=yaxis, order_specs=gv.order_specs, orders_df=gv.cancelled_orders, cancel=True)
 
@@ -1763,14 +1763,14 @@ def deep_main_chart(gv, domain_start):
         domain_start)
 
     '''-------------------- Pricing and Overlays --------------------'''
-    print('plotting pricing and overlays')
+    # print('plotting pricing and overlays')
     fig, layout, tracker, last_axis = pricing_and_overlays(
         gv=gv, domain=pricing_domain)
 
     yaxis = last_axis + 1
 
     '''-------------------- PL --------------------'''
-    print('plotting PL')
+    # print('plotting PL')
     yaxis += 1
     try:
         fig, layout = plot_pl(gv, fig, layout, yaxis, over_domain[2])
@@ -1778,7 +1778,7 @@ def deep_main_chart(gv, domain_start):
         print(e)
 
     '''-------------------- EXPOSURE --------------------'''
-    print('plotting Exposure')
+    # print('plotting Exposure')
     yaxis += 1
     try:
         fig, layout = plot_exposure(gv, fig, layout, yaxis, over_domain[1])
@@ -1786,7 +1786,7 @@ def deep_main_chart(gv, domain_start):
         print(e)
 
     '''-------------------- LOG --------------------'''
-    print('plotting Log')
+    # print('plotting Log')
     yaxis += 1
     try:
         fig, layout = plot_log(gv.log, fig, layout, yaxis, over_domain[0])
@@ -1794,7 +1794,7 @@ def deep_main_chart(gv, domain_start):
         print(e)
 
     '''-------------------- VOLUME --------------------'''
-    print('plotting Volume')
+    # print('plotting Volume')
     yaxis += 1
     try:
         fig, layout = plot_volume(gv, fig, layout, yaxis, under_domain[0])
@@ -1802,7 +1802,7 @@ def deep_main_chart(gv, domain_start):
         print(e)
 
     '''-------------------- VOLATILITY --------------------'''
-    print('plotting Volatility')
+    # print('plotting Volatility')
     yaxis += 1
     try:
         fig, layout = plot_volas(gv, fig, layout, yaxis, under_domain[1])

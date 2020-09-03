@@ -181,24 +181,22 @@ def get_exe_price(method):
     def current_price():
         return gl.current['close']
 
-    def extrapolate():
-        current = gl.current
-        current_vola = gl.volas['current']
-        sec_vola = current_vola / (current['second']+1)
-        vola_offset = sec_vola * 3
-        offset = (vola_offset * .01) * current['close']
+    def extrap_bid():
+        sec_off = 4
+        slope = gl.sec_mom_slope[1]
+        price_off = slope * sec_off
+        price = gl.current_price() - price_off
+        price = min(gl.current_frame.high.max(), price)
+        return price
 
-        # Determine if the candle is red or green,
-        # And if the price is above or below the average.
-        candle = 'green'
-        if current['open'] > current['close']:
-            candle = 'red'
-            offset = (current_vola * .01) * current['close']
-            exe_price = current['close'] - offset
-            return exe_price
-        # if candle is green...
-        exe_price = current['close'] + offset
-        return exe_price
+    def extrap_ask():
+        sec_off = 4
+        slope = gl.sec_mom_slope[1]
+        price_off = slope * sec_off
+        price = gl.current_price() + price_off
+        price = max(gl.current_frame.low.min(), price)
+        return price
+
 
     def low_placement():
         if gl.sec_mom <= 0:
@@ -240,7 +238,8 @@ def get_exe_price(method):
         'double_bid': double_bid,
         'safe_bid': safe_bid,
         'ask': ask_price,
-        'extrapolate': extrapolate,
+        'extrap_bid': extrap_bid,
+        'extrap_ask': extrap_ask,
         'current': current_price,
         'low_placement': low_placement,
     }
