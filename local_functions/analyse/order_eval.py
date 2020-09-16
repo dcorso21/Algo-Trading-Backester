@@ -247,15 +247,19 @@ def broken_resistance_hub(method):
             return False
         no_res = gl.close_sup_res[1] == float('nan')
         not_first_trend = len(gl.mom_frame) >= 2
-        current_high = gl.current_price() >= gl.current_frame.high.max()
+        current_high = gl.current_price() > gl.current_frame.high.max()
         found = (no_res & not_first_trend) | (current_high & not_first_trend)
         srf = gl.sup_res_frame
         if len(srf) == 0:
             return False
         srf = srf[srf.type == 'resistance']
         srf = srf[srf.status == 'broken']
+        nearest_br_res = srf.price.max()
+        cur_p = gl.current_price()
+        close_to_break = ((gl.volas['mean']*.01 *
+                           nearest_br_res) + nearest_br_res) >= cur_p
         broken_res = len(srf) > 0
-        return found & broken_res
+        return found & broken_res & close_to_break
 
     def settings() -> dict:
         settings = {
@@ -266,13 +270,19 @@ def broken_resistance_hub(method):
         return settings
 
     def starting_position():
+        cash = min(gl.volumes['safe_capital_limit'],
+                   gl.account.get_available_capital())
         return gl.order_tools.create_orders(buy_or_sell='BUY',
-                                            cash_or_qty=15000,
+                                            cash_or_qty=cash,
                                             price_method='extrap_ask')
 
     def take_profits():
+        # if gl.pl_ex['unreal'] > 300:
+        #     if gl.sec_mom > 0:
+        #         return parsed_sell()
         good_return = gl.common.current_return() > soak_target_ret()
-        downwards_mom = gl.sec_mom < -5
+        downwards_mom = (gl.sec_mom < -5) & (gl.current_price()
+                                             > gl.common.current_average())
         if good_return or downwards_mom:
             return standard_sell_all(pmeth='extrap_bid')
         return []
@@ -284,10 +294,12 @@ def broken_resistance_hub(method):
         return []
 
     def safety_mode():
-        approved = ['soft_timeout_exit',
-                    'dollar_risk',
-                    # 'bounce_exit',
-                    'trailing_stop']
+        approved = [
+            'soft_timeout_exit',
+            'dollar_risk',
+            # 'bounce_exit',
+            'trailing_stop'
+        ]
         return safe_exits_mode(approved)
 
     methods = {
@@ -306,24 +318,41 @@ def broken_resistance_hub(method):
 def slow_build_hub(method):
 
     def pattern_found() -> bool:
+        sups = 3
         srf = gl.sup_res_frame
         if len(srf) == 0:
             return False
         if gl.close_sup_res[1] == float('nan'):
             return False
         srf = srf[srf.type == 'support']
-        if len(srf) < 3:
+        if len(srf) == 0:
             return False
-        prices = srf.tail(3).price.tolist()
-        psorted = sorted(prices)
+        if srf.start_time.to_list()[-1] == gl.current['minute']:
+            srf = srf.reset_index(drop=True)
+            srt = srf.drop(srf.index.to_list()[-1])
+        srf = srf.tail(sups)
+        if len(srf) < sups:
+            return False
+        if 'broken' in srf.status.to_list():
+            return False
+        prices = srf.price.tolist()
+        check = prices + [gl.current_price()]
+        if max(check) != gl.current_price():
+            return False
+        psorted = list(set(sorted(prices)))
         # psorted.reverse()
-        slow_build = prices == psorted
+        slow_build = str(prices) == str(psorted)
         spacer = abs(prices[0] - prices[1])*2
         dist_from_sup = gl.current_price() - prices[-1]
         dist_from_res = gl.close_sup_res[1] - gl.current_price()
         good_spacing = dist_from_sup < dist_from_res
         pos_mom = gl.sec_mom >= 5
-        pattern = slow_build & good_spacing & pos_mom
+        green_candle = gl.current['close'] > gl.current['open']
+        prox_check = gl.common.proximity_price(gl.common.day_high(),
+                                                  gl.volas['mean'], 
+                                                  'below')
+        close_to_high = prox_check <= gl.current_price()
+        pattern = slow_build & good_spacing #& pos_mom & green_candle & close_to_high
         if pattern:
             gl.log_funcs.log('>>> Slow Builder Found')
         return pattern
@@ -332,34 +361,43 @@ def slow_build_hub(method):
         settings = {
             'name': 'slow_build',
             'hub': slow_build_hub,
-            'modes': ['take_profits', 'cut_losses', 'safety_mode']
+            'modes': ['take_profits', 'cut_losses', 'safety_mode'],
+            'support': gl.close_sup_res[0],
         }
         return settings
 
     def starting_position():
-        cash = gl.common.volume_weighting()*gl.account.get_available_capital()
+        cash = min(gl.volumes['safe_capital_limit'],
+                   gl.account.get_available_capital())
         return gl.order_tools.create_orders(buy_or_sell='BUY',
                                             cash_or_qty=cash,
                                             price_method='extrap_ask')
 
     def take_profits():
+        # if gl.pl_ex['unreal'] > 300:
+        #     if gl.sec_mom > 0:
+        #         return parsed_sell()
         good_return = gl.common.current_return() > soak_target_ret()
-        downwards_mom = (gl.sec_mom < -5) & (gl.current_price() >= gl.common.current_average())
+        downwards_mom = (gl.sec_mom < -5) & (gl.current_price()
+                                             >= gl.common.current_average())
         if good_return or downwards_mom:
             return standard_sell_all(pmeth='extrap_bid')
         return []
 
     def cut_losses():
+        broken_sup = gl.current_price() < gl.strategy['support']
         bad_return = gl.common.current_return() < (soak_target_ret()/2)*-1
-        if bad_return:
+        if bad_return & broken_sup:
             return standard_sell_all(pmeth='extrap_bid')
         return []
 
     def safety_mode():
-        approved = ['soft_timeout_exit',
-                    'dollar_risk',
-                    # 'bounce_exit',
-                    'trailing_stop']
+        approved = [
+            'soft_timeout_exit',
+            'dollar_risk',
+            # 'bounce_exit',
+            'trailing_stop'
+        ]
         return safe_exits_mode(approved)
 
     methods = {
@@ -378,7 +416,7 @@ def slow_build_hub(method):
 def strategies():
     return {
         # 'bounce_found': bounce_found_hub,
-        'soaking_up': soaking_up_hub,
+        # 'soaking_up': soaking_up_hub,
         'broken_resistance': broken_resistance_hub,
         'slow_build': slow_build_hub,
     }
@@ -434,7 +472,7 @@ def safe_exits_mode(approved):
     def trailing_stop():
         if (gl.pl_ex['unreal'] > 200) and (gl.sec_mom < 0):
             gl.log_funcs.log('>>> Preserving Unreal Gains, Trailing Stop')
-            return standard_sell_all(pmeth='double_bid')
+            return standard_sell_all(pmeth='safe_extrap_bid')
         return []
 
     modes = {

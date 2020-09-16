@@ -269,8 +269,6 @@ def all_rows(df):
         print(df)
 
 
-
-
 def mins_left():
     hard_stop = gl.config['misc']['hard_stop']
     hard_stop = gl.pd.to_datetime(hard_stop).timestamp()
@@ -475,6 +473,7 @@ def all_weighted_perc():
     # final = min(volume, vola, inv_dur, inv_exp)
     return final
 
+
 @ gl.log_funcs.tracker
 def bounce_factor():
     # region Docstring
@@ -495,7 +494,7 @@ def bounce_factor():
         min_fact = 0
         fac = max(min_fact, min(max_fact, abs(factor)))
         fac = (fac / max_fact)*sway
-        if factor < 0: 
+        if factor < 0:
             fac *= -1
         return 1 + fac
 
@@ -505,8 +504,9 @@ def bounce_factor():
         dr = daily_return()/gl.volas['mean']
         bounce_factor = convert_to_weight(dr)
         return bounce_factor
-    
-    ups = gl.mom_frame[gl.mom_frame['trend'].isin(['rpennant','uptrend'])].volatility.mean()
+
+    ups = gl.mom_frame[gl.mom_frame['trend'].isin(
+        ['rpennant', 'uptrend'])].volatility.mean()
     if str(ups) == 'nan':
         ups = 0
     downs = gl.mom_frame[gl.mom_frame['trend']
@@ -518,3 +518,20 @@ def bounce_factor():
     final_bounce = 1 + (bounce_factor + bounce_factor_2)/2
     final_bounce = convert_to_weight(final_bounce)
     return final_bounce
+
+
+def day_high():
+    return gl.current_frame.high.max()
+
+
+def day_low():
+    return gl.current_frame.low.min()
+
+
+def proximity_price(price, perc, above_below):
+    spacer = (price * perc * .01)
+    if above_below == 'above':
+        price = price + spacer
+    else:
+        price = price - spacer
+    return price

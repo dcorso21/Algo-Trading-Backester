@@ -119,7 +119,7 @@ def fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_sp
 
     order = {
         'order_id': [order_id],
-        'trigger': [gl.sys._getframe(2).f_code.co_name],
+        'trigger': [gl.sys._getframe(3).f_code.co_name],
         'buy_or_sell': [buy_or_sell],
         'cash_or_qty': [cash_or_qty],
         'price_method': [price_method],
@@ -188,6 +188,9 @@ def get_exe_price(method):
         price = gl.current_price() - price_off
         price = min(gl.current_frame.high.max(), price)
         return price
+    
+    def safe_extrap_bid():
+        return max(gl.common.current_average(), extrap_bid())
 
     def extrap_ask():
         sec_off = 4
@@ -197,6 +200,8 @@ def get_exe_price(method):
         price = max(gl.current_frame.low.min(), price)
         return price
 
+    def safe_extrap_ask():
+        return max(gl.common.current_average(), extrap_ask())
 
     def low_placement():
         if gl.sec_mom <= 0:
@@ -240,6 +245,8 @@ def get_exe_price(method):
         'ask': ask_price,
         'extrap_bid': extrap_bid,
         'extrap_ask': extrap_ask,
+        'safe_extrap_bid': safe_extrap_bid,
+        'safe_extrap_ask': safe_extrap_ask,
         'current': current_price,
         'low_placement': low_placement,
     }

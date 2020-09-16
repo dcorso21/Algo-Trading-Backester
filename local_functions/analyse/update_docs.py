@@ -493,4 +493,5 @@ def expand_on_sup_res(price_type, significant_prices, current_frame, mom_frame, 
 
     if len(dfx) != 0:
         dfx = dfx.sort_values(by='start_time')
+        dfx = dfx.drop_duplicates()
     return dfx
