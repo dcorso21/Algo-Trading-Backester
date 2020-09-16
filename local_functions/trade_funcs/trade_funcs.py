@@ -119,14 +119,16 @@ def update_current_positions(new_fills):
                     remainder = 0
 
     current_positions = buys
+    current_positions['cash'] = current_positions.qty*current_positions.exe_price
     gl.current_positions = current_positions
-    if realized != 0:
-        if len(current_positions) == 0:
-            unrealized = 0
-        else:
-            unrealized = 'skip'
-        gl.common.update_pl(realized, unrealized)
+    # if realized != 0:
+    if len(current_positions) == 0:
+        unrealized = 0
+    else:
+        unrealized = 'skip'
+    gl.common.update_pl(realized, unrealized)
     gl.common.update_ex()
+    gl.common.current_average(new_avg=True)
 
 
 def reset_buy_clock(new_fills):
@@ -135,20 +137,15 @@ def reset_buy_clock(new_fills):
 
 
 def queue_order_center(orders):
-
     q_orders = gl.queued_orders
+    ready = gl.pd.DataFrame()
+    already_dropped_ids = []
 
     if len(q_orders) != 0:
         q_orders = q_orders.reset_index(drop=True)
-
         drop_indexes = []
         for row in q_orders.index:
             qs = q_orders.at[row, 'queue_spec']
-
-            # Redundant check.
-            # if qs == None:
-            #     drop_indexes.append(row)
-            #     continue
 
             if qs[0:4] == 'time':
                 qs = int(qs.split(':')[1]) - 1
@@ -160,13 +157,24 @@ def queue_order_center(orders):
             elif qs[0:4] == 'fill':
                 # 'x' here is a character passed on the last partition of any order.
                 # Because of partial fills, multiple filled orders may have the same name.
-                order_id = str(qs.split(':')[1])+'x'
+                order_id = qs[5:]+'x'
+                order_id_no_x = int(qs[5:])
                 if len(gl.filled_orders) != 0:
+                    # If filled 
                     if order_id in gl.filled_orders.order_id.tolist():
                         ready = ready.append(q_orders.iloc[row], sort=False)
                         drop_indexes.append(row)
+                    # If cancelled 
+                    elif order_id_no_x in gl.cancelled_orders.order_id.to_list():
+                        drop_indexes.append(row)
+                        already_dropped_ids.append(q_orders.at[row, 'order_id'])
+                    # If domino order from previous queued. 
+                    elif order_id_no_x in already_dropped_ids:
+                        drop_indexes.append(row)
+                        already_dropped_ids.append(q_orders.at[row, 'order_id'])
+                        
 
-        q_orders.drop(drop_indexes)
+        q_orders = q_orders.drop(drop_indexes)
 
     for_q = gl.pd.DataFrame()
     if len(orders) != 0:
@@ -176,11 +184,12 @@ def queue_order_center(orders):
 
     gl.queued_orders = q_orders
 
-    ready = gl.pd.DataFrame()
     if len(orders) != 0:
-        ready = orders[orders['queue_spec'] == 'nan']
+        immediately_ready = orders[orders['queue_spec'] == 'nan']
+        ready = ready.append(immediately_ready, sort=False)
 
-    return gl.order_tools.format_orders(ready)
+    ready = gl.order_tools.format_orders(ready)
+    return ready
 
 
 def check_cancel():
@@ -208,26 +217,39 @@ def check_cancel():
                                                                  potential_cancels.wait_duration,
                                                                  potential_cancels.index):
 
+        if cancel_spec == None:
+            continue
         # Example cancel_spec : r'p:%1,t:5'
         xptype = cancel_spec.split(',')[0].split(':')[1][0]
-        # x percent
-        xp = float(cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
         # x time
         xtime = int(cancel_spec.split(',')[1].split(':')[1])
+        # x percent
+        xp = (cancel_spec.split(',')[0].split(':')[1].split(xptype)[1])
+        p_upper, p_lower = list(map(float, xp.split('/')))
+        if xptype == '%':
+            p_upper = exe_price + (exe_price*(p_upper*.01))
+            p_lower = exe_price - (exe_price*(p_lower*.01))
 
+        if order_id >= 25:
+            s = 10
         cancel = False
         # Time Out
+        # If the order is filling, give it more time. 
+        if len(gl.filled_orders) != 0:
+            partial_fill = order_id in gl.filled_orders.order_id.to_list()
+            if partial_fill:
+                duration = gl.common.sec_since_last_fill(order_id)
         if duration >= xtime:
             cancel = 'time out'
             for_cancellation.append(order_id)
 
         # Price Drop
-        elif (((100 - xp)*.01)*exe_price) > gl.current['close']:
+        elif gl.current['close'] < p_lower:
             cancel = 'price drop'
             for_cancellation.append(order_id)
 
         # Price Spike
-        elif (((100 + xp)*.01)*exe_price) < gl.current['close']:
+        elif gl.current['close'] > p_upper:
             cancel = 'price spike'
             for_cancellation.append(order_id)
 

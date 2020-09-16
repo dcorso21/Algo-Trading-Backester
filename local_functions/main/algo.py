@@ -2,6 +2,8 @@
 from local_functions.main import global_vars as gl
 import time
 
+debug_time = '09:38:40'
+
 
 def test_trade(config='last', mode='csv', csv_file='first', batch_dir=False):
     # region Docstring
@@ -35,9 +37,11 @@ def test_trade(config='last', mode='csv', csv_file='first', batch_dir=False):
         if gl.loop_feedback == False:
             break
 
-    # gl.save_all()
+    print_results(start_time)
 
-    result = '\n{}: R: ${:.2f}, U: ${:.2}, @: {} ({})'
+
+def print_results(start_time):
+    result = '\n {}: R: ${:.2f}, U: ${:.2}, @: {} ({})'
     duration = '{} s'.format(int(time.time() - start_time))
     last_min = gl.current['minute']
     if gl.pl_ex['real']+gl.pl_ex['unreal'] > 0:

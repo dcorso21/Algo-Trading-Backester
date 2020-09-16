@@ -47,7 +47,7 @@ def sim_execute_orders(new_orders, cancel_ids):
 
     if len(open_orders) == 0:
         gl.open_orders = open_orders
-        return gl.pd.DataFrame(), cancelled_orders
+        return [], cancelled_orders
 
     # Update the wait time. This is CRUCIAL.
     open_orders['wait_duration'] = open_orders.wait_duration + 1
@@ -64,12 +64,12 @@ def sim_execute_orders(new_orders, cancel_ids):
 
     # 4) Check Volume Requirement
     filled_orders, open_orders = vol_check(potential_fills, open_orders)
-
-    # 5) format filled.
-    current = gl.current
     gl.open_orders = open_orders
 
+    # 5) format filled.
+
     if len(filled_orders) != 0:
+        current = gl.current
         drop_columns = ['price_check', 'vol_start',
                         'wait_duration', 'cancel_spec']
         filled_orders = filled_orders.drop(drop_columns, axis=1).dropna()
@@ -129,6 +129,7 @@ def vol_check(potential_fills, open_orders):
     # for each potential fill.
     for index in potential_fills:
 
+        order_id = open_orders.at[index, 'order_id']
         exe_price = open_orders.at[index, 'exe_price']
         vol_start = open_orders.at[index, 'vol_start']
         qty = open_orders.at[index, 'qty']
@@ -157,10 +158,14 @@ def vol_check(potential_fills, open_orders):
 
         # Partial order fill.
         elif int(vol_passed / offset_multiplier) >= (min_chunk_cash / exe_price):
-            fill = open_orders[open_orders.index == index]
+            fill = dict(open_orders[open_orders.index == index].iloc[0])
             fill_qty = int(vol_passed / offset_multiplier)
-            with gl.pd.option_context('mode.chained_assignment', None):
-                fill['qty'] = fill_qty
+            # with gl.pd.option_context('mode.chained_assignment', None):
+            fill_cash = fill_qty * fill['exe_price']
+            cash_remainder = fill['cash'] - fill_cash
+            fill['cash'] = fill_cash
+            fill['qty'] = fill_qty
+            fill = gl.pd.DataFrame(fill, index=[0])
             filled_orders = filled_orders.append(fill, sort=False)
 
             # Redefine remainder of order
@@ -169,6 +174,7 @@ def vol_check(potential_fills, open_orders):
             open_orders.at[index, 'vol_start'] = f'{vminute},{vstart}'
             remainder = qty - fill_qty
             open_orders.at[index, 'qty'] = remainder
+            open_orders.at[index, 'cash'] = cash_remainder
 
     return filled_orders, open_orders
 
@@ -181,15 +187,14 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
 
     if len(new_cancel_ids) == 0 and len(open_cancels) == 0:
         return []
-        # return gl.pd.DataFrame()
 
     open_orders = gl.open_orders
 
     # If there are no open orders, log any orders that were awaiting cancellation.
     if len(open_orders) == 0:
         if len(open_cancels.keys()) != 0:
-            gl.log_funcs.log(
-                msg=f'orders filled before cancellation: {list(open_cancels.keys())}')
+            # gl.log_funcs.log(
+            #     msg=f'orders filled before cancellation: {list(open_cancels.keys())}')
             gl.open_cancels = {}
             return []
 
@@ -222,6 +227,7 @@ def sim_cancel_orders(new_cancel_ids, wait_time=1):
             cancelled_ids)]
         cancelled_orders['status'] = [
             'successfully cancelled'] * len(cancelled_orders)
+        cancelled_orders['exe_time'] = [gl.common.get_current_timestamp()] * len(cancelled_orders)
         open_orders = open_orders[~ open_orders.order_id.isin(cancelled_ids)]
 
         gl.log_funcs.log(f'successfully cancelled: {cancelled_ids}')

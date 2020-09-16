@@ -1,9 +1,15 @@
 from local_functions.main import global_vars as gl
 
+
+def cancel_spec_time():
+    return gl.configure.master['misc']['cancel_spec_time']
+
+
 ''' ----- Specification Dictionaries ----- '''
-# region Specification Dictionaries
+
 cancel_specs = {
-    'standard': r'p:%5,t:7'
+    'standard': r'p:%5/5,t:7',
+    'target': r'p:${},t:60'
 }
 
 renew_spec = {
@@ -11,14 +17,12 @@ renew_spec = {
     'standard': 3,
     'persistant': 5
 }
-# endregion Specification Dictionaries
 
 ''' ----- Order Functions ----- '''
-# region Order Functions
 
 
 def create_orders(buy_or_sell, cash_or_qty, price_method,
-                  auto_renew=0, cancel_spec=cancel_specs['standard'],
+                  auto_renew=0, cancel_spec='standard',
                   queue_spec='nan', parse=False):
     # region Docstring
     '''
@@ -48,14 +52,21 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
     '''
     # endregion Docstring
     # Parse Clause:
+
+    if type(cash_or_qty) == str:
+        if cash_or_qty == 'everything':
+            cash_or_qty = gl.current_positions.qty.sum()
+        elif cash_or_qty == 'half':
+            cash_or_qty = int(gl.current_positions.qty.sum() / 2)
+
     if parse == False:
         return fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec)
 
     # 1) Define chunk size in cash and make convert to shares if order is a sell.
-    chunk = 5000
+    chunk = max([700, gl.common.current_exposure()/5])
     # convert chunk to shares if order is sell.
     if buy_or_sell == 'SELL':
-        chunk = (chunk / gl.current['close'])
+        chunk = int(chunk / gl.current_price())
 
     # If the chunk is greater than the order, don't bother parsing.
     if cash_or_qty <= chunk:
@@ -66,7 +77,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
             buy_or_sell, chunk, price_method, auto_renew, cancel_spec, queue_spec)
 
         # Divs is number of orders not including a remainder.
-        divs = (cash_or_qty // chunk)-1
+        divs = int((cash_or_qty // chunk)-1)
         cashes = [chunk]*divs
         # add the remainder to divs.
         if (cash_or_qty % chunk) != 0:
@@ -86,7 +97,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
                 order = fill_out_order(
                     buy_or_sell, cash, price_method, auto_renew, cancel_spec, q_spec)
                 orders = orders.append(order, sort=False)
-                return orders
+            return orders
 
         # Create parses based on time
         if parse[0:4] == 'time':
@@ -95,7 +106,7 @@ def create_orders(buy_or_sell, cash_or_qty, price_method,
                 order = fill_out_order(
                     buy_or_sell, cash, price_method, auto_renew, cancel_spec, q_spec)
                 orders = orders.append(order, sort=False)
-                return orders
+            return orders
 
 
 def fill_out_order(buy_or_sell, cash_or_qty, price_method, auto_renew, cancel_spec, queue_spec):
@@ -136,84 +147,108 @@ def format_orders(orders):
     formatted = gl.pd.DataFrame()
 
     for row in orders.index:
-        row = orders.iloc[row]
-        order_id, trigger, buy_or_sell, cash_or_qty, p_method, auto_renew, cancel_spec, queue_spec = row
+        info = dict(orders.iloc[row])
+        exe_price = get_exe_price(info['price_method'])
+        if ':' not in info['cancel_spec']:
+            info['cancel_spec'] = get_cancel_spec(info['cancel_spec'], exe_price)
+        timestamp = gl.common.get_current_timestamp()
+        if info['buy_or_sell'] == 'BUY':
+            info['qty'] = int(info['cash_or_qty']/exe_price)
+            info['cash'] = round(info['qty'] * exe_price, 2)
 
-        exe_price = get_exe_price(p_method)
-        timestamp = gl.common.get_timestamp(
-            gl.current['minute'], gl.current['second'])
-        if buy_or_sell == 'BUY':
-            qty = int(cash_or_qty/exe_price)
-            cash = round(qty * exe_price, 2)
-
-        if buy_or_sell == 'SELL':
-            qty = cash_or_qty
-            cash = round(qty * exe_price, 2)
+        elif info['buy_or_sell'] == 'SELL':
+            info['qty'] = info['cash_or_qty']
+            info['cash'] = round(info['qty'] * exe_price, 2)
 
         row = {'ticker': [gl.current['ticker']],
-               'order_id': [order_id],
+               'order_id': [int(info['order_id'])],
                'send_time': [timestamp],
-               'buy_or_sell': [buy_or_sell],
-               'cash': [cash],
-               'qty': [qty],
+               'buy_or_sell': [info['buy_or_sell']],
+               'cash': [info['cash']],
+               'qty': [info['qty']],
                'exe_price': [exe_price],
-               'auto_renew': [auto_renew],
-               'cancel_spec': [cancel_spec],
+               'auto_renew': [info['auto_renew']],
+               'cancel_spec': [info['cancel_spec']],
                }
 
         order = gl.pd.DataFrame(row)
         formatted = formatted.append(order, sort=False)
     return formatted
-# endregion Order Functions
 
 
 def get_exe_price(method):
-    '''
-    # Get Execution Price
-
-    master function for retrieving an execution price for any given order. 
-    '''
 
     def current_price():
         return gl.current['close']
 
-    def extrapolate():
-        current = gl.current
-        current_vola = gl.volas['current']
-        sec_vola = current_vola / (current['second']+1)
-        vola_offset = sec_vola * 3
-        offset = (vola_offset * .01) * current['close']
+    def extrap_bid():
+        sec_off = 4
+        slope = gl.sec_mom_slope[1]
+        price_off = slope * sec_off
+        price = gl.current_price() - price_off
+        price = min(gl.current_frame.high.max(), price)
+        return price
 
-        # Determine if the candle is red or green,
-        # And if the price is above or below the average.
-        candle = 'green'
-        if current['open'] > current['close']:
-            candle = 'red'
-            offset = (current_vola * .01) * current['close']
-            exe_price = current['close'] - offset
-            return exe_price
-        # if candle green...
-        exe_price = current['close'] + offset
-        return exe_price
+    def extrap_ask():
+        sec_off = 4
+        slope = gl.sec_mom_slope[1]
+        price_off = slope * sec_off
+        price = gl.current_price() + price_off
+        price = max(gl.current_frame.low.min(), price)
+        return price
+
+
+    def low_placement():
+        if gl.sec_mom <= 0:
+            nearby_low = gl.current_frame.tail(2).low.min()
+            dif = abs(gl.current_price() - nearby_low)
+            dif = dif / 5
+            price = round(nearby_low + dif, 2)
+        else:
+            price = ask_price()
+        return price
 
     def bid_price():
-        current_price = gl.current['close']
-        bid = current_price - .01
-        return bid
+        price = gl.current_price()
+        spacer = (price*.01) / 3
+        return price - spacer
+
+    def double_bid():
+        price = gl.current_price()
+        spacer = (price*.01) / 3
+        return price - spacer - spacer
+
+    def safe_bid():
+        price = gl.current_price()
+        spacer = (price*.01) / 3
+        bid = price - spacer
+        avg = gl.common.current_average()
+        price = round(max([bid, avg]),2)
+        if price < avg:
+            price = round(price+.01, 2)
+        return price
 
     def ask_price():
-        current_price = gl.current['close']
-        ask = current_price + .01
-        return ask
+        price = gl.current_price()
+        spacer = (price*.01) / 4
+        return price + spacer
 
     price_methods = {
         'bid': bid_price,
+        'double_bid': double_bid,
+        'safe_bid': safe_bid,
         'ask': ask_price,
-        'extrapolate': extrapolate,
-        'current_price': current_price,
+        'extrap_bid': extrap_bid,
+        'extrap_ask': extrap_ask,
+        'current': current_price,
+        'low_placement': low_placement,
     }
-
-    return price_methods[method]()
+    # if instead of a method, a price is passed, simply return the price.
+    if type(method) == str:
+        method = price_methods[method]()
+    
+    method = round(method, 2)
+    return method
 
 
 def position_sizer():
@@ -224,7 +259,7 @@ def position_sizer():
     volumes = gl.volumes
     current = gl.current
 
-    avg = gl.common.get_average()
+    avg = gl.common.current_average()
     exposure = gl.pl_ex['last_ex']
 
     avail_cap = gl.account.get_available_capital()
@@ -237,3 +272,87 @@ def position_sizer():
 
     if safe_cap < avail_cap:
         safe_left = safe_cap - exposure
+
+
+def make_cancel_spec(ptype: str, p_upper: float, p_lower: float, seconds: int) -> str:
+    # region Docstring
+    '''
+    # Make Cancel Specification
+    formats the relevent data into a cancel spec compliant string. 
+
+    #### Returns string of cancel specification for order usage.
+
+    ## Parameters:{
+    ####    `ptype`: string, '$' for cash or '%' for percent
+    ####    `p_upper`: float, upper bound in price before cancellation
+    ####    `p_lower`: float, lower bound in price before cancellation
+    ####    `seconds`: int, number of seconds before cancellation
+    ## }
+    '''
+    # endregion Docstring
+    return f'p:{ptype}{p_upper}/{p_lower},t:{seconds}'
+
+
+def cancel_avg_down(pmeth):
+
+    pmeth_price = gl.order_tools.get_exe_price(pmeth)
+    spacer = gl.volas['mean']*.01*pmeth_price
+
+    p_upper = max([pmeth_price, gl.current_price()]) + spacer
+    p_lower = min([pmeth_price, gl.current_price()]) - spacer
+    cancel_spec = make_cancel_spec(ptype='$',
+                                   p_upper=p_upper,
+                                   p_lower=p_lower,
+                                   seconds=cancel_spec_time())
+    return cancel_spec
+
+
+def extrap_average(inv_dol: float, inv_avg: float, new_dol: float, new_price: float):
+    extrap_average = ((inv_dol*inv_avg) +
+                      (new_dol*new_price))/(inv_dol+new_dol)
+    return extrap_average
+
+
+def get_cancel_spec(method, exe_price):
+
+    def standard_spec():
+        higher_price = max([gl.current_price(), exe_price])
+        lower_price = min([gl.current_price(), exe_price])
+        spacer = gl.volas['mean']*.01*lower_price
+        upper = higher_price + spacer
+        lower = lower_price - spacer
+        spec = make_cancel_spec(ptype='$',
+                                p_upper=upper,
+                                p_lower=lower,
+                                seconds=cancel_spec_time())
+        return spec
+
+    def just_abv_avg():
+        higher_price = max([gl.current_price(), exe_price])
+        lower_price = gl.common.current_average()
+        spacer = gl.volas['mean']*.01*lower_price
+        upper = higher_price + spacer
+        spec = make_cancel_spec(ptype='$',
+                                p_upper=upper,
+                                p_lower=lower_price,
+                                seconds=cancel_spec_time())
+        return spec
+
+    def linger20():
+        higher_price = max([gl.current_price(), exe_price])
+        lower_price = min([gl.current_price(), exe_price])
+        spacer = gl.volas['mean']*.01*lower_price
+        upper = higher_price + spacer
+        lower = lower_price - spacer
+        spec = make_cancel_spec(ptype='$',
+                                p_upper=upper,
+                                p_lower=lower,
+                                seconds=20)
+        return spec
+
+    methods = {
+        'standard': standard_spec,
+        'just_abv_avg': standard_spec,
+        'linger20': linger20
+    }
+    return methods[method]()

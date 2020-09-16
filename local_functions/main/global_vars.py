@@ -1,4 +1,3 @@
-# region Modules
 # 3rd party
 from pathlib import Path
 from functools import wraps
@@ -19,9 +18,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 
-
-
-
+from local_functions.main import log_funcs
 from local_functions.plotting import api_chart
 from local_functions.plotting import candles
 from local_functions.plotting import plot_results as plotr
@@ -32,14 +29,12 @@ from local_functions.data_management import stock_screening as screen
 from local_functions.data_management import gather_data as gather
 from local_functions.account import account_info as account
 from local_functions.analyse import update_docs
+from local_functions.main import configure
 from local_functions.analyse import order_tools
 from local_functions.analyse import order_eval
 from local_functions.analyse import common
 from local_functions.analyse import analyse
-from local_functions.main import configure
-from local_functions.main import log_funcs
 from local_functions.main import algo
-
 
 # Custom
 
@@ -60,6 +55,14 @@ sell_out = False
 chart_response = False
 buy_clock = 0
 buy_lock = False
+# list the starting strategy
+strategy = 'strat_name'
+strategy_mode = 'consolidate'
+# seconds that momentum is going in the same direction.
+# Negative means that the momentum is down
+sec_mom = 0
+# price, Cents per second
+sec_mom_slope = [0,0]
 
 
 # CSV Trading
@@ -75,6 +78,9 @@ batch_frame = 'Dataframe'
 order_specs = 'Dataframe'
 queued_orders = 'Dataframe'
 open_orders = 'Dataframe'
+pl_ex_frame = 'Dataframe'
+volume_frame = 'Dataframe'
+volas_frame = 'Dataframe'
 cancelled_orders = 'Dataframe'
 current_positions = 'Dataframe'
 filled_orders = 'Dataframe'
@@ -82,18 +88,96 @@ current_frame = 'Dataframe'
 mom_frame = 'Dataframe'
 sup_res_frame = 'Dataframe'
 log = 'Dataframe'
+tracker = 'Dataframe'
 # endregion Frames
 
-current = 'dictionary'
-last = 'dictionary'
-pl_ex = 'dictionary'
-volas = 'dictionary'
-volumes = 'dictionary'
+
+current = {
+    'open': 'nan',
+    'high': 'nan',
+    'low': 'nan',
+    'close': 'nan',
+    'volume': 'nan',
+    'second': 'nan',
+    'minute': 'nan',
+    'ticker': 'nan'
+}
+last = {
+    'open': 'nan',
+    'high': 'nan',
+    'low': 'nan',
+    'close': 'nan',
+    'volume': 'nan',
+    'second': 'nan',
+    'minute': 'nan',
+    'ticker': 'nan'
+}
+pl_ex = {
+    'unreal': 0,
+    'min_unreal': 0,
+    'max_unreal': 0,
+    'real': 0,
+    'min_real': 0,
+    'max_real': 0,
+    'last_ex': 0,
+    'max_ex': 0
+}
+volas = {
+    'differential': 'nan',
+    'current': 'nan',
+    'three_min': 'nan',
+    'five_min': 'nan',
+    'ten_min': 'nan',
+    'mean': 'nan'
+}
+volumes = {
+    'fail_check': 'bool',
+    'safe_capital_limit': 'nan',
+    'differential': 'nan',
+    'mean': 'nan',
+    'minimum': 'nan',
+    'extrap_current': 'nan',
+    'three_min_mean': 'nan',
+    'three_min_min': 'nan',
+    'five_min_mean': 'nan',
+    'five_min_min': 'nan',
+    'ten_min_mean': 'nan',
+    'ten_min_min': 'nan',
+}
 
 open_cancels = {}
+last_order_check = ['09:30:00', 1, 'price']
+close_sup_res = ['closest_support', 'closest_resistance']
 
 
-def save_dict_to_frame(dictionary):
+class GlobalV:
+    def __init__(self):
+        self.current = current.copy()
+        self.last = last.copy()
+        self.pl_ex = pl_ex.copy()
+        self.pl_ex_frame = pl_ex_frame.copy()
+        self.volas = volas.copy()
+        self.volas_frame = volas_frame.copy()
+        self.volumes = volumes.copy()
+        self.volume_frame = volume_frame.copy()
+        self.order_specs = order_specs.copy()
+        self.queued_orders = queued_orders.copy()
+        self.open_orders = open_orders.copy()
+        self.cancelled_orders = cancelled_orders.copy()
+        self.current_positions = current_positions.copy()
+        self.filled_orders = filled_orders.copy()
+        self.current_frame = current_frame.copy()
+        self.mom_frame = mom_frame.copy()
+        self.sup_res_frame = sup_res_frame.copy()
+        self.log = log.copy()
+        self.tracker = tracker.copy()
+
+
+def current_price():
+    return current['close']
+
+
+def save_dict_to_frame(dictionary: dict) -> 'df':
     # region Docstring
     '''
     # Save Dictionary to Frame
@@ -109,7 +193,7 @@ def save_dict_to_frame(dictionary):
     return df
 
 
-def save_frame(df, file_name, path_to_file):
+def save_frame(df, file_name: str, path_to_file: Path):
     # region Docstring
     '''
     # Save Frame
@@ -162,40 +246,21 @@ def save_frame(df, file_name, path_to_file):
         file.write(text)
 
 
-filepath = {
-    'current': r'temp_assets\current.csv',
-    'pl_ex': r'temp_assets\pl_and_ex.csv',
-    'volas': r'temp_assets\volas.csv',
-    'current_frame': r'temp_assets\current_frame.csv',
-    'mom_frame': r'temp_assets\mom_frame.csv',
-    'sup_res_frame': r'temp_assets\supports_resistances.csv',
-    'current_positions': r'temp_assets\current_positions.csv',
-    'filled_orders': r'temp_assets\filled_orders.csv',
-    'open_orders': r'temp_assets\open_orders.csv',
-
-    'log': r'temp_assets\log.csv',
-    'efficiency_log': r'temp_assets\efficiency_log.csv',
-}
-
-
-def clear_all_in_folder(folder, confirm=False, print_complete=False):
+def clear_all_in_folder(folder: str, confirm=False, print_complete=False, delete_dir=False):
     # region Docstring
     '''
-    # Clear Temp Assets
-    Deletes all items in the temp_assets folder. 
+    # Clear All in Folder
+    Clear all files in given folder 
 
-    ## Process:
+    #### Returns nothing, clears folder.
 
-    ### 1)
-
-    ## Notes:
-    - Notes
-
-    ## TO DO:
-    - Item
+    ## Parameters:{
+    ####    `folder`: name of folder
+    ####    `confirm`: ask before deleting contents
+    ####    `print_complete`: notify files have been deleted with a print statement.  
+    ## }
     '''
     # endregion Docstring
-
     if confirm:
         msg = f'Are you SURE you would like to clear all contents of "{folder}"?   Y/N'
         response = input(msg)
@@ -216,7 +281,15 @@ def clear_all_in_folder(folder, confirm=False, print_complete=False):
             print(f'Failed to delete {file_path}. Reason: {e}')
 
     if print_complete:
-        print(f'cleared contents of directory: "{folder}"')
+        print(f'\ncleared contents of directory: "{folder}"')
+
+    if delete_dir:
+        try:
+            shutil.rmtree(folder)
+            if print_complete:
+                print(f'\nfolder has been deleted: "{folder}"')
+        except Exception as e:
+            print(f'Failed to delete {folder}. Reason: {e}')
 
 
 def save_config(path_to_file):
@@ -243,55 +316,70 @@ def save_config(path_to_file):
 def save_all(path_to_folder):
     '''
     ### Save All Files
-    Once trading is done, save all global variables as csv files. 
+    Once trading is done, save all global variables to appropriate dir.
     '''
-    files = {
+    extend_current_frame()
+    # files = {
 
-        'current': current,
-        'pl_ex': pl_ex,
-        'volas': volas,
-        'volumes': volumes,
+    #     'current': current,
+    #     'pl_ex': pl_ex,
+    #     'volas': volas,
+    #     'volumes': volumes,
 
-        'current_frame': current_frame,
-        'mom_frame': mom_frame,
-        'sup_res_frame': sup_res_frame,
+    #     'current_frame': current_frame,
+    #     'mom_frame': mom_frame,
+    #     'sup_res_frame': sup_res_frame,
 
+    #     'order_specs': order_specs,
+    #     'queued_orders': queued_orders,
+    #     'cancelled_orders': cancelled_orders,
+    #     'open_orders': open_orders,
+    #     'current_positions': current_positions,
+    #     'filled_orders': filled_orders,
 
-        'order_specs': order_specs,
-        'queued_orders': queued_orders,
-        'cancelled_orders': cancelled_orders,
-        'open_orders': open_orders,
-        'current_positions': current_positions,
-        'filled_orders': filled_orders,
+    #     'log': log,
 
-        'log': log,
-
-    }
+    # }
 
     if not os.path.exists(path_to_folder):
         os.makedirs(path_to_folder)
 
-    # clear_all_in_folder('temp_assets')
     if batch_dir == '':
         save_config(path_to_folder)
 
-    for file_name, file in zip(files.keys(), files.values()):
+    # for file_name, file in zip(files.keys(), files.values()):
 
-        if type(file) == dict:
-            file = save_dict_to_frame(file)
+    #     if type(file) == dict:
+    #         file = save_dict_to_frame(file)
 
-        save_frame(file, file_name, path_to_folder)
+    #     save_frame(file, file_name, path_to_folder)
 
-    if len(mom_frame) != 0:
-        update_docs.update_momentum()
-        plotr.plot_momentum(mom_frame, current_frame,
-                            path_to_folder, batch_dir, csv_name)
-    if len(filled_orders) != 0:
-        plotr.plot_results(current_frame, filled_orders,
-                           batch_dir, path_to_folder, csv_name)
+    # if len(mom_frame) != 0:
+    #     # update_docs.update_momentum()
+    #     plotr.plot_momentum(mom_frame, current_frame,
+    #                         path_to_folder, batch_dir, csv_name)
+    # if len(filled_orders) != 0:
+    #     plotr.plot_results(current_frame=current_frame,
+    #                        filled_orders=filled_orders,
+    #                        batch_path=batch_dir,
+    #                        directory=path_to_folder,
+    #                        csv_name=csv_name)
+    debug_plot(path_to_folder=path_to_folder,
+               batch_path=batch_dir,
+               csv_name=csv_name,
+               show=False)
 
 
-def save_on_error(orig_func):
+def debug_plot(path_to_folder=None, batch_path=None, csv_name=None, show=True):
+    extend_current_frame()
+    plotr.deep_tracking_plot(gv=GlobalV(),
+                             path_to_folder=path_to_folder,
+                             batch_path=batch_path,
+                             csv_name=csv_name,
+                             show=show)
+
+
+def custom_traceback(orig_func):
     # region Docstring
     '''
     # Save on Error
@@ -309,19 +397,26 @@ def save_on_error(orig_func):
             orig_func(*args, **kwargs)
         except:
             trace = traceback.format_exc()
-            print('\n\nError Occurred\n')
-            save_all(directory / 'temp_assets')
-            print('global variables saved to temp_assets.\n')
-            # print(trace)
-            trace_path = directory / 'temp_assets' / 'trace.txt'
-            with open(trace_path, 'x') as file:
-                file.writelines(trace)
-                # trace = file.readlines()
-                file.close()
-
-            trace = trace.split('\n')
-            simple_traceback(trace)
+            colored_traceback(trace)
+            debug_plot()
     return wrapper
+
+
+def colored_traceback(trace):
+
+    lines = trace.split('\n')
+    tracenotice = lines.pop(0)
+    empty = lines.pop(-1)
+    reason = lines.pop(-1)
+    lines.reverse()
+
+    file_info = lines[1::2]
+    code_info = lines[::2]
+
+    print('\n', color_format(reason, 'red'), '\n')
+    for fi, ci in zip(file_info, code_info):
+        print(color_format(ci, 'yellow'))
+        print(color_format(fi, 'cyan'))
 
 
 def simple_traceback(trace):
@@ -372,7 +467,7 @@ def simple_traceback(trace):
             print(df)
 
 
-def isnotebook():
+def isnotebook() -> bool:
     # region Docstring
     '''
     # Is Notebook
@@ -393,7 +488,7 @@ def isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def frame_to_html(df, df_name):
+def frame_to_html(df, df_name) -> str:
     # region Docstring
     '''
     # Frame to HTML
@@ -444,8 +539,19 @@ def frame_to_html(df, df_name):
     return table
 
 
-def get_downloaded_configs():
+def get_downloaded_configs() -> list:
+    # region Docstring
+    '''
+    # Get Downloaded Configurations
+    gets config.json files from the `Downloads/` folder
 
+    #### Returns list of configs
+
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
     downloads = Path.home() / 'Downloads'
     json_files = glob.glob(str(downloads / '*.json'))
     saved_path = Path.cwd()/'config'/'saved_configurations'
@@ -465,6 +571,14 @@ def get_downloaded_configs():
 
 
 def show_available_configurations():
+    # region Docstring
+    '''
+    # Show Available Configurations
+    gets all available config.json files and displays in a DF
+
+    #### Returns nothing, prints table.
+    '''
+    # endregion Docstring
 
     configs = get_downloaded_configs()
 
@@ -490,7 +604,15 @@ def show_available_configurations():
         print(df)
 
 
-def pick_config_file():
+def pick_config_file() -> str:
+    # region Docstring
+    '''
+    # Pick Config File
+    Allows user to choose which config to use in testing. 
+
+    #### Returns filepath of config file.
+    '''
+    # endregion Docstring
     show_available_configurations()
     prompt = 'input the number which corresponds with the desired configuration. -1 for default'
     response = input(prompt)
@@ -500,7 +622,16 @@ def pick_config_file():
         return get_downloaded_configs()[int(response)]
 
 
-def pull_df_from_html(filepath):
+def extend_current_frame(mins=10):
+    global current_frame
+    current_frame = current_frame.reset_index(drop=True)
+    mins = min([mins, len(current_frame)])
+    last_ind = current_frame.index.to_list()[-1]
+    current_frame = sim_df.iloc[0:last_ind+mins]
+    return
+
+
+def pull_df_from_html(filepath) -> 'df':
     with open(filepath, 'r') as file:
         text = file.read()
 
@@ -517,7 +648,61 @@ def pull_df_from_html(filepath):
     return df
 
 
+def most_recent_results():
+    path = Path.cwd() / 'results'
+    for dir, folder, file in os.walk(path):
+        break
+    x = [i for i in sorted(folder) if i != 'comparison'][-1]
+    path = path / x
+    for dir, folder, file in os.walk(path):
+        break
+    x = sorted([(int(i.split('_')[1]), i)
+                for i in folder if i != 'comparison'])
+    x = x[-1][-1]
+    path = path / x
+    full_path = (path / 'batch_index.html')
+    return pull_df_from_html(full_path)
+
+
+def save_worst_performers():
+    df = most_recent_results()
+
+    df['net'] = df.real_pl + df.unreal_pl
+    worst_performers = df.sort_values(
+        by='net', ascending=True).head(10).tick_date.to_list()
+
+    def fill_out_filepath(path):
+        path = path[0:-2]
+        print(path)
+        return f'mkt_csvs/{path}.csv'
+
+    worst_performers = [fill_out_filepath(i) for i in worst_performers]
+    save_stocklist_to_batchcsvs(worst_performers)
+    print('Worst Performers Saved')
+
+
+def save_stocklist_to_batchcsvs(list_of_csvs):
+    list_of_csvs = json.dumps(list_of_csvs, indent=2)
+    path = Path.cwd() / 'results' / 'batch_csvs.json'
+
+    with open(path, 'w') as f:
+        f.write(list_of_csvs)
+        f.close()
+
+
 def clear_output(num_of_lines):
+    # region Docstring
+    '''
+    # Clear Output
+    Clears Print Output of the number of lines passed
+
+    #### Returns nothing.   
+
+    ## Parameters:{
+    ####    `num_of_lines`: number of lines to clear
+    ## }
+    '''
+    # endregion Docstring
     # if configure.cut_prints == False:
     #     return
     # elif isnotebook:
@@ -535,6 +720,19 @@ def clear_output(num_of_lines):
 
 
 def color_format(msg, color):
+    # region Docstring
+    '''
+    # Color Format
+    formats print output with color.    
+
+    #### Returns message now wrapped in ANSI color codes. 
+
+    ## Parameters:{
+    ####    `msg`: message to be printed. 
+    ####    `color`: desired color. 
+    ## }
+    '''
+    # endregion Docstring
 
     def prRed(msg): return("\033[91m {}\033[00m" .format(msg))
     def prGreen(msg): return("\033[92m {}\033[00m" .format(msg))
@@ -553,8 +751,33 @@ def color_format(msg, color):
         'cyan': prCyan,
     }
     return colors[color](msg)
+
+
+def tab_df(df):
+    from tabulate import tabulate
+    if type(df) == dict:
+        df = json.dumps(df, indent=2)
+        print(df)
+        return
+    tablefmt = 'fancy_grid'
+    print(tabulate(df, headers=df.columns, tablefmt=tablefmt))
+
 # region Unused
 
+# filepath = {
+#     'current': r'temp_assets\current.csv',
+#     'pl_ex': r'temp_assets\pl_and_ex.csv',
+#     'volas': r'temp_assets\volas.csv',
+#     'current_frame': r'temp_assets\current_frame.csv',
+#     'mom_frame': r'temp_assets\mom_frame.csv',
+#     'sup_res_frame': r'temp_assets\supports_resistances.csv',
+#     'current_positions': r'temp_assets\current_positions.csv',
+#     'filled_orders': r'temp_assets\filled_orders.csv',
+#     'open_orders': r'temp_assets\open_orders.csv',
+
+#     'log': r'temp_assets\log.csv',
+#     'efficiency_log': r'temp_assets\efficiency_log.csv',
+# }
 
 # def csv_to_dict(file_path):
 #     # region Docstring

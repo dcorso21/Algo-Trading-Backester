@@ -145,7 +145,7 @@
                   "type": "number",
                   "input": true,
                   "clearOnHide": false,
-                  "defaultValue": -500,
+                  "defaultValue": -2000,
                   "tooltip": "^ negative integer, Amount of money lost that will trigger an immediate exit"
                 },
                 {
@@ -464,6 +464,104 @@
                       "clearOnHide": false,
                       "defaultValue": 2.5,
                       "tooltip": "^ minimum volatility to trigger a drop below average"
+                    }
+                  ],
+                  "collapsed": false
+                },
+                {
+                  "label": "progressive_table",
+                  "cellAlignment": "left",
+                  "tableView": false,
+                  "key": "progressive_table",
+                  "type": "table",
+                  "numRows": 1,
+                  "input": false,
+                  "rows": [
+                    [
+                      {
+                        "components": [
+                          {
+                            "label": "Progressive",
+                            "tableView": false,
+                            "key": "progressive",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": false,
+                            "tooltip": "scales the investing based on downtrend duration. Works logarithmically"
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Priority",
+                            "labelPosition": "right-left",
+                            "mask": false,
+                            "spellcheck": true,
+                            "tableView": false,
+                            "delimiter": false,
+                            "requireDecimal": false,
+                            "inputFormat": "plain",
+                            "key": "progressive_priority",
+                            "type": "number",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": 3,
+                            "labelWidth": 45,
+                            "conditional": {
+                              "show": true,
+                              "when": "progressive",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "components": [
+                          {
+                            "label": "Custom Parameters",
+                            "tableView": false,
+                            "key": "progressive_custom",
+                            "type": "checkbox",
+                            "input": true,
+                            "clearOnHide": false,
+                            "defaultValue": false,
+                            "conditional": {
+                              "show": true,
+                              "when": "progressive",
+                              "eq": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "title": "Progressive Parameters",
+                  "collapsible": true,
+                  "tableView": false,
+                  "key": "progressive_params",
+                  "conditional": {
+                    "show": true,
+                    "when": "progressive_custom",
+                    "eq": true
+                  },
+                  "type": "panel",
+                  "label": "Panel",
+                  "input": false,
+                  "components": [
+                    {
+                      "label": "Max Trend Duration",
+                      "labelPosition": "left-left",
+                      "tableView": true,
+                      "key": "max_trend_duration",
+                      "type": "textfield",
+                      "input": true,
+                      "clearOnHide": false,
+                      "defaultValue": 9,
+                      "tooltip": "duration of trend to invest everything at."
                     }
                   ],
                   "collapsed": false
@@ -950,6 +1048,11 @@
       max_vola: submission.data.max_vola,
       min_vola: submission.data.min_vola,
       priority: submission.data.drop_below_average_priority
+    },
+    progressive: {
+      active: submission.data.progressive,
+      priority: submission.data.progressive_priority,
+      max_trend_duration: submission.data.max_trend_duration
     }
   },
   sell_conditions: {

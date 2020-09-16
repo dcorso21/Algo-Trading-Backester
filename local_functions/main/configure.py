@@ -1,7 +1,7 @@
 from local_functions.main import global_vars as gl
 
-master = {}
 
+master = {}
 metaconfig = {}
 misc = {}
 sim_settings = {}
@@ -47,6 +47,18 @@ def default_configuration():
     gl.config = master.copy()
 
 
+def get_sim_df(csv_file):
+    m = gl.pd.read_csv(csv_file)
+    m['open'] = m.open.astype(float)
+    m['high'] = m.high.astype(float)
+    m['low'] = m.low.astype(float)
+    m['close'] = m.close.astype(float)
+    m['volume'] = m.volume.astype(float).astype(int)
+    # Re-Order
+    m = m[['ticker', 'time', 'open', 'high', 'low', 'close', 'volume']]
+    return m
+
+
 def reset_variables(mode, csv_file):
     # region Docstring
     '''
@@ -66,17 +78,6 @@ def reset_variables(mode, csv_file):
     master = {}
     gl.config = master.copy()
 
-    def get_sim_df(csv_file):
-        m = gl.pd.read_csv(csv_file)
-        m['open'] = m.open.astype(float)
-        m['high'] = m.high.astype(float)
-        m['low'] = m.low.astype(float)
-        m['close'] = m.close.astype(float)
-        m['volume'] = m.volume.astype(float).astype(int)
-        # Re-Order
-        m = m[['ticker', 'time', 'open', 'high', 'low', 'close', 'volume']]
-        return m
-
     if mode == 'csv':
         gl.csv_indexes = []
         gl.sim_df = get_sim_df(csv_file)
@@ -89,10 +90,14 @@ def reset_variables(mode, csv_file):
     gl.buy_lock = False
     gl.sell_out = False
     gl.chart_response = False
+    gl.sec_mom = 0
 
     gl.order_specs = gl.pd.DataFrame()
     gl.queued_orders = gl.pd.DataFrame()
     gl.open_orders = gl.pd.DataFrame()
+    gl.pl_ex_frame = gl.pd.DataFrame()
+    gl.volume_frame = gl.pd.DataFrame()
+    gl.volas_frame = gl.pd.DataFrame()
     gl.cancelled_orders = gl.pd.DataFrame()
     gl.open_cancels = {}
 
@@ -102,6 +107,11 @@ def reset_variables(mode, csv_file):
     gl.mom_frame = gl.pd.DataFrame()
     gl.sup_res_frame = gl.pd.DataFrame()
     gl.log = gl.pd.DataFrame()
+    gl.tracker = gl.pd.DataFrame({
+        'time': [],
+        'variable': [],
+        'value': [],
+    })
 
     # PL and Exposure
     gl.sys.dont_write_bytecode = True
@@ -153,7 +163,8 @@ def reset_variables(mode, csv_file):
         'three_min': 'nan',
         'five_min': 'nan',
         'ten_min': 'nan',
-        'mean': 'nan'
+        'mean': 'nan',
+        'scaler': 'nan'
     }
 
     gl.volas = volas
@@ -173,18 +184,7 @@ def reset_variables(mode, csv_file):
     }
 
     gl.volumes = volumes
-
-    # Logging Notes
-    # Log is now managed in global vars and log_funcs
-
-    # Logging Efficiency
-    # df = gl.pd.DataFrame()
-    # headers = gl.pd.Series(
-    #     ['minute', 'second', 'function', 'run_time'])
-
-    # df = df.append(headers, ignore_index=True)
-    # df = df.set_index(0)
-    # df.to_csv(gl.filepath['efficiency_log'], header=False)
+    gl.close_sup_res = [float('nan'), float('nan')]
 
     print('variables reset')
 
@@ -216,7 +216,7 @@ def load_configuration(config):
         if config == 'default':
             return
 
-    # By now, the config object should be a filepath to the custom config. 
+    # By now, the config object should be a filepath to the custom config.
     import json
     with open(config, 'r') as f:
         config = f.read()
@@ -235,7 +235,7 @@ def load_configuration(config):
         metadata = config.pop('metadata')
 
     def replace_fields(config, master):
-            
+
         for key in config.keys():
             if (type(config[key]) == dict) and (key in master.keys()):
                 replace_fields(config[key], master[key])
@@ -261,3 +261,5 @@ def set_conditions():
 
     sell_conditions = get_active_conditions(master['sell_conditions'])
     buy_conditions = get_active_conditions(master['buy_conditions'])
+
+    # print(f'sell_conditions: {sell_conditions}')

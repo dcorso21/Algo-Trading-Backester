@@ -55,45 +55,45 @@ b_csvs = []
 
 # endregion Global Vars
 
-# @ gl.save_on_error
 
-
+@ gl.custom_traceback
 def batch_test(reps=1, mode='multiple', stop_at=False,
                shuffle=True, config_setting='default',
                first_run=True, create_compare='config',
-               inherit_csvs=False):
+               inherit_csvs=False,
+               debug_plot=False):
     # region Docstring
     '''
     # Batch Test
-    Function for doing testing in large chunks. 
+    Function for doing testing in large chunks.
 
-    Returns Nothing, but creates detailed folders in the results folder. 
+    Returns Nothing, but creates detailed folders in the results folder.
 
     ## Parameters:{
-    ####    `reps`: integer, number of repetitions. 
+    ####    `reps`: integer, number of repetitions.
     - Can either repeat the function recursively or repeat each stock. Depends on `mode`.
 
     ####    `mode`: 'internal' or 'multiple'
-    - 'internal' means that `reps` will repeat the same stock multiple times inside the same call of `batch_test` 
-    - 'multiple' means that `reps` will recursively loop back and call `batch_test` again. 
+    - 'internal' means that `reps` will repeat the same stock multiple times inside the same call of `batch_test`
+    - 'multiple' means that `reps` will recursively loop back and call `batch_test` again.
 
-    ####    `stop_at`: integer to cut off list at. Defaults to `False` which will enable entire list. 
-    ####    `shuffle`: bool - defaults to `True`. 
+    ####    `stop_at`: integer to cut off list at. Defaults to `False` which will enable entire list.
+    ####    `shuffle`: bool - defaults to `True`.
     ####    `config_setting`: pick shows a selection, default picks config.json
     ####    `first_run`: true unless running recursively
     ####    `create_compare`: config - compares with config as labels. also allows `date` and `time`
     ####    `inherit_csvs`: config - compares with config as labels. also allows `date` and `time`
-    - Means that list of stocks will be shuffled to randomize testing.  
+    - Means that list of stocks will be shuffled to randomize testing.
 
     ## }
 
     ## Process:
 
-    ### 1) Retrieve list of csvs in mkt_csvs folder. 
-    ### 2) Shuffle list to randomize sample set. 
+    ### 1) Retrieve list of csvs in mkt_csvs folder.
+    ### 2) Shuffle list to randomize sample set.
     ### 3) Estimate amount of time to take to execute batch with `calc_batch_time`.
-    ### 4) Test each file in file list. 
-    ### 5) Rename folder assets created 
+    ### 4) Test each file in file list.
+    ### 5) Rename folder assets created
     ### 6) Potentially recursively call function again
 
     '''
@@ -126,7 +126,7 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
     print(msg)
 
     #  <<< Trade >>>
-    batch_loop(reps, mode)
+    batch_loop(reps, mode, debug_plot)
 
     realized = round(float(b_frame.real_pl.sum()), 2)
     unrealized = round(float(b_frame.unreal_pl.sum()), 2)
@@ -162,29 +162,29 @@ def batch_test(reps=1, mode='multiple', stop_at=False,
                 compare_batches(compare=create_compare)
 
 
-def batch_loop(reps, mode):
+def batch_loop(reps, mode, debug_plot):
     # region Docstring
     '''
     # Batch Loop
 
-    Core of the process in the `batch_test` function. 
-    To be used for each csv file. 
+    Core of the process in the `batch_test` function.
+    To be used for each csv file.
 
     Returns an updated `batch_frame`
 
     ## Parameters:{
-    ####    `reps`: integer, repetitions, variable from `batch_test` function. 
-    ####    `file`: string, csv file name. 
-    ####    `path`: string, directory for saving files. 
+    ####    `reps`: integer, repetitions, variable from `batch_test` function.
+    ####    `file`: string, csv file name.
+    ####    `path`: string, directory for saving files.
     ####    `batch_frame`: DataFrame of each stock tested in `batch_test`
     ## }
 
     ## Process:
 
     ### 1) Trade the csv with the function `test_trade`
-    ### 2) Categorize traded results in subfolders of batch. 
-    ### 3) Save all temp_assets with `save_documentation` function. 
-    ### 4) Update Batch Frame with `append_batch_frame` function. 
+    ### 2) Categorize traded results in subfolders of batch.
+    ### 3) Save all temp_assets with `save_documentation` function.
+    ### 4) Update Batch Frame with `append_batch_frame` function.
 
     ## Notes:
     - Notes
@@ -200,7 +200,6 @@ def batch_loop(reps, mode):
     if mode == 'multiple':
         reps = 1
     reps = list(range(reps))
-    # reps.reverse()
 
     for csv in b_csvs:
 
@@ -225,6 +224,8 @@ def batch_loop(reps, mode):
             stock_and_rep = f'{file_name}_{rep}'
             stock_path = b_dir / subfolder / stock_and_rep
 
+            if debug_plot:
+                gl.debug_plot()
             save_documentation(stock_path)
             append_batch_frame(stock_and_rep)
 
@@ -236,14 +237,14 @@ def agg_time(duration, round_to_dec=2):
     # region Docstring
     '''
     # Aggregate Time
-    takes a duration in seconds and aggregates it into 
+    takes a duration in seconds and aggregates it into
     seconds, minutes or hours based on the number of seconds
 
     #### Returns string with the durating and increment. ex: '6 minutes'
 
     ## Parameters:{
-    ####    `duration`: int, amount of seconds 
-    ####    `round_to_dec`: int, amount decimals to round in final.  
+    ####    `duration`: int, amount of seconds
+    ####    `round_to_dec`: int, amount decimals to round in final.
     ## }
     '''
     # endregion Docstring
@@ -276,6 +277,9 @@ def get_b_csvs(stop_at, shuffle, first_run, inherit_csvs):
             with open(path_to_json, 'r') as f:
                 text = f.read()
             b_csvs = gl.json.loads(text)
+            if stop_at != False:
+                b_csvs = b_csvs[:stop_at]
+
             return
     # 1) Retrieve list of csvs in mkt_csvs folder.
     csv_list = glob.glob("mkt_csvs/*.csv")
@@ -344,17 +348,17 @@ def get_batch_configs(config_setting, reps, first_run):
     # region Docstring
     '''
     # Pick Batch Configs
-    picks a configuration.json file for use from the github repo. 
+    picks a configuration.json file for use from the github repo.
 
-    redefines global variable `batch_configs` with a list of configs to use. 
+    redefines global variable `batch_configs` with a list of configs to use.
 
     ## Parameters:{
-    ####    `config_setting`: str, 
+    ####    `config_setting`: str,
     - 'pick' will ask for user to choose,
     - 'last' will select the most recent file,
     - 'default' will use the given settings in `configure.py`
 
-    ####    `reps`: number of repetitions, 
+    ####    `reps`: number of repetitions,
     ## }
     '''
     # endregion Docstring
@@ -404,14 +408,14 @@ def get_batch_configs(config_setting, reps, first_run):
 def calc_batch_time(reps):
     # region Docstring
     '''
-    # Calculate Batch Time 
-    function for estimating time it will take to run the `batch_test`.  
+    # Calculate Batch Time
+    function for estimating time it will take to run the `batch_test`.
 
-    prints the expected wait time. 
+    prints the expected wait time.
 
     ## Parameters:{
-    ####    `num_of_stocks`: integer, number of stocks in batch test. 
-    ####    `reps`: integer, number of repetitions in batch test. 
+    ####    `num_of_stocks`: integer, number of stocks in batch test.
+    ####    `reps`: integer, number of repetitions in batch test.
     ## }
 
     '''
@@ -445,7 +449,7 @@ def add_to_batch_index():
     # region Docstring
     '''
     # Add to Batch Index
-    Adds stock to batch index plot. 
+    Adds stock to batch index plot.
     '''
     # endregion Docstring
     global b_frame
@@ -510,17 +514,17 @@ def save_batch_index():
 
     plot = gl.plotr.plot_batch_overview(b_frame)
 
-    def link_to_log(tick_date, path):
+    def link_to_debug(tick_date, path):
         for root, dirs, files in gl.os.walk(path):
             if tick_date in dirs:
                 root = gl.os.path.basename(root)
-                link = str(gl.Path(root) / tick_date / 'log.html')
+                link = str(gl.Path(root) / tick_date / 'debug_plot.html')
                 break
         return f'<a href="{link}">{tick_date}</a>'
 
     batch_table = gl.frame_to_html(b_frame, 'batch_frame')
     for ticker in b_frame.tick_date:
-        batch_table = batch_table.replace(ticker, link_to_log(ticker, b_dir))
+        batch_table = batch_table.replace(ticker, link_to_debug(ticker, b_dir))
 
     batches_link = str(gl.directory / 'batches.html')
 
@@ -546,23 +550,17 @@ def save_documentation(full_stock_path):
     # region Docstring
     '''
     # Save Documentation
-    Saves all files in the `temp_assets` folder to given path. 
-    In this case, the custom path is the one made for the batch test. 
+    Saves all files in the `temp_assets` folder to given path.
+    In this case, the custom path is the one made for the batch test.
 
-    returns nothing, but saves everything to the given path.  
+    returns nothing, but saves everything to the given path.
 
     ## Parameters:{
-    ####    `full_stock_path`: folder to save to.  
+    ####    `full_stock_path`: folder to save to.
     ## }
 
     '''
     # endregion Docstring
-    # import shutil
-
-    # directory = gl.directory
-    # src = directory / 'temp_assets'
-    # dst = full_stock_path
-    # move = shutil.copytree(src, dst)
 
     gl.save_all(full_stock_path)
     # save one config per directory.
@@ -574,16 +572,16 @@ def get_batch_dir(subfolder=None, overwrite=False):
     # region Docstring
     '''
     # Get Batch String
-    Get name of new folder to put all of batch results. 
+    Get name of new folder to put all of batch results.
 
-    updates the global `b_num` and `b_path`   
+    updates the global `b_num` and `b_path`
 
     ## Process:
 
-    ### 1) Get current day's date to file the batch under. 
-    ### 2) Number the batch based on number of previous batches in the current day's folder. 
-    ### 3) Make Timestamp to be used in folder name. 
-    ### 4) Return Full Path. 
+    ### 1) Get current day's date to file the batch under.
+    ### 2) Number the batch based on number of previous batches in the current day's folder.
+    ### 3) Make Timestamp to be used in folder name.
+    ### 4) Return Full Path.
 
     '''
     # endregion Docstring
@@ -601,13 +599,11 @@ def get_batch_dir(subfolder=None, overwrite=False):
         today_results /= subfolder
     today_results /= today
 
-
     if overwrite:
         if os.path.exists(today_results):
             # gets the most recent dir of today's results
             b_dir = today_results / list(os.walk(today_results))[0][1][-1]
-            return         
-
+            return
 
     # 2) Number the batch based on number of previous batches in the current day's folder.
     b_num = 1
@@ -628,12 +624,12 @@ def rename_folders(path):
     # region Docstring
     '''
     # Rename Folders
-    Renames batch folders with the number of stocks that fall into each category. 
+    Renames batch folders with the number of stocks that fall into each category.
 
     categories are: ['resolved', 'unresolved']
 
     ## Parameters:{
-    ####    `path`: path that folders are located in. 
+    ####    `path`: path that folders are located in.
     ## }
     '''
     # endregion Docstring
@@ -649,7 +645,7 @@ def folder_status():
     # region Docstring
     '''
     # Folder Status
-    Checks to see which folder the current batch test file will be allocated to 
+    Checks to see which folder the current batch test file will be allocated to
 
     Returns name of subfolder (str)
     '''
@@ -667,7 +663,7 @@ def add_to_batches_html():
     # region Docstring
     '''
     # Add to Batches Html
-    Checks to see if the current path is in the current `batches.html` file. 
+    Checks to see if the current path is in the current `batches.html` file.
     If not, will refresh the file with the `refresh_batches_html` function.
 
     #### Returns nothing
@@ -681,6 +677,18 @@ def add_to_batches_html():
 
 
 def df_of_comparisons():
+    # region Docstring
+    '''
+    # DF of Comparisons
+    Creates a df of available comparisons by looking at the `results` folder
+
+    #### Returns ex
+
+    ## Parameters:{
+    ####    `param`:
+    ## }
+    '''
+    # endregion Docstring
 
     links = []
     path = gl.directory
@@ -727,12 +735,26 @@ def df_of_comparisons():
 
 
 def df_of_batches():
+    # region Docstring
+    '''
+    # DF of Batches
+    Creates a df of the available batches by looking at batches in results folder   
+
+    #### Returns df
+    '''
+    # endregion Docstring
     links = []
     configs = []
+    stock_counts = []
     path = gl.directory
     results = str(path / 'results')
     for root, folder, files in gl.os.walk('results'):
         if 'batch_index.html' in files:
+            stock_count = 0
+            dirs = len(folder)
+            for r, folder, f in gl.os.walk(root):
+                stock_count += len(folder)
+            stock_counts.append(stock_count - dirs)
             configs.append(gl.os.path.join(root, 'config.json'))
             links.append(gl.os.path.join(root, 'batch_index.html'))
 
@@ -782,6 +804,7 @@ def df_of_batches():
         'date': dates,
         'batch_name': batch_names,
         'config': config_names,
+        'stock_count': stock_counts,
     }
 
     df = gl.pd.DataFrame(frame)
@@ -794,6 +817,22 @@ def df_of_batches():
 
 
 def html_batches_menu(df, menu_index=1, name='batch'):
+    # region Docstring
+    '''
+    # HTML Batches Menu
+    Creates the html elements for the hover dropdown menus in the  `batches.html` file
+
+
+    #### Returns html text element to be inserted into html. 
+
+    ## Parameters:{
+    ####    `df`: dataframe with menu elements
+    ####    `df`: menu_index. At the time of writing, there is a batch menu and a comparison menu. T
+    #### he menu index creates new classes in css for custom 
+    ####    `name`: "batches" or "comparisons"
+    ## }
+    '''
+    # endregion Docstring
     if menu_index == 1:
         menu_index = ''
 
@@ -870,21 +909,42 @@ def refresh_batches_html():
         file.write(text)
 
 
-def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False):
+@ gl.custom_traceback
+def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', overwrite=False, min_stock_in_batch=0):
+    # region Docstring
+    '''
+    # Compare Batches
+    Create a new comparison HTML file that will compare any number of batches. 
+
+    #### Returns nothing, creates a new html file in the results folder. 
+
+    ## Parameters:{
+    ####    `num_to_compare`: number of batches to compare
+    ####    `pick_most_recent`: defaults to true, else you will be presented with a df and pick
+    ####    `compare`: field to compare, defaults to config, but `date` and `time` are also available.
+    ####    `overwrite`: defaults to False, will overwrite last compare rather than starting a new one. 
+    ####    `min_stock_in_batch`: minimum number of stocks shown in batch df when choosing for compare
+    ## }
+
+    '''
+    # endregion Docstring
+
     print('creating batch comparison')
     from local_functions.plotting import plot_results as plotr
     df = df_of_batches()
+    df = df[df.stock_count >= min_stock_in_batch].reset_index(drop=True)
     links = df.pop('link')
     if pick_most_recent != True:
-        if gl.isnotebook():
-            display(df)
-        else:
-            print(df)
+        # if gl.isnotebook():
+        #     display(df)
+        # else:
+        gl.common.all_rows(df)
         prompt = f'''
-            please specify the {num_to_compare} 
-            indexes of batches to compare. 
+            Please input however many  
+            indexes you would like to compare
+            separated by commas. 
         '''
-        response = input(prompt=prompt)
+        response = input(prompt)
         indexes = list(map(int, response.split(',')))
     else:
         indexes = list(range(num_to_compare))
@@ -898,7 +958,7 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
         ul = '<ul>{}____{}--------------------------------->{}</ul>'
         batches = ''
         for index in df.index:
-            date, name, config = df.iloc[index]
+            date, name, config, stock_count = df.iloc[index]
             config = f'<strong>{config}</strong>'
             date = f'<strong>{date}</strong>'
             name = f'<strong>{name}</strong>'
@@ -906,7 +966,7 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
 
         return template.format(batches)
 
-    for_comparison = df.iloc[indexes]
+    for_comparison = df.iloc[indexes].reset_index(drop=True)
     compare_description = make_compare_description(for_comparison)
 
     used_configs = for_comparison.config.tolist()
@@ -925,12 +985,11 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     color_dict = {}
     value = 70
     val_off = 7
-    # hue_start = 75
+    # hue_start = 'random'
     hue_start = 0
 
-    res_colors = plotr.get_colors(
-        hue_start_value=hue_start,
-        num_of_colors=len(batch_names), v=value)
+    res_colors = plotr.get_colors(hue_start_value=hue_start,
+                                  num_of_colors=len(batch_names), v=value)
     unres_colors = plotr.get_colors(hue_start_value=hue_start - val_off,
                                     num_of_colors=len(batch_names), s=75 - val_off, v=value - val_off)
     color_values = ((r, u) for r, u in zip(res_colors, unres_colors))
@@ -1021,12 +1080,67 @@ def compare_batches(num_to_compare=2, pick_most_recent=True, compare='config', o
     print('comparison created')
 
 
-def delete_all_results():
-    gl.clear_all_in_folder('results', confirm=True, print_complete=True)
-
-
 def manage_batch_results(method):
     methods = {
         'delete': delete_all_results,
     }
     return methods[method]()
+
+
+def standard_year_test():
+    params = {
+        # 'stop_at': 15,                           # Default = False
+        'reps': 1,                              # Default = 1
+        # 'mode': 'internal',                   # Default = 'multiple'
+        'shuffle': False,                     # Default = True
+        # 'create_compare': True,              # Default = False
+        # 'config_setting': 'pick',                 # Default = 'default'
+        # 'first_run': False,                   # Default = True
+        # 'inherit_csvs':  True,
+    }
+    batch_test(**params)
+
+
+def delete_results(min_stock_count=20):
+    path = gl.directory
+    results = path / 'results'
+    batch_paths = []
+    step = 1
+    for root, folders, files in gl.os.walk(str(results)):
+        if step == 1:
+            dates = folders
+            step = 0
+        for folder in folders:
+            if 'batch' in folder:
+                batch_paths.append(gl.os.path.join(root, folder))
+
+    deleted_count = 0
+
+    for batch in batch_paths:
+        for root, folders, files in gl.os.walk(batch):
+            stock_count = 0
+            dirs = len(folders)
+            for r, folder, f in gl.os.walk(root):
+                if len(folder) == 0:
+                    continue
+                stock_count += len(folder)
+
+            stock_count -= dirs
+            if stock_count < min_stock_count:
+                gl.clear_all_in_folder(
+                    batch, confirm=False, print_complete=True, delete_dir=True)
+                deleted_count += 1
+            break
+
+    deleted_dates = 0
+    for date in dates:
+        date_folder = str(results / date)
+        for r, d, f in gl.os.walk(date_folder):
+            if len(d) == 0:
+                gl.clear_all_in_folder(
+                    date_folder, confirm=False, print_complete=True, delete_dir=True)
+                deleted_dates += 1
+            break
+
+    print(
+        f'\nProcess Complete!\nDeleted Batches: {deleted_count}\nDeleted Folders: {deleted_dates}')

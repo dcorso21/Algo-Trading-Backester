@@ -46,7 +46,7 @@ def log(msg=''):
     gl.log = df
 
 
-def log_sent_orders(orders, buy_or_sell):
+def log_sent_orders(orders):
     # region Docstring
     '''
     # Log Sent Orders
@@ -63,19 +63,19 @@ def log_sent_orders(orders, buy_or_sell):
     }
     '''
     # endregion Docstring
-
     if len(orders) != 0:
-        cash_or_qty = orders.cash_or_qty.sum()
-
-        if buy_or_sell == 'BUY':
-            cash = cash_or_qty
-            qty = '~aprox {}'.format(int(cash / gl.current['close']))
-        else:
-            qty = cash_or_qty
-            cash = '~aprox {}'.format(round(qty * gl.current['close'], 2))
-
-        message = f'Signal to {buy_or_sell} {qty} shares (cash: {cash})'
-        gl.log_funcs.log(message)
+        orders = orders.reset_index()
+        for index in orders.index:
+            order = dict(orders.iloc[index])
+            buy_or_sell = order['buy_or_sell']
+            if buy_or_sell == 'BUY':
+                cash = order['cash_or_qty']
+                qty = '~{}'.format(int(cash / gl.current_price()))
+            else:
+                qty = order['cash_or_qty']
+                cash = '~{}'.format(round(qty * gl.current_price(), 2))
+            message = f'Signal to {buy_or_sell} {qty} shares (cash: {cash})'
+            gl.log_funcs.log(message)
 
 
 def log_filled_and_open(new_fills):
@@ -88,8 +88,74 @@ def log_filled_and_open(new_fills):
         oids = gl.open_orders.order_id.tolist()
         oo = True
 
-    if oo or nf:
+    if nf:
         gl.log_funcs.log(f'new_fill_ids: {nfids}, still open: {oids}')
+
+
+'''-------------------- Tracker --------------------'''
+
+
+def record_tracking(var, value):
+    time = gl.common.get_current_timestamp()
+
+    new_row = {
+        'time': [time],
+        'variable': [var],
+        'value': [value],
+    }
+    df = gl.pd.DataFrame(new_row)
+
+
+    if len(df) == 1:
+        df.columns = new_row.keys()
+    
+    if (value == 'nan') and (var == 'average'):
+        tracker = gl.tracker
+        last_val = tracker[tracker['variable'] == var].value.to_list()[-1]
+        
+        time = gl.common.get_last_timestamp()
+        trailing_row = {
+            'time': [time],
+            'variable': [var],
+            'value': [last_val],
+        }
+        trailing = gl.pd.DataFrame(trailing_row)
+        df = trailing.append(df, sort=False)
+
+    df = gl.tracker.append(df, sort=False)
+
+
+
+
+    gl.tracker = df
+
+
+def get_tracked_element(var):
+    t = gl.tracker
+    if len(t) == 0:
+        return None
+    t = t[t.time == gl.common.get_current_timestamp()]
+    # if len(t) == 0:
+    #     return None
+    t = t[t.variable == var]
+    if len(t) == 0:
+        return None
+    return t.value.values[0]
+
+
+# Decorator Func
+def tracker(orig_func):
+    @ wraps(orig_func)
+    def wrapper(*args, **kwargs):
+
+        tracker_name = orig_func.__name__
+        response = gl.log_funcs.get_tracked_element(tracker_name)
+        if response != None:
+            return response
+        result = orig_func(*args, **kwargs)
+        record_tracking(var=tracker_name, value=result)
+        return result
+    return wrapper
 
 
 # region UNUSED
