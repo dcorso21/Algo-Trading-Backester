@@ -1088,6 +1088,15 @@ def manage_batch_results(method):
 
 
 def standard_year_test():
+    # region Docstring
+    '''
+    # Standard Year Test
+    Does a simple batch test in a consistent order preserving previous settings
+    
+    #### Returns None
+    
+    '''
+    # endregion Docstring
     params = {
         # 'stop_at': 15,                           # Default = False
         'reps': 1,                              # Default = 1
