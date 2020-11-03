@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-30-2020/batch_6_11,47_AM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Log // </strong>2017-03-23_HTGM</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>second</th>
+      <th>message</th>
+      <th>file</th>
+      <th>function</th>
+      <th>line</th>
+    </tr>
+    <tr>
+      <th>minute</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>09:32:00</th>
+      <td>0</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>0</td>
+      <td>Signal to BUY ~96 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>11</td>
+      <td>cancellation sent (time out), id: 1</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>12</td>
+      <td>successfully cancelled: [1]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>13</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>13</td>
+      <td>Signal to BUY ~95 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>24</td>
+      <td>cancellation sent (time out), id: 2</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>25</td>
+      <td>successfully cancelled: [2]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>26</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>26</td>
+      <td>Signal to BUY ~96 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>37</td>
+      <td>cancellation sent (time out), id: 3</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>38</td>
+      <td>successfully cancelled: [3]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>39</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>39</td>
+      <td>Signal to BUY ~98 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>42</td>
+      <td>new_fill_ids: ['4x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:32:00</th>
+      <td>42</td>
+      <td>Current Exposure: 298.9</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>20</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 2.0270454373810582</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>20</td>
+      <td>Signal to BUY ~105 shares (cash: 309.2136312143175)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>31</td>
+      <td>cancellation sent (time out), id: 5</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>32</td>
+      <td>successfully cancelled: [5]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>33</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 2.4657909635273376</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>33</td>
+      <td>Signal to BUY ~147 shares (cash: 440.83728905820135)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>44</td>
+      <td>cancellation sent (time out), id: 6</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>45</td>
+      <td>successfully cancelled: [6]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>46</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 2.756174394750115</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>46</td>
+      <td>Signal to BUY ~174 shares (cash: 527.9523184250345)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>57</td>
+      <td>cancellation sent (time out), id: 7</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>58</td>
+      <td>successfully cancelled: [7]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>59</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:34:00</th>
+      <td>59</td>
+      <td>Signal to SELL 98 shares (cash: ~301.84)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>10</td>
+      <td>cancellation sent (time out), id: 8</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>11</td>
+      <td>successfully cancelled: [8]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>12</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>12</td>
+      <td>Signal to SELL 98 shares (cash: ~301.84)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>23</td>
+      <td>cancellation sent (time out), id: 9</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>24</td>
+      <td>successfully cancelled: [9]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>25</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 4.429884127613118</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>25</td>
+      <td>Signal to BUY ~338 shares (cash: 1030.0652382839353)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>36</td>
+      <td>cancellation sent (time out), id: 10</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>37</td>
+      <td>successfully cancelled: [10]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>38</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 4.660189141148212</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>38</td>
+      <td>Signal to BUY ~367 shares (cash: 1099.1567423444635)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>49</td>
+      <td>cancellation sent (time out), id: 11</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>50</td>
+      <td>successfully cancelled: [11]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>51</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 5.568989313039665</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:35:00</th>
+      <td>51</td>
+      <td>Signal to BUY ~458 shares (cash: 1371.7967939118994)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>2</td>
+      <td>cancellation sent (time out), id: 12</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>3</td>
+      <td>successfully cancelled: [12]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>4</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 6.614406344683441</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>4</td>
+      <td>Signal to BUY ~561 shares (cash: 1685.421903405032)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>15</td>
+      <td>cancellation sent (time out), id: 13</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>16</td>
+      <td>successfully cancelled: [13]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>17</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>18</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>19</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>20</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>21</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>22</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>23</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>24</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>25</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>26</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>27</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>28</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>29</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>30</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>31</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>32</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>33</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>34</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>35</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>36</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>37</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>38</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>39</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>40</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>41</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>42</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>43</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>44</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>45</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>46</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>47</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>48</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>49</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>50</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>51</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>52</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>53</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>54</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>55</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>56</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:36:00</th>
+      <td>56</td>
+      <td>Signal to SELL 98 shares (cash: ~299.88)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>7</td>
+      <td>cancellation sent (time out), id: 14</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>8</td>
+      <td>successfully cancelled: [14]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>9</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>9</td>
+      <td>Signal to SELL 98 shares (cash: ~302.82)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>20</td>
+      <td>cancellation sent (time out), id: 15</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>21</td>
+      <td>successfully cancelled: [15]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>22</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>22</td>
+      <td>Signal to SELL 98 shares (cash: ~299.88)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>33</td>
+      <td>cancellation sent (time out), id: 16</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>34</td>
+      <td>successfully cancelled: [16]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>35</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>36</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>37</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>38</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>39</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>40</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>41</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>42</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>43</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>44</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>45</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>46</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>47</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>48</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>49</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>50</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:37:00</th>
+      <td>50</td>
+      <td>Signal to SELL 98 shares (cash: ~299.88)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>1</td>
+      <td>cancellation sent (time out), id: 17</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>2</td>
+      <td>successfully cancelled: [17]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>3</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>3</td>
+      <td>Signal to SELL 98 shares (cash: ~301.84)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>14</td>
+      <td>cancellation sent (time out), id: 18</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>15</td>
+      <td>successfully cancelled: [18]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>16</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>17</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>18</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>19</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>20</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>21</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>22</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>22</td>
+      <td>&gt;&gt;&gt; Closing Gap on Average.</td>
+      <td>order_eval.py</td>
+      <td>order_rebalance</td>
+      <td>157</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>22</td>
+      <td>Signal to BUY ~3 shares (cash: 11.199770027493189)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>26</td>
+      <td>new_fill_ids: ['19x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>26</td>
+      <td>Current Exposure: 307.96</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>30</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>30</td>
+      <td>&gt;&gt;&gt; Closing Gap on Average.</td>
+      <td>order_eval.py</td>
+      <td>order_rebalance</td>
+      <td>157</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>30</td>
+      <td>Signal to BUY ~104 shares (cash: 311.6858150755153)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>33</td>
+      <td>new_fill_ids: ['20x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>33</td>
+      <td>Current Exposure: 618.92</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>38</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>38</td>
+      <td>&gt;&gt;&gt; Closing Gap on Average.</td>
+      <td>order_eval.py</td>
+      <td>order_rebalance</td>
+      <td>157</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>38</td>
+      <td>Signal to BUY ~204 shares (cash: 605.0483586025092)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>41</td>
+      <td>new_fill_ids: ['21x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>41</td>
+      <td>Current Exposure: 1222.76</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>46</td>
+      <td>special circumstances, rebalancing now.</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>46</td>
+      <td>&gt;&gt;&gt; Closing Gap on Average.</td>
+      <td>order_eval.py</td>
+      <td>order_rebalance</td>
+      <td>157</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>46</td>
+      <td>Signal to BUY ~401 shares (cash: 1175.929255716941)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>49</td>
+      <td>new_fill_ids: ['22x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>49</td>
+      <td>Current Exposure: 2397.69</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>54</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 30.2676862677014</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>54</td>
+      <td>Signal to BUY ~2304 shares (cash: 6682.615880310419)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>57</td>
+      <td>new_fill_ids: ['23x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:38:00</th>
+      <td>57</td>
+      <td>Current Exposure: 9079.29</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>2</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 31.921321744141544</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>2</td>
+      <td>Signal to BUY ~172 shares (cash: 497.1065232424626)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>13</td>
+      <td>cancellation sent (time out), id: 24</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>14</td>
+      <td>successfully cancelled: [24]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>15</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 34.72188145238892</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>15</td>
+      <td>Signal to BUY ~461 shares (cash: 1337.2744357166757)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>26</td>
+      <td>cancellation sent (time out), id: 25</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>27</td>
+      <td>successfully cancelled: [25]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>28</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>28</td>
+      <td>Signal to SELL 3114 shares (cash: ~9124.02)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>39</td>
+      <td>cancellation sent (time out), id: 26</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>40</td>
+      <td>successfully cancelled: [26]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>41</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>41</td>
+      <td>Signal to SELL 3114 shares (cash: ~9186.3)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>52</td>
+      <td>cancellation sent (time out), id: 27</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>53</td>
+      <td>successfully cancelled: [27]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>54</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:39:00</th>
+      <td>54</td>
+      <td>Signal to SELL 3114 shares (cash: ~9217.44)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>5</td>
+      <td>cancellation sent (time out), id: 28</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>6</td>
+      <td>successfully cancelled: [28]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>7</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>7</td>
+      <td>Signal to SELL 3114 shares (cash: ~9124.02)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>18</td>
+      <td>cancellation sent (time out), id: 29</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>19</td>
+      <td>successfully cancelled: [29]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>20</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>20</td>
+      <td>Signal to SELL 3114 shares (cash: ~9124.02)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>31</td>
+      <td>cancellation sent (time out), id: 30</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>32</td>
+      <td>successfully cancelled: [30]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>33</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>33</td>
+      <td>Signal to SELL 3114 shares (cash: ~9217.44)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>36</td>
+      <td>new_fill_ids: [31], still open: [31]</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>36</td>
+      <td>Realized PL updated: 31.88744992945083 Unreal : 169.111149</td>
+      <td>common.py</td>
+      <td>update_pl</td>
+      <td>188</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>36</td>
+      <td>Current Exposure: 6681.6</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>37</td>
+      <td>new_fill_ids: [31], still open: [31]</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>37</td>
+      <td>Realized PL updated: 72.15026574628902 Unreal : 169.111149</td>
+      <td>common.py</td>
+      <td>update_pl</td>
+      <td>188</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>37</td>
+      <td>Current Exposure: 6681.6</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>38</td>
+      <td>new_fill_ids: [31], still open: [31]</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>38</td>
+      <td>Realized PL updated: 112.41308156312722 Unreal : 169.111149</td>
+      <td>common.py</td>
+      <td>update_pl</td>
+      <td>188</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>38</td>
+      <td>Current Exposure: 6681.6</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>39</td>
+      <td>new_fill_ids: ['31x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>39</td>
+      <td>Realized PL updated: 112.67217304200005 Unreal : 0</td>
+      <td>common.py</td>
+      <td>update_pl</td>
+      <td>188</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>39</td>
+      <td>Current Exposure: 0.0</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>40</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>40</td>
+      <td>Signal to BUY ~100 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>51</td>
+      <td>cancellation sent (time out), id: 32</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:40:00</th>
+      <td>52</td>
+      <td>successfully cancelled: [32]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:41:00</th>
+      <td>59</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:41:00</th>
+      <td>59</td>
+      <td>Signal to BUY ~101 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>10</td>
+      <td>cancellation sent (time out), id: 33</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>11</td>
+      <td>successfully cancelled: [33]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>13</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>13</td>
+      <td>Signal to BUY ~101 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>24</td>
+      <td>cancellation sent (time out), id: 34</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>25</td>
+      <td>successfully cancelled: [34]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>26</td>
+      <td>&gt;&gt;&gt; Sending Starting Position.</td>
+      <td>order_eval.py</td>
+      <td>starting_position</td>
+      <td>174</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>26</td>
+      <td>Signal to BUY ~102 shares (cash: 300.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>31</td>
+      <td>new_fill_ids: ['35x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:42:00</th>
+      <td>31</td>
+      <td>Current Exposure: 299.88</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:44:00</th>
+      <td>37</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 2.0209158814755255</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:44:00</th>
+      <td>37</td>
+      <td>Signal to BUY ~104 shares (cash: 306.3947644426577)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:44:00</th>
+      <td>48</td>
+      <td>cancellation sent (time out), id: 36</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:44:00</th>
+      <td>49</td>
+      <td>successfully cancelled: [36]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:44:00</th>
+      <td>50</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 2.5832050122201817</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:44:00</th>
+      <td>50</td>
+      <td>Signal to BUY ~162 shares (cash: 475.08150366605446)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>1</td>
+      <td>cancellation sent (time out), id: 37</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>2</td>
+      <td>successfully cancelled: [37]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>3</td>
+      <td>&gt;&gt;&gt; Average Down Triggered: Target Perc: 3.2302106443054694</td>
+      <td>order_eval.py</td>
+      <td>order_below_avg</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>3</td>
+      <td>Signal to BUY ~228 shares (cash: 669.1831932916408)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>14</td>
+      <td>cancellation sent (time out), id: 38</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>15</td>
+      <td>successfully cancelled: [38]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>16</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>16</td>
+      <td>Signal to SELL 102 shares (cash: ~301.92)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>27</td>
+      <td>cancellation sent (time out), id: 39</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>28</td>
+      <td>successfully cancelled: [39]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>29</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>29</td>
+      <td>Signal to SELL 102 shares (cash: ~304.98)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>40</td>
+      <td>cancellation sent (time out), id: 40</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>41</td>
+      <td>successfully cancelled: [40]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>42</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>42</td>
+      <td>Signal to SELL 102 shares (cash: ~308.04)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>53</td>
+      <td>cancellation sent (time out), id: 41</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>54</td>
+      <td>successfully cancelled: [41]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>55</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:45:00</th>
+      <td>55</td>
+      <td>Signal to SELL 102 shares (cash: ~307.02)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>6</td>
+      <td>cancellation sent (time out), id: 42</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>7</td>
+      <td>successfully cancelled: [42]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>8</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>8</td>
+      <td>Signal to SELL 102 shares (cash: ~308.04)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>19</td>
+      <td>cancellation sent (time out), id: 43</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>20</td>
+      <td>successfully cancelled: [43]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>21</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>21</td>
+      <td>Signal to SELL 102 shares (cash: ~304.98)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>32</td>
+      <td>cancellation sent (time out), id: 44</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>33</td>
+      <td>successfully cancelled: [44]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>34</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>34</td>
+      <td>Signal to SELL 102 shares (cash: ~301.92)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>45</td>
+      <td>cancellation sent (time out), id: 45</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>46</td>
+      <td>successfully cancelled: [45]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>47</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>47</td>
+      <td>Signal to SELL 102 shares (cash: ~302.94)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>58</td>
+      <td>cancellation sent (time out), id: 46</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:46:00</th>
+      <td>59</td>
+      <td>successfully cancelled: [46]</td>
+      <td>sim_executions.py</td>
+      <td>sim_cancel_orders</td>
+      <td>232</td>
+    </tr>
+    <tr>
+      <th>09:47:00</th>
+      <td>0</td>
+      <td>&gt;&gt;&gt; Selling Above Average</td>
+      <td>order_eval.py</td>
+      <td>order_above_avg</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <th>09:47:00</th>
+      <td>0</td>
+      <td>Signal to SELL 102 shares (cash: ~306.0)</td>
+      <td>log_funcs.py</td>
+      <td>log_sent_orders</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>09:47:00</th>
+      <td>11</td>
+      <td>cancellation sent (time out), id: 47</td>
+      <td>trade_funcs.py</td>
+      <td>check_cancel</td>
+      <td>243</td>
+    </tr>
+    <tr>
+      <th>09:47:00</th>
+      <td>11</td>
+      <td>new_fill_ids: ['47x'], still open: []</td>
+      <td>log_funcs.py</td>
+      <td>log_filled_and_open</td>
+      <td>92</td>
+    </tr>
+    <tr>
+      <th>09:47:00</th>
+      <td>11</td>
+      <td>Realized PL updated: 119.31695926407698 Unreal : 0</td>
+      <td>common.py</td>
+      <td>update_pl</td>
+      <td>188</td>
+    </tr>
+    <tr>
+      <th>09:47:00</th>
+      <td>11</td>
+      <td>Current Exposure: 0.0</td>
+      <td>common.py</td>
+      <td>update_ex</td>
+      <td>208</td>
+    </tr>
+    <tr>
+      <th>09:48:00</th>
+      <td>3</td>
+      <td>insufficient time: trading stopped</td>
+      <td>analyse.py</td>
+      <td>day_eval</td>
+      <td>95</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

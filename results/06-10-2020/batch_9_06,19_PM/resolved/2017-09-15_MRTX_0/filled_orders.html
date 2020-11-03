@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-10-2020/batch_9_06,19_PM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Filled Orders // </strong>2017-09-15_MRTX</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>order_id</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>exe_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>1x</td>
+      <td>09:33:44</td>
+      <td>BUY</td>
+      <td>294.99</td>
+      <td>30</td>
+      <td>9.833</td>
+      <td>0</td>
+      <td>09:33:46</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>6x</td>
+      <td>09:36:22</td>
+      <td>SELL</td>
+      <td>305.16</td>
+      <td>30</td>
+      <td>10.172</td>
+      <td>0</td>
+      <td>09:36:24</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>8x</td>
+      <td>09:36:59</td>
+      <td>BUY</td>
+      <td>291.19</td>
+      <td>29</td>
+      <td>10.041</td>
+      <td>0</td>
+      <td>09:37:01</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>10x</td>
+      <td>09:39:22</td>
+      <td>BUY</td>
+      <td>905.92</td>
+      <td>95</td>
+      <td>9.536</td>
+      <td>0</td>
+      <td>09:39:25</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>22x</td>
+      <td>09:45:10</td>
+      <td>SELL</td>
+      <td>1239.50</td>
+      <td>124</td>
+      <td>9.996</td>
+      <td>0</td>
+      <td>09:45:12</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>23x</td>
+      <td>09:47:59</td>
+      <td>BUY</td>
+      <td>294.30</td>
+      <td>30</td>
+      <td>9.810</td>
+      <td>0</td>
+      <td>09:48:01</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>25x</td>
+      <td>09:50:00</td>
+      <td>BUY</td>
+      <td>900.12</td>
+      <td>95</td>
+      <td>9.475</td>
+      <td>0</td>
+      <td>09:50:56</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>27x</td>
+      <td>09:52:17</td>
+      <td>BUY</td>
+      <td>298.59</td>
+      <td>32</td>
+      <td>9.331</td>
+      <td>0</td>
+      <td>09:52:30</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>MRTX</td>
+      <td>29x</td>
+      <td>09:53:25</td>
+      <td>SELL</td>
+      <td>1475.17</td>
+      <td>157</td>
+      <td>9.396</td>
+      <td>5</td>
+      <td>09:53:27</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-16-2020/batch_21_08,40_PM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Cancelled Orders // </strong>2017-05-18_GLYC</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>cancel_spec</th>
+      <th>price_check</th>
+      <th>wait_duration</th>
+      <th>vol_start</th>
+      <th>status</th>
+    </tr>
+    <tr>
+      <th>order_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>GLYC</td>
+      <td>09:35:37</td>
+      <td>BUY</td>
+      <td>311.60</td>
+      <td>41</td>
+      <td>7.600000</td>
+      <td>0</td>
+      <td>p:%5.9799999999999995/5.9799999999999995,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:35:00,203987</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>GLYC</td>
+      <td>09:35:50</td>
+      <td>SELL</td>
+      <td>313.45</td>
+      <td>38</td>
+      <td>8.248632</td>
+      <td>0</td>
+      <td>p:%8.76/7.73,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:36:00,60000</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>GLYC</td>
+      <td>09:36:13</td>
+      <td>BUY</td>
+      <td>812.02</td>
+      <td>108</td>
+      <td>7.518680</td>
+      <td>0</td>
+      <td>p:%5.333333333333333/5.333333333333333,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,125000</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>GLYC</td>
+      <td>09:36:26</td>
+      <td>BUY</td>
+      <td>944.57</td>
+      <td>129</td>
+      <td>7.322250</td>
+      <td>0</td>
+      <td>p:%5.55/5.55,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,190000</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>GLYC</td>
+      <td>09:36:39</td>
+      <td>BUY</td>
+      <td>1053.91</td>
+      <td>148</td>
+      <td>7.121010</td>
+      <td>0</td>
+      <td>p:%5.783333333333332/5.783333333333332,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,255000</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>GLYC</td>
+      <td>09:36:52</td>
+      <td>BUY</td>
+      <td>1219.46</td>
+      <td>170</td>
+      <td>7.173320</td>
+      <td>0</td>
+      <td>p:%5.816666666666666/5.816666666666666,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,8248</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>GLYC</td>
+      <td>09:37:05</td>
+      <td>BUY</td>
+      <td>2130.70</td>
+      <td>286</td>
+      <td>7.450000</td>
+      <td>0</td>
+      <td>p:%5.028571428571428/5.028571428571428,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,35054</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>GLYC</td>
+      <td>09:37:18</td>
+      <td>BUY</td>
+      <td>2342.44</td>
+      <td>314</td>
+      <td>7.460000</td>
+      <td>0</td>
+      <td>p:%5.1/5.1,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,61860</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>GLYC</td>
+      <td>09:37:31</td>
+      <td>BUY</td>
+      <td>2520.76</td>
+      <td>337</td>
+      <td>7.480000</td>
+      <td>0</td>
+      <td>p:%5.2/5.2,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,88666</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>GLYC</td>
+      <td>09:37:44</td>
+      <td>BUY</td>
+      <td>2707.76</td>
+      <td>362</td>
+      <td>7.480000</td>
+      <td>0</td>
+      <td>p:%5.257142857142857/5.257142857142857,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,115472</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>GLYC</td>
+      <td>09:37:57</td>
+      <td>BUY</td>
+      <td>3032.82</td>
+      <td>406</td>
+      <td>7.470000</td>
+      <td>0</td>
+      <td>p:%5.257142857142857/5.257142857142857,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,26118</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>GLYC</td>
+      <td>09:38:10</td>
+      <td>BUY</td>
+      <td>3504.91</td>
+      <td>463</td>
+      <td>7.570000</td>
+      <td>0</td>
+      <td>p:%4.7375/4.7375,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,63844</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>GLYC</td>
+      <td>09:38:23</td>
+      <td>SELL</td>
+      <td>307.70</td>
+      <td>38</td>
+      <td>8.097260</td>
+      <td>0</td>
+      <td>p:%8.43/7.73,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:38:00,130590</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>GLYC</td>
+      <td>09:38:46</td>
+      <td>SELL</td>
+      <td>309.13</td>
+      <td>38</td>
+      <td>8.135094</td>
+      <td>0</td>
+      <td>p:%8.48/7.73,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:39:00,17808</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>GLYC</td>
+      <td>09:39:09</td>
+      <td>SELL</td>
+      <td>305.11</td>
+      <td>38</td>
+      <td>8.029105</td>
+      <td>0</td>
+      <td>p:%8.33/7.73,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:39:00,69006</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>GLYC</td>
+      <td>09:39:32</td>
+      <td>BUY</td>
+      <td>6950.93</td>
+      <td>911</td>
+      <td>7.630000</td>
+      <td>0</td>
+      <td>p:%4.711111111111111/4.711111111111111,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:39:00,97944</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>GLYC</td>
+      <td>09:39:45</td>
+      <td>BUY</td>
+      <td>7607.60</td>
+      <td>1001</td>
+      <td>7.600000</td>
+      <td>0</td>
+      <td>p:%4.788888888888889/4.788888888888889,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:39:00,126882</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>GLYC</td>
+      <td>09:39:58</td>
+      <td>BUY</td>
+      <td>8287.29</td>
+      <td>1089</td>
+      <td>7.610000</td>
+      <td>0</td>
+      <td>p:%4.811111111111111/4.811111111111111,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,17530</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>GLYC</td>
+      <td>09:40:27</td>
+      <td>BUY</td>
+      <td>462.99</td>
+      <td>61</td>
+      <td>7.590000</td>
+      <td>0</td>
+      <td>p:%4.459999999999999/4.459999999999999,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,68367</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>GLYC</td>
+      <td>09:40:40</td>
+      <td>SELL</td>
+      <td>10136.10</td>
+      <td>1278</td>
+      <td>7.931219</td>
+      <td>0</td>
+      <td>p:%8.21/7.621885758998434,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:41:00,9566</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>GLYC</td>
+      <td>09:46:07</td>
+      <td>BUY</td>
+      <td>294.00</td>
+      <td>40</td>
+      <td>7.350000</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>0</td>
+      <td>8</td>
+      <td>09:46:00,35504</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>GLYC</td>
+      <td>09:46:17</td>
+      <td>BUY</td>
+      <td>293.60</td>
+      <td>40</td>
+      <td>7.340000</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>1</td>
+      <td>8</td>
+      <td>09:46:00,55475</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>GLYC</td>
+      <td>09:47:29</td>
+      <td>SELL</td>
+      <td>305.05</td>
+      <td>40</td>
+      <td>7.626332</td>
+      <td>0</td>
+      <td>p:%7.87/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:47:00,109956</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>GLYC</td>
+      <td>09:47:52</td>
+      <td>SELL</td>
+      <td>309.04</td>
+      <td>40</td>
+      <td>7.725891</td>
+      <td>0</td>
+      <td>p:%7.98/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:48:00,10584</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>GLYC</td>
+      <td>09:48:15</td>
+      <td>SELL</td>
+      <td>302.99</td>
+      <td>40</td>
+      <td>7.574676</td>
+      <td>0</td>
+      <td>p:%7.8/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:48:00,27972</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>GLYC</td>
+      <td>09:48:38</td>
+      <td>SELL</td>
+      <td>305.93</td>
+      <td>40</td>
+      <td>7.648232</td>
+      <td>0</td>
+      <td>p:%7.87/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:48:00,45358</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>GLYC</td>
+      <td>09:49:01</td>
+      <td>SELL</td>
+      <td>306.55</td>
+      <td>40</td>
+      <td>7.663773</td>
+      <td>0</td>
+      <td>p:%7.87/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:49:00,20493</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>GLYC</td>
+      <td>09:49:24</td>
+      <td>SELL</td>
+      <td>304.63</td>
+      <td>40</td>
+      <td>7.615792</td>
+      <td>0</td>
+      <td>p:%7.83/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:49:00,40986</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>GLYC</td>
+      <td>09:49:47</td>
+      <td>SELL</td>
+      <td>305.88</td>
+      <td>40</td>
+      <td>7.647110</td>
+      <td>0</td>
+      <td>p:%7.86/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:50:00,9909</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>GLYC</td>
+      <td>09:50:10</td>
+      <td>SELL</td>
+      <td>306.92</td>
+      <td>40</td>
+      <td>7.673068</td>
+      <td>0</td>
+      <td>p:%7.87/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:50:00,35232</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>GLYC</td>
+      <td>09:50:33</td>
+      <td>SELL</td>
+      <td>309.09</td>
+      <td>40</td>
+      <td>7.727199</td>
+      <td>0</td>
+      <td>p:%7.93/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:50:00,60555</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>GLYC</td>
+      <td>09:50:56</td>
+      <td>SELL</td>
+      <td>308.32</td>
+      <td>40</td>
+      <td>7.708087</td>
+      <td>0</td>
+      <td>p:%7.91/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:51:00,7650</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>GLYC</td>
+      <td>09:51:19</td>
+      <td>SELL</td>
+      <td>304.66</td>
+      <td>40</td>
+      <td>7.616376</td>
+      <td>0</td>
+      <td>p:%7.76/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:51:00,17425</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>GLYC</td>
+      <td>09:51:42</td>
+      <td>SELL</td>
+      <td>303.13</td>
+      <td>40</td>
+      <td>7.578228</td>
+      <td>0</td>
+      <td>p:%7.72/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:52:00,2636</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>GLYC</td>
+      <td>09:52:05</td>
+      <td>SELL</td>
+      <td>303.32</td>
+      <td>40</td>
+      <td>7.583082</td>
+      <td>0</td>
+      <td>p:%7.71/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:52:00,17793</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>GLYC</td>
+      <td>09:52:28</td>
+      <td>SELL</td>
+      <td>301.78</td>
+      <td>40</td>
+      <td>7.544435</td>
+      <td>0</td>
+      <td>p:%7.67/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:52:00,32950</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>GLYC</td>
+      <td>09:52:51</td>
+      <td>SELL</td>
+      <td>301.43</td>
+      <td>40</td>
+      <td>7.535769</td>
+      <td>0</td>
+      <td>p:%7.66/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:53:00,2418</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>GLYC</td>
+      <td>09:53:14</td>
+      <td>SELL</td>
+      <td>301.66</td>
+      <td>40</td>
+      <td>7.541546</td>
+      <td>0</td>
+      <td>p:%7.65/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:53:00,6696</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>GLYC</td>
+      <td>09:53:37</td>
+      <td>SELL</td>
+      <td>300.89</td>
+      <td>40</td>
+      <td>7.522228</td>
+      <td>0</td>
+      <td>p:%7.64/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:53:00,10974</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>GLYC</td>
+      <td>09:54:00</td>
+      <td>SELL</td>
+      <td>299.92</td>
+      <td>40</td>
+      <td>7.497919</td>
+      <td>0</td>
+      <td>p:%7.6/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:54:00,15928</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>GLYC</td>
+      <td>09:54:23</td>
+      <td>SELL</td>
+      <td>298.78</td>
+      <td>40</td>
+      <td>7.469442</td>
+      <td>0</td>
+      <td>p:%7.57/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:54:00,32580</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>GLYC</td>
+      <td>09:54:46</td>
+      <td>SELL</td>
+      <td>298.02</td>
+      <td>40</td>
+      <td>7.450603</td>
+      <td>0</td>
+      <td>p:%7.55/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:55:00,9816</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>GLYC</td>
+      <td>09:55:09</td>
+      <td>SELL</td>
+      <td>297.57</td>
+      <td>40</td>
+      <td>7.439131</td>
+      <td>0</td>
+      <td>p:%7.53/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:55:00,38037</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>GLYC</td>
+      <td>09:55:32</td>
+      <td>BUY</td>
+      <td>24276.57</td>
+      <td>3349</td>
+      <td>7.248900</td>
+      <td>0</td>
+      <td>p:%2.9960000000000004/2.9960000000000004,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:55:00,53988</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>GLYC</td>
+      <td>09:55:45</td>
+      <td>BUY</td>
+      <td>25467.09</td>
+      <td>3542</td>
+      <td>7.190030</td>
+      <td>0</td>
+      <td>p:%3.012/3.012,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:55:00,69939</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>GLYC</td>
+      <td>09:55:58</td>
+      <td>BUY</td>
+      <td>26686.37</td>
+      <td>3728</td>
+      <td>7.158360</td>
+      <td>0</td>
+      <td>p:%3.0240000000000005/3.0240000000000005,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:56:00,17380</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>GLYC</td>
+      <td>09:56:11</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%28.812538461538463/-14.152538461538464,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,22594</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>GLYC</td>
+      <td>09:56:14</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%28.84073076923077/-14.18073076923077,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,27808</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>GLYC</td>
+      <td>09:56:17</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%28.84073076923077/-14.18073076923077,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,33022</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>GLYC</td>
+      <td>09:56:20</td>
+      <td>BUY</td>
+      <td>28807.61</td>
+      <td>4007</td>
+      <td>7.189320</td>
+      <td>0</td>
+      <td>p:%2.934615384615385/2.934615384615385,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:56:00,55616</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>56</th>
+      <td>GLYC</td>
+      <td>09:56:33</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%28.953500000000002/-14.293500000000002,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,60830</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>GLYC</td>
+      <td>09:56:36</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%28.981692307692313/-14.321692307692313,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,66044</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>GLYC</td>
+      <td>09:56:39</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%29.03807692307693/-14.378076923076927,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,71258</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>GLYC</td>
+      <td>09:56:42</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%29.066269230769233/-14.406269230769231,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,76472</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>GLYC</td>
+      <td>09:56:45</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%29.12265384615385/-14.46265384615385,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:56:00,81686</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>GLYC</td>
+      <td>09:56:48</td>
+      <td>SELL</td>
+      <td>297.15</td>
+      <td>40</td>
+      <td>7.428649</td>
+      <td>0</td>
+      <td>p:%7.52/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:57:00,7120</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>GLYC</td>
+      <td>09:57:11</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%28.424111111111113/-13.764111111111115,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:57:00,9256</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>GLYC</td>
+      <td>09:57:14</td>
+      <td>SELL</td>
+      <td>293.20</td>
+      <td>40</td>
+      <td>7.330000</td>
+      <td>0</td>
+      <td>p:%28.451259259259263/-13.791259259259261,t:10</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:57:00,11392</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>GLYC</td>
+      <td>09:57:17</td>
+      <td>SELL</td>
+      <td>299.93</td>
+      <td>40</td>
+      <td>7.498348</td>
+      <td>0</td>
+      <td>p:%7.66/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:57:00,27768</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>GLYC</td>
+      <td>09:57:40</td>
+      <td>SELL</td>
+      <td>302.50</td>
+      <td>40</td>
+      <td>7.562382</td>
+      <td>0</td>
+      <td>p:%7.73/7.33,t:20</td>
+      <td>0</td>
+      <td>21</td>
+      <td>09:58:00,942</td>
+      <td>successfully cancelled</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

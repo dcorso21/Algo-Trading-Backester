@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-30-2020/batch_6_11,47_AM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Filled Orders // </strong>2017-12-12_PTI</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>order_id</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>exe_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>1x</td>
+      <td>09:32:00</td>
+      <td>BUY</td>
+      <td>299.25</td>
+      <td>57</td>
+      <td>5.25000</td>
+      <td>0</td>
+      <td>09:32:02</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>12x</td>
+      <td>09:34:29</td>
+      <td>SELL</td>
+      <td>319.72</td>
+      <td>57</td>
+      <td>5.60910</td>
+      <td>0</td>
+      <td>09:34:33</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>14x</td>
+      <td>09:36:31</td>
+      <td>BUY</td>
+      <td>297.33</td>
+      <td>51</td>
+      <td>5.83000</td>
+      <td>0</td>
+      <td>09:36:37</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>15x</td>
+      <td>09:38:09</td>
+      <td>BUY</td>
+      <td>307.45</td>
+      <td>55</td>
+      <td>5.59000</td>
+      <td>0</td>
+      <td>09:38:11</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>25x</td>
+      <td>09:40:38</td>
+      <td>BUY</td>
+      <td>2457.75</td>
+      <td>435</td>
+      <td>5.65000</td>
+      <td>0</td>
+      <td>09:40:40</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>26x</td>
+      <td>09:40:54</td>
+      <td>BUY</td>
+      <td>534.72</td>
+      <td>96</td>
+      <td>5.57000</td>
+      <td>0</td>
+      <td>09:40:56</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>32x</td>
+      <td>09:42:15</td>
+      <td>BUY</td>
+      <td>3546.45</td>
+      <td>639</td>
+      <td>5.55000</td>
+      <td>0</td>
+      <td>09:42:19</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>33x</td>
+      <td>09:42:23</td>
+      <td>BUY</td>
+      <td>429.78</td>
+      <td>78</td>
+      <td>5.51000</td>
+      <td>0</td>
+      <td>09:42:26</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>34x</td>
+      <td>09:42:31</td>
+      <td>BUY</td>
+      <td>443.07</td>
+      <td>81</td>
+      <td>5.47000</td>
+      <td>0</td>
+      <td>09:42:33</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>35x</td>
+      <td>09:42:39</td>
+      <td>BUY</td>
+      <td>15170.58</td>
+      <td>2799</td>
+      <td>5.42000</td>
+      <td>0</td>
+      <td>09:42:41</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>40x</td>
+      <td>09:44:19</td>
+      <td>SELL</td>
+      <td>23365.24</td>
+      <td>4234</td>
+      <td>5.51848</td>
+      <td>0</td>
+      <td>09:44:21</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>45x</td>
+      <td>09:46:11</td>
+      <td>BUY</td>
+      <td>297.00</td>
+      <td>54</td>
+      <td>5.50000</td>
+      <td>0</td>
+      <td>09:46:14</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>54x</td>
+      <td>09:48:09</td>
+      <td>BUY</td>
+      <td>588.50</td>
+      <td>107</td>
+      <td>5.50000</td>
+      <td>0</td>
+      <td>09:48:13</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>55x</td>
+      <td>09:48:41</td>
+      <td>BUY</td>
+      <td>367.20</td>
+      <td>68</td>
+      <td>5.40000</td>
+      <td>0</td>
+      <td>09:48:44</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>56x</td>
+      <td>09:49:21</td>
+      <td>BUY</td>
+      <td>373.80</td>
+      <td>70</td>
+      <td>5.34000</td>
+      <td>0</td>
+      <td>09:49:29</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>57x</td>
+      <td>09:49:38</td>
+      <td>BUY</td>
+      <td>391.46</td>
+      <td>74</td>
+      <td>5.29000</td>
+      <td>0</td>
+      <td>09:49:40</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>69x</td>
+      <td>09:52:17</td>
+      <td>BUY</td>
+      <td>6522.32</td>
+      <td>1226</td>
+      <td>5.32000</td>
+      <td>0</td>
+      <td>09:52:28</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>70x</td>
+      <td>09:52:29</td>
+      <td>BUY</td>
+      <td>722.16</td>
+      <td>136</td>
+      <td>5.31000</td>
+      <td>0</td>
+      <td>09:52:32</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>71x</td>
+      <td>09:52:37</td>
+      <td>BUY</td>
+      <td>502.55</td>
+      <td>95</td>
+      <td>5.29000</td>
+      <td>0</td>
+      <td>09:52:41</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>72x</td>
+      <td>09:52:45</td>
+      <td>BUY</td>
+      <td>516.46</td>
+      <td>98</td>
+      <td>5.27000</td>
+      <td>0</td>
+      <td>09:52:51</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>73x</td>
+      <td>09:52:53</td>
+      <td>BUY</td>
+      <td>536.52</td>
+      <td>102</td>
+      <td>5.26000</td>
+      <td>0</td>
+      <td>09:52:55</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>74x</td>
+      <td>09:53:01</td>
+      <td>BUY</td>
+      <td>546.00</td>
+      <td>104</td>
+      <td>5.25000</td>
+      <td>0</td>
+      <td>09:53:11</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>75x</td>
+      <td>09:53:12</td>
+      <td>BUY</td>
+      <td>786.00</td>
+      <td>150</td>
+      <td>5.24000</td>
+      <td>0</td>
+      <td>09:53:15</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>PTI</td>
+      <td>76x</td>
+      <td>09:53:28</td>
+      <td>SELL</td>
+      <td>11853.96</td>
+      <td>2284</td>
+      <td>5.19000</td>
+      <td>0</td>
+      <td>09:53:30</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

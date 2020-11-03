@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/07-02-2020/batch_8_12,51_PM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Momentum Frame // </strong>2017-08-25_ADMS</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>start_time</th>
+      <th>end_time</th>
+      <th>duration</th>
+      <th>trend</th>
+      <th>high</th>
+      <th>low</th>
+      <th>color</th>
+      <th>volatility</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>09:31:00</td>
+      <td>09:32:00</td>
+      <td>1.0</td>
+      <td>uptrend</td>
+      <td>21.32</td>
+      <td>20.440</td>
+      <td>#fcba03</td>
+      <td>4.3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>09:32:00</td>
+      <td>09:34:00</td>
+      <td>2.0</td>
+      <td>downtrend</td>
+      <td>21.32</td>
+      <td>20.000</td>
+      <td>#e336a4</td>
+      <td>6.6</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>09:34:00</td>
+      <td>09:37:00</td>
+      <td>3.0</td>
+      <td>uptrend</td>
+      <td>20.80</td>
+      <td>20.000</td>
+      <td>#fcba03</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>09:37:00</td>
+      <td>09:41:00</td>
+      <td>4.0</td>
+      <td>downtrend</td>
+      <td>20.80</td>
+      <td>20.000</td>
+      <td>#e336a4</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>09:41:00</td>
+      <td>09:44:00</td>
+      <td>3.0</td>
+      <td>uptrend</td>
+      <td>20.50</td>
+      <td>20.000</td>
+      <td>#fcba03</td>
+      <td>2.5</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>09:44:00</td>
+      <td>09:49:00</td>
+      <td>5.0</td>
+      <td>downtrend</td>
+      <td>20.50</td>
+      <td>19.710</td>
+      <td>#e336a4</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>09:49:00</td>
+      <td>09:54:00</td>
+      <td>5.0</td>
+      <td>uptrend</td>
+      <td>20.50</td>
+      <td>19.710</td>
+      <td>#fcba03</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>09:54:00</td>
+      <td>09:55:00</td>
+      <td>1.0</td>
+      <td>downtrend</td>
+      <td>20.50</td>
+      <td>20.120</td>
+      <td>#e336a4</td>
+      <td>1.9</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>09:55:00</td>
+      <td>10:03:00</td>
+      <td>8.0</td>
+      <td>uptrend</td>
+      <td>21.30</td>
+      <td>20.120</td>
+      <td>#fcba03</td>
+      <td>5.9</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10:03:00</td>
+      <td>10:06:00</td>
+      <td>3.0</td>
+      <td>downtrend</td>
+      <td>21.30</td>
+      <td>20.410</td>
+      <td>#e336a4</td>
+      <td>4.4</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>10:06:00</td>
+      <td>10:08:00</td>
+      <td>2.0</td>
+      <td>uptrend</td>
+      <td>20.95</td>
+      <td>20.410</td>
+      <td>#fcba03</td>
+      <td>2.6</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>10:08:00</td>
+      <td>10:14:00</td>
+      <td>6.0</td>
+      <td>downtrend</td>
+      <td>20.95</td>
+      <td>20.250</td>
+      <td>#e336a4</td>
+      <td>3.5</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>10:14:00</td>
+      <td>10:18:00</td>
+      <td>4.0</td>
+      <td>uptrend</td>
+      <td>20.65</td>
+      <td>20.250</td>
+      <td>#fcba03</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>10:18:00</td>
+      <td>10:20:00</td>
+      <td>2.0</td>
+      <td>downtrend</td>
+      <td>20.65</td>
+      <td>20.320</td>
+      <td>#e336a4</td>
+      <td>1.6</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>10:20:00</td>
+      <td>10:22:00</td>
+      <td>2.0</td>
+      <td>uptrend</td>
+      <td>20.48</td>
+      <td>20.320</td>
+      <td>#fcba03</td>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>10:22:00</td>
+      <td>10:25:00</td>
+      <td>3.0</td>
+      <td>downtrend</td>
+      <td>20.48</td>
+      <td>20.200</td>
+      <td>#e336a4</td>
+      <td>1.4</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>10:25:00</td>
+      <td>10:29:00</td>
+      <td>4.0</td>
+      <td>uptrend</td>
+      <td>20.79</td>
+      <td>20.200</td>
+      <td>#fcba03</td>
+      <td>2.9</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>10:29:00</td>
+      <td>10:34:00</td>
+      <td>5.0</td>
+      <td>downtrend</td>
+      <td>20.79</td>
+      <td>20.412</td>
+      <td>#e336a4</td>
+      <td>1.9</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>10:34:00</td>
+      <td>10:37:00</td>
+      <td>3.0</td>
+      <td>uptrend</td>
+      <td>20.62</td>
+      <td>20.412</td>
+      <td>#fcba03</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>10:37:00</td>
+      <td>10:41:00</td>
+      <td>4.0</td>
+      <td>downtrend</td>
+      <td>20.62</td>
+      <td>20.400</td>
+      <td>#e336a4</td>
+      <td>1.1</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>10:41:00</td>
+      <td>10:44:00</td>
+      <td>3.0</td>
+      <td>uptrend</td>
+      <td>20.60</td>
+      <td>20.400</td>
+      <td>#fcba03</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>10:51:00</td>
+      <td>10:56:00</td>
+      <td>5.0</td>
+      <td>uptrend</td>
+      <td>20.25</td>
+      <td>20.030</td>
+      <td>#fcba03</td>
+      <td>1.1</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

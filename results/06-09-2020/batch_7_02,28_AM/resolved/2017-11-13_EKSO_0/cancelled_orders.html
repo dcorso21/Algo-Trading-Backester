@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-09-2020/batch_7_02,28_AM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Cancelled Orders // </strong>2017-11-13_EKSO</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>cancel_spec</th>
+      <th>price_check</th>
+      <th>wait_duration</th>
+      <th>vol_start</th>
+      <th>status</th>
+    </tr>
+    <tr>
+      <th>order_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>EKSO</td>
+      <td>09:32:14</td>
+      <td>BUY</td>
+      <td>901.28</td>
+      <td>483</td>
+      <td>1.866000</td>
+      <td>0</td>
+      <td>p:%6.95/6.95,t:30</td>
+      <td>0</td>
+      <td>7</td>
+      <td>09:32:00,87098</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>EKSO</td>
+      <td>09:34:09</td>
+      <td>SELL</td>
+      <td>2841.36</td>
+      <td>1418</td>
+      <td>2.003780</td>
+      <td>0</td>
+      <td>p:%2.1054720976875/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,34716</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>EKSO</td>
+      <td>09:34:12</td>
+      <td>SELL</td>
+      <td>2860.34</td>
+      <td>1418</td>
+      <td>2.017163</td>
+      <td>0</td>
+      <td>p:%2.1225600298124996/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,44184</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>EKSO</td>
+      <td>09:34:15</td>
+      <td>SELL</td>
+      <td>2880.85</td>
+      <td>1418</td>
+      <td>2.031630</td>
+      <td>0</td>
+      <td>p:%2.1408301124999998/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,53652</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>EKSO</td>
+      <td>09:34:18</td>
+      <td>SELL</td>
+      <td>2908.77</td>
+      <td>1418</td>
+      <td>2.051322</td>
+      <td>0</td>
+      <td>p:%2.1656834654375/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,63120</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>EKSO</td>
+      <td>09:34:21</td>
+      <td>SELL</td>
+      <td>2925.02</td>
+      <td>1418</td>
+      <td>2.062776</td>
+      <td>0</td>
+      <td>p:%2.1798385380000003/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,72588</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>EKSO</td>
+      <td>09:34:24</td>
+      <td>SELL</td>
+      <td>2901.47</td>
+      <td>1418</td>
+      <td>2.046172</td>
+      <td>0</td>
+      <td>p:%2.164849976/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,82056</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>EKSO</td>
+      <td>09:34:48</td>
+      <td>SELL</td>
+      <td>2867.35</td>
+      <td>1418</td>
+      <td>2.022108</td>
+      <td>0</td>
+      <td>p:%2.1419181638125/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,157800</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>EKSO</td>
+      <td>09:34:51</td>
+      <td>SELL</td>
+      <td>2871.86</td>
+      <td>1418</td>
+      <td>2.025286</td>
+      <td>0</td>
+      <td>p:%2.1452841955/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,167268</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>EKSO</td>
+      <td>09:34:54</td>
+      <td>SELL</td>
+      <td>2888.38</td>
+      <td>1418</td>
+      <td>2.036938</td>
+      <td>0</td>
+      <td>p:%2.1576263116875/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,176736</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>EKSO</td>
+      <td>09:34:57</td>
+      <td>SELL</td>
+      <td>2907.90</td>
+      <td>1418</td>
+      <td>2.050708</td>
+      <td>0</td>
+      <td>p:%2.1722124490000003/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:34:00,186204</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>EKSO</td>
+      <td>09:35:00</td>
+      <td>SELL</td>
+      <td>2890.22</td>
+      <td>1418</td>
+      <td>2.038240</td>
+      <td>0</td>
+      <td>p:%2.1348529949600006/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:35:00,6306</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>EKSO</td>
+      <td>09:35:03</td>
+      <td>SELL</td>
+      <td>2907.85</td>
+      <td>1418</td>
+      <td>2.050670</td>
+      <td>0</td>
+      <td>p:%2.14992284736/1.9029407616361074,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:35:00,15765</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>EKSO</td>
+      <td>09:36:25</td>
+      <td>BUY</td>
+      <td>1348.77</td>
+      <td>685</td>
+      <td>1.969000</td>
+      <td>0</td>
+      <td>p:%5.583333333333333/5.583333333333333,t:60</td>
+      <td>0</td>
+      <td>61</td>
+      <td>09:37:00,57375</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>EKSO</td>
+      <td>09:37:28</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>151</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:37:00,127525.0</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>EKSO</td>
+      <td>09:38:01</td>
+      <td>SELL</td>
+      <td>321.49</td>
+      <td>151</td>
+      <td>2.129092</td>
+      <td>0</td>
+      <td>p:%2.2231637664147708/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,4920</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>EKSO</td>
+      <td>09:38:04</td>
+      <td>SELL</td>
+      <td>321.11</td>
+      <td>151</td>
+      <td>2.126524</td>
+      <td>0</td>
+      <td>p:%2.2210718997637686/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,9840</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>EKSO</td>
+      <td>09:38:07</td>
+      <td>SELL</td>
+      <td>319.03</td>
+      <td>151</td>
+      <td>2.112814</td>
+      <td>0</td>
+      <td>p:%2.2087983387469077/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,14760</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>EKSO</td>
+      <td>09:38:10</td>
+      <td>SELL</td>
+      <td>318.37</td>
+      <td>151</td>
+      <td>2.108421</td>
+      <td>0</td>
+      <td>p:%2.2050792474102354/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,19680</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>EKSO</td>
+      <td>09:38:13</td>
+      <td>SELL</td>
+      <td>317.67</td>
+      <td>151</td>
+      <td>2.103746</td>
+      <td>0</td>
+      <td>p:%2.2007701501422723/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,24600</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>EKSO</td>
+      <td>09:38:16</td>
+      <td>SELL</td>
+      <td>317.12</td>
+      <td>151</td>
+      <td>2.100115</td>
+      <td>0</td>
+      <td>p:%2.1975494878217035/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,29520</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>EKSO</td>
+      <td>09:38:19</td>
+      <td>SELL</td>
+      <td>315.90</td>
+      <td>151</td>
+      <td>2.092071</td>
+      <td>0</td>
+      <td>p:%2.1905709102375144/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,34440</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>EKSO</td>
+      <td>09:38:22</td>
+      <td>SELL</td>
+      <td>315.08</td>
+      <td>151</td>
+      <td>2.086609</td>
+      <td>0</td>
+      <td>p:%2.1857109074386916/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,39360</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>EKSO</td>
+      <td>09:38:25</td>
+      <td>SELL</td>
+      <td>314.80</td>
+      <td>151</td>
+      <td>2.084787</td>
+      <td>0</td>
+      <td>p:%2.1840882711501175/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,44280</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>EKSO</td>
+      <td>09:38:28</td>
+      <td>SELL</td>
+      <td>313.86</td>
+      <td>151</td>
+      <td>2.078540</td>
+      <td>0</td>
+      <td>p:%2.178683285976083/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,49200</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>EKSO</td>
+      <td>09:38:31</td>
+      <td>SELL</td>
+      <td>313.70</td>
+      <td>151</td>
+      <td>2.077492</td>
+      <td>0</td>
+      <td>p:%2.1775846055494688/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,54120</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>EKSO</td>
+      <td>09:38:34</td>
+      <td>SELL</td>
+      <td>314.69</td>
+      <td>151</td>
+      <td>2.084053</td>
+      <td>0</td>
+      <td>p:%2.1847471584262848/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,59040</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>EKSO</td>
+      <td>09:38:37</td>
+      <td>SELL</td>
+      <td>316.59</td>
+      <td>151</td>
+      <td>2.096633</td>
+      <td>0</td>
+      <td>p:%2.1979347670284555/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,63960</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>EKSO</td>
+      <td>09:38:40</td>
+      <td>SELL</td>
+      <td>317.86</td>
+      <td>151</td>
+      <td>2.105019</td>
+      <td>0</td>
+      <td>p:%2.2067265060965693/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,68880</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>EKSO</td>
+      <td>09:38:43</td>
+      <td>SELL</td>
+      <td>320.39</td>
+      <td>151</td>
+      <td>2.121792</td>
+      <td>0</td>
+      <td>p:%2.224309984232797/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,73800</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>EKSO</td>
+      <td>09:38:46</td>
+      <td>SELL</td>
+      <td>322.13</td>
+      <td>151</td>
+      <td>2.133324</td>
+      <td>0</td>
+      <td>p:%2.236398625451453/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,78720</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>EKSO</td>
+      <td>09:38:49</td>
+      <td>SELL</td>
+      <td>322.77</td>
+      <td>151</td>
+      <td>2.137517</td>
+      <td>0</td>
+      <td>p:%2.24079449498551/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,83640</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>EKSO</td>
+      <td>09:38:52</td>
+      <td>SELL</td>
+      <td>321.82</td>
+      <td>151</td>
+      <td>2.131227</td>
+      <td>0</td>
+      <td>p:%2.2342006906844243/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,88560</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>EKSO</td>
+      <td>09:38:55</td>
+      <td>SELL</td>
+      <td>321.18</td>
+      <td>151</td>
+      <td>2.127034</td>
+      <td>0</td>
+      <td>p:%2.229804821150368/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,93480</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>EKSO</td>
+      <td>09:38:58</td>
+      <td>SELL</td>
+      <td>319.92</td>
+      <td>151</td>
+      <td>2.118648</td>
+      <td>0</td>
+      <td>p:%2.221013082082254/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:38:00,98407.0</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>EKSO</td>
+      <td>09:39:01</td>
+      <td>SELL</td>
+      <td>317.60</td>
+      <td>151</td>
+      <td>2.103300</td>
+      <td>0</td>
+      <td>p:%2.1911207941018125/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,4041</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>EKSO</td>
+      <td>09:39:04</td>
+      <td>SELL</td>
+      <td>317.48</td>
+      <td>151</td>
+      <td>2.102510</td>
+      <td>0</td>
+      <td>p:%2.1905586484397475/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,8082</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>EKSO</td>
+      <td>09:39:07</td>
+      <td>SELL</td>
+      <td>317.32</td>
+      <td>151</td>
+      <td>2.101468</td>
+      <td>0</td>
+      <td>p:%2.1894731387031574/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,12123</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>EKSO</td>
+      <td>09:39:10</td>
+      <td>SELL</td>
+      <td>316.49</td>
+      <td>151</td>
+      <td>2.095966</td>
+      <td>0</td>
+      <td>p:%2.184522772875268/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,16164</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>EKSO</td>
+      <td>09:39:13</td>
+      <td>SELL</td>
+      <td>315.94</td>
+      <td>151</td>
+      <td>2.092296</td>
+      <td>0</td>
+      <td>p:%2.181216385454853/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,20205</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>EKSO</td>
+      <td>09:39:16</td>
+      <td>SELL</td>
+      <td>315.82</td>
+      <td>151</td>
+      <td>2.091502</td>
+      <td>0</td>
+      <td>p:%2.18064841843441/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,24246</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>EKSO</td>
+      <td>09:39:19</td>
+      <td>SELL</td>
+      <td>315.38</td>
+      <td>151</td>
+      <td>2.088622</td>
+      <td>0</td>
+      <td>p:%2.177905104093407/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,28287</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>EKSO</td>
+      <td>09:39:22</td>
+      <td>SELL</td>
+      <td>314.43</td>
+      <td>151</td>
+      <td>2.082312</td>
+      <td>0</td>
+      <td>p:%2.1723562841042456/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,32328</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>EKSO</td>
+      <td>09:39:25</td>
+      <td>SELL</td>
+      <td>314.31</td>
+      <td>151</td>
+      <td>2.081515</td>
+      <td>0</td>
+      <td>p:%2.171782829675256/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,36369</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>EKSO</td>
+      <td>09:39:28</td>
+      <td>SELL</td>
+      <td>313.87</td>
+      <td>151</td>
+      <td>2.078632</td>
+      <td>0</td>
+      <td>p:%2.1690309407380255/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,40410</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>EKSO</td>
+      <td>09:39:31</td>
+      <td>SELL</td>
+      <td>313.60</td>
+      <td>151</td>
+      <td>2.076791</td>
+      <td>0</td>
+      <td>p:%2.1673664581891985/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,44451</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>EKSO</td>
+      <td>09:39:34</td>
+      <td>SELL</td>
+      <td>316.75</td>
+      <td>151</td>
+      <td>2.097663</td>
+      <td>0</td>
+      <td>p:%2.1891490356584367/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,48492</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>EKSO</td>
+      <td>09:39:37</td>
+      <td>SELL</td>
+      <td>318.17</td>
+      <td>151</td>
+      <td>2.107055</td>
+      <td>0</td>
+      <td>p:%2.198951195519594/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,52533</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>EKSO</td>
+      <td>09:39:40</td>
+      <td>SELL</td>
+      <td>319.93</td>
+      <td>151</td>
+      <td>2.118744</td>
+      <td>0</td>
+      <td>p:%2.2124564594627323/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,56574</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>EKSO</td>
+      <td>09:39:43</td>
+      <td>SELL</td>
+      <td>319.14</td>
+      <td>151</td>
+      <td>2.113522</td>
+      <td>0</td>
+      <td>p:%2.20700437355967/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,60615</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>EKSO</td>
+      <td>09:39:46</td>
+      <td>SELL</td>
+      <td>318.67</td>
+      <td>151</td>
+      <td>2.110390</td>
+      <td>0</td>
+      <td>p:%2.203733122017832/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,64656</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>56</th>
+      <td>EKSO</td>
+      <td>09:39:49</td>
+      <td>SELL</td>
+      <td>317.25</td>
+      <td>151</td>
+      <td>2.100992</td>
+      <td>0</td>
+      <td>p:%2.19391936739232/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,68697</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>EKSO</td>
+      <td>09:39:52</td>
+      <td>SELL</td>
+      <td>316.46</td>
+      <td>151</td>
+      <td>2.095770</td>
+      <td>0</td>
+      <td>p:%2.1884672814892574/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,72738</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>EKSO</td>
+      <td>09:39:55</td>
+      <td>SELL</td>
+      <td>315.83</td>
+      <td>151</td>
+      <td>2.091594</td>
+      <td>0</td>
+      <td>p:%2.1841056127668073/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,76779</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>EKSO</td>
+      <td>09:39:58</td>
+      <td>SELL</td>
+      <td>315.52</td>
+      <td>151</td>
+      <td>2.089505</td>
+      <td>0</td>
+      <td>p:%2.181924778405582/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:39:00,80876.0</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>EKSO</td>
+      <td>09:40:01</td>
+      <td>SELL</td>
+      <td>315.36</td>
+      <td>151</td>
+      <td>2.088461</td>
+      <td>0</td>
+      <td>p:%2.18083436122497/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,4419</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>EKSO</td>
+      <td>09:40:04</td>
+      <td>SELL</td>
+      <td>314.02</td>
+      <td>151</td>
+      <td>2.079624</td>
+      <td>0</td>
+      <td>p:%2.1602576810163834/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,8838</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>EKSO</td>
+      <td>09:40:07</td>
+      <td>SELL</td>
+      <td>314.21</td>
+      <td>151</td>
+      <td>2.080890</td>
+      <td>0</td>
+      <td>p:%2.161808745287454/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,13257</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>EKSO</td>
+      <td>09:40:10</td>
+      <td>SELL</td>
+      <td>314.72</td>
+      <td>151</td>
+      <td>2.084234</td>
+      <td>0</td>
+      <td>p:%2.1655191259999995/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,17676</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>EKSO</td>
+      <td>09:40:13</td>
+      <td>SELL</td>
+      <td>314.91</td>
+      <td>151</td>
+      <td>2.085500</td>
+      <td>0</td>
+      <td>p:%2.1670712113476145/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,22095</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>EKSO</td>
+      <td>09:40:16</td>
+      <td>SELL</td>
+      <td>314.91</td>
+      <td>151</td>
+      <td>2.085500</td>
+      <td>0</td>
+      <td>p:%2.1670712113476145/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,26514</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>EKSO</td>
+      <td>09:40:19</td>
+      <td>SELL</td>
+      <td>315.07</td>
+      <td>151</td>
+      <td>2.086540</td>
+      <td>0</td>
+      <td>p:%2.1681509678056847/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,30933</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>EKSO</td>
+      <td>09:40:22</td>
+      <td>SELL</td>
+      <td>315.22</td>
+      <td>151</td>
+      <td>2.087579</td>
+      <td>0</td>
+      <td>p:%2.1692307242637554/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,35352</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>68</th>
+      <td>EKSO</td>
+      <td>09:40:25</td>
+      <td>SELL</td>
+      <td>315.42</td>
+      <td>151</td>
+      <td>2.088845</td>
+      <td>0</td>
+      <td>p:%2.170783557126447/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,39771</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>69</th>
+      <td>EKSO</td>
+      <td>09:40:28</td>
+      <td>SELL</td>
+      <td>315.76</td>
+      <td>151</td>
+      <td>2.091152</td>
+      <td>0</td>
+      <td>p:%2.1734168949322/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,44190</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>EKSO</td>
+      <td>09:40:31</td>
+      <td>SELL</td>
+      <td>315.92</td>
+      <td>151</td>
+      <td>2.092191</td>
+      <td>0</td>
+      <td>p:%2.174497122017156/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,48609</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>71</th>
+      <td>EKSO</td>
+      <td>09:40:34</td>
+      <td>SELL</td>
+      <td>316.11</td>
+      <td>151</td>
+      <td>2.093458</td>
+      <td>0</td>
+      <td>p:%2.1760509821853895/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,53028</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>EKSO</td>
+      <td>09:40:37</td>
+      <td>SELL</td>
+      <td>316.30</td>
+      <td>151</td>
+      <td>2.094725</td>
+      <td>0</td>
+      <td>p:%2.1776051225098114/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,57447</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>73</th>
+      <td>EKSO</td>
+      <td>09:40:40</td>
+      <td>SELL</td>
+      <td>316.62</td>
+      <td>151</td>
+      <td>2.096804</td>
+      <td>0</td>
+      <td>p:%2.179766517172352/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,61866</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>74</th>
+      <td>EKSO</td>
+      <td>09:40:43</td>
+      <td>SELL</td>
+      <td>317.00</td>
+      <td>151</td>
+      <td>2.099340</td>
+      <td>0</td>
+      <td>p:%2.1828765829407475/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,66285</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>75</th>
+      <td>EKSO</td>
+      <td>09:40:46</td>
+      <td>SELL</td>
+      <td>317.16</td>
+      <td>151</td>
+      <td>2.100380</td>
+      <td>0</td>
+      <td>p:%2.183957750143789/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,70704</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>76</th>
+      <td>EKSO</td>
+      <td>09:40:49</td>
+      <td>SELL</td>
+      <td>316.69</td>
+      <td>151</td>
+      <td>2.097260</td>
+      <td>0</td>
+      <td>p:%2.1807142485346644/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,75123</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>77</th>
+      <td>EKSO</td>
+      <td>09:40:52</td>
+      <td>SELL</td>
+      <td>314.33</td>
+      <td>151</td>
+      <td>2.081663</td>
+      <td>0</td>
+      <td>p:%2.1644967404890414/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,79542</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>78</th>
+      <td>EKSO</td>
+      <td>09:40:55</td>
+      <td>SELL</td>
+      <td>314.80</td>
+      <td>151</td>
+      <td>2.084783</td>
+      <td>0</td>
+      <td>p:%2.167740242098166/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,83961</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>79</th>
+      <td>EKSO</td>
+      <td>09:40:58</td>
+      <td>SELL</td>
+      <td>316.37</td>
+      <td>151</td>
+      <td>2.095181</td>
+      <td>0</td>
+      <td>p:%2.1785519141285814/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:40:00,88436.0</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>80</th>
+      <td>EKSO</td>
+      <td>09:41:01</td>
+      <td>SELL</td>
+      <td>315.27</td>
+      <td>151</td>
+      <td>2.087901</td>
+      <td>0</td>
+      <td>p:%2.1612940284233715/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:41:00,19311</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>81</th>
+      <td>EKSO</td>
+      <td>09:41:04</td>
+      <td>SELL</td>
+      <td>318.53</td>
+      <td>151</td>
+      <td>2.109489</td>
+      <td>0</td>
+      <td>p:%2.185630607003237/1.9800000000000002,t:30</td>
+      <td>0</td>
+      <td>1</td>
+      <td>09:41:00,38622</td>
+      <td>successfully cancelled</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+{
+  "metaconfig": {
+    "lock_defaults": true,
+    "cut_prints": true,
+    "debug_time": "09:35:22"
+  },
+  "misc": {
+    "buy_clock_countdown_amount": 6,
+    "dollar_risk": -2500,
+    "hard_stop": "11:00:00",
+    "ideal_volatility": 3,
+    "volume_check": true,
+    "cancel_spec_time": 4,
+    "minimum_volume": 100000,
+    "lookahead_mins": 12
+  },
+  "buy_conditions": {
+    "aggresive_average": {
+      "active": false,
+      "priority": 2
+    },
+    "drop_below_average": {
+      "active": true,
+      "max_vola": 5,
+      "min_vola": 2.5,
+      "priority": 1
+    },
+    "progressive": {
+      "active": false,
+      "priority": 3,
+      "max_trend_duration": 9
+    }
+  },
+  "sell_conditions": {
+    "out_of_steam": {
+      "active": false,
+      "priority": 10
+    },
+    "dollar_risk_check": {
+      "active": false,
+      "priority": 1
+    },
+    "breakeven": {
+      "active": false,
+      "priority": 6
+    },
+    "quit_early": {
+      "active": false,
+      "priority": 1
+    },
+    "four_red_candles": {
+      "active": false,
+      "priority": 5
+    },
+    "bad_differentials": {
+      "active": false,
+      "priority": 6
+    },
+    "exposure_over_account_limit": {
+      "active": false,
+      "priority": 3
+    },
+    "percentage_gain": {
+      "active": false,
+      "perc_gain": 5,
+      "priority": 4
+    },
+    "target_unreal": {
+      "active": false,
+      "priority": 5,
+      "target_unreal_amount": 100
+    },
+    "timed_exit": {
+      "active": true,
+      "priority": 2,
+      "minute_offset": 2
+    }
+  },
+  "sim_settings": {
+    "execution_lag": 2,
+    "execution_price_offset": 0.005,
+    "vol_min_chunk_cash": 500,
+    "vol_offset_multiplier": 1.2
+  }
+}

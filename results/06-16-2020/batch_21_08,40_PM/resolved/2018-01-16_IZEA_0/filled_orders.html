@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-16-2020/batch_21_08,40_PM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Filled Orders // </strong>2018-01-16_IZEA</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>order_id</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>exe_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>4x</td>
+      <td>09:32:30</td>
+      <td>BUY</td>
+      <td>294.84</td>
+      <td>42</td>
+      <td>7.020000</td>
+      <td>0</td>
+      <td>09:32:33</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>5x</td>
+      <td>09:33:39</td>
+      <td>BUY</td>
+      <td>297.56</td>
+      <td>43</td>
+      <td>6.920000</td>
+      <td>0</td>
+      <td>09:33:43</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>6x</td>
+      <td>09:34:03</td>
+      <td>BUY</td>
+      <td>512.25</td>
+      <td>75</td>
+      <td>6.830000</td>
+      <td>0</td>
+      <td>09:34:10</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>20x</td>
+      <td>09:39:06</td>
+      <td>BUY</td>
+      <td>11764.37</td>
+      <td>1717</td>
+      <td>6.851700</td>
+      <td>0</td>
+      <td>09:39:15</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>31x</td>
+      <td>09:41:11</td>
+      <td>BUY</td>
+      <td>9487.94</td>
+      <td>1414</td>
+      <td>6.710000</td>
+      <td>0</td>
+      <td>09:41:15</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>32x</td>
+      <td>09:41:19</td>
+      <td>BUY</td>
+      <td>694.72</td>
+      <td>104</td>
+      <td>6.680000</td>
+      <td>0</td>
+      <td>09:41:22</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>33x</td>
+      <td>09:41:27</td>
+      <td>BUY</td>
+      <td>704.90</td>
+      <td>106</td>
+      <td>6.650000</td>
+      <td>0</td>
+      <td>09:41:29</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>34x</td>
+      <td>09:41:35</td>
+      <td>BUY</td>
+      <td>720.49</td>
+      <td>109</td>
+      <td>6.610000</td>
+      <td>0</td>
+      <td>09:41:37</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>50</td>
+      <td>09:43:16</td>
+      <td>SELL</td>
+      <td>24726.43</td>
+      <td>1295</td>
+      <td>6.849427</td>
+      <td>0</td>
+      <td>09:43:32</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>50</td>
+      <td>09:43:16</td>
+      <td>SELL</td>
+      <td>24726.43</td>
+      <td>647</td>
+      <td>6.849427</td>
+      <td>0</td>
+      <td>09:43:33</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>50</td>
+      <td>09:43:16</td>
+      <td>SELL</td>
+      <td>24726.43</td>
+      <td>647</td>
+      <td>6.849427</td>
+      <td>0</td>
+      <td>09:43:34</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>50</td>
+      <td>09:43:16</td>
+      <td>SELL</td>
+      <td>24726.43</td>
+      <td>647</td>
+      <td>6.849427</td>
+      <td>0</td>
+      <td>09:43:35</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>50x</td>
+      <td>09:43:16</td>
+      <td>SELL</td>
+      <td>24726.43</td>
+      <td>374</td>
+      <td>6.849427</td>
+      <td>0</td>
+      <td>09:43:36</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>55x</td>
+      <td>09:45:39</td>
+      <td>BUY</td>
+      <td>297.00</td>
+      <td>44</td>
+      <td>6.750000</td>
+      <td>0</td>
+      <td>09:45:45</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>IZEA</td>
+      <td>66x</td>
+      <td>09:50:15</td>
+      <td>SELL</td>
+      <td>304.74</td>
+      <td>44</td>
+      <td>6.925802</td>
+      <td>0</td>
+      <td>09:50:31</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

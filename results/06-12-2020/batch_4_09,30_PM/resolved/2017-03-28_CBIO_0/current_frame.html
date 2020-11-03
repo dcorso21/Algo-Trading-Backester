@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-12-2020/batch_4_09,30_PM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Current Frame // </strong>2017-03-28_CBIO</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>open</th>
+      <th>high</th>
+      <th>low</th>
+      <th>close</th>
+      <th>volume</th>
+      <th>dvol</th>
+      <th>vola</th>
+      <th>three_vola</th>
+      <th>five_vola</th>
+      <th>ten_vola</th>
+    </tr>
+    <tr>
+      <th>ticker</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>CBIO</th>
+      <td>09:31:00</td>
+      <td>8.010</td>
+      <td>9.622</td>
+      <td>7.910</td>
+      <td>8.890</td>
+      <td>205033</td>
+      <td>1822743.370</td>
+      <td>21.6</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:32:00</td>
+      <td>8.990</td>
+      <td>9.500</td>
+      <td>8.700</td>
+      <td>9.360</td>
+      <td>104954</td>
+      <td>982369.440</td>
+      <td>9.2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:33:00</td>
+      <td>9.300</td>
+      <td>10.900</td>
+      <td>9.150</td>
+      <td>10.070</td>
+      <td>258996</td>
+      <td>2608089.720</td>
+      <td>19.1</td>
+      <td>16.633333</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:34:00</td>
+      <td>10.080</td>
+      <td>10.300</td>
+      <td>9.600</td>
+      <td>10.200</td>
+      <td>141829</td>
+      <td>1446655.800</td>
+      <td>7.3</td>
+      <td>11.866667</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:35:00</td>
+      <td>10.218</td>
+      <td>10.460</td>
+      <td>10.020</td>
+      <td>10.320</td>
+      <td>133383</td>
+      <td>1376512.560</td>
+      <td>4.4</td>
+      <td>10.266667</td>
+      <td>12.32</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:36:00</td>
+      <td>10.170</td>
+      <td>10.600</td>
+      <td>10.151</td>
+      <td>10.310</td>
+      <td>145529</td>
+      <td>1500403.990</td>
+      <td>4.4</td>
+      <td>5.366667</td>
+      <td>8.88</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:37:00</td>
+      <td>10.380</td>
+      <td>10.470</td>
+      <td>9.620</td>
+      <td>9.880</td>
+      <td>97663</td>
+      <td>964910.440</td>
+      <td>8.8</td>
+      <td>5.866667</td>
+      <td>8.80</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:38:00</td>
+      <td>9.970</td>
+      <td>10.299</td>
+      <td>9.820</td>
+      <td>10.144</td>
+      <td>68721</td>
+      <td>697105.824</td>
+      <td>4.9</td>
+      <td>6.033333</td>
+      <td>5.96</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:39:00</td>
+      <td>10.280</td>
+      <td>10.800</td>
+      <td>10.030</td>
+      <td>10.700</td>
+      <td>108444</td>
+      <td>1160350.800</td>
+      <td>7.7</td>
+      <td>7.133333</td>
+      <td>6.04</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:40:00</td>
+      <td>10.640</td>
+      <td>11.450</td>
+      <td>10.350</td>
+      <td>11.230</td>
+      <td>237250</td>
+      <td>2664317.500</td>
+      <td>10.6</td>
+      <td>7.733333</td>
+      <td>7.28</td>
+      <td>9.80</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:41:00</td>
+      <td>11.252</td>
+      <td>11.750</td>
+      <td>11.000</td>
+      <td>11.260</td>
+      <td>160016</td>
+      <td>1801780.160</td>
+      <td>6.8</td>
+      <td>8.366667</td>
+      <td>7.76</td>
+      <td>8.32</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:42:00</td>
+      <td>11.300</td>
+      <td>11.700</td>
+      <td>11.260</td>
+      <td>11.420</td>
+      <td>134179</td>
+      <td>1532324.180</td>
+      <td>3.9</td>
+      <td>7.100000</td>
+      <td>6.78</td>
+      <td>7.79</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:43:00</td>
+      <td>11.590</td>
+      <td>11.670</td>
+      <td>11.010</td>
+      <td>11.020</td>
+      <td>76865</td>
+      <td>847052.300</td>
+      <td>6.0</td>
+      <td>5.566667</td>
+      <td>7.00</td>
+      <td>6.48</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:44:00</td>
+      <td>11.040</td>
+      <td>11.700</td>
+      <td>11.030</td>
+      <td>11.400</td>
+      <td>70593</td>
+      <td>804760.200</td>
+      <td>6.1</td>
+      <td>5.333333</td>
+      <td>6.68</td>
+      <td>6.36</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:45:00</td>
+      <td>11.440</td>
+      <td>12.230</td>
+      <td>11.388</td>
+      <td>12.140</td>
+      <td>217684</td>
+      <td>2642683.760</td>
+      <td>7.4</td>
+      <td>6.500000</td>
+      <td>6.04</td>
+      <td>6.66</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:46:00</td>
+      <td>12.046</td>
+      <td>12.300</td>
+      <td>11.750</td>
+      <td>12.241</td>
+      <td>156590</td>
+      <td>1916818.190</td>
+      <td>4.7</td>
+      <td>6.066667</td>
+      <td>5.62</td>
+      <td>6.69</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:47:00</td>
+      <td>12.100</td>
+      <td>12.500</td>
+      <td>11.930</td>
+      <td>12.340</td>
+      <td>141454</td>
+      <td>1745542.360</td>
+      <td>4.8</td>
+      <td>5.633333</td>
+      <td>5.80</td>
+      <td>6.29</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:48:00</td>
+      <td>12.305</td>
+      <td>12.440</td>
+      <td>12.000</td>
+      <td>12.337</td>
+      <td>94525</td>
+      <td>1166154.925</td>
+      <td>3.7</td>
+      <td>4.400000</td>
+      <td>5.34</td>
+      <td>6.17</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:49:00</td>
+      <td>12.340</td>
+      <td>12.590</td>
+      <td>12.000</td>
+      <td>12.190</td>
+      <td>158355</td>
+      <td>1930347.450</td>
+      <td>4.9</td>
+      <td>4.466667</td>
+      <td>5.10</td>
+      <td>5.89</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:50:00</td>
+      <td>12.201</td>
+      <td>12.900</td>
+      <td>12.130</td>
+      <td>12.530</td>
+      <td>103277</td>
+      <td>1294060.810</td>
+      <td>6.3</td>
+      <td>4.966667</td>
+      <td>4.88</td>
+      <td>5.46</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:51:00</td>
+      <td>12.678</td>
+      <td>13.450</td>
+      <td>12.520</td>
+      <td>13.450</td>
+      <td>172875</td>
+      <td>2325168.750</td>
+      <td>7.4</td>
+      <td>6.200000</td>
+      <td>5.42</td>
+      <td>5.52</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:52:00</td>
+      <td>13.410</td>
+      <td>13.890</td>
+      <td>13.170</td>
+      <td>13.787</td>
+      <td>153600</td>
+      <td>2117683.200</td>
+      <td>5.5</td>
+      <td>6.400000</td>
+      <td>5.56</td>
+      <td>5.68</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:53:00</td>
+      <td>13.726</td>
+      <td>14.520</td>
+      <td>13.726</td>
+      <td>14.466</td>
+      <td>194240</td>
+      <td>2809875.840</td>
+      <td>5.8</td>
+      <td>6.233333</td>
+      <td>5.98</td>
+      <td>5.66</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:54:00</td>
+      <td>14.370</td>
+      <td>15.000</td>
+      <td>14.320</td>
+      <td>14.980</td>
+      <td>145370</td>
+      <td>2177642.600</td>
+      <td>4.7</td>
+      <td>5.333333</td>
+      <td>5.94</td>
+      <td>5.52</td>
+    </tr>
+    <tr>
+      <th>CBIO</th>
+      <td>09:55:00</td>
+      <td>14.960</td>
+      <td>14.960</td>
+      <td>14.960</td>
+      <td>14.960</td>
+      <td>1559</td>
+      <td>23322.640</td>
+      <td>0.0</td>
+      <td>3.500000</td>
+      <td>4.68</td>
+      <td>4.78</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

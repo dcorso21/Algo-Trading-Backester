@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-09-2020/batch_7_02,28_AM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Cancelled Orders // </strong>2018-03-13_PTI</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>cancel_spec</th>
+      <th>price_check</th>
+      <th>wait_duration</th>
+      <th>vol_start</th>
+      <th>status</th>
+    </tr>
+    <tr>
+      <th>order_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>PTI</td>
+      <td>09:32:41</td>
+      <td>SELL</td>
+      <td>310.00</td>
+      <td>48</td>
+      <td>6.458436</td>
+      <td>0</td>
+      <td>p:%6.703856568000001/6.2,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:33:00,60216</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>PTI</td>
+      <td>09:34:54</td>
+      <td>SELL</td>
+      <td>4967.74</td>
+      <td>798</td>
+      <td>6.225243</td>
+      <td>0</td>
+      <td>p:%6.435344434375/6.014849624060151,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:35:00,66534</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>PTI</td>
+      <td>09:36:23</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>442</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/6.107941176470589,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:36:00,121385</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>PTI</td>
+      <td>09:36:56</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>442</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/6.107941176470589,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:37:00,122920</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>PTI</td>
+      <td>09:37:32</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>442</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/6.107941176470589,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:38:00,21092</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>PTI</td>
+      <td>09:41:08</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>2414</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/6.087568351284175,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:41:00,89200</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>PTI</td>
+      <td>09:42:07</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>2414</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/6.087568351284175,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:42:00,69966</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>PTI</td>
+      <td>09:42:56</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>2414</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/6.087568351284175,t:30</td>
+      <td>0</td>
+      <td>31</td>
+      <td>09:43:00,236096</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>PTI</td>
+      <td>09:43:29</td>
+      <td>SELL</td>
+      <td>14836.44</td>
+      <td>2414</td>
+      <td>6.146000</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>0</td>
+      <td>8</td>
+      <td>09:43:00,320416</td>
+      <td>successfully cancelled</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

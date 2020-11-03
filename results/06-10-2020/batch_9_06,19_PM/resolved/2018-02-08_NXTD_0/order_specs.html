@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-10-2020/batch_9_06,19_PM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Order Specifications // </strong>2018-02-08_NXTD</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>trigger</th>
+      <th>buy_or_sell</th>
+      <th>cash_or_qty</th>
+      <th>price_method</th>
+      <th>auto_renew</th>
+      <th>cancel_spec</th>
+      <th>queue_spec</th>
+    </tr>
+    <tr>
+      <th>order_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>starting_position</td>
+      <td>BUY</td>
+      <td>300.000000</td>
+      <td>ask</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>109.000000</td>
+      <td>2.94452</td>
+      <td>0</td>
+      <td>p:%3.171245886/2.727981651376147,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>109.000000</td>
+      <td>2.97898</td>
+      <td>0</td>
+      <td>p:%3.2083636139999996/2.727981651376147,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>109.000000</td>
+      <td>3.01237</td>
+      <td>0</td>
+      <td>p:%3.2443214129999998/2.727981651376147,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>109.000000</td>
+      <td>3.02206</td>
+      <td>0</td>
+      <td>p:%3.2547607739999997/2.727981651376147,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>percentage_gain</td>
+      <td>SELL</td>
+      <td>109.000000</td>
+      <td>bid</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>starting_position</td>
+      <td>BUY</td>
+      <td>300.000000</td>
+      <td>ask</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>starting_position</td>
+      <td>BUY</td>
+      <td>300.000000</td>
+      <td>ask</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>order_below_avg</td>
+      <td>BUY</td>
+      <td>2446.095795</td>
+      <td>current</td>
+      <td>0</td>
+      <td>p:%5.54/5.54,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:%nan/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>2.67356</td>
+      <td>0</td>
+      <td>p:%2.754506374149563/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>2.6849</td>
+      <td>0</td>
+      <td>p:%2.7661825090688863/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>2.69726</td>
+      <td>0</td>
+      <td>p:%2.7789201107990578/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>2.70344</td>
+      <td>0</td>
+      <td>p:%2.7852889116641437/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>2.70859</td>
+      <td>0</td>
+      <td>p:%2.7905962457183815/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>2.72183</td>
+      <td>0</td>
+      <td>p:%2.806198566003256/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>2.7269</td>
+      <td>0</td>
+      <td>p:%2.8124093193231876/2.580131578947368,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>percentage_gain</td>
+      <td>SELL</td>
+      <td>1064.000000</td>
+      <td>bid</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>starting_position</td>
+      <td>BUY</td>
+      <td>300.000000</td>
+      <td>ask</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>order_below_avg</td>
+      <td>BUY</td>
+      <td>900.080000</td>
+      <td>current</td>
+      <td>0</td>
+      <td>p:%4.745454545454545/4.745454545454545,t:60</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>463.000000</td>
+      <td>2.64671</td>
+      <td>0</td>
+      <td>p:%2.705710195378303/2.5869546436285096,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>order_below_avg</td>
+      <td>BUY</td>
+      <td>1502.240000</td>
+      <td>current</td>
+      <td>0</td>
+      <td>p:%4.0928571428571425/4.0928571428571425,t:60</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>order_below_avg</td>
+      <td>BUY</td>
+      <td>2101.510000</td>
+      <td>current</td>
+      <td>0</td>
+      <td>p:%4.061111111111111/4.061111111111111,t:60</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>2.59909</td>
+      <td>0</td>
+      <td>p:%2.659549247123971/2.5178646379853094,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>2.58374</td>
+      <td>0</td>
+      <td>p:%2.643843247633081/2.5178646379853094,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>2.58067</td>
+      <td>0</td>
+      <td>p:%2.640702047734903/2.5178646379853094,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>target_unreal</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>bid</td>
+      <td>0</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>2.62026</td>
+      <td>0</td>
+      <td>p:%2.68088924006454/2.5178646379853094,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>2.61003</td>
+      <td>0</td>
+      <td>p:%2.670421105585569/2.5178646379853094,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>2.58752</td>
+      <td>0</td>
+      <td>p:%2.6473912097318317/2.5178646379853094,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>order_above_avg</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>2.57767</td>
+      <td>0</td>
+      <td>p:%2.635604931272873/2.5178646379853094,t:30</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>timed_exit</td>
+      <td>SELL</td>
+      <td>1906.000000</td>
+      <td>bid</td>
+      <td>5</td>
+      <td>p:%5/5,t:7</td>
+      <td>nan</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

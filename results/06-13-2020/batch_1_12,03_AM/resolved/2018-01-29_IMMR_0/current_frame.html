@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-13-2020/batch_1_12,03_AM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Current Frame // </strong>2018-01-29_IMMR</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>open</th>
+      <th>high</th>
+      <th>low</th>
+      <th>close</th>
+      <th>volume</th>
+      <th>dvol</th>
+      <th>vola</th>
+      <th>three_vola</th>
+      <th>five_vola</th>
+      <th>ten_vola</th>
+    </tr>
+    <tr>
+      <th>ticker</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>IMMR</th>
+      <td>09:31:00</td>
+      <td>10.940</td>
+      <td>11.340</td>
+      <td>10.750</td>
+      <td>10.783</td>
+      <td>384928</td>
+      <td>4150678.624</td>
+      <td>5.5</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:32:00</td>
+      <td>10.780</td>
+      <td>10.850</td>
+      <td>10.560</td>
+      <td>10.580</td>
+      <td>210634</td>
+      <td>2228507.720</td>
+      <td>2.7</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:33:00</td>
+      <td>10.580</td>
+      <td>10.760</td>
+      <td>10.550</td>
+      <td>10.610</td>
+      <td>241103</td>
+      <td>2558102.830</td>
+      <td>2.0</td>
+      <td>3.400000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:34:00</td>
+      <td>10.650</td>
+      <td>10.740</td>
+      <td>10.550</td>
+      <td>10.550</td>
+      <td>144022</td>
+      <td>1519432.100</td>
+      <td>1.8</td>
+      <td>2.166667</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:35:00</td>
+      <td>10.613</td>
+      <td>10.613</td>
+      <td>10.400</td>
+      <td>10.450</td>
+      <td>173798</td>
+      <td>1816189.100</td>
+      <td>2.0</td>
+      <td>1.933333</td>
+      <td>2.80</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:36:00</td>
+      <td>10.450</td>
+      <td>10.690</td>
+      <td>10.445</td>
+      <td>10.490</td>
+      <td>151495</td>
+      <td>1589182.550</td>
+      <td>2.3</td>
+      <td>2.033333</td>
+      <td>2.16</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:37:00</td>
+      <td>10.510</td>
+      <td>10.600</td>
+      <td>10.290</td>
+      <td>10.370</td>
+      <td>140036</td>
+      <td>1452173.320</td>
+      <td>3.0</td>
+      <td>2.433333</td>
+      <td>2.22</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:38:00</td>
+      <td>10.343</td>
+      <td>10.440</td>
+      <td>10.250</td>
+      <td>10.270</td>
+      <td>165689</td>
+      <td>1701626.030</td>
+      <td>1.9</td>
+      <td>2.400000</td>
+      <td>2.20</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:39:00</td>
+      <td>10.285</td>
+      <td>10.390</td>
+      <td>10.250</td>
+      <td>10.390</td>
+      <td>141035</td>
+      <td>1465353.650</td>
+      <td>1.4</td>
+      <td>2.100000</td>
+      <td>2.12</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:40:00</td>
+      <td>10.380</td>
+      <td>10.500</td>
+      <td>10.250</td>
+      <td>10.260</td>
+      <td>162888</td>
+      <td>1671230.880</td>
+      <td>2.4</td>
+      <td>1.900000</td>
+      <td>2.20</td>
+      <td>2.50</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:41:00</td>
+      <td>10.270</td>
+      <td>10.310</td>
+      <td>10.150</td>
+      <td>10.180</td>
+      <td>95334</td>
+      <td>970500.120</td>
+      <td>1.6</td>
+      <td>1.800000</td>
+      <td>2.06</td>
+      <td>2.11</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:42:00</td>
+      <td>10.180</td>
+      <td>10.390</td>
+      <td>10.160</td>
+      <td>10.290</td>
+      <td>71597</td>
+      <td>736733.130</td>
+      <td>2.3</td>
+      <td>2.100000</td>
+      <td>1.92</td>
+      <td>2.07</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:43:00</td>
+      <td>10.300</td>
+      <td>10.390</td>
+      <td>10.230</td>
+      <td>10.388</td>
+      <td>103009</td>
+      <td>1070057.492</td>
+      <td>1.6</td>
+      <td>1.833333</td>
+      <td>1.86</td>
+      <td>2.03</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:44:00</td>
+      <td>10.330</td>
+      <td>10.353</td>
+      <td>10.250</td>
+      <td>10.340</td>
+      <td>19584</td>
+      <td>202498.560</td>
+      <td>1.0</td>
+      <td>1.633333</td>
+      <td>1.78</td>
+      <td>1.95</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:45:00</td>
+      <td>10.330</td>
+      <td>10.490</td>
+      <td>10.260</td>
+      <td>10.460</td>
+      <td>100382</td>
+      <td>1049995.720</td>
+      <td>2.2</td>
+      <td>1.600000</td>
+      <td>1.74</td>
+      <td>1.97</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:46:00</td>
+      <td>10.455</td>
+      <td>10.570</td>
+      <td>10.390</td>
+      <td>10.500</td>
+      <td>117307</td>
+      <td>1231723.500</td>
+      <td>1.7</td>
+      <td>1.633333</td>
+      <td>1.76</td>
+      <td>1.91</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:47:00</td>
+      <td>10.540</td>
+      <td>10.650</td>
+      <td>10.330</td>
+      <td>10.360</td>
+      <td>180992</td>
+      <td>1875077.120</td>
+      <td>3.1</td>
+      <td>2.333333</td>
+      <td>1.92</td>
+      <td>1.92</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:48:00</td>
+      <td>10.400</td>
+      <td>10.440</td>
+      <td>10.270</td>
+      <td>10.278</td>
+      <td>93879</td>
+      <td>964888.362</td>
+      <td>1.7</td>
+      <td>2.166667</td>
+      <td>1.94</td>
+      <td>1.90</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:49:00</td>
+      <td>10.270</td>
+      <td>10.350</td>
+      <td>10.170</td>
+      <td>10.170</td>
+      <td>123345</td>
+      <td>1254418.650</td>
+      <td>1.8</td>
+      <td>2.200000</td>
+      <td>2.10</td>
+      <td>1.94</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:50:00</td>
+      <td>10.190</td>
+      <td>10.300</td>
+      <td>10.117</td>
+      <td>10.243</td>
+      <td>114260</td>
+      <td>1170365.180</td>
+      <td>1.8</td>
+      <td>1.766667</td>
+      <td>2.02</td>
+      <td>1.88</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:51:00</td>
+      <td>10.250</td>
+      <td>10.300</td>
+      <td>10.200</td>
+      <td>10.280</td>
+      <td>55382</td>
+      <td>569326.960</td>
+      <td>1.0</td>
+      <td>1.533333</td>
+      <td>1.88</td>
+      <td>1.82</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:52:00</td>
+      <td>10.280</td>
+      <td>10.300</td>
+      <td>10.180</td>
+      <td>10.180</td>
+      <td>77845</td>
+      <td>792462.100</td>
+      <td>1.2</td>
+      <td>1.333333</td>
+      <td>1.50</td>
+      <td>1.71</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:53:00</td>
+      <td>10.170</td>
+      <td>10.220</td>
+      <td>10.100</td>
+      <td>10.160</td>
+      <td>74242</td>
+      <td>754298.720</td>
+      <td>1.2</td>
+      <td>1.133333</td>
+      <td>1.40</td>
+      <td>1.67</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:54:00</td>
+      <td>10.140</td>
+      <td>10.310</td>
+      <td>10.130</td>
+      <td>10.250</td>
+      <td>43534</td>
+      <td>446223.500</td>
+      <td>1.8</td>
+      <td>1.400000</td>
+      <td>1.40</td>
+      <td>1.75</td>
+    </tr>
+    <tr>
+      <th>IMMR</th>
+      <td>09:55:00</td>
+      <td>10.240</td>
+      <td>10.240</td>
+      <td>10.240</td>
+      <td>10.240</td>
+      <td>455</td>
+      <td>4659.200</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>1.04</td>
+      <td>1.53</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

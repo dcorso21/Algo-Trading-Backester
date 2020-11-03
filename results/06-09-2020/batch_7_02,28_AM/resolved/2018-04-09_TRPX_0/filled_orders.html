@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-09-2020/batch_7_02,28_AM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Filled Orders // </strong>2018-04-09_TRPX</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>order_id</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>exe_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>1x</td>
+      <td>09:32:44</td>
+      <td>BUY</td>
+      <td>295.13</td>
+      <td>42.0</td>
+      <td>7.027</td>
+      <td>0</td>
+      <td>09:32:46</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>15x</td>
+      <td>09:35:59</td>
+      <td>BUY</td>
+      <td>902.07</td>
+      <td>130.0</td>
+      <td>6.939</td>
+      <td>0</td>
+      <td>09:36:33</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>18x</td>
+      <td>09:38:12</td>
+      <td>BUY</td>
+      <td>3596.56</td>
+      <td>536.0</td>
+      <td>6.710</td>
+      <td>0</td>
+      <td>09:38:16</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>20x</td>
+      <td>09:39:04</td>
+      <td>BUY</td>
+      <td>2703.57</td>
+      <td>404.0</td>
+      <td>6.692</td>
+      <td>0</td>
+      <td>09:39:06</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>23</td>
+      <td>09:42:59</td>
+      <td>BUY</td>
+      <td>16798.74</td>
+      <td>728.0</td>
+      <td>6.580</td>
+      <td>0</td>
+      <td>09:43:11</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>23</td>
+      <td>09:42:59</td>
+      <td>BUY</td>
+      <td>16798.74</td>
+      <td>364.0</td>
+      <td>6.580</td>
+      <td>0</td>
+      <td>09:43:12</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>23</td>
+      <td>09:42:59</td>
+      <td>BUY</td>
+      <td>16798.74</td>
+      <td>364.0</td>
+      <td>6.580</td>
+      <td>0</td>
+      <td>09:43:13</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>23</td>
+      <td>09:42:59</td>
+      <td>BUY</td>
+      <td>16798.74</td>
+      <td>364.0</td>
+      <td>6.580</td>
+      <td>0</td>
+      <td>09:43:14</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>23</td>
+      <td>09:42:59</td>
+      <td>BUY</td>
+      <td>16798.74</td>
+      <td>364.0</td>
+      <td>6.580</td>
+      <td>0</td>
+      <td>09:43:15</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>23</td>
+      <td>09:42:59</td>
+      <td>BUY</td>
+      <td>16798.74</td>
+      <td>364.0</td>
+      <td>6.580</td>
+      <td>0</td>
+      <td>09:43:16</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>23x</td>
+      <td>09:42:59</td>
+      <td>BUY</td>
+      <td>16798.74</td>
+      <td>5.0</td>
+      <td>6.580</td>
+      <td>0</td>
+      <td>09:43:17</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>24</td>
+      <td>09:43:18</td>
+      <td>SELL</td>
+      <td>11995.94</td>
+      <td>728.0</td>
+      <td>6.548</td>
+      <td>0</td>
+      <td>09:43:20</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>24</td>
+      <td>09:43:18</td>
+      <td>SELL</td>
+      <td>11995.94</td>
+      <td>364.0</td>
+      <td>6.548</td>
+      <td>0</td>
+      <td>09:43:21</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>24</td>
+      <td>09:43:18</td>
+      <td>SELL</td>
+      <td>11995.94</td>
+      <td>364.0</td>
+      <td>6.548</td>
+      <td>0</td>
+      <td>09:43:22</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>24</td>
+      <td>09:43:18</td>
+      <td>SELL</td>
+      <td>11995.94</td>
+      <td>364.0</td>
+      <td>6.548</td>
+      <td>0</td>
+      <td>09:43:23</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>24x</td>
+      <td>09:43:18</td>
+      <td>SELL</td>
+      <td>11995.94</td>
+      <td>12.0</td>
+      <td>6.548</td>
+      <td>0</td>
+      <td>09:43:24</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>25</td>
+      <td>09:43:25</td>
+      <td>SELL</td>
+      <td>6008.04</td>
+      <td>728.0</td>
+      <td>6.559</td>
+      <td>0</td>
+      <td>09:43:27</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>25x</td>
+      <td>09:43:25</td>
+      <td>SELL</td>
+      <td>6008.04</td>
+      <td>188.0</td>
+      <td>6.559</td>
+      <td>0</td>
+      <td>09:43:28</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>26x</td>
+      <td>09:43:29</td>
+      <td>SELL</td>
+      <td>3007.23</td>
+      <td>458.0</td>
+      <td>6.566</td>
+      <td>0</td>
+      <td>09:43:31</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>27x</td>
+      <td>09:43:32</td>
+      <td>SELL</td>
+      <td>1503.84</td>
+      <td>229.0</td>
+      <td>6.567</td>
+      <td>0</td>
+      <td>09:43:34</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>28x</td>
+      <td>09:43:35</td>
+      <td>SELL</td>
+      <td>756.12</td>
+      <td>115.0</td>
+      <td>6.575</td>
+      <td>0</td>
+      <td>09:43:37</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>31x</td>
+      <td>09:43:58</td>
+      <td>SELL</td>
+      <td>373.98</td>
+      <td>57.0</td>
+      <td>6.561</td>
+      <td>0</td>
+      <td>09:44:02</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>32x</td>
+      <td>09:44:03</td>
+      <td>SELL</td>
+      <td>190.39</td>
+      <td>29.0</td>
+      <td>6.565</td>
+      <td>0</td>
+      <td>09:44:05</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>33x</td>
+      <td>09:44:06</td>
+      <td>SELL</td>
+      <td>92.02</td>
+      <td>14.0</td>
+      <td>6.573</td>
+      <td>0</td>
+      <td>09:44:08</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>34x</td>
+      <td>09:44:09</td>
+      <td>SELL</td>
+      <td>46.07</td>
+      <td>7.0</td>
+      <td>6.581</td>
+      <td>0</td>
+      <td>09:44:11</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>TRPX</td>
+      <td>35x</td>
+      <td>09:44:12</td>
+      <td>SELL</td>
+      <td>26.34</td>
+      <td>4.0</td>
+      <td>6.585</td>
+      <td>0</td>
+      <td>09:44:14</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>TRPX</td>
+      <td>37x</td>
+      <td>09:44:15</td>
+      <td>SELL</td>
+      <td>26.39</td>
+      <td>4.0</td>
+      <td>6.597</td>
+      <td>0</td>
+      <td>09:44:19</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

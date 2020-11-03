@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-30-2020/batch_5_11,14_AM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Cancelled Orders // </strong>2017-07-21_PLUG</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>cancel_spec</th>
+      <th>price_check</th>
+      <th>wait_duration</th>
+      <th>vol_start</th>
+      <th>status</th>
+    </tr>
+    <tr>
+      <th>order_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>PLUG</td>
+      <td>09:32:00</td>
+      <td>BUY</td>
+      <td>297.68</td>
+      <td>122</td>
+      <td>2.440000</td>
+      <td>0</td>
+      <td>p:$2.49226/2.39974,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:32:00,89028</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>PLUG</td>
+      <td>09:32:13</td>
+      <td>BUY</td>
+      <td>297.68</td>
+      <td>122</td>
+      <td>2.440000</td>
+      <td>0</td>
+      <td>p:$2.4927/2.3973,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:32:00,185475</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>PLUG</td>
+      <td>09:33:34</td>
+      <td>BUY</td>
+      <td>298.90</td>
+      <td>122</td>
+      <td>2.450000</td>
+      <td>0</td>
+      <td>p:$2.504716666666667/2.3952833333333334,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:33:00,267030</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>PLUG</td>
+      <td>09:34:38</td>
+      <td>BUY</td>
+      <td>298.90</td>
+      <td>122</td>
+      <td>2.450000</td>
+      <td>0</td>
+      <td>p:$2.4983875/2.4016125,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:34:00,432850</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>PLUG</td>
+      <td>09:36:35</td>
+      <td>BUY</td>
+      <td>302.40</td>
+      <td>126</td>
+      <td>2.400000</td>
+      <td>0</td>
+      <td>p:$2.4768000000000003/2.3531999999999997,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,205390</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>PLUG</td>
+      <td>09:36:48</td>
+      <td>BUY</td>
+      <td>398.40</td>
+      <td>166</td>
+      <td>2.400000</td>
+      <td>0</td>
+      <td>p:$2.4884/2.3516,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,262233</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>PLUG</td>
+      <td>09:37:01</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>122</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:$2.4937500000000004/2.40625,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,65325</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>PLUG</td>
+      <td>09:37:14</td>
+      <td>BUY</td>
+      <td>732.64</td>
+      <td>304</td>
+      <td>2.410000</td>
+      <td>0</td>
+      <td>p:$2.484412857142857/2.365587142857143,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,130650</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>PLUG</td>
+      <td>09:37:27</td>
+      <td>BUY</td>
+      <td>824.22</td>
+      <td>342</td>
+      <td>2.410000</td>
+      <td>0</td>
+      <td>p:$2.4757900000000004/2.36421,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,195975</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>PLUG</td>
+      <td>09:37:40</td>
+      <td>BUY</td>
+      <td>949.54</td>
+      <td>394</td>
+      <td>2.410000</td>
+      <td>0</td>
+      <td>p:$2.4757900000000004/2.36421,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,261300</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>PLUG</td>
+      <td>09:37:53</td>
+      <td>BUY</td>
+      <td>1159.21</td>
+      <td>481</td>
+      <td>2.410000</td>
+      <td>0</td>
+      <td>p:$2.48579/2.36421,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,24515</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>PLUG</td>
+      <td>09:38:06</td>
+      <td>BUY</td>
+      <td>1438.56</td>
+      <td>592</td>
+      <td>2.430000</td>
+      <td>0</td>
+      <td>p:$2.4816137499999997/2.3883862500000004,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,88254</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>PLUG</td>
+      <td>09:38:19</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>122</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:$2.4919562500000003/2.40804375,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,151993</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>PLUG</td>
+      <td>09:38:32</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>122</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:$2.5033575/2.4166425,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,215732</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>PLUG</td>
+      <td>09:38:45</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>122</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:$2.5033575/2.4166425,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,279471</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>PLUG</td>
+      <td>09:38:58</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>122</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:$2.51476875/2.4252312500000004,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:39:00,67990</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>PLUG</td>
+      <td>09:39:11</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>122</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:$2.5007266666666665/2.4192733333333334,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:39:00,156377</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>PLUG</td>
+      <td>09:39:56</td>
+      <td>BUY</td>
+      <td>348.94</td>
+      <td>146</td>
+      <td>2.390000</td>
+      <td>0</td>
+      <td>p:$2.437268888888889/2.342731111111111,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,50080</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>PLUG</td>
+      <td>09:40:09</td>
+      <td>BUY</td>
+      <td>948.83</td>
+      <td>397</td>
+      <td>2.390000</td>
+      <td>0</td>
+      <td>p:$2.453498/2.346502,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,131460</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>PLUG</td>
+      <td>09:40:22</td>
+      <td>BUY</td>
+      <td>1584.57</td>
+      <td>663</td>
+      <td>2.390000</td>
+      <td>0</td>
+      <td>p:$2.443498/2.346502,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,212840</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>PLUG</td>
+      <td>09:40:43</td>
+      <td>BUY</td>
+      <td>13737.36</td>
+      <td>5772</td>
+      <td>2.380000</td>
+      <td>0</td>
+      <td>p:$2.425458/2.334542,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,344300</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>PLUG</td>
+      <td>09:40:56</td>
+      <td>BUY</td>
+      <td>1178.10</td>
+      <td>495</td>
+      <td>2.380000</td>
+      <td>0</td>
+      <td>p:$2.445458/2.334542,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,44680</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>PLUG</td>
+      <td>09:41:09</td>
+      <td>SELL</td>
+      <td>7348.21</td>
+      <td>3035</td>
+      <td>2.421156</td>
+      <td>0</td>
+      <td>p:$2.4638791287768576/2.367277272727273,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,117285</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>PLUG</td>
+      <td>09:41:22</td>
+      <td>SELL</td>
+      <td>7346.96</td>
+      <td>3035</td>
+      <td>2.420743</td>
+      <td>0</td>
+      <td>p:$2.4645230885021245/2.37622,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,189890</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>PLUG</td>
+      <td>09:41:35</td>
+      <td>SELL</td>
+      <td>7344.25</td>
+      <td>3035</td>
+      <td>2.419851</td>
+      <td>0</td>
+      <td>p:$2.4634500427713046/2.3664009090909093,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,262495</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>PLUG</td>
+      <td>09:41:48</td>
+      <td>BUY</td>
+      <td>4560.08</td>
+      <td>1916</td>
+      <td>2.380000</td>
+      <td>0</td>
+      <td>p:$2.4341381818181818/2.3358618181818183,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,335114</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>PLUG</td>
+      <td>09:42:01</td>
+      <td>SELL</td>
+      <td>7335.98</td>
+      <td>3035</td>
+      <td>2.417126</td>
+      <td>0</td>
+      <td>p:$2.4584971697760007/2.3686283333333336,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,53898</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>PLUG</td>
+      <td>09:42:14</td>
+      <td>BUY</td>
+      <td>6512.75</td>
+      <td>2725</td>
+      <td>2.390000</td>
+      <td>0</td>
+      <td>p:$2.4414266666666666/2.3485733333333334,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,107796</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>PLUG</td>
+      <td>09:42:27</td>
+      <td>SELL</td>
+      <td>7331.43</td>
+      <td>3035</td>
+      <td>2.415628</td>
+      <td>0</td>
+      <td>p:$2.457401374483505/2.3682266666666667,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,161694</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>PLUG</td>
+      <td>09:42:40</td>
+      <td>SELL</td>
+      <td>7329.70</td>
+      <td>3035</td>
+      <td>2.415057</td>
+      <td>0</td>
+      <td>p:$2.4626660135738283/2.3723913585296605,t:10</td>
+      <td>1</td>
+      <td>11</td>
+      <td>09:42:00,211446</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>PLUG</td>
+      <td>09:42:56</td>
+      <td>BUY</td>
+      <td>300.00</td>
+      <td>125</td>
+      <td>2.400000</td>
+      <td>0</td>
+      <td>p:$2.4734000000000003/2.3566,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:43:00,22448</td>
+      <td>successfully cancelled</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>

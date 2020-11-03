@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- insert_title -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/datatable.css" />
+    <link rel="stylesheet" href="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/css/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#df_to_dt").DataTable({
+          paging: false,
+          scrollY: 400,
+        });
+      });
+    </script>
+    <style>
+      table tr {
+        background-color: rgb(31, 31, 31);
+      }
+    </style>
+  </head>
+  <body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Main -->
+
+      <div id="main">
+        <div class="inner">
+          <!-- Section -->
+          <section>
+            <header class="major">
+              <!-- DropDowns -->
+
+              <li class="parent">
+                <a href="#">Saved Assets<span class="expand">»</span></a>
+                <ul class="child">
+                  <li class="parent"><a href="log.html">Log</a></li>
+                  <li class="parent">
+                    <a href="daily_chart.html">Daily Chart</a>
+                  </li>
+                  <li class="parent">
+                    <a href="mom_tracking.html">Momentum Tracking</a>
+                  </li>
+
+                  <li class="parent">
+                    <a href="#">Other<span class="expand">»</span></a>
+                    <ul class="child">
+                      <li><a href="pl_ex.html">PL and Exposure</a></li>
+                      <li><a href="filled_orders.html">Filled Orders</a></li>
+                      <li><a href="mom_frame.html">Momentum Frame</a></li>
+                      <li>
+                        <a href="sup_res_frame.html"
+                          >Supports and Resistances</a
+                        >
+                      </li>
+                      <li><a href="volas.html">Volatility</a></li>
+                      <li><a href="volumes.html">Volumes</a></li>
+                      <li><a href="current_frame.html">Current Frame</a></li>
+                      <li>
+                        <a href="cancelled_orders.html">Cancelled Orders</a>
+                      </li>
+                      <li><a href="order_specs.html">Order Specs</a></li>
+                      <li>
+                        <a href="current_positions.html">Current Positions</a>
+                      </li>
+                      <li><a href="open_orders.html">Open Orders</a></li>
+                      <li><a href="queued_orders.html">Queued Orders</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="parent">
+                <a href="/Users/David/Documents/Programming/python/AlmagoTD/results/06-21-2020/batch_1_08,44_PM/batch_index.html">Batch Results</a>
+              </li>
+              <!-- <br /> -->
+              <p><strong>Cancelled Orders // </strong>2018-04-04_TENX</p>
+            </header>
+
+            <div class="display"><table border="1" class="dataframe alt" id="df_to_dt">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ticker</th>
+      <th>send_time</th>
+      <th>buy_or_sell</th>
+      <th>cash</th>
+      <th>qty</th>
+      <th>exe_price</th>
+      <th>auto_renew</th>
+      <th>cancel_spec</th>
+      <th>price_check</th>
+      <th>wait_duration</th>
+      <th>vol_start</th>
+      <th>status</th>
+    </tr>
+    <tr>
+      <th>order_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>TENX</td>
+      <td>09:34:00</td>
+      <td>BUY</td>
+      <td>295.50</td>
+      <td>30</td>
+      <td>9.850000</td>
+      <td>0</td>
+      <td>p:$10.672475/9.027524999999999,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:34:00,22944</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>TENX</td>
+      <td>09:35:57</td>
+      <td>SELL</td>
+      <td>3201.12</td>
+      <td>30</td>
+      <td>106.704000</td>
+      <td>0</td>
+      <td>p:$107.67224000000002/8.911760000000001,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,10323</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>TENX</td>
+      <td>09:36:10</td>
+      <td>SELL</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>p:$10.82916/9.15084,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,25234</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>TENX</td>
+      <td>09:36:41</td>
+      <td>BUY</td>
+      <td>306.90</td>
+      <td>33</td>
+      <td>9.300000</td>
+      <td>0</td>
+      <td>p:$10.4377/8.4723,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:36:00,60791</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>TENX</td>
+      <td>09:36:54</td>
+      <td>BUY</td>
+      <td>475.83</td>
+      <td>51</td>
+      <td>9.330000</td>
+      <td>0</td>
+      <td>p:$10.61037/8.49963,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,2976</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>TENX</td>
+      <td>09:37:07</td>
+      <td>SELL</td>
+      <td>2537.82</td>
+      <td>30</td>
+      <td>84.594124</td>
+      <td>0</td>
+      <td>p:$85.3667355011839/9.187388571428572,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,9424</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>TENX</td>
+      <td>09:37:20</td>
+      <td>BUY</td>
+      <td>886.88</td>
+      <td>92</td>
+      <td>9.640000</td>
+      <td>0</td>
+      <td>p:$10.566051428571429/8.883948571428572,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:37:00,15872</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>TENX</td>
+      <td>09:37:49</td>
+      <td>BUY</td>
+      <td>351.50</td>
+      <td>37</td>
+      <td>9.500000</td>
+      <td>0</td>
+      <td>p:$10.309857142857142/8.710142857142857,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,485</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>TENX</td>
+      <td>09:38:02</td>
+      <td>BUY</td>
+      <td>666.40</td>
+      <td>70</td>
+      <td>9.520000</td>
+      <td>0</td>
+      <td>p:$10.31377/8.826229999999999,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,6790</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>TENX</td>
+      <td>09:38:15</td>
+      <td>BUY</td>
+      <td>1008.06</td>
+      <td>106</td>
+      <td>9.510000</td>
+      <td>0</td>
+      <td>p:$10.23374/8.80626,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,13095</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>TENX</td>
+      <td>09:38:28</td>
+      <td>BUY</td>
+      <td>1388.46</td>
+      <td>146</td>
+      <td>9.510000</td>
+      <td>0</td>
+      <td>p:$10.268495/8.801505,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,19400</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>TENX</td>
+      <td>09:38:41</td>
+      <td>BUY</td>
+      <td>1791.64</td>
+      <td>188</td>
+      <td>9.530000</td>
+      <td>0</td>
+      <td>p:$10.3623675/8.8176325,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:38:00,25705</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>TENX</td>
+      <td>09:38:54</td>
+      <td>SELL</td>
+      <td>11990.34</td>
+      <td>148</td>
+      <td>81.015820</td>
+      <td>0</td>
+      <td>p:$81.75484218698517/9.0009775,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:39:00,5028</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>TENX</td>
+      <td>09:39:39</td>
+      <td>BUY</td>
+      <td>360.40</td>
+      <td>40</td>
+      <td>9.010000</td>
+      <td>0</td>
+      <td>p:$9.757774444444445/8.312225555555555,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:39:00,42738</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>TENX</td>
+      <td>09:39:52</td>
+      <td>BUY</td>
+      <td>961.42</td>
+      <td>106</td>
+      <td>9.070000</td>
+      <td>0</td>
+      <td>p:$10.04242111111111/8.36757888888889,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,4752</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>TENX</td>
+      <td>09:40:05</td>
+      <td>BUY</td>
+      <td>1607.16</td>
+      <td>177</td>
+      <td>9.080000</td>
+      <td>0</td>
+      <td>p:$10.06014/8.43986,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,20196</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>TENX</td>
+      <td>09:40:18</td>
+      <td>SELL</td>
+      <td>39884.69</td>
+      <td>538</td>
+      <td>74.135114</td>
+      <td>0</td>
+      <td>p:$74.82271680753136/8.902397,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,35640</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>TENX</td>
+      <td>09:40:31</td>
+      <td>SELL</td>
+      <td>42141.47</td>
+      <td>538</td>
+      <td>78.329871</td>
+      <td>0</td>
+      <td>p:$79.05679225506073/9.083079,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,51084</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>TENX</td>
+      <td>09:40:44</td>
+      <td>SELL</td>
+      <td>44295.66</td>
+      <td>538</td>
+      <td>82.333933</td>
+      <td>0</td>
+      <td>p:$83.09845889646132/9.255474,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:40:00,66528</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>TENX</td>
+      <td>09:40:57</td>
+      <td>SELL</td>
+      <td>43800.44</td>
+      <td>538</td>
+      <td>81.413455</td>
+      <td>0</td>
+      <td>p:$82.16949722193209/9.113958,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,35433</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>TENX</td>
+      <td>09:41:10</td>
+      <td>SELL</td>
+      <td>41408.10</td>
+      <td>538</td>
+      <td>76.966732</td>
+      <td>0</td>
+      <td>p:$77.67945964749535/9.287272727272727,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,86614</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>TENX</td>
+      <td>09:41:23</td>
+      <td>SELL</td>
+      <td>44785.00</td>
+      <td>538</td>
+      <td>83.243501</td>
+      <td>0</td>
+      <td>p:$84.01504639689578/9.578454545454544,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,137795</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>TENX</td>
+      <td>09:41:36</td>
+      <td>SELL</td>
+      <td>48183.06</td>
+      <td>538</td>
+      <td>89.559592</td>
+      <td>0</td>
+      <td>p:$90.39049698564592/9.859095454545454,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:41:00,188976</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>TENX</td>
+      <td>09:41:49</td>
+      <td>SELL</td>
+      <td>47803.67</td>
+      <td>538</td>
+      <td>88.854405</td>
+      <td>0</td>
+      <td>p:$89.67896252923205/9.685442727272727,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,5191</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>TENX</td>
+      <td>09:42:02</td>
+      <td>SELL</td>
+      <td>42909.24</td>
+      <td>538</td>
+      <td>79.756958</td>
+      <td>0</td>
+      <td>p:$80.49488385021097/9.452074166666666,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,72674</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>TENX</td>
+      <td>09:42:15</td>
+      <td>SELL</td>
+      <td>45055.37</td>
+      <td>538</td>
+      <td>83.746040</td>
+      <td>0</td>
+      <td>p:$84.52133687593422/9.654703333333334,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,140157</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>TENX</td>
+      <td>09:42:28</td>
+      <td>SELL</td>
+      <td>48347.32</td>
+      <td>538</td>
+      <td>89.864906</td>
+      <td>0</td>
+      <td>p:$90.69766082524272/9.947244999999999,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,207640</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>TENX</td>
+      <td>09:42:41</td>
+      <td>SELL</td>
+      <td>51597.34</td>
+      <td>538</td>
+      <td>95.905830</td>
+      <td>0</td>
+      <td>p:$96.79543/10.2304,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:42:00,275123</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>TENX</td>
+      <td>09:42:54</td>
+      <td>SELL</td>
+      <td>53910.50</td>
+      <td>538</td>
+      <td>100.205397</td>
+      <td>0</td>
+      <td>p:$101.13564430851065/10.3797525,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:43:00,20436</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>TENX</td>
+      <td>09:43:07</td>
+      <td>SELL</td>
+      <td>50333.72</td>
+      <td>538</td>
+      <td>93.557100</td>
+      <td>0</td>
+      <td>p:$94.42489000000002/10.40221,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:43:00,64714</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>TENX</td>
+      <td>09:43:20</td>
+      <td>SELL</td>
+      <td>53031.55</td>
+      <td>538</td>
+      <td>98.571647</td>
+      <td>0</td>
+      <td>p:$99.48656698443578/10.65508,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:43:00,108992</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>TENX</td>
+      <td>09:43:33</td>
+      <td>SELL</td>
+      <td>53305.95</td>
+      <td>538</td>
+      <td>99.081688</td>
+      <td>0</td>
+      <td>p:$100.00160262160361/10.590085384615385,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:43:00,153270</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>TENX</td>
+      <td>09:43:46</td>
+      <td>SELL</td>
+      <td>51916.57</td>
+      <td>538</td>
+      <td>96.499194</td>
+      <td>0</td>
+      <td>p:$97.39513165839936/10.314062307692309,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:43:00,197548</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>TENX</td>
+      <td>09:43:59</td>
+      <td>SELL</td>
+      <td>51888.36</td>
+      <td>538</td>
+      <td>96.446758</td>
+      <td>0</td>
+      <td>p:$97.34244262667742/10.204315384615384,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:44:00,36619</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>TENX</td>
+      <td>09:44:12</td>
+      <td>SELL</td>
+      <td>49472.32</td>
+      <td>538</td>
+      <td>91.955991</td>
+      <td>0</td>
+      <td>p:$92.80862556900728/10.387365714285714,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:44:00,79896</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>TENX</td>
+      <td>09:44:25</td>
+      <td>SELL</td>
+      <td>50912.86</td>
+      <td>538</td>
+      <td>94.633577</td>
+      <td>0</td>
+      <td>p:$95.5113324373259/10.532245,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:44:00,123173</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>TENX</td>
+      <td>09:44:38</td>
+      <td>SELL</td>
+      <td>52053.84</td>
+      <td>538</td>
+      <td>96.754350</td>
+      <td>0</td>
+      <td>p:$97.65204297509828/10.632307142857142,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:44:00,166450</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>TENX</td>
+      <td>09:44:51</td>
+      <td>SELL</td>
+      <td>51331.50</td>
+      <td>538</td>
+      <td>95.411705</td>
+      <td>0</td>
+      <td>p:$96.29694090432501/10.484764285714284,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:45:00,11832</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>TENX</td>
+      <td>09:45:04</td>
+      <td>SELL</td>
+      <td>51274.94</td>
+      <td>538</td>
+      <td>95.306584</td>
+      <td>0</td>
+      <td>p:$96.14691960655738/10.639664,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:45:00,63104</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>TENX</td>
+      <td>09:45:17</td>
+      <td>SELL</td>
+      <td>53540.29</td>
+      <td>538</td>
+      <td>99.517271</td>
+      <td>0</td>
+      <td>p:$100.3969185882353/10.880352,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:45:00,114376</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>TENX</td>
+      <td>09:45:30</td>
+      <td>SELL</td>
+      <td>53909.75</td>
+      <td>538</td>
+      <td>100.203990</td>
+      <td>0</td>
+      <td>p:$101.09077847619048/10.843212000000001,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:45:00,165648</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>TENX</td>
+      <td>09:45:43</td>
+      <td>SELL</td>
+      <td>52576.94</td>
+      <td>538</td>
+      <td>97.726654</td>
+      <td>0</td>
+      <td>p:$98.59151796825397/10.575135999999999,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:45:00,216920</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>TENX</td>
+      <td>09:45:56</td>
+      <td>SELL</td>
+      <td>52385.07</td>
+      <td>538</td>
+      <td>97.370013</td>
+      <td>0</td>
+      <td>p:$98.23324450000001/10.376768,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:46:00,18248</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>TENX</td>
+      <td>09:46:09</td>
+      <td>SELL</td>
+      <td>52382.37</td>
+      <td>538</td>
+      <td>97.365008</td>
+      <td>0</td>
+      <td>p:$98.20667708333333/10.66833125,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:46:00,47901</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>TENX</td>
+      <td>09:46:22</td>
+      <td>SELL</td>
+      <td>51583.98</td>
+      <td>538</td>
+      <td>95.880995</td>
+      <td>0</td>
+      <td>p:$96.71015941975705/10.480835625000001,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:46:00,77554</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>TENX</td>
+      <td>09:46:35</td>
+      <td>SELL</td>
+      <td>51242.27</td>
+      <td>538</td>
+      <td>95.245860</td>
+      <td>0</td>
+      <td>p:$96.07236/10.1935,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:46:00,107207</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>TENX</td>
+      <td>09:46:48</td>
+      <td>SELL</td>
+      <td>51693.64</td>
+      <td>538</td>
+      <td>96.084830</td>
+      <td>0</td>
+      <td>p:$96.92014274691358/10.1646875,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:46:00,136873</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>TENX</td>
+      <td>09:47:01</td>
+      <td>SELL</td>
+      <td>50521.20</td>
+      <td>538</td>
+      <td>93.905567</td>
+      <td>0</td>
+      <td>p:$94.71456477892801/10.501002352941176,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:47:00,11739</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>TENX</td>
+      <td>09:47:14</td>
+      <td>SELL</td>
+      <td>51141.56</td>
+      <td>538</td>
+      <td>95.058658</td>
+      <td>0</td>
+      <td>p:$95.87863570530658/10.550022352941175,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:47:00,23478</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>56</th>
+      <td>TENX</td>
+      <td>09:47:27</td>
+      <td>SELL</td>
+      <td>50720.71</td>
+      <td>538</td>
+      <td>94.276410</td>
+      <td>0</td>
+      <td>p:$95.09025502626051/10.416155294117647,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:47:00,35217</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>TENX</td>
+      <td>09:47:40</td>
+      <td>SELL</td>
+      <td>50524.23</td>
+      <td>538</td>
+      <td>93.911199</td>
+      <td>0</td>
+      <td>p:$94.72329819091682/10.267901176470588,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:47:00,46956</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>TENX</td>
+      <td>09:47:53</td>
+      <td>SELL</td>
+      <td>50718.99</td>
+      <td>538</td>
+      <td>94.273216</td>
+      <td>0</td>
+      <td>p:$95.08914015210551/10.254075882352941,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:48:00,5095</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>TENX</td>
+      <td>09:48:06</td>
+      <td>SELL</td>
+      <td>48548.24</td>
+      <td>538</td>
+      <td>90.238368</td>
+      <td>0</td>
+      <td>p:$91.01282000397772/10.315548333333334,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:48:00,18342</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>TENX</td>
+      <td>09:48:19</td>
+      <td>SELL</td>
+      <td>49072.96</td>
+      <td>538</td>
+      <td>91.213688</td>
+      <td>0</td>
+      <td>p:$91.99690954180987/10.396778888888889,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:48:00,31589</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>TENX</td>
+      <td>09:48:32</td>
+      <td>SELL</td>
+      <td>49731.63</td>
+      <td>538</td>
+      <td>92.437979</td>
+      <td>0</td>
+      <td>p:$93.23251372340425/10.475465,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:48:00,44836</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>TENX</td>
+      <td>09:48:45</td>
+      <td>SELL</td>
+      <td>50272.69</td>
+      <td>538</td>
+      <td>93.443664</td>
+      <td>0</td>
+      <td>p:$94.24754379310343/10.53612,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:48:00,58083</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>TENX</td>
+      <td>09:48:58</td>
+      <td>SELL</td>
+      <td>49918.03</td>
+      <td>538</td>
+      <td>92.784449</td>
+      <td>0</td>
+      <td>p:$93.58265812260535/10.461791111111111,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:49:00,11070</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>TENX</td>
+      <td>09:49:11</td>
+      <td>SELL</td>
+      <td>47479.10</td>
+      <td>538</td>
+      <td>88.251121</td>
+      <td>0</td>
+      <td>p:$89.00524132352942/10.33588,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:49:00,25461</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>TENX</td>
+      <td>09:49:24</td>
+      <td>SELL</td>
+      <td>48171.67</td>
+      <td>538</td>
+      <td>89.538415</td>
+      <td>0</td>
+      <td>p:$90.30382798211747/10.464586842105263,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:49:00,39852</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>TENX</td>
+      <td>09:49:37</td>
+      <td>SELL</td>
+      <td>49472.34</td>
+      <td>538</td>
+      <td>91.956018</td>
+      <td>0</td>
+      <td>p:$92.74348508624502/10.642533157894736,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:49:00,54243</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>TENX</td>
+      <td>09:49:50</td>
+      <td>SELL</td>
+      <td>50427.65</td>
+      <td>538</td>
+      <td>93.731684</td>
+      <td>0</td>
+      <td>p:$94.53584009937985/10.735844210526315,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:50:00,5250</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>68</th>
+      <td>TENX</td>
+      <td>09:50:03</td>
+      <td>SELL</td>
+      <td>48211.39</td>
+      <td>538</td>
+      <td>89.612242</td>
+      <td>0</td>
+      <td>p:$90.37110061023326/10.661141,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:50:00,39375</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>69</th>
+      <td>TENX</td>
+      <td>09:50:16</td>
+      <td>SELL</td>
+      <td>48160.13</td>
+      <td>538</td>
+      <td>89.516966</td>
+      <td>0</td>
+      <td>p:$90.27643221109457/10.5505335,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:50:00,73500</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>TENX</td>
+      <td>09:50:29</td>
+      <td>SELL</td>
+      <td>49101.89</td>
+      <td>538</td>
+      <td>91.267459</td>
+      <td>0</td>
+      <td>p:$92.04208198959881/10.735377,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:50:00,107625</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>71</th>
+      <td>TENX</td>
+      <td>09:50:42</td>
+      <td>SELL</td>
+      <td>50579.27</td>
+      <td>538</td>
+      <td>94.013504</td>
+      <td>0</td>
+      <td>p:$94.81339402930404/10.920110000000001,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:50:00,141750</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>TENX</td>
+      <td>09:50:55</td>
+      <td>SELL</td>
+      <td>52003.15</td>
+      <td>538</td>
+      <td>96.660125</td>
+      <td>0</td>
+      <td>p:$97.48439265654376/11.095732,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:51:00,12684</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>73</th>
+      <td>TENX</td>
+      <td>09:51:08</td>
+      <td>SELL</td>
+      <td>49037.21</td>
+      <td>538</td>
+      <td>91.147238</td>
+      <td>0</td>
+      <td>p:$91.92543255541874/10.961805714285715,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:51:00,36240</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>74</th>
+      <td>TENX</td>
+      <td>09:51:21</td>
+      <td>SELL</td>
+      <td>48788.87</td>
+      <td>538</td>
+      <td>90.685638</td>
+      <td>0</td>
+      <td>p:$91.46106399254364/10.814573809523809,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:51:00,59796</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>75</th>
+      <td>TENX</td>
+      <td>09:51:34</td>
+      <td>SELL</td>
+      <td>49268.53</td>
+      <td>538</td>
+      <td>91.577192</td>
+      <td>0</td>
+      <td>p:$92.36042179104479/10.90677,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:51:00,83352</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>76</th>
+      <td>TENX</td>
+      <td>09:51:47</td>
+      <td>SELL</td>
+      <td>49972.62</td>
+      <td>538</td>
+      <td>92.885903</td>
+      <td>0</td>
+      <td>p:$93.68041746651785/11.055485714285714,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:51:00,106908</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>77</th>
+      <td>TENX</td>
+      <td>09:52:00</td>
+      <td>SELL</td>
+      <td>47955.38</td>
+      <td>538</td>
+      <td>89.136391</td>
+      <td>0</td>
+      <td>p:$89.8935238420985/11.022867272727272,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:52:00,13860</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>78</th>
+      <td>TENX</td>
+      <td>09:52:13</td>
+      <td>SELL</td>
+      <td>48114.40</td>
+      <td>538</td>
+      <td>89.431970</td>
+      <td>0</td>
+      <td>p:$90.19251541751787/10.989454545454546,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:52:00,28875</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>79</th>
+      <td>TENX</td>
+      <td>09:52:26</td>
+      <td>SELL</td>
+      <td>47793.10</td>
+      <td>538</td>
+      <td>88.834755</td>
+      <td>0</td>
+      <td>p:$89.59180485436896/10.792950000000001,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:52:00,43890</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>80</th>
+      <td>TENX</td>
+      <td>09:52:39</td>
+      <td>SELL</td>
+      <td>47454.82</td>
+      <td>538</td>
+      <td>88.205988</td>
+      <td>0</td>
+      <td>p:$88.9592151618929/10.596772727272727,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:52:00,58905</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>81</th>
+      <td>TENX</td>
+      <td>09:52:52</td>
+      <td>SELL</td>
+      <td>48249.22</td>
+      <td>538</td>
+      <td>89.682564</td>
+      <td>0</td>
+      <td>p:$90.4484002615193/10.774163636363635,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:53:00,3308</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>82</th>
+      <td>TENX</td>
+      <td>09:53:05</td>
+      <td>SELL</td>
+      <td>46682.29</td>
+      <td>538</td>
+      <td>86.770065</td>
+      <td>0</td>
+      <td>p:$87.50588394986933/10.824180869565218,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:53:00,14059</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>83</th>
+      <td>TENX</td>
+      <td>09:53:18</td>
+      <td>SELL</td>
+      <td>46936.01</td>
+      <td>538</td>
+      <td>87.241647</td>
+      <td>0</td>
+      <td>p:$87.98189534850681/10.849751739130435,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:53:00,24810</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>84</th>
+      <td>TENX</td>
+      <td>09:53:31</td>
+      <td>SELL</td>
+      <td>47636.31</td>
+      <td>538</td>
+      <td>88.543327</td>
+      <td>0</td>
+      <td>p:$89.29531285331606/10.958014347826088,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:53:00,35561</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>85</th>
+      <td>TENX</td>
+      <td>09:53:44</td>
+      <td>SELL</td>
+      <td>48422.29</td>
+      <td>538</td>
+      <td>90.004262</td>
+      <td>0</td>
+      <td>p:$90.76961176571997/11.064650434782608,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:53:00,46312</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>86</th>
+      <td>TENX</td>
+      <td>09:53:57</td>
+      <td>SELL</td>
+      <td>48230.59</td>
+      <td>538</td>
+      <td>89.647933</td>
+      <td>0</td>
+      <td>p:$90.4104238532244/11.007508695652174,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:54:00,9531</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>87</th>
+      <td>TENX</td>
+      <td>09:54:10</td>
+      <td>SELL</td>
+      <td>46140.98</td>
+      <td>538</td>
+      <td>85.763904</td>
+      <td>0</td>
+      <td>p:$86.48890399999999/10.875,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:54:00,23298</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>88</th>
+      <td>TENX</td>
+      <td>09:54:23</td>
+      <td>SELL</td>
+      <td>45855.41</td>
+      <td>538</td>
+      <td>85.233113</td>
+      <td>0</td>
+      <td>p:$85.95478632320564/10.718326666666666,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:54:00,37065</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <td>TENX</td>
+      <td>09:54:36</td>
+      <td>SELL</td>
+      <td>45696.93</td>
+      <td>538</td>
+      <td>84.938530</td>
+      <td>0</td>
+      <td>p:$85.65876525540276/10.599765,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:54:00,50832</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>TENX</td>
+      <td>09:54:49</td>
+      <td>SELL</td>
+      <td>46342.82</td>
+      <td>538</td>
+      <td>86.139075</td>
+      <td>0</td>
+      <td>p:$86.86948985265226/10.749585,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:55:00,1443</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>91</th>
+      <td>TENX</td>
+      <td>09:55:02</td>
+      <td>SELL</td>
+      <td>45814.20</td>
+      <td>538</td>
+      <td>85.156510</td>
+      <td>0</td>
+      <td>p:$85.86642980392156/10.89008,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:55:00,20202</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>92</th>
+      <td>TENX</td>
+      <td>09:55:15</td>
+      <td>SELL</td>
+      <td>45328.64</td>
+      <td>538</td>
+      <td>84.253980</td>
+      <td>0</td>
+      <td>p:$84.9584209931745/10.6355592,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:55:00,38961</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>93</th>
+      <td>TENX</td>
+      <td>09:55:28</td>
+      <td>SELL</td>
+      <td>44824.40</td>
+      <td>538</td>
+      <td>83.316734</td>
+      <td>0</td>
+      <td>p:$84.01547288669201/10.3712616,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:55:00,57720</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>94</th>
+      <td>TENX</td>
+      <td>09:55:41</td>
+      <td>SELL</td>
+      <td>44356.25</td>
+      <td>538</td>
+      <td>82.446563</td>
+      <td>0</td>
+      <td>p:$83.14013215610973/10.1164304,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:55:00,76479</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>TENX</td>
+      <td>09:55:54</td>
+      <td>SELL</td>
+      <td>43860.60</td>
+      <td>538</td>
+      <td>81.525287</td>
+      <td>0</td>
+      <td>p:$82.21314680981595/9.86214,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:56:00,5970</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>TENX</td>
+      <td>09:56:07</td>
+      <td>SELL</td>
+      <td>43434.37</td>
+      <td>538</td>
+      <td>80.733025</td>
+      <td>0</td>
+      <td>p:$81.41971120999439/10.173313846153846,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:56:00,18905</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>TENX</td>
+      <td>09:56:20</td>
+      <td>SELL</td>
+      <td>44021.24</td>
+      <td>538</td>
+      <td>81.823875</td>
+      <td>0</td>
+      <td>p:$82.52066849777034/10.243206153846153,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:56:00,31840</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>98</th>
+      <td>TENX</td>
+      <td>09:56:33</td>
+      <td>SELL</td>
+      <td>43296.95</td>
+      <td>538</td>
+      <td>80.477595</td>
+      <td>0</td>
+      <td>p:$81.16292440914157/10.074670769230769,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:56:00,44775</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>99</th>
+      <td>TENX</td>
+      <td>09:56:46</td>
+      <td>SELL</td>
+      <td>42959.97</td>
+      <td>538</td>
+      <td>79.851252</td>
+      <td>0</td>
+      <td>p:$80.53244116073891/9.898810769230769,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:56:00,57710</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>100</th>
+      <td>TENX</td>
+      <td>09:56:59</td>
+      <td>SELL</td>
+      <td>43273.63</td>
+      <td>538</td>
+      <td>80.434253</td>
+      <td>0</td>
+      <td>p:$81.12087728961698/9.933376153846153,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:57:00,7040</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>101</th>
+      <td>TENX</td>
+      <td>09:57:12</td>
+      <td>SELL</td>
+      <td>42174.82</td>
+      <td>538</td>
+      <td>78.391859</td>
+      <td>0</td>
+      <td>p:$79.05745000197356/9.97440888888889,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:57:00,15360</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>102</th>
+      <td>TENX</td>
+      <td>09:57:25</td>
+      <td>SELL</td>
+      <td>42613.23</td>
+      <td>538</td>
+      <td>79.206756</td>
+      <td>0</td>
+      <td>p:$79.87939830015112/10.067357777777778,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:57:00,23680</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>103</th>
+      <td>TENX</td>
+      <td>09:57:38</td>
+      <td>SELL</td>
+      <td>43222.16</td>
+      <td>538</td>
+      <td>80.338595</td>
+      <td>0</td>
+      <td>p:$81.02151523809523/10.15708,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:57:00,32000</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>104</th>
+      <td>TENX</td>
+      <td>09:57:51</td>
+      <td>SELL</td>
+      <td>43712.16</td>
+      <td>538</td>
+      <td>81.249366</td>
+      <td>0</td>
+      <td>p:$81.94056123399/10.228804444444444,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:58:00,3168</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>105</th>
+      <td>TENX</td>
+      <td>09:58:04</td>
+      <td>SELL</td>
+      <td>5837.30</td>
+      <td>538</td>
+      <td>10.850000</td>
+      <td>0</td>
+      <td>p:$11.5237875/10.1862125,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:58:00,16896</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>106</th>
+      <td>TENX</td>
+      <td>09:58:17</td>
+      <td>SELL</td>
+      <td>5751.22</td>
+      <td>538</td>
+      <td>10.690000</td>
+      <td>0</td>
+      <td>p:$11.359725714285714/10.030274285714285,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:58:00,30624</td>
+      <td>successfully cancelled</td>
+    </tr>
+    <tr>
+      <th>107</th>
+      <td>TENX</td>
+      <td>09:58:30</td>
+      <td>SELL</td>
+      <td>5665.14</td>
+      <td>538</td>
+      <td>10.530000</td>
+      <td>0</td>
+      <td>p:$11.195492499999999/9.8745075,t:10</td>
+      <td>0</td>
+      <td>11</td>
+      <td>09:58:00,44352</td>
+      <td>successfully cancelled</td>
+    </tr>
+  </tbody>
+</table></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/jquery.min.js"></script> -->
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/browser.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/breakpoints.min.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/util.js"></script>
+    <script src="/Users/David/Documents/Programming/python/AlmagoTD/batch_design/assets/js/main.js"></script>
+  </body>
+</html>
