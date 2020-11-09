@@ -71,6 +71,9 @@
     <h2>File Structure Overview</h2>
     <h3>Root Level</h3>
     <div class="file">
+      <p><span class="path">index.html</span>: This page!</p>
+    </div>
+    <div class="file">
       <p><span class="path">main.py</span>: from here batch testing can be commenced as well as batch 
         comparisons and various other functions. While batch testing 
         does have command line interface, I often edit this file for more exact control.
@@ -82,19 +85,57 @@
       </p>
     </div>
     <div class="file">
-      <p><span class="path">update_form.py</span>: When run will create a 
+      <p><span class="path">update_form.py</span>: When run will update the <span class="path">config_form.html</span> based on the new values
+        in the <span class="path">local_functions/main/config.json</span> and the adjacent <span class="path">config_descriptions.json</span>. 
+        If you would like more info on this process, you can visit the documentation I did for this form generation 
+        <a href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank">here</a>.
+      </p>
+    </div>
+    <div class="file">
+      <p><span class="path">batches.html</span>: This file is updated with each batch test and serves as a directory for 
+        all of the previous results of the batches. Here is the <a href="batches.html" target="_blank">current batches.html</a>.
+      </p>
+    </div>
+    <div class="file">
+      <p><span class="path"></span>: This file is updated with each batch test and serves as a directory for 
         
         
         
       </p>
     </div>
     <h3>Batch Design</h3>
+    <p>This directory holds the templates and the assets (CSS, JS, Fonts) for the 
+      <div id="results-files">results pages</div> 
+      These assets are both used when visiting the results pages, and also used for creating them.
+      
+      
+    </p>
     <h3>Config</h3>
+    <p>
+      This folder stores all of the saved configurations for batch tests and also the templates for creating 
+      new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
+      is done, please check out my documentation of the process <a href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank">here</a>.
+    </p>
     <h3>Documentation Assets</h3>
+    <p>The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.</p>
     <h3>Local Functions</h3>
+    <p></p>
     <h3>mkt_csvs</h3>
-    <h3>Results</h3>
+    <p>
+      The csv data of market prices (OHLC) each minute that the market is open. It is important 
+      to populate this folder because the batch testing uses this data to trade.
+    </p>
+    <h3 id="results-files">Results</h3>
+    <p>
+      This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
+      and time and can be accessed with great detail through the <span class="path">batches.html</span> file. You can visit 
+      the active link <a href="batches.html" target="_blank">here</a>.
+    </p>
     <h3>Temp_Assets</h3>
-    <h3>Unused</h3>
+    <p>
+      This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
+      each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
+      The use of a singular non-batch test is still functional, but not suggested. See <a href="#batch-of-one">batch of one instead</a>.
+    </p>
   </section>
 </body>
