@@ -62,80 +62,232 @@
       <br><br>
       This project works with CSV files with the open, high, low and close prices (OHLC) for each minute during normal 
       market hours (9:30AM - 4PM EST). I have created an algorithm that will create what is known as <em>tick</em> data 
-      for each one of these minutes. The source code for interpolating second data is in the 
-      <div class="path">local_functions/data_management/historical_funcs.py</div> 
+      for each one of these minutes. The source code for interpolating second data is in the <span class="path">local_functions/data_management/historical_funcs.py</span> 
       in the function called "<em>create_second_data</em>"
     </p>
   </section>
   <section id="file-struct">
     <h2>File Structure Overview</h2>
-    <h3>Root Level</h3>
-    <div class="file">
-      <p><span class="path">index.html</span>: This page!</p>
+    <div class="folder"> 
+      <h3>Root Level</h3>
+      <p>Files in the home directory</p>
+      <div class="file">
+        <p><span class="path">index.html</span>: This page!</p>
+      </div>
+      <div class="file">
+        <p><span class="path">main.py</span>: from here batch testing can be commenced as well as batch 
+          comparisons and various other functions. While batch testing 
+          does have command line interface, I often edit this file for more exact control.
+        </p>
+      </div>
+      <div class="file">
+        <p><span class="path">test.py</span>: A file for sandbox testing of functionality of new features. 
+          Nothing pivotal happens here.
+        </p>
+      </div>
+      <div class="file">
+        <p><span class="path">update_form.py</span>: When run will update the <span class="path">config_form.html</span> based on the new values
+          in the <span class="path">local_functions/main/config.json</span> and the adjacent <span class="path">config_descriptions.json</span>. 
+          If you would like more info on this process, you can visit the documentation I did for this form generation 
+          <a href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank">here</a>.
+        </p>
+      </div>
+      <div class="file">
+        <p><span class="path">batches.html</span>: This file is updated with each batch test and serves as a directory for 
+          all of the previous results of the batches. Here is the <a href="batches.html" target="_blank">current batches.html</a>.
+          
+          
+        </p>
+      </div>
     </div>
-    <div class="file">
-      <p><span class="path">main.py</span>: from here batch testing can be commenced as well as batch 
-        comparisons and various other functions. While batch testing 
-        does have command line interface, I often edit this file for more exact control.
+    <div class="folder"> 
+      <h3>/batch_design</h3>
+      <p>This directory holds the templates and the assets (CSS, JS, Fonts) for the 
+        <div id="results-files">results pages</div> 
+        These assets are both used when visiting the results pages, and also used for creating them.
+        
+        
       </p>
     </div>
-    <div class="file">
-      <p><span class="path">test.py</span>: A file for sandbox testing of functionality of new features. 
-        Nothing pivotal happens here.
-      </p>
-    </div>
-    <div class="file">
-      <p><span class="path">update_form.py</span>: When run will update the <span class="path">config_form.html</span> based on the new values
-        in the <span class="path">local_functions/main/config.json</span> and the adjacent <span class="path">config_descriptions.json</span>. 
-        If you would like more info on this process, you can visit the documentation I did for this form generation 
+    <div class="folder">
+      <h3>/config</h3>
+      <p>
+        This folder stores all of the saved configurations for batch tests and also the templates for creating 
+        new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
+        is done, please check out my documentation of the process 
         <a href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank">here</a>.
       </p>
     </div>
-    <div class="file">
-      <p><span class="path">batches.html</span>: This file is updated with each batch test and serves as a directory for 
-        all of the previous results of the batches. Here is the <a href="batches.html" target="_blank">current batches.html</a>.
-      </p>
-    </div>
-    <div class="file">
-      <p><span class="path"></span>: This file is updated with each batch test and serves as a directory for 
-        
-        
+    <div class="folder"> 
+      <h3>/documentation_assets</h3>
+      <p>
+        The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.
         
       </p>
     </div>
-    <h3>Batch Design</h3>
-    <p>This directory holds the templates and the assets (CSS, JS, Fonts) for the 
-      <div id="results-files">results pages</div> 
-      These assets are both used when visiting the results pages, and also used for creating them.
-      
-      
-    </p>
-    <h3>Config</h3>
-    <p>
-      This folder stores all of the saved configurations for batch tests and also the templates for creating 
-      new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
-      is done, please check out my documentation of the process <a href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank">here</a>.
-    </p>
-    <h3>Documentation Assets</h3>
-    <p>The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.</p>
-    <h3>Local Functions</h3>
-    <p></p>
-    <h3>mkt_csvs</h3>
-    <p>
-      The csv data of market prices (OHLC) each minute that the market is open. It is important 
-      to populate this folder because the batch testing uses this data to trade.
-    </p>
-    <h3 id="results-files">Results</h3>
-    <p>
-      This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
-      and time and can be accessed with great detail through the <span class="path">batches.html</span> file. You can visit 
-      the active link <a href="batches.html" target="_blank">here</a>.
-    </p>
-    <h3>Temp_Assets</h3>
-    <p>
-      This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
-      each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
-      The use of a singular non-batch test is still functional, but not suggested. See <a href="#batch-of-one">batch of one instead</a>.
-    </p>
+    <div class="folder">
+      <h3>/local_functions</h3>
+      <p>
+        Local Functions is where all of the code for trading is located. Inside this folder are multiple folders which divide 
+        the work of trading the stock. All of these python files are meant to be accessed through the <span class="path">main.py</span> file as modules.
+      </p>
+      <div class="folder"> 
+        <h4>/account</h4>
+        <p>This folder is for account info. At present it only keeps track of starting capital.</p>
+      </div>
+      <div class="folder">
+        <h4>/analyse</h4>
+        <p>
+          There are three processes going on continuously as a stock is being considered during trading hours: Data Gathering, Data Analysis, and Trade Execution. 
+          This folder deals with the second process: Data Analysis
+        </p>
+        <div class="file">
+          <p><span class="path">analyse.py</span>: The master file outlining the process of analysis. It calls for other files in the folder. 
+            Most notably, <span class="path">order_eval.py</span> and <span class="path">update_docs.py</span>.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">common.py</span>: a set of functions that analyse data that are common to many tasks across the algorithm's structure. 
+            This of this as a common library of useful functions.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">order_eval.py</span>: Functions for evaluating if an order should take place</p>
+        </div>
+        <div class="file">
+          <p><span class="path">order_tools.py</span>: Functions for creating Order Specifications such as how much to buy sell in shares or cash at which second, and at which price.
+            There is a lot that can be customized in orders, such as the ability to daisy-chain buys or sells, or to programmatically cancel orders after a specific
+            amount of time of if the price is out of reach.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">strategies.py</span>: Coming Soon. At the moment, strategies are hosted in the <span class="file">order_eval.py</span> file.</p>
+        </div>
+        <div class="file">
+          <p><span class="path">update_docs.py</span>: This file takes the new data found and analyses it to give the algorithm a sense of momentum. These "docs" 
+            that are updating are dataframes and dictionaries with information about momentum, volume and volatility (among others) to project when to buy and sell. 
+            The docs are hosted as global variables imported from the <span class="path">local_functions/main/global_vars.py</span> file.
+          </p>
+        </div>
+      </div>
+      <div class="folder">
+        <h4>/data_management</h4>
+        <p>Data Management is where the second data is generated, the csvs are pulled and so much more.</p>
+        <div class="file">
+          <p><span class="path">gather_data.py</span>: This file is dedicated to tasks run every (simulated) second to inform the algorithm on
+            how the stocks technical chart has changed in the last second. From here global dataframe and dictionary variables are updated 
+            to carry the most up-to-date information.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">historical_funcs.py</span>: These functions pull the data from the csvs, interpolate them into second data, 
+            convert them into a dataframe and simulate the data movement you might see in a live open market. So whereas the 
+            <span class="path">gather_data.py</span> file is about the algorithm updating itself to the simulated data, this file is about 
+            creating that simulated data, which is then doled out, second by second, to the algorithm.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">stock_screening.py</span>: These are functions not currently incorporated into the system. The idea is to 
+            web-scrape with selenium and beautiful soup in order to see which stocks are currently volatile.
+          </p>
+        </div>
+      </div>
+      <div class="folder">
+        <h4>/main</h4>
+        <p>
+          The folder which holds files with configuration, batch testing, and global variables as well as other miscellaneous things
+          like logging.
+        </p>
+        <div class="file">
+          <p><span class="path">algo.py</span>: The file that holds the bare frame of the algorithm. If you wish to see how the algorithm functions, start here.</p>
+        </div>
+        <div class="file">
+          <p><span class="path">batch_testing.py</span>: The file dedicated to performing batch tests and making comparisons of batches.</p>
+        </div>
+        <div class="file">
+          <p><span class="path">config.json</span>: The settings for configuring how the algorithm performs and how executions are simulated.</p>
+        </div>
+        <div class="file">
+          <p><span class="path">config_descriptions.json</span>: Descriptions for the <span class="path">config.json</span> file. for more info, view the documentation for 
+            this system <a href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank">here</a>.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">configure.py</span>: Functions for loading the <span class="path">config.json</span> settings into the algorithm at start of testing and ensuring 
+            that the simulation follows those guidelines.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">global_variables.py</span>: Home to many functions and variables that are shared across documents.</p>
+        </div>
+        <div class="file">
+          <p><span class="path">log_funcs.py</span>: I employed a very different log that kept track of things like line number and file name during this process in a 
+            global variable dataframe. The log is actually plotted alongside everything else in the final results of each stock.
+          </p>
+        </div>
+      </div>
+      <div class="folder">
+        <h4>/plotting</h4>
+        <p>Folder is home to functions dedicated to plotting the results of the batch tests.</p>
+        <div class="file">
+          <p><span class="path">plot_results.py</span>: The main file responsible for results plotting.</p>
+        </div>
+        <div class="file">
+          <p><span class="path">api_chart.py</span>: This file is for a not-yet-implemented feature of pulling data from a direct-market-access provider and plotting the results with PyQT5.</p>
+        </div>
+        <div class="file">
+          <p><span class="path">candles.py</span>: This file works in conjunction with <span class="file">api_chart.py</span> with this one specifically
+            interfacing with PyQT5.
+          </p>
+        </div>
+      </div>
+      <div class="folder">
+        <h4>/trade_funcs</h4>
+        <p>
+          This folder is all about sending orders and simulating executions in the backtester. The two are similar, but it is important to keep in
+          mind what the algorithm can be aware of. While the program can know if a trade is about to fill in the next second, the algorithm can still not know that. So this is why there are two files here.
+        </p>
+        <div class="file">
+          <p><span class="path">sim_executions.py</span>: This is the file that receives orders and keeps them until they either go through or get cancelled by the algorithm.
+            It simulates market activity and fill probablility as well as being cusomizable through the <span class="path">main/config.json</span> file.
+            For instance, if you wanted to ensure that each trade had to endure 2 seconds of lag minimum before a fill, this is where the lag and
+            all other forms of market inefficiency are simulated.
+          </p>
+        </div>
+        <div class="file">
+          <p><span class="path">trade_funcs.py</span>: This file hosts functions that the algorithm uses to send and receive trades and update its position history (as well as position analysis).
+            
+            
+            
+            
+            
+            
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="folder">
+      <h3>mkt_csvs</h3>
+      <p>
+        The csv data of market prices (OHLC) each minute that the market is open. It is important 
+        to populate this folder because the batch testing uses this data to trade.
+      </p>
+    </div>
+    <div class="folder">
+      <h3 id="results-files">Results</h3>
+      <p>
+        This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
+        and time and can be accessed with great detail through the <span class="path">batches.html</span> file. You can visit 
+        the active link <a href="batches.html" target="_blank">here</a>.
+      </p>
+    </div>
+    <div class="folder">
+      <h3>Temp_Assets</h3>
+      <p>
+        This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
+        each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
+        The use of a singular non-batch test is still functional, but not suggested. See <a href="#batch-of-one">batch of one</a> instead.
+      </p>
+    </div>
   </section>
 </body>
