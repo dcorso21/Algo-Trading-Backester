@@ -1,26 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algorithmic Documentation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,400;0,700;1,100;1,300;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="documentation_assets/css/main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algorithmic Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,400;0,700;1,100;1,300;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="documentation_assets/css/main.css">
 </head>
-    <body>
-        <header class="top-head">
-            <h1>Algorithmic Trading Backtester</h1>
-            <h2>Documentation and Explanation of An Algorithmic Backtester</h2>
-        </header>
-        <div class="table-of-contents">
-            <ul>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-                <li></li>
-            </ul>
-        </div>
-
-    </body>
-</html>
+<header class="top-head">
+  <h1>Algorithmic Trading Backtester</h1>
+  <h2>Documentation and Explanation of An Algorithmic Backtester</h2>
+</header>
+<body>
+  <section class="table-of-contents">
+    <h2>Table of Contents</h2>
+    <ul>
+      <li><a href="#">Intro</a></li>
+      <li><a href="#">File Structure Overview</a></li>
+      <li><a href="#">Getting Up and Running</a>
+        <ul>
+          <li><a href=""> Batch Testing </a></li>
+          <ul> 
+            <li><a href="">Preparing a Batch</a></li>
+            <li><a href="">Multiple Tests at Once</a></li>
+          </ul>
+          <li><a href=""> Single Stock Testing </a></li>
+          <ul> 
+            <li><a href="">Batch of One</a></li>
+            <li><a href="">Without Batching</a></li>
+          </ul>
+        </ul>
+      </li>
+      <li><a href="#">Viewing Results</a></li>
+      <ul>
+        <li> <a href="">Batch Results</a></li>
+        <li> <a href="">Individual Day Results</a></li>
+        <li> <a href="">Comparing Batches</a></li>
+      </ul>
+      <li><a href="#">Creating A Strategy</a></li>
+      <li><a href="#">Debug Mode</a></li>
+      <li><a href="#">Configuration Files</a></li>
+    </ul>
+  </section>
+  <section>
+    <h2 id="intro">Intro</h2>
+    <p>
+      This is a Algorithmic trading backtester for lightning quick trading sometimes referred to as 
+      "<em>Day Trading</em>" or (more specifically) "<em>Scalping</em>". 
+      
+      <br>
+      <br>
+      This brand of investing involves very short 
+      trade periods, sometimes minutes, sometimes seconds. This is a huge departure from more typical investing which 
+      has a time-horizon of several months to many years. In short term trading, the stocks traded are 
+      riskier and are experiencing a period of abnormal volatility. 
+      
+      <br><br>
+      The basic precept behind daytrading ideology is that 
+      there is inefficency in extremely volatile stocks. The time period that has volatility is evidence of this inefficiency
+      and allows a short window to capitalize on the higher percentage swings.
+      
+      <br><br>
+      This project works with CSV files with the open, high, low and close prices (OHLC) for each minute during normal 
+      market hours (9:30AM - 4PM EST). I have created an algorithm that will create what is known as <em>tick</em> data 
+      for each one of these minutes. The source code for interpolating second data is in the 
+      <div class="path">local_functions/data_management/historical_funcs.py</div> 
+      in the function called "<em>create_second_data</em>"
+    </p>
+  </section>
+  <section id="file-struct">
+    <h2>File Structure Overview</h2>
+    <h3>Root Level</h3>
+    <div class="file">
+      <p><span class="path">main.py</span>: from here batch testing can be commenced as well as batch 
+        comparisons and various other functions. While batch testing 
+        does have command line interface, I often edit this file for more exact control.
+      </p>
+    </div>
+    <div class="file">
+      <p><span class="path">test.py</span>: A file for sandbox testing of functionality of new features. 
+        Nothing pivotal happens here.
+      </p>
+    </div>
+    <div class="file">
+      <p><span class="path">update_form.py</span>: When run will create a 
+        
+        
+        
+      </p>
+    </div>
+    <h3>Batch Design</h3>
+    <h3>Config</h3>
+    <h3>Documentation Assets</h3>
+    <h3>Local Functions</h3>
+    <h3>mkt_csvs</h3>
+    <h3>Results</h3>
+    <h3>Temp_Assets</h3>
+    <h3>Unused</h3>
+  </section>
+</body>
