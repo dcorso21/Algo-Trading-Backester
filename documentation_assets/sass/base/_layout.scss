@@ -1,6 +1,42 @@
 @use '../libs' as *;
 
-body{
+html {
+    scroll-behavior: smooth;
+    scroll-margin: 30px;
+}
+body {
+    font-family: "Roboto", sans-serif;
     background-color: gc(bg);
     color: gc(fg);
+    line-height: 150%;
+    overflow: hidden;
+}
+
+.layout {
+    display: flex;
+
+    .table-of-contents {
+        width: 30vw;
+        height: 100vh;
+    }
+    .main {
+        width: 70vw;
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-behavior: smooth;
+    }
+
+    h1,
+    h2,
+    h3 {
+        margin: 15px 0;
+        &::before {
+            display: block;
+            content: " ";
+            margin-top: -80px;
+            height: 80px;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    }
 }

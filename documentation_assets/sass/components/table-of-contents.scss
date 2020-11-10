@@ -1,0 +1,45 @@
+@use '../libs' as *;
+
+.table-of-contents {
+    @include flex-center;
+    justify-content: start;
+    background-color: gc(header);
+    a {
+        display: block;
+        width: 80%;
+        text-decoration: none;
+        color: gc(bg);
+        border-bottom-right-radius: 20px;
+        border-top-right-radius: 20px;
+        padding: 5px 15px;
+        margin-right: 30px;
+        transition: all .3s;
+        transform: translateX(-10px);
+        &:hover {
+            color: gc(header);
+            // border-bottom: 1px solid gc(bg);
+            background-color: gc(bg);
+            // transform: scale(1.1);
+            transform: translateX(0px);
+        }
+    }
+    li {
+        margin: 10px 0;
+    }
+    .lay1{
+        a{
+            width: fit-content;
+            padding-left: 80px;
+        }
+    }
+    .lay2{
+        a {
+            padding-left: 120px;
+        }
+    }
+    .lay3{
+        a {
+            padding-left: 160px;
+        }
+    }
+}

@@ -1,0 +1,229 @@
+:root {
+  --bg: #fff;
+  --fg: #000;
+  --header: #4d95d8;
+  --accent2: #49c285;
+}
+
+.dark {
+  --bg: #fff;
+  --fg: #363636;
+}
+
+html, body, div, span, applet, object,
+iframe, h1, h2, h3, h4, h5, h6, p, blockquote,
+pre, a, abbr, acronym, address, big, cite,
+code, del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var, b,
+u, i, center, dl, dt, dd, ol, ul, li, fieldset,
+form, label, legend, table, caption, tbody,
+tfoot, thead, tr, th, td, article, aside,
+canvas, details, embed, figure, figcaption,
+footer, header, hgroup, menu, nav, output, ruby,
+section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after, q:before, q:after {
+  content: "";
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+body {
+  -webkit-text-size-adjust: none;
+}
+
+mark {
+  background-color: transparent;
+  color: inherit;
+}
+
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+input, select, textarea {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-margin: 30px;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  line-height: 150%;
+  overflow: hidden;
+}
+
+.layout {
+  display: flex;
+}
+.layout .table-of-contents {
+  width: 30vw;
+  height: 100vh;
+}
+.layout .main {
+  width: 70vw;
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+.layout h1,
+.layout h2,
+.layout h3 {
+  margin: 15px 0;
+}
+.layout h1::before,
+.layout h2::before,
+.layout h3::before {
+  display: block;
+  content: " ";
+  margin-top: -80px;
+  height: 80px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.table-of-contents {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-content: start;
+  background-color: var(--header);
+}
+.table-of-contents a {
+  display: block;
+  width: 80%;
+  text-decoration: none;
+  color: var(--bg);
+  border-bottom-right-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 5px 15px;
+  margin-right: 30px;
+  transition: all 0.3s;
+  transform: translateX(-10px);
+}
+.table-of-contents a:hover {
+  color: var(--header);
+  background-color: var(--bg);
+  transform: translateX(0px);
+}
+.table-of-contents li {
+  margin: 10px 0;
+}
+.table-of-contents .lay1 a {
+  width: fit-content;
+  padding-left: 80px;
+}
+.table-of-contents .lay2 a {
+  padding-left: 120px;
+}
+.table-of-contents .lay3 a {
+  padding-left: 160px;
+}
+
+.top-head {
+  color: var(--bg);
+  background: linear-gradient(to right, var(--header), var(--accent2));
+  height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.top-head h1 {
+  font-size: 45px;
+  margin: 20px 0;
+  font-weight: 100;
+}
+.top-head h2 {
+  font-size: 22px;
+  font-style: italic;
+}
+
+section {
+  margin: 20px 5%;
+}
+section em {
+  font-style: italic;
+}
+section h2 {
+  font-size: 33px;
+  color: var(--header);
+}
+section h3 {
+  font-size: 22px;
+  color: var(--header);
+}
+section h4 {
+  font-size: 17px;
+  color: var(--header);
+}
+
+.path {
+  background-color: rgba(118, 118, 118, 0.872);
+  padding: 1px 5px;
+  border-radius: 10px;
+  color: white;
+  font-style: italic;
+}
+
+.folder {
+  background-color: rgba(29, 29, 29, 0.118);
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.file {
+  background-color: rgba(255, 255, 255, 0.598);
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+}
+.file .path:first-of-type {
+  padding: 2px 5px;
+  border-radius: 6px;
+  font-weight: 300;
+  background-color: transparent;
+  border: 1px solid var(--header);
+  color: var(--fg);
+}
+
+pre {
+  border-radius: 20px;
+}

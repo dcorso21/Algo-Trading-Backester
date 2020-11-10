@@ -1,0 +1,182 @@
+section#file-struct
+    h2 File Structure Overview
+
+    .folder 
+        h3 Root Level
+        p.
+            Files in the home directory
+        .file
+            p.
+                #[span.path index.html]: This page!
+        .file
+            p.
+                #[span.path main.py]: from here batch testing can be commenced as well as batch 
+                comparisons and various other functions. While batch testing 
+                does have command line interface, I often edit this file for more exact control.
+        .file
+            p.
+                #[span.path test.py]: A file for sandbox testing of functionality of new features. 
+                Nothing pivotal happens here.
+        .file
+            p.
+                #[span.path update_form.py]: When run will update the #[span.path config_form.html] based on the new values
+                in the #[span.path local_functions/main/config.json] and the adjacent #[span.path config_descriptions.json]. 
+                If you would like more info on this process, you can visit the documentation I did for this form generation 
+                #[a(href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank") here].
+        .file
+            p.
+                #[span.path batches.html]: This file is updated with each batch test and serves as a directory for 
+                all of the previous results of the batches. Here is the #[a(href="batches.html" target="_blank") current batches.html].
+
+
+    .folder 
+        h3 /batch_design
+        p.
+            This directory holds the templates and the assets (CSS, JS, Fonts) for the #[#results-files results pages] 
+            These assets are both used when visiting the results pages, and also used for creating them.
+
+
+    .folder
+        h3 /config
+        p.
+            This folder stores all of the saved configurations for batch tests and also the templates for creating 
+            new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
+            is done, please check out my documentation of the process 
+            #[a(href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank") here].
+    .folder 
+        h3 /documentation_assets
+        p.
+            The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.
+
+    .folder
+        h3 /local_functions
+        p.
+            Local Functions is where all of the code for trading is located. Inside this folder are multiple folders which divide 
+            the work of trading the stock. All of these python files are meant to be accessed through the #[span.path main.py] file as modules.
+        .folder 
+            h4 /account
+            p.
+                This folder is for account info. At present it only keeps track of starting capital.
+        .folder
+            h4 /analyse
+            p.
+                There are three processes going on continuously as a stock is being considered during trading hours: Data Gathering, Data Analysis, and Trade Execution. 
+                This folder deals with the second process: Data Analysis
+            .file
+                p.
+                    #[span.path analyse.py]: The master file outlining the process of analysis. It calls for other files in the folder. 
+                    Most notably, #[span.path order_eval.py] and #[span.path update_docs.py].
+            .file
+                p.
+                    #[span.path common.py]: a set of functions that analyse data that are common to many tasks across the algorithm's structure. 
+                    This of this as a common library of useful functions.
+            .file
+                p.
+                    #[span.path order_eval.py]: Functions for evaluating if an order should take place
+            .file
+                p.
+                    #[span.path order_tools.py]: Functions for creating Order Specifications such as how much to buy sell in shares or cash at which second, and at which price.
+                    There is a lot that can be customized in orders, such as the ability to daisy-chain buys or sells, or to programmatically cancel orders after a specific
+                    amount of time of if the price is out of reach.
+            .file
+                p.
+                    #[span.path strategies.py]: Coming Soon. At the moment, strategies are hosted in the #[span.file order_eval.py] file.
+            .file
+                p.
+                    #[span.path update_docs.py]: This file takes the new data found and analyses it to give the algorithm a sense of momentum. These "docs" 
+                    that are updating are dataframes and dictionaries with information about momentum, volume and volatility (among others) to project when to buy and sell. 
+                    The docs are hosted as global variables imported from the #[span.path local_functions/main/global_vars.py] file.
+        .folder
+            h4 /data_management
+            p.
+                Data Management is where the second data is generated, the csvs are pulled and so much more.
+            .file
+                p.
+                    #[span.path gather_data.py]: This file is dedicated to tasks run every (simulated) second to inform the algorithm on
+                    how the stocks technical chart has changed in the last second. From here global dataframe and dictionary variables are updated 
+                    to carry the most up-to-date information.
+            .file
+                p.
+                    #[span.path historical_funcs.py]: These functions pull the data from the csvs, interpolate them into second data, 
+                    convert them into a dataframe and simulate the data movement you might see in a live open market. So whereas the 
+                    #[span.path gather_data.py] file is about the algorithm updating itself to the simulated data, this file is about 
+                    creating that simulated data, which is then doled out, second by second, to the algorithm.
+            .file
+                p.
+                    #[span.path stock_screening.py]: These are functions not currently incorporated into the system. The idea is to 
+                    web-scrape with selenium and beautiful soup in order to see which stocks are currently volatile.
+        .folder
+            h4 /main
+            p.
+                The folder which holds files with configuration, batch testing, and global variables as well as other miscellaneous things
+                like logging.
+            .file
+                p.
+                    #[span.path algo.py]: The file that holds the bare frame of the algorithm. If you wish to see how the algorithm functions, start here.
+            .file
+                p.
+                    #[span.path batch_testing.py]: The file dedicated to performing batch tests and making comparisons of batches.
+            .file
+                p.
+                    #[span.path config.json]: The settings for configuring how the algorithm performs and how executions are simulated.
+            .file
+                p.
+                    #[span.path config_descriptions.json]: Descriptions for the #[span.path config.json] file. for more info, view the documentation for 
+                    this system #[a(href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank") here].
+            .file
+                p.
+                    #[span.path configure.py]: Functions for loading the #[span.path config.json] settings into the algorithm at start of testing and ensuring 
+                    that the simulation follows those guidelines.
+            .file
+                p.
+                    #[span.path global_variables.py]: Home to many functions and variables that are shared across documents.
+            .file
+                p.
+                    #[span.path log_funcs.py]: I employed a very different log that kept track of things like line number and file name during this process in a 
+                    global variable dataframe. The log is actually plotted alongside everything else in the final results of each stock.
+        .folder
+            h4 /plotting
+            p.
+                Folder is home to functions dedicated to plotting the results of the batch tests.
+            .file
+                p.
+                    #[span.path plot_results.py]: The main file responsible for results plotting.
+            .file
+                p.
+                    #[span.path api_chart.py]: This file is for a not-yet-implemented feature of pulling data from a direct-market-access provider and plotting the results with PyQT5.
+            .file
+                p.
+                    #[span.path candles.py]: This file works in conjunction with #[span.path api_chart.py] with this one specifically
+                    interfacing with PyQT5.
+        .folder
+            h4 /trade_funcs
+            p.
+                This folder is all about sending orders and simulating executions in the backtester. The two are similar, but it is important to keep in
+                mind what the algorithm can be aware of. While the program can know if a trade is about to fill in the next second, the algorithm can still not know that. So this is why there are two files here.
+            .file
+                p.
+                    #[span.path sim_executions.py]: This is the file that receives orders and keeps them until they either go through or get cancelled by the algorithm.
+                    It simulates market activity and fill probablility as well as being cusomizable through the #[span.path main/config.json] file.
+                    For instance, if you wanted to ensure that each trade had to endure 2 seconds of lag minimum before a fill, this is where the lag and
+                    all other forms of market inefficiency are simulated.
+            .file
+                p.
+                    #[span.path trade_funcs.py]: This file hosts functions that the algorithm uses to send and receive trades and update its position history (as well as position analysis).
+    .folder
+        h3 mkt_csvs
+        p.
+            The csv data of market prices (OHLC) each minute that the market is open. It is important 
+            to populate this folder because the batch testing uses this data to trade.
+    .folder
+        h3#results-files Results
+        p.
+            This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
+            and time and can be accessed with great detail through the #[span.path batches.html] file. You can visit 
+            the active link #[a(href="batches.html" target="_blank") here].
+    .folder
+        h3 Temp_Assets
+        p.
+            This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
+            each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
+            The use of a singular non-batch test is still functional, but not suggested. See #[a(href="#batch-of-one") batch of one] instead.
+
