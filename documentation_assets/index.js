@@ -3,8 +3,8 @@ let select = (el) => document.querySelector(el),
     toc = select(".table-of-contents");
 
 toc = toc.querySelectorAll("ul")[0];
-
 enableExpansion(toc.children);
+enableDarkMode()
 
 function enableExpansion(children, layer = 1) {
     // console.log(children);
@@ -36,4 +36,12 @@ function enableExpansion(children, layer = 1) {
             });
         };
     });
+}
+
+function enableDarkMode() {
+    let darkMode = select('.darkMode');
+    let body = select('body');
+    darkMode.onclick = () => { 
+        body.classList.toggle('dark')
+    }
 }

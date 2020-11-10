@@ -6,8 +6,8 @@
 }
 
 .dark {
-  --bg: #fff;
-  --fg: #363636;
+  --bg: #000;
+  --fg: #fff;
 }
 
 html, body, div, span, applet, object,
@@ -93,6 +93,7 @@ body {
   display: flex;
 }
 .layout .table-of-contents {
+  position: relative;
   width: 30vw;
   overflow: scroll;
 }
@@ -116,6 +117,21 @@ body {
   height: 80px;
   visibility: hidden;
   pointer-events: none;
+}
+
+.darkMode {
+  position: absolute;
+  bottom: 0;
+  right: 50%;
+  color: var(--bg);
+  background-color: rgba(143, 143, 143, 0.625);
+  padding: 10px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.darkMode:hover {
+  background-color: black;
 }
 
 .table-of-contents {

@@ -33,7 +33,7 @@ section#up-and-run
             from local_functions.main import batch_testing as batch
 
             batch_params = {
-                'stop_at': 1,                           # Default = False
+                'stop_at': 5,                           # Default = False
                 # 'reps': 1,                            # Default = 1
                 # 'mode': 'internal',                   # Default = 'multiple'
                 # 'shuffle': False,                     # Default = True
@@ -106,4 +106,43 @@ section#up-and-run
             span.def.
                 When this is enabled, if an error occurs, a browser window will open showing the results of trading up until 
                 the second the error occurred
+
+
+    h2#batch-of-one Batch of One
+    p.
+        If you are trying to test just one stock, it is highly recommended to still batch. Batching has better traceback and debug
+        capabilities and is already setup in the #[span.path main.py] file. In order to do a '#[em batch of one]', all you need to do is specify
+        #[span.prop stop_at] to be 1. Like so:
+    pre
+        code(class="language-python").
+            # main.py
+            from local_functions.main import batch_testing as batch
+
+            batch_params = {
+                'stop_at': 1
+                # Other Settings
+            }
+
+            batch.batch_test(**batch_params)
+    
+    p.
+        If you would like to pick the specific file you wish to test, I would recommend keeping a folder inside the 
+        #[span.path mkt_csvs] folder in which to put all of the other files. This way you can control 
+        which stock gets tested.
+
+    h2#without-batch Without Batching
+    p.
+        If necessary, you can also circumvent batching altogether. This is not recommended for the reasons stated above,
+        however, if you wish to do so, open up the #[span.path test.py] file in the root directory and paste:
+
+    pre
+        code(class="language-python").
+            # test.py
+            from local_functions.main import algo
+
+            CSV_NAME = 'path/to/stock.csv';
+
+            algo.test_trade(config='default', mode='csv',
+                    csv_file=CSV_NAME, batch_dir='temp_assets/')
+    
 

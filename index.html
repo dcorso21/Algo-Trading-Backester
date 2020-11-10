@@ -11,6 +11,7 @@
 <body>
   <div class="layout">
     <div class="table-of-contents">
+      <div class="darkMode">DarkMode</div>
       <ul class="lay1">
         <li><a href="#top">Intro</a></li>
         <li><a class="expand" href="#">File Structure Overview<i class="fas fa-chevron-down"></i></a>
@@ -35,8 +36,8 @@
             </li>
             <li><a class="expand" href="#"> Single Stock Testing <i class="fas fa-chevron-down"></i></a>
               <ul class="lay3 toggleView">
-                <li><a href="#">Batch of One</a></li>
-                <li><a href="#">Without Batching</a></li>
+                <li><a href="#batch-of-one">Batch of One</a></li>
+                <li><a href="#without-batch">Without Batching</a></li>
               </ul>
             </li>
           </ul>
@@ -326,7 +327,7 @@ batch.standard_year_test()
 from local_functions.main import batch_testing as batch
 
 batch_params = {
-    'stop_at': 1,                           # Default = False
+    'stop_at': 5,                           # Default = False
     # 'reps': 1,                            # Default = 1
     # 'mode': 'internal',                   # Default = 'multiple'
     # 'shuffle': False,                     # Default = True
@@ -370,8 +371,45 @@ batch.batch_test(**batch_params)
               shuffle and continue testing those particular stocks.</span></li>
           <li><span class="prop">debug_plot</span><span class="type">boolean</span><span class="def">
               When this is enabled, if an error occurs, a browser window will open showing the results of trading up until 
-              the second the error occurred</span></li>
+              the second the error occurred
+              
+              </span></li>
         </ul>
+        <h2 id="batch-of-one">Batch of One</h2>
+        <p>
+          If you are trying to test just one stock, it is highly recommended to still batch. Batching has better traceback and debug
+          capabilities and is already setup in the <span class="path">main.py</span> file. In order to do a '<em>batch of one</em>', all you need to do is specify
+          <span class="prop">stop_at</span> to be 1. Like so:
+        </p>
+        <pre><code class="language-python"># main.py
+from local_functions.main import batch_testing as batch
+
+batch_params = {
+    'stop_at': 1
+    # Other Settings
+}
+
+batch.batch_test(**batch_params)
+</code></pre>
+        <p>
+          If you would like to pick the specific file you wish to test, I would recommend keeping a folder inside the 
+          <span class="path">mkt_csvs</span> folder in which to put all of the other files. This way you can control 
+          which stock gets tested.
+          
+        </p>
+        <h2 id="without-batch">Without Batching</h2>
+        <p>
+          If necessary, you can also circumvent batching altogether. This is not recommended for the reasons stated above,
+          however, if you wish to do so, open up the <span class="path">test.py</span> file in the root directory and paste:
+          
+        </p>
+        <pre><code class="language-python"># test.py
+from local_functions.main import algo
+
+CSV_NAME = 'path/to/stock.csv';
+
+algo.test_trade(config='default', mode='csv',
+        csv_file=CSV_NAME, batch_dir='temp_assets/')</code></pre>
       </section>
     </div>
   </div>
