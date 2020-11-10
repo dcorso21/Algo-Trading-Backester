@@ -78,6 +78,7 @@ input, select, textarea {
 
 html {
   scroll-behavior: smooth;
+  scroll-margin: 30px;
 }
 
 body {
@@ -100,6 +101,21 @@ body {
   height: 100vh;
   overflow-y: scroll;
   scroll-behavior: smooth;
+}
+.layout h1,
+.layout h2,
+.layout h3 {
+  margin: 15px 0;
+}
+.layout h1::before,
+.layout h2::before,
+.layout h3::before {
+  display: block;
+  content: " ";
+  margin-top: -80px;
+  height: 80px;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .table-of-contents {
