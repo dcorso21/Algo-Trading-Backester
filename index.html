@@ -27,10 +27,10 @@
         </li>
         <li><a class="expand" href="#">Getting Up and Running<i class="fas fa-chevron-down"></i></a>
           <ul class="lay2 toggleView">
-            <li><a class="expand" href="#batch-testing">Batch Testing <i class="fas fa-chevron-down"></i></a>
+            <li><a class="expand" href="#">Batch Testing <i class="fas fa-chevron-down"></i></a>
               <ul class="lay3 toggleView">
-                <li><a href="#">Preparing a Batch</a></li>
-                <li><a href="#">Multiple Tests at Once</a></li>
+                <li><a href="#standard-batch">Standard Batch</a></li>
+                <li><a href="#batch-params">Batch Customization</a></li>
               </ul>
             </li>
             <li><a class="expand" href="#"> Single Stock Testing <i class="fas fa-chevron-down"></i></a>
@@ -294,9 +294,9 @@
         </div>
       </section>
       <section id="up-and-run">
-        <h2>Getting Up and Running</h2>
+        <h1>Getting Up and Running</h1>
         <p>This section will teach</p>
-        <h3 id="batch-testing">Introducing Batch Testing</h3>
+        <h2 id="standard-batch">Standard Batch</h2>
         <p>Batch testing is the main functionality of the backtester. The <em>batch_test</em> function is highly customizeable and has
           many keywords arguments to take advantage of. 
           
@@ -306,7 +306,6 @@
           <span class="path">main.py</span> file and do this:
         </p>
         <pre><code class="language-python"># main.py
-
 # batch.batch_test(**batch_params)
 batch.standard_year_test()
 # batch.compare_batches(**compare_params)
@@ -317,9 +316,9 @@ batch.standard_year_test()
           As you can see, there are several functions here that are used often and commented out. The 
           
           <func>standard_year_test</func> function is used to perform a normal batch test with no custom settings.
-          <br>
-          <br>
-          If, however, you would like to customize the batch test, then comment out all the lower functions except for 
+        </p>
+        <h2 id="batch-params">Batch Customization</h2>
+        <p>If, however, you would like to customize the batch test, then comment out all the lower functions except for 
           <func>batch_test</func> :
           
         </p>
@@ -340,7 +339,39 @@ batch_params = {
 
 batch.batch_test(**batch_params)
 </code></pre>
-        <p>When you use this function, the default kwargs are derived from the dictionary above.</p>
+        <p>
+          When you use this function, the default kwargs are derived from the dictionary above. Here is a
+          breakdown of the keywords and their meanings:
+          
+        </p>
+        <ul class="batch-properties">
+          <li><span class="prop">stop_at</span><span class="type">integer</span><span class="def">number of stocks (csv files) to test.</span></li>
+          <li><span class="prop">reps</span><span class="type">integer</span><span class="def">
+              number of times to test each stock OR to test entire set 
+              (this depends of the <span class="prop">mode</span> setting).</span></li>
+          <li><span class="prop">mode</span><span class="type">string</span><span class="def">
+              'internal' or 'multiple'. 'internal' means that each stock will be tested
+              <span class="prop">reps</span> amount of times. 'multiple' means that the entire batch of 
+              stocks will be tested <span class="prop">reps</span> amount of times.</span></li>
+          <li><span class="prop">shuffle</span><span class="type">boolean</span><span class="def">whether or not to randomize the order of stocks tested.</span></li>
+          <li><span class="prop">create_compare</span><span class="type">boolean or string</span><span class="def">
+              whether or not to create a batch compare file after the completion of 
+              this batch. If not, enter False. If so, enter either 'date', 'time', or 'config'.
+              When the batch is done there will be a batch comparison with the last batch created.
+              For more info on batch compare see <a href="#batch-compare">batch compare</a>.</span></li>
+          <li><span class="prop">config_setting</span><span class="type">string</span><span class="def">the name of the config file to use (located in <span class="path">config/saved_configurations</span>).
+              You can also enter 'default' for the config file at <span class="path">local_functions/main/config.json</span>.
+              Finally, you can alternatively enter 'pick' to have a terminal prompt with the available configurations.</span></li>
+          <li><span class="prop">first_run</span><span class="type">boolean</span><span class="def">
+              Because the function can be called recursively, it is helpful to know if it is the first run through the loop. 
+              This is done so there are not multiple results files made for batches that take advantage of the recursive function.</span></li>
+          <li><span class="prop">inherit_csvs</span><span class="type">boolean</span><span class="def">When a batch test is done, the names of the csvs used are saved in <span class="path">results/batch_csvs.json</span>.
+              This can be useful if you wish to shuffle the stocks tested for variety, but would like to save the 
+              shuffle and continue testing those particular stocks.</span></li>
+          <li><span class="prop">debug_plot</span><span class="type">boolean</span><span class="def">
+              When this is enabled, if an error occurs, a browser window will open showing the results of trading up until 
+              the second the error occurred</span></li>
+        </ul>
       </section>
     </div>
   </div>
