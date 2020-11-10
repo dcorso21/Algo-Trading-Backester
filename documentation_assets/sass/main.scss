@@ -4,10 +4,12 @@
 @use 'base/reset';
 @use 'base/layout';
 
+
 //Components
+@use 'components/table-of-contents.scss';
 .top-head{
     color: gc(bg);
-    background: linear-gradient(to right, rgb(56, 138, 33), rgb(255, 204, 0));
+    background: linear-gradient(to right, gc(header), gc(accent2));
     height: 30vh;
     display: flex;
     flex-direction: column;
@@ -15,16 +17,19 @@
     align-items: center;
 
     h1 {
-        font-size: 32px;
+        font-size: 45px;
+        margin: 20px 0;
+        font-weight: 100;
     }
 
     h2 {
         font-size: 22px;
+        font-style: italic;
     }
 }
 
 section {
-    margin: 20px 20%;
+    margin: 20px 5%;
     em {
         font-style: italic;
     }
@@ -39,13 +44,6 @@ section {
     h4 {
         font-size: 17px;
         color: gc(header);
-    }
-
-    ul {
-        padding: 5px 20px;
-        li {
-            padding: 5px;
-        }
     }
 }
 
