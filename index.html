@@ -13,16 +13,27 @@
     <div class="table-of-contents">
       <ul class="lay1">
         <li><a href="#top">Intro</a></li>
-        <li><a href="#file-struct">File Structure Overview</a></li>
-        <li><a href="#up-and-run">Getting Up and Running<i class="fas fa-chevron-down"></i></a>
+        <li><a class="expand" href="#">File Structure Overview<i class="fas fa-chevron-down"></i></a>
+          <ul class="lay2 toggleView">
+            <li> <a href="#root-level">Root Level</a></li>
+            <li> <a href="#batch-design">/batch_design</a></li>
+            <li> <a href="#config-folder">/config</a></li>
+            <li> <a href="#doc-assets">/documentation_assets</a></li>
+            <li> <a href="#local-funcs">/local_functions</a></li>
+            <li> <a href="#mkt-csvs">/mkt_csvs</a></li>
+            <li> <a href="#results">/results</a></li>
+            <li> <a href="#temp-assets">/temp_assets</a></li>
+          </ul>
+        </li>
+        <li><a class="expand" href="#">Getting Up and Running<i class="fas fa-chevron-down"></i></a>
           <ul class="lay2">
-            <li><a href="#batch-testing"> Introducing Batch Testing <i class="fas fa-chevron-down"></i></a>
+            <li><a class="expand" href="#batch-testing">Batch Testing <i class="fas fa-chevron-down"></i></a>
               <ul class="lay3 toggleView">
                 <li><a href="">Preparing a Batch</a></li>
                 <li><a href="">Multiple Tests at Once</a></li>
               </ul>
             </li>
-            <li><a href=""> Single Stock Testing <i class="fas fa-chevron-down"></i></a>
+            <li><a class="expand" href="#"> Single Stock Testing <i class="fas fa-chevron-down"></i></a>
               <ul class="lay3 toggleView">
                 <li><a href="">Batch of One</a></li>
                 <li><a href="">Without Batching</a></li>
@@ -30,8 +41,8 @@
             </li>
           </ul>
         </li>
-        <li><a href="#">Viewing Results</a>
-          <ul class="lay2">
+        <li><a class="expand" href="#">Viewing Results<i class="fas fa-chevron-down"></i></a>
+          <ul class="lay2 toggleView">
             <li> <a href="">Batch Results</a></li>
             <li> <a href="">Individual Day Results</a></li>
             <li> <a href="">Comparing Batches</a></li>
@@ -75,7 +86,7 @@
       <section id="file-struct">
         <h2>File Structure Overview</h2>
         <div class="folder"> 
-          <h3>Root Level</h3>
+          <h3 id="root-level">Root Level</h3>
           <p>Files in the home directory</p>
           <div class="file">
             <p><span class="path">index.html</span>: This page!</p>
@@ -101,22 +112,18 @@
           <div class="file">
             <p><span class="path">batches.html</span>: This file is updated with each batch test and serves as a directory for 
               all of the previous results of the batches. Here is the <a href="batches.html" target="_blank">current batches.html</a>.
-              
-              
             </p>
           </div>
         </div>
         <div class="folder"> 
-          <h3>/batch_design</h3>
+          <h3 id="batch-design">/batch_design</h3>
           <p>This directory holds the templates and the assets (CSS, JS, Fonts) for the 
             <div id="results-files">results pages</div> 
             These assets are both used when visiting the results pages, and also used for creating them.
-            
-            
           </p>
         </div>
         <div class="folder">
-          <h3>/config</h3>
+          <h3 id="config-folder">/config</h3>
           <p>
             This folder stores all of the saved configurations for batch tests and also the templates for creating 
             new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
@@ -125,14 +132,11 @@
           </p>
         </div>
         <div class="folder"> 
-          <h3>/documentation_assets</h3>
-          <p>
-            The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.
-            
-          </p>
+          <h3 id="doc-assets">/documentation_assets</h3>
+          <p>The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.</p>
         </div>
         <div class="folder">
-          <h3>/local_functions</h3>
+          <h3 id="local-funcs">/local_functions</h3>
           <p>
             Local Functions is where all of the code for trading is located. Inside this folder are multiple folders which divide 
             the work of trading the stock. All of these python files are meant to be accessed through the <span class="path">main.py</span> file as modules.
@@ -266,14 +270,14 @@
           </div>
         </div>
         <div class="folder">
-          <h3>mkt_csvs</h3>
+          <h3 id="mkt-csvs">/mkt_csvs</h3>
           <p>
             The csv data of market prices (OHLC) each minute that the market is open. It is important 
             to populate this folder because the batch testing uses this data to trade.
           </p>
         </div>
         <div class="folder">
-          <h3 id="results-files">Results</h3>
+          <h3 id="results-files">/results</h3>
           <p>
             This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
             and time and can be accessed with great detail through the <span class="path">batches.html</span> file. You can visit 
@@ -281,7 +285,7 @@
           </p>
         </div>
         <div class="folder">
-          <h3>Temp_Assets</h3>
+          <h3 id="temp-assets">/temp_assets</h3>
           <p>
             This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
             each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
