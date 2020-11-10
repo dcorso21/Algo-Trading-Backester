@@ -1,0 +1,50 @@
+section
+    h2 Getting Up and Running
+    p.
+        This section will teach
+    h3#batch-testing Introducing Batch Testing
+    p.
+        Batch testing is the main functionality of the backtester. The #[em batch_test] function is highly customizeable and has
+        many keywords arguments to take advantage of. 
+
+        #[br]
+        #[br]
+        If you would like to simply run a full test of all of the csv files in the #[span.path mkt_csvs] folder, simply go to the
+        #[span.path main.py] file and do this:
+    pre
+        code(class="language-python").
+
+            # batch.batch_test(**batch_params)
+            batch.standard_year_test()
+            # batch.compare_batches(**compare_params)
+            # batch.gl.save_worst_performers()
+            # batch.delete_results(min_stock_count=100)
+
+    p.
+        As you can see, there are several functions here that are used often and commented out. The 
+        #[func standard_year_test] function is used to perform a normal batch test with no custom settings.
+        #[br]
+        #[br]
+        If, however, you would like to customize the batch test, then comment out all the lower functions except for #[func batch_test] :
+
+    pre
+        code(class="language-python").
+            # 
+            from local_functions.main import batch_testing as batch
+
+            batch_params = {
+                'stop_at': 1,                           # Default = False
+                # 'reps': 1,                            # Default = 1
+                # 'mode': 'internal',                   # Default = 'multiple'
+                # 'shuffle': False,                     # Default = True
+                # 'create_compare': True,               # Default = False
+                # 'config_setting': 'pick',             # Default = 'default'
+                # 'first_run': False,                   # Default = True
+                'inherit_csvs':  True,                  # Default = False
+                'debug_plot':  True,                    # Default = False
+            }
+
+            batch.batch_test(**batch_params)
+    
+    p.
+        When you use this function, the default kwargs are derived from the dictionary above.

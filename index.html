@@ -5,6 +5,7 @@
   <title>Algorithmic Documentation</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,400;0,700;1,100;1,300;1,400&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="documentation_assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous">
 </head>
 <header class="top-head">
   <h1>Algorithmic Trading Backtester</h1>
@@ -18,7 +19,7 @@
       <li><a href="#">File Structure Overview</a></li>
       <li><a href="#">Getting Up and Running</a>
         <ul>
-          <li><a href=""> Batch Testing </a></li>
+          <li><a href="#batch-testing"> Introducing Batch Testing </a></li>
           <ul> 
             <li><a href="">Preparing a Batch</a></li>
             <li><a href="">Multiple Tests at Once</a></li>
@@ -236,7 +237,7 @@
           <p><span class="path">api_chart.py</span>: This file is for a not-yet-implemented feature of pulling data from a direct-market-access provider and plotting the results with PyQT5.</p>
         </div>
         <div class="file">
-          <p><span class="path">candles.py</span>: This file works in conjunction with <span class="file">api_chart.py</span> with this one specifically
+          <p><span class="path">candles.py</span>: This file works in conjunction with <span class="path">api_chart.py</span> with this one specifically
             interfacing with PyQT5.
           </p>
         </div>
@@ -283,4 +284,53 @@
       </p>
     </div>
   </section>
+  <section>
+    <h2>Getting Up and Running</h2>
+    <p>This section will teach</p>
+    <h3 id="batch-testing">Introducing Batch Testing</h3>
+    <p>Batch testing is the main functionality of the backtester. The <em>batch_test</em> function is highly customizeable and has
+      many keywords arguments to take advantage of. 
+      
+      <br>
+      <br>
+      If you would like to simply run a full test of all of the csv files in the <span class="path">mkt_csvs</span> folder, simply go to the
+      <span class="path">main.py</span> file and do this:
+    </p>
+    <pre><code class="language-python"># batch.batch_test(**batch_params)
+batch.standard_year_test()
+# batch.compare_batches(**compare_params)
+# batch.gl.save_worst_performers()
+# batch.delete_results(min_stock_count=100)
+</code></pre>
+    <p>
+      As you can see, there are several functions here that are used often and commented out. The 
+      
+      <func>standard_year_test</func> function is used to perform a normal batch test with no custom settings.
+      <br>
+      <br>
+      If, however, you would like to customize the batch test, then comment out all the lower functions except for 
+      <func>batch_test</func> :
+      
+    </p>
+    <pre><code class="language-python"># 
+from local_functions.main import batch_testing as batch
+
+batch_params = {
+    'stop_at': 1,                           # Default = False
+    # 'reps': 1,                            # Default = 1
+    # 'mode': 'internal',                   # Default = 'multiple'
+    # 'shuffle': False,                     # Default = True
+    # 'create_compare': True,               # Default = False
+    # 'config_setting': 'pick',             # Default = 'default'
+    # 'first_run': False,                   # Default = True
+    'inherit_csvs':  True,                  # Default = False
+    'debug_plot':  True,                    # Default = False
+}
+
+batch.batch_test(**batch_params)
+</code></pre>
+    <p>When you use this function, the default kwargs are derived from the dictionary above.</p>
+  </section>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/prism.min.js" integrity="sha512-9+422Bs3A87UkWfp+qV80Nfv9arhbCXKY1rxrF2seorI36mIIstMiuBfyKLF1yH1nnzQkEWq2xrzT4XU3Z+vrA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.min.js"></script>
 </body>

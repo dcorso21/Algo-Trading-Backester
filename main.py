@@ -22,8 +22,8 @@ compare_params = {
 }
 
 
-# batch.batch_test(**batch_params)
-batch.standard_year_test()
+batch.batch_test(**batch_params)
+# batch.standard_year_test()
 # batch.compare_batches(**compare_params)
 # batch.gl.save_worst_performers()
 # batch.delete_results(min_stock_count=100)
