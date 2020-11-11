@@ -6,35 +6,47 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,400;0,700;1,100;1,300;1,400&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="documentation_assets/css/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous">
 </head>
 <body>
   <div class="layout">
     <div class="table-of-contents">
+      <div class="darkMode">DarkMode</div>
       <ul class="lay1">
         <li><a href="#top">Intro</a></li>
-        <li><a href="#file-struct">File Structure Overview</a></li>
-        <li><a href="#up-and-run">Getting Up and Running</a>
-          <ul class="lay2">
-            <li>
-              <li><a href="#batch-testing"> Introducing Batch Testing </a></li>
-              <ul class="lay3">
-                <li><a href="">Preparing a Batch</a></li>
-                <li><a href="">Multiple Tests at Once</a></li>
+        <li><a class="expand" href="#">File Structure Overview<i class="fas fa-chevron-down"></i></a>
+          <ul class="lay2 toggleView">
+            <li> <a href="#root-level">Root Level</a></li>
+            <li> <a href="#batch-design">/batch_design</a></li>
+            <li> <a href="#config-folder">/config</a></li>
+            <li> <a href="#doc-assets">/documentation_assets</a></li>
+            <li> <a href="#local-funcs">/local_functions</a></li>
+            <li> <a href="#mkt-csvs">/mkt_csvs</a></li>
+            <li> <a href="#results">/results</a></li>
+            <li> <a href="#temp-assets">/temp_assets</a></li>
+          </ul>
+        </li>
+        <li><a class="expand" href="#">Getting Up and Running<i class="fas fa-chevron-down"></i></a>
+          <ul class="lay2 toggleView">
+            <li><a class="expand" href="#">Batch Testing <i class="fas fa-chevron-down"></i></a>
+              <ul class="lay3 toggleView">
+                <li><a href="#standard-batch">Standard Batch</a></li>
+                <li><a href="#batch-params">Batch Customization</a></li>
               </ul>
             </li>
-            <li><a href=""> Single Stock Testing </a>
-              <ul class="lay3">
-                <li><a href="">Batch of One</a></li>
-                <li><a href="">Without Batching</a></li>
+            <li><a class="expand" href="#"> Single Stock Testing <i class="fas fa-chevron-down"></i></a>
+              <ul class="lay3 toggleView">
+                <li><a href="#batch-of-one">Batch of One</a></li>
+                <li><a href="#without-batch">Without Batching</a></li>
               </ul>
             </li>
           </ul>
         </li>
-        <li><a href="#">Viewing Results</a>
-          <ul class="lay2">
-            <li> <a href="">Batch Results</a></li>
-            <li> <a href="">Individual Day Results</a></li>
-            <li> <a href="">Comparing Batches</a></li>
+        <li><a class="expand" href="#">Viewing Results<i class="fas fa-chevron-down"></i></a>
+          <ul class="lay2 toggleView">
+            <li> <a href="#">Batch Results</a></li>
+            <li> <a href="#">Individual Day Results</a></li>
+            <li> <a href="#">Comparing Batches</a></li>
           </ul>
         </li>
         <li><a href="#">Creating A Strategy</a></li>
@@ -75,7 +87,7 @@
       <section id="file-struct">
         <h2>File Structure Overview</h2>
         <div class="folder"> 
-          <h3>Root Level</h3>
+          <h3 id="root-level">Root Level</h3>
           <p>Files in the home directory</p>
           <div class="file">
             <p><span class="path">index.html</span>: This page!</p>
@@ -101,22 +113,18 @@
           <div class="file">
             <p><span class="path">batches.html</span>: This file is updated with each batch test and serves as a directory for 
               all of the previous results of the batches. Here is the <a href="batches.html" target="_blank">current batches.html</a>.
-              
-              
             </p>
           </div>
         </div>
         <div class="folder"> 
-          <h3>/batch_design</h3>
+          <h3 id="batch-design">/batch_design</h3>
           <p>This directory holds the templates and the assets (CSS, JS, Fonts) for the 
             <div id="results-files">results pages</div> 
             These assets are both used when visiting the results pages, and also used for creating them.
-            
-            
           </p>
         </div>
         <div class="folder">
-          <h3>/config</h3>
+          <h3 id="config-folder">/config</h3>
           <p>
             This folder stores all of the saved configurations for batch tests and also the templates for creating 
             new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
@@ -125,14 +133,11 @@
           </p>
         </div>
         <div class="folder"> 
-          <h3>/documentation_assets</h3>
-          <p>
-            The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.
-            
-          </p>
+          <h3 id="doc-assets">/documentation_assets</h3>
+          <p>The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.</p>
         </div>
         <div class="folder">
-          <h3>/local_functions</h3>
+          <h3 id="local-funcs">/local_functions</h3>
           <p>
             Local Functions is where all of the code for trading is located. Inside this folder are multiple folders which divide 
             the work of trading the stock. All of these python files are meant to be accessed through the <span class="path">main.py</span> file as modules.
@@ -266,14 +271,14 @@
           </div>
         </div>
         <div class="folder">
-          <h3>mkt_csvs</h3>
+          <h3 id="mkt-csvs">/mkt_csvs</h3>
           <p>
             The csv data of market prices (OHLC) each minute that the market is open. It is important 
             to populate this folder because the batch testing uses this data to trade.
           </p>
         </div>
         <div class="folder">
-          <h3 id="results-files">Results</h3>
+          <h3 id="results-files">/results</h3>
           <p>
             This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
             and time and can be accessed with great detail through the <span class="path">batches.html</span> file. You can visit 
@@ -281,7 +286,7 @@
           </p>
         </div>
         <div class="folder">
-          <h3>Temp_Assets</h3>
+          <h3 id="temp-assets">/temp_assets</h3>
           <p>
             This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
             each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
@@ -290,9 +295,9 @@
         </div>
       </section>
       <section id="up-and-run">
-        <h2>Getting Up and Running</h2>
+        <h1>Getting Up and Running</h1>
         <p>This section will teach</p>
-        <h3 id="batch-testing">Introducing Batch Testing</h3>
+        <h2 id="standard-batch">Standard Batch</h2>
         <p>Batch testing is the main functionality of the backtester. The <em>batch_test</em> function is highly customizeable and has
           many keywords arguments to take advantage of. 
           
@@ -302,7 +307,6 @@
           <span class="path">main.py</span> file and do this:
         </p>
         <pre><code class="language-python"># main.py
-
 # batch.batch_test(**batch_params)
 batch.standard_year_test()
 # batch.compare_batches(**compare_params)
@@ -313,9 +317,9 @@ batch.standard_year_test()
           As you can see, there are several functions here that are used often and commented out. The 
           
           <func>standard_year_test</func> function is used to perform a normal batch test with no custom settings.
-          <br>
-          <br>
-          If, however, you would like to customize the batch test, then comment out all the lower functions except for 
+        </p>
+        <h2 id="batch-params">Batch Customization</h2>
+        <p>If, however, you would like to customize the batch test, then comment out all the lower functions except for 
           <func>batch_test</func> :
           
         </p>
@@ -323,7 +327,7 @@ batch.standard_year_test()
 from local_functions.main import batch_testing as batch
 
 batch_params = {
-    'stop_at': 1,                           # Default = False
+    'stop_at': 5,                           # Default = False
     # 'reps': 1,                            # Default = 1
     # 'mode': 'internal',                   # Default = 'multiple'
     # 'shuffle': False,                     # Default = True
@@ -336,10 +340,81 @@ batch_params = {
 
 batch.batch_test(**batch_params)
 </code></pre>
-        <p>When you use this function, the default kwargs are derived from the dictionary above.</p>
+        <p>
+          When you use this function, the default kwargs are derived from the dictionary above. Here is a
+          breakdown of the keywords and their meanings:
+          
+        </p>
+        <ul class="batch-properties">
+          <li><span class="prop">stop_at</span><span class="type">integer</span><span class="def">number of stocks (csv files) to test.</span></li>
+          <li><span class="prop">reps</span><span class="type">integer</span><span class="def">
+              number of times to test each stock OR to test entire set 
+              (this depends of the <span class="prop">mode</span> setting).</span></li>
+          <li><span class="prop">mode</span><span class="type">string</span><span class="def">
+              'internal' or 'multiple'. 'internal' means that each stock will be tested
+              <span class="prop">reps</span> amount of times. 'multiple' means that the entire batch of 
+              stocks will be tested <span class="prop">reps</span> amount of times.</span></li>
+          <li><span class="prop">shuffle</span><span class="type">boolean</span><span class="def">whether or not to randomize the order of stocks tested.</span></li>
+          <li><span class="prop">create_compare</span><span class="type">boolean or string</span><span class="def">
+              whether or not to create a batch compare file after the completion of 
+              this batch. If not, enter False. If so, enter either 'date', 'time', or 'config'.
+              When the batch is done there will be a batch comparison with the last batch created.
+              For more info on batch compare see <a href="#batch-compare">batch compare</a>.</span></li>
+          <li><span class="prop">config_setting</span><span class="type">string</span><span class="def">the name of the config file to use (located in <span class="path">config/saved_configurations</span>).
+              You can also enter 'default' for the config file at <span class="path">local_functions/main/config.json</span>.
+              Finally, you can alternatively enter 'pick' to have a terminal prompt with the available configurations.</span></li>
+          <li><span class="prop">first_run</span><span class="type">boolean</span><span class="def">
+              Because the function can be called recursively, it is helpful to know if it is the first run through the loop. 
+              This is done so there are not multiple results files made for batches that take advantage of the recursive function.</span></li>
+          <li><span class="prop">inherit_csvs</span><span class="type">boolean</span><span class="def">When a batch test is done, the names of the csvs used are saved in <span class="path">results/batch_csvs.json</span>.
+              This can be useful if you wish to shuffle the stocks tested for variety, but would like to save the 
+              shuffle and continue testing those particular stocks.</span></li>
+          <li><span class="prop">debug_plot</span><span class="type">boolean</span><span class="def">
+              When this is enabled, if an error occurs, a browser window will open showing the results of trading up until 
+              the second the error occurred
+              
+              </span></li>
+        </ul>
+        <h2 id="batch-of-one">Batch of One</h2>
+        <p>
+          If you are trying to test just one stock, it is highly recommended to still batch. Batching has better traceback and debug
+          capabilities and is already setup in the <span class="path">main.py</span> file. In order to do a '<em>batch of one</em>', all you need to do is specify
+          <span class="prop">stop_at</span> to be 1. Like so:
+        </p>
+        <pre><code class="language-python"># main.py
+from local_functions.main import batch_testing as batch
+
+batch_params = {
+    'stop_at': 1
+    # Other Settings
+}
+
+batch.batch_test(**batch_params)
+</code></pre>
+        <p>
+          If you would like to pick the specific file you wish to test, I would recommend keeping a folder inside the 
+          <span class="path">mkt_csvs</span> folder in which to put all of the other files. This way you can control 
+          which stock gets tested.
+          
+        </p>
+        <h2 id="without-batch">Without Batching</h2>
+        <p>
+          If necessary, you can also circumvent batching altogether. This is not recommended for the reasons stated above,
+          however, if you wish to do so, open up the <span class="path">test.py</span> file in the root directory and paste the following:
+          
+        </p>
+        <pre><code class="language-python"># test.py
+from local_functions.main import algo
+
+CSV_NAME = 'path/to/stock.csv';
+
+algo.test_trade(config='default', mode='csv',
+        csv_file=CSV_NAME, batch_dir='temp_assets/')</code></pre>
+        <p><em>note: make sure to put the path to your csv file in the variable string</em>.</p>
       </section>
     </div>
   </div>
+  <script src="documentation_assets/index.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/prism.min.js" integrity="sha512-9+422Bs3A87UkWfp+qV80Nfv9arhbCXKY1rxrF2seorI36mIIstMiuBfyKLF1yH1nnzQkEWq2xrzT4XU3Z+vrA==" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.min.js"></script>
 </body>

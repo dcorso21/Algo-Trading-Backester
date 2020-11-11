@@ -1,36 +1,58 @@
 .table-of-contents
+    .darkMode DarkMode
     ul.lay1
         li
             a(href='#top') Intro
         li
-            a(href='#file-struct') File Structure Overview
+            a.expand(href='#') File Structure Overview
+                i.fas.fa-chevron-down
+            ul.lay2.toggleView
+                li 
+                    a(href='#root-level') Root Level
+                li 
+                    a(href='#batch-design') /batch_design
+                li 
+                    a(href='#config-folder') /config
+                li 
+                    a(href='#doc-assets') /documentation_assets
+                li 
+                    a(href='#local-funcs') /local_functions
+                li 
+                    a(href='#mkt-csvs') /mkt_csvs
+                li 
+                    a(href='#results') /results
+                li 
+                    a(href='#temp-assets') /temp_assets
         li
-            a(href='#up-and-run') Getting Up and Running
-            ul.lay2
+            a.expand(href='#') Getting Up and Running
+                i.fas.fa-chevron-down
+            ul.lay2.toggleView
                 li
-                    li
-                        a(href='#batch-testing')  Introducing Batch Testing 
-                    ul.lay3
+                    a.expand(href='#') Batch Testing 
+                        i.fas.fa-chevron-down
+                    ul.lay3.toggleView
                         li
-                            a(href='') Preparing a Batch
+                            a(href='#standard-batch') Standard Batch
                         li
-                            a(href='') Multiple Tests at Once
+                            a(href='#batch-params') Batch Customization
                 li
-                    a(href='')  Single Stock Testing 
-                    ul.lay3
+                    a.expand(href='#')  Single Stock Testing 
+                        i.fas.fa-chevron-down
+                    ul.lay3.toggleView
                         li
-                            a(href='') Batch of One
+                            a(href='#batch-of-one') Batch of One
                         li
-                            a(href='') Without Batching
+                            a(href='#without-batch') Without Batching
         li
-            a(href='#') Viewing Results
-            ul.lay2
+            a.expand(href='#') Viewing Results
+                i.fas.fa-chevron-down
+            ul.lay2.toggleView
                 li 
-                    a(href='') Batch Results
+                    a(href='#') Batch Results
                 li 
-                    a(href='') Individual Day Results
+                    a(href='#') Individual Day Results
                 li 
-                    a(href='') Comparing Batches
+                    a(href='#') Comparing Batches
         li
             a(href='#') Creating A Strategy
         li

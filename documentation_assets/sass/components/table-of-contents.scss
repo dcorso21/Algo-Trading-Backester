@@ -1,9 +1,41 @@
 @use '../libs' as *;
 
+.darkMode {
+    position: absolute;
+    bottom: 0;
+    right: 50%;
+    color: gc(bg);
+    background-color: rgba(143, 143, 143, 0.625);
+    padding: 10px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all .3s;
+
+    &:hover {
+        background-color: rgb(0, 0, 0);
+    }
+}
+
 .table-of-contents {
+
+    &::-webkit-scrollbar-corner{
+        background: transparent;
+    }
+    &::-webkit-scrollbar{
+        background: transparent;
+        // background-color: transparent;
+    }
+
     @include flex-center;
     justify-content: start;
     background-color: gc(header);
+
+    i {
+        font-size: 80%;
+        margin-left: 10px;
+        transform: rotate(0deg);
+    }
+
     a {
         display: block;
         width: 80%;
@@ -13,8 +45,8 @@
         border-top-right-radius: 20px;
         padding: 5px 15px;
         margin-right: 30px;
-        transition: all .3s;
-        transform: translateX(-10px);
+        transition: all .3s ease-in-out;
+        transform: translateX(-5px);
         &:hover {
             color: gc(header);
             // border-bottom: 1px solid gc(bg);
@@ -42,4 +74,8 @@
             padding-left: 160px;
         }
     }
+}
+
+.toggleView {
+    display: none;
 }

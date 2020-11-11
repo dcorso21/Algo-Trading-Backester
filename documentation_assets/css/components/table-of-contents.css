@@ -6,8 +6,23 @@
 }
 
 .dark {
-  --bg: #fff;
-  --fg: #363636;
+  --bg: #000;
+  --fg: #fff;
+}
+
+.darkMode {
+  position: absolute;
+  bottom: 0;
+  right: 50%;
+  color: var(--bg);
+  background-color: rgba(143, 143, 143, 0.625);
+  padding: 10px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.darkMode:hover {
+  background-color: black;
 }
 
 .table-of-contents {
@@ -16,6 +31,17 @@
   align-items: center;
   justify-content: start;
   background-color: var(--header);
+}
+.table-of-contents::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.table-of-contents::-webkit-scrollbar {
+  background: transparent;
+}
+.table-of-contents i {
+  font-size: 80%;
+  margin-left: 10px;
+  transform: rotate(0deg);
 }
 .table-of-contents a {
   display: block;
@@ -26,8 +52,8 @@
   border-top-right-radius: 20px;
   padding: 5px 15px;
   margin-right: 30px;
-  transition: all 0.3s;
-  transform: translateX(-10px);
+  transition: all 0.3s ease-in-out;
+  transform: translateX(-5px);
 }
 .table-of-contents a:hover {
   color: var(--header);
@@ -46,4 +72,8 @@
 }
 .table-of-contents .lay3 a {
   padding-left: 160px;
+}
+
+.toggleView {
+  display: none;
 }

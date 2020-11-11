@@ -1,8 +1,8 @@
 section#up-and-run
-    h2 Getting Up and Running
+    h1 Getting Up and Running
     p.
         This section will teach
-    h3#batch-testing Introducing Batch Testing
+    h2#standard-batch Standard Batch
     p.
         Batch testing is the main functionality of the backtester. The #[em batch_test] function is highly customizeable and has
         many keywords arguments to take advantage of. 
@@ -14,7 +14,6 @@ section#up-and-run
     pre
         code(class="language-python").
             # main.py
-
             # batch.batch_test(**batch_params)
             batch.standard_year_test()
             # batch.compare_batches(**compare_params)
@@ -24,8 +23,8 @@ section#up-and-run
     p.
         As you can see, there are several functions here that are used often and commented out. The 
         #[func standard_year_test] function is used to perform a normal batch test with no custom settings.
-        #[br]
-        #[br]
+    h2#batch-params Batch Customization
+    p.
         If, however, you would like to customize the batch test, then comment out all the lower functions except for #[func batch_test] :
 
     pre
@@ -34,7 +33,7 @@ section#up-and-run
             from local_functions.main import batch_testing as batch
 
             batch_params = {
-                'stop_at': 1,                           # Default = False
+                'stop_at': 5,                           # Default = False
                 # 'reps': 1,                            # Default = 1
                 # 'mode': 'internal',                   # Default = 'multiple'
                 # 'shuffle': False,                     # Default = True
@@ -48,4 +47,104 @@ section#up-and-run
             batch.batch_test(**batch_params)
     
     p.
-        When you use this function, the default kwargs are derived from the dictionary above.
+        When you use this function, the default kwargs are derived from the dictionary above. Here is a
+        breakdown of the keywords and their meanings:
+    
+    ul.batch-properties
+        li
+            span.prop stop_at
+            span.type integer
+            span.def number of stocks (csv files) to test.
+        li
+            span.prop reps
+            span.type integer
+            span.def.
+                number of times to test each stock OR to test entire set 
+                (this depends of the #[span.prop mode] setting).
+        li
+            span.prop mode
+            span.type string
+            span.def.
+                'internal' or 'multiple'. 'internal' means that each stock will be tested
+                #[span.prop reps] amount of times. 'multiple' means that the entire batch of 
+                stocks will be tested #[span.prop reps] amount of times.
+        li
+            span.prop shuffle
+            span.type boolean
+            span.def whether or not to randomize the order of stocks tested.
+        li
+            span.prop create_compare
+            span.type boolean or string
+            span.def.
+                whether or not to create a batch compare file after the completion of 
+                this batch. If not, enter False. If so, enter either 'date', 'time', or 'config'.
+                When the batch is done there will be a batch comparison with the last batch created.
+                For more info on batch compare see #[a(href="#batch-compare") batch compare].
+        li
+            span.prop config_setting
+            span.type string
+            span.def.
+                the name of the config file to use (located in #[span.path config/saved_configurations]).
+                You can also enter 'default' for the config file at #[span.path local_functions/main/config.json].
+                Finally, you can alternatively enter 'pick' to have a terminal prompt with the available configurations.
+        li
+            span.prop first_run
+            span.type boolean
+            span.def.
+                Because the function can be called recursively, it is helpful to know if it is the first run through the loop. 
+                This is done so there are not multiple results files made for batches that take advantage of the recursive function.
+        li
+            span.prop inherit_csvs
+            span.type boolean
+            span.def.
+                When a batch test is done, the names of the csvs used are saved in #[span.path results/batch_csvs.json].
+                This can be useful if you wish to shuffle the stocks tested for variety, but would like to save the 
+                shuffle and continue testing those particular stocks.
+        li
+            span.prop debug_plot
+            span.type boolean
+            span.def.
+                When this is enabled, if an error occurs, a browser window will open showing the results of trading up until 
+                the second the error occurred
+
+
+    h2#batch-of-one Batch of One
+    p.
+        If you are trying to test just one stock, it is highly recommended to still batch. Batching has better traceback and debug
+        capabilities and is already setup in the #[span.path main.py] file. In order to do a '#[em batch of one]', all you need to do is specify
+        #[span.prop stop_at] to be 1. Like so:
+    pre
+        code(class="language-python").
+            # main.py
+            from local_functions.main import batch_testing as batch
+
+            batch_params = {
+                'stop_at': 1
+                # Other Settings
+            }
+
+            batch.batch_test(**batch_params)
+    
+    p.
+        If you would like to pick the specific file you wish to test, I would recommend keeping a folder inside the 
+        #[span.path mkt_csvs] folder in which to put all of the other files. This way you can control 
+        which stock gets tested.
+
+    h2#without-batch Without Batching
+    p.
+        If necessary, you can also circumvent batching altogether. This is not recommended for the reasons stated above,
+        however, if you wish to do so, open up the #[span.path test.py] file in the root directory and paste the following:
+
+    pre
+        code(class="language-python").
+            # test.py
+            from local_functions.main import algo
+
+            CSV_NAME = 'path/to/stock.csv';
+
+            algo.test_trade(config='default', mode='csv',
+                    csv_file=CSV_NAME, batch_dir='temp_assets/')
+    p.
+        #[em note: make sure to put the path to your csv file in the variable string].
+    
+

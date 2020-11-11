@@ -2,7 +2,7 @@ section#file-struct
     h2 File Structure Overview
 
     .folder 
-        h3 Root Level
+        h3#root-level Root Level
         p.
             Files in the home directory
         .file
@@ -27,29 +27,24 @@ section#file-struct
             p.
                 #[span.path batches.html]: This file is updated with each batch test and serves as a directory for 
                 all of the previous results of the batches. Here is the #[a(href="batches.html" target="_blank") current batches.html].
-
-
     .folder 
-        h3 /batch_design
+        h3#batch-design /batch_design
         p.
             This directory holds the templates and the assets (CSS, JS, Fonts) for the #[#results-files results pages] 
             These assets are both used when visiting the results pages, and also used for creating them.
-
-
     .folder
-        h3 /config
+        h3#config-folder /config
         p.
             This folder stores all of the saved configurations for batch tests and also the templates for creating 
             new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
             is done, please check out my documentation of the process 
             #[a(href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank") here].
     .folder 
-        h3 /documentation_assets
+        h3#doc-assets /documentation_assets
         p.
             The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.
-
     .folder
-        h3 /local_functions
+        h3#local-funcs /local_functions
         p.
             Local Functions is where all of the code for trading is located. Inside this folder are multiple folders which divide 
             the work of trading the stock. All of these python files are meant to be accessed through the #[span.path main.py] file as modules.
@@ -163,18 +158,18 @@ section#file-struct
                 p.
                     #[span.path trade_funcs.py]: This file hosts functions that the algorithm uses to send and receive trades and update its position history (as well as position analysis).
     .folder
-        h3 mkt_csvs
+        h3#mkt-csvs /mkt_csvs
         p.
             The csv data of market prices (OHLC) each minute that the market is open. It is important 
             to populate this folder because the batch testing uses this data to trade.
     .folder
-        h3#results-files Results
+        h3#results-files /results
         p.
             This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
             and time and can be accessed with great detail through the #[span.path batches.html] file. You can visit 
             the active link #[a(href="batches.html" target="_blank") here].
     .folder
-        h3 Temp_Assets
+        h3#temp-assets /temp_assets
         p.
             This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
             each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
