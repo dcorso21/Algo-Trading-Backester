@@ -49,9 +49,9 @@
             <li> <a href="#batch-comparisons">Batch Comparisons</a></li>
           </ul>
         </li>
-        <li><a href="#">Creating A Strategy</a></li>
-        <li><a href="#">Debug Mode</a></li>
-        <li><a href="#">Configuration Files</a></li>
+        <li><a href="#create-strategy">Creating A Strategy</a></li>
+        <li><a href="#debug">Debug Mode</a></li>
+        <li><a href="#configuration">Configuration Files</a></li>
       </ul>
     </div>
     <div class="main">
@@ -85,9 +85,9 @@
         </p>
       </section>
       <section id="file-struct">
-        <h2>File Structure Overview</h2>
+        <h1>File Structure Overview</h1>
         <div class="folder"> 
-          <h3 id="root-level">Root Level</h3>
+          <h2 id="root-level">Root Level</h2>
           <p>Files in the home directory</p>
           <div class="file">
             <p><span class="path">index.html</span>: This page!</p>
@@ -117,14 +117,14 @@
           </div>
         </div>
         <div class="folder"> 
-          <h3 id="batch-design">/batch_design</h3>
+          <h2 id="batch-design">/batch_design</h2>
           <p>This directory holds the templates and the assets (CSS, JS, Fonts) for the 
             <div id="results-files">results pages</div> 
             These assets are both used when visiting the results pages, and also used for creating them.
           </p>
         </div>
         <div class="folder">
-          <h3 id="config-folder">/config</h3>
+          <h2 id="config-folder">/config</h2>
           <p>
             This folder stores all of the saved configurations for batch tests and also the templates for creating 
             new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
@@ -133,21 +133,21 @@
           </p>
         </div>
         <div class="folder"> 
-          <h3 id="doc-assets">/documentation_assets</h3>
+          <h2 id="doc-assets">/documentation_assets</h2>
           <p>The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.</p>
         </div>
         <div class="folder">
-          <h3 id="local-funcs">/local_functions</h3>
+          <h2 id="local-funcs">/local_functions</h2>
           <p>
             Local Functions is where all of the code for trading is located. Inside this folder are multiple folders which divide 
             the work of trading the stock. All of these python files are meant to be accessed through the <span class="path">main.py</span> file as modules.
           </p>
           <div class="folder"> 
-            <h4>/account</h4>
+            <h3>/account</h3>
             <p>This folder is for account info. At present it only keeps track of starting capital.</p>
           </div>
           <div class="folder">
-            <h4>/analyse</h4>
+            <h3>/analyse</h3>
             <p>
               There are three processes going on continuously as a stock is being considered during trading hours: Data Gathering, Data Analysis, and Trade Execution. 
               This folder deals with the second process: Data Analysis
@@ -182,7 +182,7 @@
             </div>
           </div>
           <div class="folder">
-            <h4>/data_management</h4>
+            <h3>/data_management</h3>
             <p>Data Management is where the second data is generated, the csvs are pulled and so much more.</p>
             <div class="file">
               <p><span class="path">gather_data.py</span>: This file is dedicated to tasks run every (simulated) second to inform the algorithm on
@@ -204,7 +204,7 @@
             </div>
           </div>
           <div class="folder">
-            <h4>/main</h4>
+            <h3>/main</h3>
             <p>
               The folder which holds files with configuration, batch testing, and global variables as well as other miscellaneous things
               like logging.
@@ -238,7 +238,7 @@
             </div>
           </div>
           <div class="folder">
-            <h4>/plotting</h4>
+            <h3>/plotting</h3>
             <p>Folder is home to functions dedicated to plotting the results of the batch tests.</p>
             <div class="file">
               <p><span class="path">plot_results.py</span>: The main file responsible for results plotting.</p>
@@ -253,7 +253,7 @@
             </div>
           </div>
           <div class="folder">
-            <h4>/trade_funcs</h4>
+            <h3>/trade_funcs</h3>
             <p>
               This folder is all about sending orders and simulating executions in the backtester. The two are similar, but it is important to keep in
               mind what the algorithm can be aware of. While the program can know if a trade is about to fill in the next second, the algorithm can still not know that. So this is why there are two files here.
@@ -271,14 +271,14 @@
           </div>
         </div>
         <div class="folder">
-          <h3 id="mkt-csvs">/mkt_csvs</h3>
+          <h2 id="mkt-csvs">/mkt_csvs</h2>
           <p>
             The csv data of market prices (OHLC) each minute that the market is open. It is important 
             to populate this folder because the batch testing uses this data to trade.
           </p>
         </div>
         <div class="folder">
-          <h3 id="results-files">/results</h3>
+          <h2 id="results-files">/results</h2>
           <p>
             This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
             and time and can be accessed with great detail through the <span class="path">batches.html</span> file. You can visit 
@@ -286,7 +286,7 @@
           </p>
         </div>
         <div class="folder">
-          <h3 id="temp-assets">/temp_assets</h3>
+          <h2 id="temp-assets">/temp_assets</h2>
           <p>
             This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
             each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.
@@ -500,6 +500,115 @@ batch.compare_batches(**compare_params)
               batches to compare. this will filter the batches available in terminal when selecting based on 
               how many stocks they tested.</span></li>
         </ul>
+      </section>
+      <section id="strategy">
+        <h1 id="create-strategy">Creating a Strategy</h1>
+        <p>In order to create your own strategy, go to the <span class="path">order_eval.py</span> 
+          file in <span class="path">local_functions/main</span>. In this file you will find a <em>Strategies</em> section.
+          
+        </p>
+        <pre> <code class="language-python">'''-------------------- Strategies --------------------'''
+
+## -- Custom Strategies Here
+
+def strategies():
+    return {
+        'strategy_name': strategy_func
+        //- # 'unused_strategy': unused_strategy,
+        //- 'your_strategy': your_strategy,
+    }</code></pre>
+        <p>in order to make a new strategy, use the following template:</p>
+        <pre> <code class="language-python">def your_strategy_hub(method):
+
+    def pattern_found() -> bool:
+        # func for finding pattern
+        pass
+
+    def settings() -> dict:
+        settings = {
+            'name': 'your_strategy',
+            'hub': your_strategy_hub, #name of this func
+            'modes': [] #modes to consider when trading
+        }
+        return settings
+
+    def starting_position():
+        return gl.order_tools.create_orders(buy_or_sell='BUY',
+                                            cash_or_qty=3000,
+                                            price_method='ask')
+
+    # Custom Modes Here --
+
+    methods = {
+        # Main
+        'pattern_found': pattern_found,
+        'settings': settings,
+        'starting_position': starting_position,
+        # Modes
+    }
+    return methods[method]()</code></pre>
+        <p>
+          This template creates a polymorphic-compliant strategy. the three
+          sub-functions that are mandatory are as follows:
+          
+        </p>
+        <ul>
+          <li> <span class="sub-func">pattern_found</span><span class="sub_desc">function for determining if strategy should start trading</span></li>
+          <li> <span class="sub-func">settings</span><span class="sub_desc">function for saving info on strategy</span></li>
+          <li> <span class="sub-func">starting_position</span><span class="sub_desc">function for setting a starting position</span></li>
+        </ul>
+        <p>
+          After creating the logic for these three core methods, you can create custom 
+          methods for the logic used when the strategy has already started trading. just remember to add them to
+          the methods list in the settings dictionary like so:
+        </p>
+        <pre> <code class="language-python">def settings() -> dict:
+    settings = {
+        'name': 'strat_name',
+        'hub': new_strategy_hub, #name of this func
+        'modes': ['methodname1', 'method_name2']
+    }
+    return settings</code></pre>
+        <p>After creating the strategy, simply add it to the strategies function in the same file:</p>
+        <pre> <code class="language-python">def strategies():
+    return {
+        # 'unused_strategy': unused_strategy,
+        'your_strategy': your_strategy,
+    }</code></pre>
+      </section>
+      <section id="debug">
+        <h1>Debug Mode</h1>
+        <p>debug mode is a feature in the <span class="func">batch_test</span>. If this setting is enabled, 
+          the results screen will pop up in the browser. This can be extremely helpful for
+          troubleshooting a strategy quickly. You can see the setting required below:
+        </p>
+        <pre> <code class="language-python"># main.py
+from local_functions.main import batch_testing as batch
+batch_params = {
+    # Other Settings
+    'debug_plot':  True,
+} 
+batch.batch_test(**batch_params)
+</code></pre>
+      </section>
+      <section id="configuration">
+        <h1>Configuration Files</h1>
+        <p>
+          There are a plethora of settings that can be altered to change not only the way the algorithm works, 
+          but also how the backtesting simulation operates. The main file carrying these settings is
+          <span class="path">local_functions/main/config.json</span>. To create a new configuration easily, open the 
+          <span class="path">config_form.html</span> file in a browser. You can see the file 
+          <a href="config_form.html" target="_blank">here</a>. 
+          
+          <br><br>
+          If you update the config form with new fields, make sure to run the <span class="path">update_form.py</span>
+          file. For more information, I've made a repository explaining the exact process
+          <a href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank">here</a>.
+          
+          
+          
+          
+        </p>
       </section>
     </div>
   </div>

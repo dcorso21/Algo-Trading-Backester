@@ -1,0 +1,88 @@
+section#strategy
+    h1#create-strategy Creating a Strategy
+    p.
+        In order to create your own strategy, go to the #[span.path order_eval.py] 
+        file in #[span.path local_functions/main]. In this file you will find a #[em Strategies] section.
+
+    pre 
+        code.language-python.
+            '''-------------------- Strategies --------------------'''
+
+            ## -- Custom Strategies Here
+
+            def strategies():
+                return {
+                    'strategy_name': strategy_func
+                    //- # 'unused_strategy': unused_strategy,
+                    //- 'your_strategy': your_strategy,
+                }
+    p.
+        in order to make a new strategy, use the following template:
+    pre 
+        code.language-python.
+            def your_strategy_hub(method):
+
+                def pattern_found() -> bool:
+                    # func for finding pattern
+                    pass
+
+                def settings() -> dict:
+                    settings = {
+                        'name': 'your_strategy',
+                        'hub': your_strategy_hub, #name of this func
+                        'modes': [] #modes to consider when trading
+                    }
+                    return settings
+
+                def starting_position():
+                    return gl.order_tools.create_orders(buy_or_sell='BUY',
+                                                        cash_or_qty=3000,
+                                                        price_method='ask')
+
+                # Custom Modes Here --
+
+                methods = {
+                    # Main
+                    'pattern_found': pattern_found,
+                    'settings': settings,
+                    'starting_position': starting_position,
+                    # Modes
+                }
+                return methods[method]()
+    p.
+        This template creates a polymorphic-compliant strategy. the three
+        sub-functions that are mandatory are as follows:
+        
+    ul
+        li 
+            span.sub-func pattern_found
+            span.sub_desc function for determining if strategy should start trading
+        li 
+            span.sub-func settings
+            span.sub_desc function for saving info on strategy
+        li 
+            span.sub-func starting_position
+            span.sub_desc function for setting a starting position
+        
+    p.
+        After creating the logic for these three core methods, you can create custom 
+        methods for the logic used when the strategy has already started trading. just remember to add them to
+        the methods list in the settings dictionary like so:
+    pre 
+        code.language-python.
+            def settings() -> dict:
+                settings = {
+                    'name': 'strat_name',
+                    'hub': new_strategy_hub, #name of this func
+                    'modes': ['methodname1', 'method_name2']
+                }
+                return settings
+    p.
+        After creating the strategy, simply add it to the strategies function in the same file:
+    pre 
+        code.language-python.
+            def strategies():
+                return {
+                    # 'unused_strategy': unused_strategy,
+                    'your_strategy': your_strategy,
+                }
