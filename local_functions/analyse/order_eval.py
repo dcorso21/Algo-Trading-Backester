@@ -1,7 +1,35 @@
 from local_functions.main import global_vars as gl
 
-'''-------------------- Bounce Found --------------------'''
+'''-------------------- Strategies --------------------'''
 
+def new_strategy_hub(method):
+
+    def pattern_found() -> bool:
+        pass
+
+    def settings() -> dict:
+        settings = {
+            'name': 'strat_name',
+            'hub': new_strategy_hub,
+            'modes': []
+        }
+        return settings
+
+    def starting_position():
+        return gl.order_tools.create_orders(buy_or_sell='BUY',
+                                            cash_or_qty=3000,
+                                            price_method='ask')
+
+    def trade_mode():
+        pass
+
+    methods = {
+        # Main
+        'pattern_found': pattern_found,
+        'settings': settings,
+        'starting_position': starting_position,
+        # Modes
+    }
 
 def bounce_found_hub(method):
     profit_perc = 1.5

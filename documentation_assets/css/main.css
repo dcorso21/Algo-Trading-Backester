@@ -3,11 +3,14 @@
   --fg: #000;
   --header: #4d95d8;
   --accent2: #49c285;
+  --def: #a8a8a8;
+  --prop: #757575;
+  --lay2: rgba(192, 192, 192, 0.425);
+  --lay3: rgba(243, 243, 243, 0.425);
 }
 
 .dark {
-  --bg: #000;
-  --fg: #fff;
+  filter: invert(1);
 }
 
 html, body, div, span, applet, object,
@@ -91,6 +94,7 @@ body {
 
 .layout {
   display: flex;
+  background-color: var(--bg);
 }
 .layout .table-of-contents {
   position: relative;
@@ -106,7 +110,7 @@ body {
 .layout h1,
 .layout h2,
 .layout h3 {
-  margin: 15px;
+  margin: 15px 0;
 }
 .layout h1::before,
 .layout h2::before,
@@ -187,6 +191,46 @@ body {
   display: none;
 }
 
+a {
+  color: var(--header);
+}
+
+#compare-properties,
+#batch-properties,
+#overview {
+  margin: 10px 10%;
+  padding: 10px 20px;
+  background-color: var(--lay2);
+  border-radius: 20px;
+}
+#compare-properties li,
+#batch-properties li,
+#overview li {
+  padding: 10px 10px;
+  margin: 10px 0;
+  background-color: var(--lay3);
+  border-radius: 20px;
+}
+
+.prop {
+  display: inline-block;
+  background-color: var(--prop);
+  color: var(--bg);
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.type {
+  font-style: italic;
+  padding: 10px;
+}
+.type::before {
+  content: "(";
+}
+.type::after {
+  content: ") :";
+}
+
 .top-head {
   color: var(--bg);
   background: linear-gradient(to right, var(--header), var(--accent2));
@@ -211,6 +255,12 @@ section {
 }
 section em {
   font-style: italic;
+}
+section h1 {
+  font-size: 40px;
+  color: var(--header);
+  border-bottom: 2px solid var(--header);
+  padding: 20px 0;
 }
 section h2 {
   font-size: 33px;

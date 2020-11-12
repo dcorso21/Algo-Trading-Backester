@@ -1,8 +1,8 @@
 section#file-struct
-    h2 File Structure Overview
+    h1 File Structure Overview
 
     .folder 
-        h3#root-level Root Level
+        h2#root-level Root Level
         p.
             Files in the home directory
         .file
@@ -28,32 +28,32 @@ section#file-struct
                 #[span.path batches.html]: This file is updated with each batch test and serves as a directory for 
                 all of the previous results of the batches. Here is the #[a(href="batches.html" target="_blank") current batches.html].
     .folder 
-        h3#batch-design /batch_design
+        h2#batch-design /batch_design
         p.
             This directory holds the templates and the assets (CSS, JS, Fonts) for the #[#results-files results pages] 
             These assets are both used when visiting the results pages, and also used for creating them.
     .folder
-        h3#config-folder /config
+        h2#config-folder /config
         p.
             This folder stores all of the saved configurations for batch tests and also the templates for creating 
             new forms to create the configurations. I know that this seems odd. If you are interested in seeing how this 
             is done, please check out my documentation of the process 
             #[a(href="https://dcorso21.github.io/PythonFormsFromJSON/" target="_blank") here].
     .folder 
-        h3#doc-assets /documentation_assets
+        h2#doc-assets /documentation_assets
         p.
             The documentation is what you are reading right now. Inside this folder is the assets seen in these docs.
     .folder
-        h3#local-funcs /local_functions
+        h2#local-funcs /local_functions
         p.
             Local Functions is where all of the code for trading is located. Inside this folder are multiple folders which divide 
             the work of trading the stock. All of these python files are meant to be accessed through the #[span.path main.py] file as modules.
         .folder 
-            h4 /account
+            h3 /account
             p.
                 This folder is for account info. At present it only keeps track of starting capital.
         .folder
-            h4 /analyse
+            h3 /analyse
             p.
                 There are three processes going on continuously as a stock is being considered during trading hours: Data Gathering, Data Analysis, and Trade Execution. 
                 This folder deals with the second process: Data Analysis
@@ -82,7 +82,7 @@ section#file-struct
                     that are updating are dataframes and dictionaries with information about momentum, volume and volatility (among others) to project when to buy and sell. 
                     The docs are hosted as global variables imported from the #[span.path local_functions/main/global_vars.py] file.
         .folder
-            h4 /data_management
+            h3 /data_management
             p.
                 Data Management is where the second data is generated, the csvs are pulled and so much more.
             .file
@@ -101,7 +101,7 @@ section#file-struct
                     #[span.path stock_screening.py]: These are functions not currently incorporated into the system. The idea is to 
                     web-scrape with selenium and beautiful soup in order to see which stocks are currently volatile.
         .folder
-            h4 /main
+            h3 /main
             p.
                 The folder which holds files with configuration, batch testing, and global variables as well as other miscellaneous things
                 like logging.
@@ -130,7 +130,7 @@ section#file-struct
                     #[span.path log_funcs.py]: I employed a very different log that kept track of things like line number and file name during this process in a 
                     global variable dataframe. The log is actually plotted alongside everything else in the final results of each stock.
         .folder
-            h4 /plotting
+            h3 /plotting
             p.
                 Folder is home to functions dedicated to plotting the results of the batch tests.
             .file
@@ -144,7 +144,7 @@ section#file-struct
                     #[span.path candles.py]: This file works in conjunction with #[span.path api_chart.py] with this one specifically
                     interfacing with PyQT5.
         .folder
-            h4 /trade_funcs
+            h3 /trade_funcs
             p.
                 This folder is all about sending orders and simulating executions in the backtester. The two are similar, but it is important to keep in
                 mind what the algorithm can be aware of. While the program can know if a trade is about to fill in the next second, the algorithm can still not know that. So this is why there are two files here.
@@ -158,18 +158,18 @@ section#file-struct
                 p.
                     #[span.path trade_funcs.py]: This file hosts functions that the algorithm uses to send and receive trades and update its position history (as well as position analysis).
     .folder
-        h3#mkt-csvs /mkt_csvs
+        h2#mkt-csvs /mkt_csvs
         p.
             The csv data of market prices (OHLC) each minute that the market is open. It is important 
             to populate this folder because the batch testing uses this data to trade.
     .folder
-        h3#results-files /results
+        h2#results-files /results
         p.
             This is where the results of the batch tests and batch comparisons are kept. They are categorized by date 
             and time and can be accessed with great detail through the #[span.path batches.html] file. You can visit 
             the active link #[a(href="batches.html" target="_blank") here].
     .folder
-        h3#temp-assets /temp_assets
+        h2#temp-assets /temp_assets
         p.
             This folder is exclusively used for singular tests on one stock at a time (ei: without batch testing.) In previous versions, 
             each stock's results would be saved here in the batch test but the practice was deprecated to avoid issues with running multiple batch tests at once.

@@ -4,7 +4,11 @@ $color_palette: (
     bg: #fff,
     fg: #000,
     header: rgb(77, 149, 216),
-    accent2: rgb(73, 194, 133)
+    accent2: rgb(73, 194, 133),
+    def: rgb(168, 168, 168),
+    prop:rgb(117, 117, 117),
+    lay2: rgba(192, 192, 192, 0.425),
+    lay3: rgba(243, 243, 243, 0.425)
 );
 
 $dark_color_palette: (
@@ -20,7 +24,8 @@ $dark_color_palette: (
 
 
 .dark {
-    @each $name, $color in $dark_color_palette {
-        --#{$name}: #{$color};
-    }
+    filter: invert(1);
+    // @each $name, $color in $dark_color_palette {
+    //     --#{$name}: #{$color};
+    // }
 }

@@ -17,6 +17,42 @@ body
             include ../components/intro.pug
             include ../components/file-struct.pug
             include ../components/up-and-running.pug
+            include ../components/view-results.pug
+            include ../components/strategy.pug
+
+            section#debug
+                h1 Debug Mode
+                p.
+                    debug mode is a feature in the #[span.func batch_test]. If this setting is enabled, 
+                    the results screen will pop up in the browser. This can be extremely helpful for
+                    troubleshooting a strategy quickly. You can see the setting required below:
+                pre 
+                    code.language-python.
+                        # main.py
+                        from local_functions.main import batch_testing as batch
+                        batch_params = {
+                            # Other Settings
+                            'debug_plot':  True,
+                        } 
+                        batch.batch_test(**batch_params)
+                
+            section#configuration
+                h1 Configuration Files
+                p.
+                    There are a plethora of settings that can be altered to change not only the way the algorithm works, 
+                    but also how the backtesting simulation operates. The main file carrying these settings is
+                    #[span.path local_functions/main/config.json]. To create a new configuration easily, open the 
+                    #[span.path config_form.html] file in a browser. You can see the file 
+                    #[a(href="config_form.html" target="_blank") here]. 
+
+                    #[br]#[br]
+                    If you update the config form with new fields, make sure to run the #[span.path update_form.py]
+                    file. For more information, I've made a repository explaining the exact process
+                    #[a(href="https://dcorso21.github.io/PythonFormsFromJSON/" target='_blank') here].
+
+
+
+
     script(src="documentation_assets/index.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/prism.min.js" integrity="sha512-9+422Bs3A87UkWfp+qV80Nfv9arhbCXKY1rxrF2seorI36mIIstMiuBfyKLF1yH1nnzQkEWq2xrzT4XU3Z+vrA==" crossorigin="anonymous")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-python.min.js")

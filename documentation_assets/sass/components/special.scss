@@ -1,0 +1,42 @@
+@use '../libs' as *;
+
+a {
+    color: gc(header);
+}
+
+#compare-properties,
+#batch-properties,
+#overview {
+    margin: 10px 10%;
+    padding: 10px 20px;
+    background-color: gc(lay2);
+    border-radius: 20px;
+    li {
+        padding: 10px 10px;
+        margin: 10px 0;
+        background-color: gc(lay3);
+        border-radius: 20px;
+    }
+}
+
+.prop {
+    display: inline-block;
+    background-color: gc(prop);
+    color: gc(bg);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+
+.type {
+    font-style: italic;
+    padding: 10px;
+    &::before{
+        content: "(";
+    }
+    &::after{
+        content: ") :";
+    }
+}
+
+
