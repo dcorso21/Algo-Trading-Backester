@@ -44,7 +44,6 @@
         </li>
         <li><a class="expand" href="#">Viewing Results<i class="fas fa-chevron-down"></i></a>
           <ul class="lay2 toggleView">
-            <li> <a href="#batches-page">Batches Page</a></li>
             <li> <a href="#batch-overview">Batch Overview</a></li>
             <li> <a href="#individual-stock">Individual Stock Page</a></li>
             <li> <a href="#batch-comparisons">Batch Comparisons</a></li>
@@ -417,10 +416,6 @@ algo.test_trade(config='default', mode='csv',
         <h1>Viewing Results</h1>
         <p>Each batch test creates a folder in the <span class="path">results</span> folder
           which holds the configuration json file as well as html files keeping a record of the tests.
-          
-        </p>
-        <h2 id="batches-page">Batches Page</h2>
-        <p>
           You can, of course, open up each result html file individually, however there is a hub 
           file for this very purpose: <span class="path">batches.html</span>. When you open this file you will see 
           <a href="batches.html" target="_blank">this page</a>. The green menu is for regular batches while the pink menu is for comparisons.
@@ -489,14 +484,22 @@ compare_params = {
     # 'min_stock_in_batch':50,
 }
 batch.compare_batches(**compare_params)
-
-    ## Parameters:{
-    ####    `num_to_compare`: number of batches to compare
-    ####    `pick_most_recent`: defaults to true, else you will be presented with a df and pick
-    ####    `compare`: field to compare, defaults to config, but `date` and `time` are also available.
-    ####    `overwrite`: defaults to False, will overwrite last compare rather than starting a new one. 
-    ####    `min_stock_in_batch`: minimum number of stocks shown in batch df when choosing for compare
-    ## }</code></pre>
+</code></pre>
+        <p>In much like the <span class="func">batch_test</span> function, this function takes some keyword arguments that are worth knowing.
+          Here they are in order:
+          
+        </p>
+        <ul id="compare-properties">
+          <li><span class="prop">num_to_compare</span><span class="type">integer</span><span class="def">number of batches to compare</span></li>
+          <li><span class="prop">pick_most_recent</span><span class="type">boolean</span><span class="def">defaults to true, if false the terminal will prompt for which batches to compare</span></li>
+          <li><span class="prop">compare</span><span class="type">string</span><span class="def">value to compare in description of compare file</span></li>
+          <li><span class="prop">overwrite</span><span class="type">boolean</span><span class="def">
+              if true, this will overwrite the last made compare file. This can be nice if you 
+              are comparing multiple batches as they are ongoing.</span></li>
+          <li><span class="prop">min_stock_in_batch</span><span class="type">integer</span><span class="def">if <span class="prop">pick_most_recent</span> is not true, you will be asked to select which 
+              batches to compare. this will filter the batches available in terminal when selecting based on 
+              how many stocks they tested.</span></li>
+        </ul>
       </section>
     </div>
   </div>

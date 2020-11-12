@@ -3,9 +3,6 @@ section#view-results
     p.
         Each batch test creates a folder in the #[span.path results] folder
         which holds the configuration json file as well as html files keeping a record of the tests.
-    
-    h2#batches-page Batches Page
-    p.
         You can, of course, open up each result html file individually, however there is a hub 
         file for this very purpose: #[span.path batches.html]. When you open this file you will see 
         #[a(href="batches.html" target="_blank") this page]. The green menu is for regular batches while the pink menu is for comparisons.
@@ -82,19 +79,34 @@ section#view-results
                 # 'min_stock_in_batch':50,
             }
             batch.compare_batches(**compare_params)
-
-                ## Parameters:{
-                ####    `num_to_compare`: number of batches to compare
-                ####    `pick_most_recent`: defaults to true, else you will be presented with a df and pick
-                ####    `compare`: field to compare, defaults to config, but `date` and `time` are also available.
-                ####    `overwrite`: defaults to False, will overwrite last compare rather than starting a new one. 
-                ####    `min_stock_in_batch`: minimum number of stocks shown in batch df when choosing for compare
-                ## }
     
+    p.
+        In much like the #[span.func batch_test] function, this function takes some keyword arguments that are worth knowing.
+        Here they are in order:
 
-
-
-
-
-
-    
+    ul#compare-properties
+        li
+            span.prop num_to_compare
+            span.type integer
+            span.def number of batches to compare
+        li
+            span.prop pick_most_recent
+            span.type boolean
+            span.def defaults to true, if false the terminal will prompt for which batches to compare
+        li
+            span.prop compare
+            span.type string
+            span.def value to compare in description of compare file
+        li
+            span.prop overwrite
+            span.type boolean
+            span.def.
+                if true, this will overwrite the last made compare file. This can be nice if you 
+                are comparing multiple batches as they are ongoing.
+        li
+            span.prop min_stock_in_batch
+            span.type integer
+            span.def.
+                if #[span.prop pick_most_recent] is not true, you will be asked to select which 
+                batches to compare. this will filter the batches available in terminal when selecting based on 
+                how many stocks they tested.
