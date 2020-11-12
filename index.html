@@ -412,6 +412,43 @@ algo.test_trade(config='default', mode='csv',
         csv_file=CSV_NAME, batch_dir='temp_assets/')</code></pre>
         <p><em>note: make sure to put the path to your csv file in the variable string</em>.</p>
       </section>
+      <section id="view-results">
+        <h1>Viewing Results</h1>
+        <p>Each batch test creates a folder in the <span class="path">results</span> folder
+          which holds the configuration json file as well as html files keeping a record of the tests.
+          
+        </p>
+        <h2>Batches Page</h2>
+        <p>
+          You can, of course, open up each result html file individually, however there is a hub 
+          file for this very purpose: <span class="path">batches.html</span>. When you open this file you will see 
+          <a href="batches.html" target="_blank">this page</a>. The green menu is for regular batches while the pink menu is for comparisons.
+          
+        </p>
+        <h2>Batch Overview</h2>
+        <p>Once you click on a link for a batch in the <span class="path">batches.html</span> file, you will be redirected to that batch's overview page. Here
+          is an <a href="results/09-02-2020/batch_7_05,10_PM/batch_index.html" target="_blank">example</a>
+          the Batch Overview is a page that will show the overall performance. At the top of the file, it will show how many stocks were tested,
+          as well as the configuration used. Additionally, it will break up the stocks into three categories:
+          
+        </p>
+        <ul>
+          <li><span class="prop">Resolved </span><span class="desc">Stocks that traded and exited all positions before end of trading.</span></li>
+          <li><span class="prop">Unresolved </span><span class="desc">Stocks that traded but failed to exit before end of trading. This means capital is potentially at risk after trading.</span></li>
+          <li><span class="prop">Untraded </span><span class="desc">Stocks that never found an entry point and therefore never traded. The algorithm may have tried to trade but no orders were filled.</span></li>
+        </ul>
+        <p>
+          Below the breakdown, you will see a series of graphs explaining the results of the batch. The main graph shows profit over time with
+          the X-axis showing the number of stocks tested from left to right while the Y-axis shows the amount of capital gain (profit). Below the
+          main graph you can see 3 scatter plots breaking down the performance of exposure and unreal profit/loss among other things. Again, you 
+          can view an example <a href="results/09-02-2020/batch_7_05,10_PM/batch_index.html" target="_blank">here</a>.
+          
+          <br><br>
+          Finally, you can see a 
+          
+          <a href="resolved/2017-11-10_CREG_0/debug_plot.html" target="_blank"></a>
+        </p>
+      </section>
     </div>
   </div>
   <script src="documentation_assets/index.js"></script>
