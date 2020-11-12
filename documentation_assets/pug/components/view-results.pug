@@ -4,13 +4,13 @@ section#view-results
         Each batch test creates a folder in the #[span.path results] folder
         which holds the configuration json file as well as html files keeping a record of the tests.
     
-    h2 Batches Page
+    h2#batches-page Batches Page
     p.
         You can, of course, open up each result html file individually, however there is a hub 
         file for this very purpose: #[span.path batches.html]. When you open this file you will see 
         #[a(href="batches.html" target="_blank") this page]. The green menu is for regular batches while the pink menu is for comparisons.
     
-    h2 Batch Overview
+    h2#batch-overview Batch Overview
     p.
         Once you click on a link for a batch in the #[span.path batches.html] file, you will be redirected to that batch's overview page. Here
         is an #[a(href="results/09-02-2020/batch_7_05,10_PM/batch_index.html" target="_blank") example]
@@ -35,6 +35,66 @@ section#view-results
         can view an example #[a(href="results/09-02-2020/batch_7_05,10_PM/batch_index.html" target="_blank") here].
 
         #[br]#[br]
-        Finally, you can see a 
+        Finally, you can see a table of info for all of the tested stocks in the given batch. Each column is sortable by clicking the blank space beneath 
+        the column name. By clicking the stock name on the left of each row, you can visit the individual stock's page. 
+    
+    h2#individual-stock Individual Stock Result
+    p.
+        Each stock tested creates a page with info down to the second. Here is an #[a(href="resolved/2017-11-10_CREG_0/debug_plot.html" target="_blank") example page].
+        When you visit the individual stock page, you will see a large graph showing many different rows of information. Main sections of this graph 
+        include the log, volume, volatility, P/L and, of course, the pricing section which is overlaid with candles, momentum tracking, supports and resistances 
+        as well as every trade made (even cancelled trades).
 
-        #[a(href="resolved/2017-11-10_CREG_0/debug_plot.html" target="_blank")]
+        #[br]#[br]
+        Beneath these standard fields there are custom fields that are up to the user. The ones you see come default but can be changed. In the
+        source code, you can add any data field you would like by simply adding a decorator to the function that calculates the data. See below:
+
+    pre
+        code(class="language-python").
+            from local_functions.main import global_vars as gl
+            @ gl.log_funcs.tracker
+            def random_function():
+                return 5        # Must return a value that is graphable.
+
+    p.
+        This method allows any function to quickly be analysed by the user. For the source code, you can view the 
+        #[span.path local_functions/main/global_vars.py] file.
+
+    h2#batch-comparisons Batch Comparisons
+    p.
+        Returning to the #[a(href="batches.html" target="_blank") batches page], the comparisons are in pink. 
+        Here is an #[a(href="results/comparison/06-30-2020/comparison_3_06,11_PM/compare.html" target="_blank") example] 
+        from the comparisons menu. Inside, you will find a graph with a slider beneath it. By changing the slider selection,
+        you can view different breakdowns of the batches. The default view is the most useful and shows the direct comparison 
+        of the resolved stocks of each batch. Beneath, just like the batch overview, you can see a table of each stock from each batch.
+
+    h3#new-compare Making a New Comparison
+    p.
+        If you would like to create a new comparison, you can do so via the #[span.path main.py] file. see below:
+    pre
+        code(class="language-python").
+            from local_functions.main import batch_testing as batch
+            compare_params = {
+                'num_to_compare':2,
+                # 'pick_most_recent':False,
+                'compare':'time',
+                # 'overwrite':True,
+                # 'min_stock_in_batch':50,
+            }
+            batch.compare_batches(**compare_params)
+
+                ## Parameters:{
+                ####    `num_to_compare`: number of batches to compare
+                ####    `pick_most_recent`: defaults to true, else you will be presented with a df and pick
+                ####    `compare`: field to compare, defaults to config, but `date` and `time` are also available.
+                ####    `overwrite`: defaults to False, will overwrite last compare rather than starting a new one. 
+                ####    `min_stock_in_batch`: minimum number of stocks shown in batch df when choosing for compare
+                ## }
+    
+
+
+
+
+
+
+    
