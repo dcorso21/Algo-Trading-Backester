@@ -13,21 +13,6 @@
   filter: invert(1);
 }
 
-.darkMode {
-  position: absolute;
-  bottom: 0;
-  right: 50%;
-  color: var(--bg);
-  background-color: rgba(143, 143, 143, 0.625);
-  padding: 10px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.darkMode:hover {
-  background-color: black;
-}
-
 .table-of-contents {
   display: flex;
   justify-content: center;
@@ -47,6 +32,7 @@
   transform: rotate(0deg);
 }
 .table-of-contents a {
+  white-space: nowrap;
   display: block;
   width: 80%;
   text-decoration: none;
@@ -79,4 +65,29 @@
 
 .toggleView {
   display: none;
+}
+
+.open {
+  animation: openMenu 0.5s ease-in-out 0s 1 alternate forwards;
+}
+
+.close {
+  animation: closeMenu 0.5s ease-in-out 0s 1 alternate forwards;
+}
+
+@keyframes openMenu {
+  from {
+    width: 0vw;
+  }
+  to {
+    width: 80vw;
+  }
+}
+@keyframes closeMenu {
+  from {
+    width: 80vw;
+  }
+  to {
+    width: 0vw;
+  }
 }

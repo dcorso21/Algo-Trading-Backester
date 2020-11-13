@@ -89,20 +89,22 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   line-height: 150%;
-  overflow: hidden;
+  width: 100vw;
 }
 
 .layout {
   display: flex;
   background-color: var(--bg);
+  width: 100vw;
 }
 .layout .table-of-contents {
   position: relative;
-  width: 30vw;
+  width: 0vw;
   overflow: scroll;
 }
 .layout .main {
-  width: 70vw;
+  position: relative;
+  height: 0;
   height: 100vh;
   overflow-y: scroll;
   scroll-behavior: smooth;
@@ -121,21 +123,6 @@ body {
   height: 80px;
   visibility: hidden;
   pointer-events: none;
-}
-
-.darkMode {
-  position: absolute;
-  bottom: 0;
-  right: 50%;
-  color: var(--bg);
-  background-color: rgba(143, 143, 143, 0.625);
-  padding: 10px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.darkMode:hover {
-  background-color: black;
 }
 
 .table-of-contents {
@@ -157,6 +144,7 @@ body {
   transform: rotate(0deg);
 }
 .table-of-contents a {
+  white-space: nowrap;
   display: block;
   width: 80%;
   text-decoration: none;
@@ -191,6 +179,30 @@ body {
   display: none;
 }
 
+.open {
+  animation: openMenu 0.5s ease-in-out 0s 1 alternate forwards;
+}
+
+.close {
+  animation: closeMenu 0.5s ease-in-out 0s 1 alternate forwards;
+}
+
+@keyframes openMenu {
+  from {
+    width: 0vw;
+  }
+  to {
+    width: 80vw;
+  }
+}
+@keyframes closeMenu {
+  from {
+    width: 80vw;
+  }
+  to {
+    width: 0vw;
+  }
+}
 a {
   color: var(--header);
 }
@@ -310,4 +322,24 @@ section h4 {
 
 pre {
   border-radius: 20px;
+}
+
+.top-nav {
+  background: linear-gradient(to right, var(--header), var(--accent2));
+  position: sticky;
+  top: 0;
+  display: flex;
+}
+.top-nav i {
+  color: var(--bg);
+  padding: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-top-left-radius: 35px;
+  border-top-right-radius: 35px;
+}
+.top-nav i:hover {
+  color: var(--header);
+  background-color: var(--bg);
 }

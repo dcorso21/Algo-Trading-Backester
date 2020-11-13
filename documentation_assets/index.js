@@ -45,3 +45,21 @@ function enableDarkMode() {
         body.classList.toggle('dark')
     }
 }
+
+
+let menu = select('#menu');
+let menuContents = select('#menu-contents');
+menuContents.classList.add('fadeOut')
+let menuToggle = select('#menu-toggle');
+let isOpen = false;
+menuToggle.onclick = () => {
+    if (isOpen) {
+        menu.classList.remove('open')
+        menu.classList.add('close')
+        isOpen = !isOpen
+    } else {
+        isOpen = !isOpen
+        menu.classList.remove('close')
+        menu.classList.add('open')
+    }
+}
