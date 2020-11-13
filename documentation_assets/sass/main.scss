@@ -9,6 +9,7 @@
 @use 'components/table-of-contents.scss';
 @use 'components/special.scss';
 .top-head{
+    padding-top: 50px;
     color: gc(bg);
     background: linear-gradient(to right, gc(header), gc(accent2));
     height: 30vh;
@@ -95,26 +96,56 @@ pre {
 }
 
 .top-nav {
+    position: relative;
     background: linear-gradient(to right, gc(header), gc(accent2));
     position: sticky;
     top: 0;
 
     display: flex;
 
-    i {
-        color: gc(bg);
-        padding: 20px;
-        // padding: 10px 10px 20px 10px;
-        // margin: 10px 10px 0 10px;
-        font-size: 20px;
-        cursor: pointer;
-        transition: all .3s;
-        border-top-left-radius: 35px;
-        border-top-right-radius: 35px;
 
-        &:hover {
-            color: gc(header);
-            background-color: gc(bg);
+    .icons {
+        display: flex;
+        i {
+            color: gc(bg);
+            padding: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all .3s;
+            border-top-left-radius: 35px;
+            border-top-right-radius: 35px;
+    
+            &:hover {
+                color: gc(header);
+                background-color: gc(bg);
+            }
         }
+    }
+    .title {
+        margin-left: 20px;
+        @include flex-center;
+        #nav-title {
+            font-size: 1.3rem;
+            color: gc(bg);
+            margin: 0;
+            padding: 0;
+            font-weight: 100;
+        }
+    }
+}
+
+.fadeIn {
+    animation: fade .3s ease-in-out 0 1 alternate forwards;
+}
+
+.fadeOut {
+    animation: fade .3s ease-in-out 0 1 alternate backwards;
+}
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+    from {
+        opacity: 1;
     }
 }

@@ -244,6 +244,7 @@ a {
 }
 
 .top-head {
+  padding-top: 50px;
   color: var(--bg);
   background: linear-gradient(to right, var(--header), var(--accent2));
   height: 30vh;
@@ -325,12 +326,16 @@ pre {
 }
 
 .top-nav {
+  position: relative;
   background: linear-gradient(to right, var(--header), var(--accent2));
   position: sticky;
   top: 0;
   display: flex;
 }
-.top-nav i {
+.top-nav .icons {
+  display: flex;
+}
+.top-nav .icons i {
   color: var(--bg);
   padding: 20px;
   font-size: 20px;
@@ -339,7 +344,37 @@ pre {
   border-top-left-radius: 35px;
   border-top-right-radius: 35px;
 }
-.top-nav i:hover {
+.top-nav .icons i:hover {
   color: var(--header);
   background-color: var(--bg);
+}
+.top-nav .title {
+  margin-left: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.top-nav .title #nav-title {
+  font-size: 1.3rem;
+  color: var(--bg);
+  margin: 0;
+  padding: 0;
+  font-weight: 100;
+}
+
+.fadeIn {
+  animation: fade 0.3s ease-in-out 0 1 alternate forwards;
+}
+
+.fadeOut {
+  animation: fade 0.3s ease-in-out 0 1 alternate backwards;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  from {
+    opacity: 1;
+  }
 }
