@@ -8,9 +8,12 @@
 //Components
 @use 'components/table-of-contents.scss';
 @use 'components/special.scss';
+/*  Header  */
+
 .top-head{
-    color: gc(bg);
-    background: linear-gradient(to right, gc(header), gc(accent2));
+    padding-top: 50px;
+    color: gc(head-text);
+    background: linear-gradient(to right, gc(accent), gc(accent2));
     height: 30vh;
     display: flex;
     flex-direction: column;
@@ -29,6 +32,8 @@
     }
 }
 
+/*  Boilerplate Sections  */
+
 section {
     margin: 20px 5%;
     em {
@@ -36,60 +41,100 @@ section {
     }
     h1 {
         font-size: 40px;
-        color: gc(header);
-        border-bottom: 2px solid gc(header);
+        color: gc(accent);
+        border-bottom: 2px solid gc(accent);
         padding: 20px 0;
     }
     h2 {
         font-size: 33px;
-        color: gc(header);
+        color: gc(accent);
     }
     h3 {
         font-size: 22px;
-        color: gc(header);
+        color: gc(accent);
     }
     h4 {
         font-size: 17px;
-        color: gc(header);
+        color: gc(accent);
     }
 }
 
-#file-struct {
-}
+/*  FilePath Fields  */
 
 .path {
-    background-color: rgba(43, 67, 77, 0.872);
+    background-color: gc(path);
     padding: 1px 5px;
     border-radius: 10px;
-    color: white;
+    color: gc(bg);
     font-style: italic;
 }
 
 .folder {
-    background-color: rgba(29, 29, 29, 0.118);
+    background-color: gc(folder);
     margin: 10px;
     padding: 10px;
     border-radius: 10px;
     .folder {
-        background-color: rgba(252, 252, 252, 0.625);
+        background-color: gc(folder2);
     }
 }
 
 .file {
-    background-color: rgba(255, 255, 255, 0.598);
+    background-color: gc(file);
     margin: 10px;
     padding: 10px;
     border-radius: 10px;
     .path:first-of-type {
-        padding: 2px 5px;
-        border-radius: 6px;
-        font-weight: 300;
-        background-color: transparent;
-        border: 1px solid gc(header);
-        color: gc(fg);
+        @include entry;
     }
 }
 
+/*  Code Block  */
+/*  Some Code Block is saved in cdn  */
 pre {
     border-radius: 20px;
+}
+
+
+/*  Sticky Nav Bar  */
+.top-nav {
+    position: relative;
+    background: linear-gradient(to right, gc(accent), gc(accent2));
+    position: sticky;
+    top: 0;
+
+    display: flex;
+
+
+    .icons {
+        display: flex;
+        i {
+            width: 20px;
+            color: gc(head-text);
+            padding: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all .3s;
+            border-top-left-radius: 35px;
+            border-top-right-radius: 35px;
+    
+            &:hover {
+                color: gc(accent);
+                background-color: gc(bg);
+            }
+        }
+    }
+    .title {
+        margin-left: 20px;
+        border: none;
+        text-decoration: none;
+        @include flex-center;
+        #nav-title {
+            font-size: 1.3rem;
+            color: gc(head-text);
+            margin: 0;
+            padding: 0;
+            font-weight: 100;
+        }
+    }
 }

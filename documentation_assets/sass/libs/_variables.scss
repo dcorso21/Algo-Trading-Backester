@@ -3,8 +3,15 @@ $color_palette: (
     // Basic
     bg: #fff,
     fg: #000,
-    header: rgb(77, 149, 216),
+    head-text: #fff,
+    accent: rgb(77, 149, 216),
     accent2: rgb(73, 194, 133),
+
+    path: rgba(43, 67, 77, 0.872),
+    folder: rgba(29, 29, 29, 0.118),
+    folder2: rgba(252, 252, 252, 0.625),
+    file: rgba(255, 255, 255, 0.598),
+
     def: rgb(168, 168, 168),
     prop:rgb(117, 117, 117),
     lay2: rgba(192, 192, 192, 0.425),
@@ -12,8 +19,22 @@ $color_palette: (
 );
 
 $dark_color_palette: (
+    // Basic
     bg: #000,
-    fg: #fff,
+    fg: rgb(204, 204, 204),
+    head-text: #fff,
+    accent: rgb(79, 77, 216),
+    accent2: rgb(73, 140, 194),
+
+    path: rgba(114, 115, 116, 0.872),
+    folder: rgba(255, 255, 255, 0.118),
+    folder2: rgba(53, 53, 53, 0.625),
+    file: rgba(255, 255, 255, 0.068),
+
+    def: rgb(168, 168, 168),
+    prop:rgb(117, 117, 117),
+    lay2: rgba(192, 192, 192, 0.425),
+    lay3: rgba(243, 243, 243, 0.425)
 );
 
 :root {
@@ -24,8 +45,9 @@ $dark_color_palette: (
 
 
 .dark {
-    filter: invert(1);
-    // @each $name, $color in $dark_color_palette {
-    //     --#{$name}: #{$color};
-    // }
+    transition: all .3s;
+    // filter: invert(1);
+    @each $name, $color in $dark_color_palette {
+        --#{$name}: #{$color};
+    }
 }

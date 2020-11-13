@@ -1,7 +1,7 @@
 @use '../libs' as *;
 
 a {
-    color: gc(header);
+    color: gc(accent);
 }
 
 #compare-properties,
@@ -9,15 +9,30 @@ a {
 #overview {
     margin: 10px 10%;
     padding: 10px 20px;
-    background-color: gc(lay2);
+    background-color: gc(folder);
     border-radius: 20px;
     li {
         padding: 10px 10px;
         margin: 10px 0;
-        background-color: gc(lay3);
+        background-color: gc(folder2);
         border-radius: 20px;
+        .prop:first-of-type{
+            @include entry;
+        }
     }
 }
+
+#batch-properties,
+#overview {
+    li {
+        .prop:first-of-type{
+            &::after {
+                content: " : ";
+            }
+        }
+    }
+}
+
 
 .prop {
     display: inline-block;
