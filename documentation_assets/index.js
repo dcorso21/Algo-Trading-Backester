@@ -86,15 +86,11 @@ main.onscroll = (e) => {
 
     if (navTitleVisible) {
         if (e.target.scrollTop <= 300) {
-            navTitle.classList.add("fadeOut");
-            navTitle.classList.remove("fadeIn");
             navTitle.innerHTML = "";
             navTitleVisible = false;
         }
     } else {
         if (e.target.scrollTop > 300) {
-            navTitle.classList.add("fadeIn");
-            navTitle.classList.remove("fadeOut");
             navTitle.innerHTML = "Algorithmic Trading Backtester";
             navTitleVisible = true;
         }
