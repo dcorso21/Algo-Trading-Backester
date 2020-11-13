@@ -1,8 +1,13 @@
 :root {
   --bg: #fff;
   --fg: #000;
-  --header: #4d95d8;
+  --head-text: #fff;
+  --accent: #4d95d8;
   --accent2: #49c285;
+  --path: rgba(43, 67, 77, 0.872);
+  --folder: rgba(29, 29, 29, 0.118);
+  --folder2: rgba(252, 252, 252, 0.625);
+  --file: rgba(255, 255, 255, 0.598);
   --def: #a8a8a8;
   --prop: #757575;
   --lay2: rgba(192, 192, 192, 0.425);
@@ -10,7 +15,20 @@
 }
 
 .dark {
-  filter: invert(1);
+  transition: all 0.3s;
+  --bg: #000;
+  --fg: #cccccc;
+  --head-text: #fff;
+  --accent: #4f4dd8;
+  --accent2: #498cc2;
+  --path: rgba(114, 115, 116, 0.872);
+  --folder: rgba(255, 255, 255, 0.118);
+  --folder2: rgba(53, 53, 53, 0.625);
+  --file: rgba(255, 255, 255, 0.068);
+  --def: #a8a8a8;
+  --prop: #757575;
+  --lay2: rgba(192, 192, 192, 0.425);
+  --lay3: rgba(243, 243, 243, 0.425);
 }
 
 html, body, div, span, applet, object,
@@ -131,7 +149,7 @@ body {
   justify-content: center;
   align-items: center;
   justify-content: start;
-  background-color: var(--header);
+  background-color: var(--accent);
 }
 .table-of-contents::-webkit-scrollbar-corner {
   background: transparent;
@@ -158,7 +176,7 @@ body {
   transform: translateX(-5px);
 }
 .table-of-contents a:hover {
-  color: var(--header);
+  color: var(--accent);
   background-color: var(--bg);
   transform: translateX(0px);
 }
@@ -205,7 +223,7 @@ body {
   }
 }
 a {
-  color: var(--header);
+  color: var(--accent);
 }
 
 #compare-properties,
@@ -213,7 +231,7 @@ a {
 #overview {
   margin: 10px 10%;
   padding: 10px 20px;
-  background-color: var(--lay2);
+  background-color: var(--folder);
   border-radius: 20px;
 }
 #compare-properties li,
@@ -221,8 +239,23 @@ a {
 #overview li {
   padding: 10px 10px;
   margin: 10px 0;
-  background-color: var(--lay3);
+  background-color: var(--folder2);
   border-radius: 20px;
+}
+#compare-properties li .prop:first-of-type,
+#batch-properties li .prop:first-of-type,
+#overview li .prop:first-of-type {
+  padding: 2px 5px;
+  border-radius: 6px;
+  font-weight: 300;
+  background-color: transparent;
+  border: 1px solid var(--accent);
+  color: var(--fg);
+}
+
+#batch-properties li .prop:first-of-type::after,
+#overview li .prop:first-of-type::after {
+  content: " : ";
 }
 
 .prop {
@@ -247,8 +280,8 @@ a {
 /*  Header  */
 .top-head {
   padding-top: 50px;
-  color: var(--bg);
-  background: linear-gradient(to right, var(--header), var(--accent2));
+  color: var(--head-text);
+  background: linear-gradient(to right, var(--accent), var(--accent2));
   height: 30vh;
   display: flex;
   flex-direction: column;
@@ -274,44 +307,44 @@ section em {
 }
 section h1 {
   font-size: 40px;
-  color: var(--header);
-  border-bottom: 2px solid var(--header);
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
   padding: 20px 0;
 }
 section h2 {
   font-size: 33px;
-  color: var(--header);
+  color: var(--accent);
 }
 section h3 {
   font-size: 22px;
-  color: var(--header);
+  color: var(--accent);
 }
 section h4 {
   font-size: 17px;
-  color: var(--header);
+  color: var(--accent);
 }
 
 /*  FilePath Fields  */
 .path {
-  background-color: rgba(43, 67, 77, 0.872);
+  background-color: var(--path);
   padding: 1px 5px;
   border-radius: 10px;
-  color: white;
+  color: var(--bg);
   font-style: italic;
 }
 
 .folder {
-  background-color: rgba(29, 29, 29, 0.118);
+  background-color: var(--folder);
   margin: 10px;
   padding: 10px;
   border-radius: 10px;
 }
 .folder .folder {
-  background-color: rgba(252, 252, 252, 0.625);
+  background-color: var(--folder2);
 }
 
 .file {
-  background-color: rgba(255, 255, 255, 0.598);
+  background-color: var(--file);
   margin: 10px;
   padding: 10px;
   border-radius: 10px;
@@ -321,7 +354,7 @@ section h4 {
   border-radius: 6px;
   font-weight: 300;
   background-color: transparent;
-  border: 1px solid var(--header);
+  border: 1px solid var(--accent);
   color: var(--fg);
 }
 
@@ -334,7 +367,7 @@ pre {
 /*  Sticky Nav Bar  */
 .top-nav {
   position: relative;
-  background: linear-gradient(to right, var(--header), var(--accent2));
+  background: linear-gradient(to right, var(--accent), var(--accent2));
   position: sticky;
   top: 0;
   display: flex;
@@ -343,7 +376,8 @@ pre {
   display: flex;
 }
 .top-nav .icons i {
-  color: var(--bg);
+  width: 20px;
+  color: var(--head-text);
   padding: 20px;
   font-size: 20px;
   cursor: pointer;
@@ -352,7 +386,7 @@ pre {
   border-top-right-radius: 35px;
 }
 .top-nav .icons i:hover {
-  color: var(--header);
+  color: var(--accent);
   background-color: var(--bg);
 }
 .top-nav .title {
@@ -365,7 +399,7 @@ pre {
 }
 .top-nav .title #nav-title {
   font-size: 1.3rem;
-  color: var(--bg);
+  color: var(--head-text);
   margin: 0;
   padding: 0;
   font-weight: 100;

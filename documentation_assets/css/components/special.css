@@ -1,8 +1,13 @@
 :root {
   --bg: #fff;
   --fg: #000;
-  --header: #4d95d8;
+  --head-text: #fff;
+  --accent: #4d95d8;
   --accent2: #49c285;
+  --path: rgba(43, 67, 77, 0.872);
+  --folder: rgba(29, 29, 29, 0.118);
+  --folder2: rgba(252, 252, 252, 0.625);
+  --file: rgba(255, 255, 255, 0.598);
   --def: #a8a8a8;
   --prop: #757575;
   --lay2: rgba(192, 192, 192, 0.425);
@@ -10,11 +15,24 @@
 }
 
 .dark {
-  filter: invert(1);
+  transition: all 0.3s;
+  --bg: #000;
+  --fg: #cccccc;
+  --head-text: #fff;
+  --accent: #4f4dd8;
+  --accent2: #498cc2;
+  --path: rgba(114, 115, 116, 0.872);
+  --folder: rgba(255, 255, 255, 0.118);
+  --folder2: rgba(53, 53, 53, 0.625);
+  --file: rgba(255, 255, 255, 0.068);
+  --def: #a8a8a8;
+  --prop: #757575;
+  --lay2: rgba(192, 192, 192, 0.425);
+  --lay3: rgba(243, 243, 243, 0.425);
 }
 
 a {
-  color: var(--header);
+  color: var(--accent);
 }
 
 #compare-properties,
@@ -22,7 +40,7 @@ a {
 #overview {
   margin: 10px 10%;
   padding: 10px 20px;
-  background-color: var(--lay2);
+  background-color: var(--folder);
   border-radius: 20px;
 }
 #compare-properties li,
@@ -30,8 +48,23 @@ a {
 #overview li {
   padding: 10px 10px;
   margin: 10px 0;
-  background-color: var(--lay3);
+  background-color: var(--folder2);
   border-radius: 20px;
+}
+#compare-properties li .prop:first-of-type,
+#batch-properties li .prop:first-of-type,
+#overview li .prop:first-of-type {
+  padding: 2px 5px;
+  border-radius: 6px;
+  font-weight: 300;
+  background-color: transparent;
+  border: 1px solid var(--accent);
+  color: var(--fg);
+}
+
+#batch-properties li .prop:first-of-type::after,
+#overview li .prop:first-of-type::after {
+  content: " : ";
 }
 
 .prop {
